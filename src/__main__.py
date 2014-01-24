@@ -24,11 +24,13 @@
 ## IN THE SOFTWARE.
 ## **********
 
+import signal
 import sys
 from sdl2 import *
 import sdl2.ext as sdl2ext
 
 import config
+import log
 import cache
 import path
 import file
@@ -44,31 +46,41 @@ class Driftwood:
     def __init__(self):
         """Base class initializer. Also initialize manager classes."""
         self.config = config.ConfigManager(self)
+        self.log = log.LogManager(self.config)
         self.cache = cache.CacheManager(self.config)
         self.path = path.PathManager(self.config)
         self.file = file.FileManager(self.config)
         self.window = window.WindowManager(self.config)
-        self.__running = False
+        self.running = False
 
     def run(self):
         """
         The mainloop.
         """
-        if not self.__running:  # Only run if not already running.
-            self.__running = True
+        if not self.running:  # Only run if not already running.
+            self.running = True
 
-            while self.__running:
+            while self.running:
                 events = sdl2ext.get_events()
                 for event in events:
                     if event.type == SDL_QUIT:
-                        self.__running = False
+                        self.running = False
 
-                self.cache.tick(SDL_GetTicks())
-                SDL_RenderPresent(self.window.renderer)
+                self.cache.tick()
+                #SDL_RenderPresent(self.window.renderer)
 
             return 0
 
 
 if __name__ == "__main__":
+    print("-------------------\n|Project Driftwood|\n-------------------\n\nStarting up...")
+
     entry = Driftwood()
-    sys.exit(entry.run)
+
+    def sigint_handler(signum, frame):
+        entry.running = False
+
+    signal.signal(signal.SIGINT, sigint_handler)
+    signal.signal(signal.SIGTERM, sigint_handler)
+
+    sys.exit(entry.run())

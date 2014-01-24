@@ -5,6 +5,10 @@
 		"size": 102400,
 		"ttl": 300
 	},
+	"log": {
+		"enabled": true,
+		"verbose": true
+	},
 	"path": {
 		"self": "driftwood.pyz",
 		"root": "data/",

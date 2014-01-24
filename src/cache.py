@@ -24,6 +24,8 @@
 ## IN THE SOFTWARE.
 ## **********
 
+from sdl2 import SDL_GetTicks
+
 
 class CacheManager:
     def __init__(self, config):
@@ -98,14 +100,14 @@ class CacheManager:
         """
         self.__cache = {}
 
-    def tick(self, ticks):
+    def tick(self):
         """
         Receives SDL_GetTicks() from the base class, and calls clean() at appropriate times.
 
         @type  ticks: int
         @param ticks: Milliseconds since start.)
         """
-        self.__ticks = ticks
+        self.__ticks = SDL_GetTicks()
         if self.__ticks / 1000 - self.__ticks_since_clean / 1000 >= self.config["cache"]["clean_rate"]:
             self.clean()
 
