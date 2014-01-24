@@ -1,0 +1,21 @@
+{
+	"cache": {
+		"enabled": true,
+		"clean_rate": 60,
+		"size": 102400,
+		"ttl": 300
+	},
+	"path": {
+		"self": "driftwood.pyz",
+		"root": "data/",
+		"path": [
+		]
+	},
+	"window": {
+		"title": "Driftwood",
+		"width": 640,
+		"height": 480,
+		"fullscreen": false
+	}
+}
+

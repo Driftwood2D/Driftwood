@@ -1,0 +1,3 @@
+*.pyz
+.idea
+src/__pycache__
