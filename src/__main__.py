@@ -67,7 +67,8 @@ class Driftwood:
                         self.running = False
 
                 self.cache.tick()
-                #SDL_RenderPresent(self.window.renderer)
+                SDL_RenderClear(self.window.renderer)
+                SDL_RenderPresent(self.window.renderer)
 
             return 0
 
