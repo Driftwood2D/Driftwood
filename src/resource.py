@@ -1,6 +1,6 @@
 ###################################
 ## Project Driftwood             ##
-## file.py                       ##
+## resource.py                   ##
 ## Copyright 2013 PariahSoft LLC ##
 ###################################
 
@@ -24,13 +24,12 @@
 ## IN THE SOFTWARE.
 ## **********
 
-import os, zipfile
+import os
+import zipfile
 
-import cache
 
-
-class FileManager:
-    """Simple file management class which retrieves the contents of a file in the path vfs."""
+class ResourceManager:
+    """Simple resource management class which retrieves the contents of a file in the path vfs."""
 
     def __init__(self, config):
         """

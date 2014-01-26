@@ -38,10 +38,11 @@ class CacheManager:
         self.config = config
         self.__cache = {}
         self.__ticks = 0
-        self.__ticks_since_clean = 0
 
         if self.config["cache"]["enabled"] and self.config["cache"]["size"] > 0 and self.config["cache"]["ttl"] > 0:
             self.__enabled = True
+            self.config.baseclass.tick.register(self.tick, self.config["cache"]["clean_rate"]*1000)
+
         self.__enabled = False
 
     def __contains__(self, item):
@@ -102,21 +103,17 @@ class CacheManager:
 
     def tick(self):
         """
-        Receives SDL_GetTicks() from the base class, and calls clean() at appropriate times.
-
-        @type  ticks: int
-        @param ticks: Milliseconds since start.)
+        Tick callback which calls clean() at appropriate times.
         """
         self.__ticks = SDL_GetTicks()
-        if self.__ticks / 1000 - self.__ticks_since_clean / 1000 >= self.config["cache"]["clean_rate"]:
-            self.clean()
+        self.clean()
 
     def clean(self):
         """
         Perform garbage collection on expired files and clear space when overdrawn.
         """
         for filename in self.__cache:
-            if self.__ticks / 1000 - self.__cache[filename]["timestamp"] >= self.config["cache"]["ttl"]:
+            if self.__ticks / 1000 - self.__cache[filename]["timestamp"] / 1000 >= self.config["cache"]["ttl"]:
                 self.purge(filename)
 
         # TODO: Optimize this next part.
@@ -132,3 +129,5 @@ class CacheManager:
 
             if cachesize / 1000 > self.config["cache"]["size"]:  # We're overdrawn, purge it.
                 self.purge(eldest[0])
+            else: # It's all good.
+                oversized = False

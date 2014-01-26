@@ -1,6 +1,6 @@
 ###################################
 ## Project Driftwood             ##
-## log.py                        ##
+## json.py                       ##
 ## Copyright 2013 PariahSoft LLC ##
 ###################################
 
@@ -24,39 +24,13 @@
 ## IN THE SOFTWARE.
 ## **********
 
-from sdl2 import SDL_GetTicks
+import json
 
 
-class LogManager:
+class JsonFile:
     """
-    This class handles the filtering and formatting of log messages.
+    This class represents and abstracts a single JSON file.
     """
 
-    def __init__(self, config):
-        """
-        LogManager class initializer.
-
-        @type  config: object
-        @param config: The Config class instance.
-        """
-        self.config = config
-
-    def error(self, *chain):
-        """
-        Log an error message if log is enabled.
-
-        @type  chain: list
-        @param chain: Ordered chain of messages.
-        """
-        if self.config["log"]["enabled"]:
-            print("[{0}] ".format(str(SDL_GetTicks())) + ": ".join(chain))
-
-    def info(self, *chain):
-        """
-        Log an info message if log and verbosity are enabled..
-
-        @type  chain: list
-        @param chain: Ordered chain of messages.
-        """
-        if self.config["log"]["enabled"] and self.config["log"]["verbose"]:
-            print("[(0)] ".format(str(SDL_GetTicks())) + ": ".join(chain))
+    def __init__(self, data):
+        self.json = json.loads(data)

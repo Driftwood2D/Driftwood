@@ -53,6 +53,15 @@ class WindowManager:
                                        flags)
         self.renderer = SDL_CreateRenderer(self.window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC)
 
+        self.config.baseclass.tick.register(self.tick)
+
+    def tick(self):
+        """
+        Tick callback which refreshes the renderer.
+        """
+        SDL_RenderClear(self.renderer)
+        SDL_RenderPresent(self.renderer)
+
     def __del__(self):
         """
         Window class destructor.

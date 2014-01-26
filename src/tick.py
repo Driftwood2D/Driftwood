@@ -1,6 +1,6 @@
 ###################################
 ## Project Driftwood             ##
-## log.py                        ##
+## tick.py                       ##
 ## Copyright 2013 PariahSoft LLC ##
 ###################################
 
@@ -24,39 +24,60 @@
 ## IN THE SOFTWARE.
 ## **********
 
+from sdl2 import SDL_Delay
 from sdl2 import SDL_GetTicks
 
 
-class LogManager:
+class TickManager:
     """
-    This class handles the filtering and formatting of log messages.
+    This class manages tick callbacks.
     """
 
     def __init__(self, config):
         """
-        LogManager class initializer.
+        TickManager class initializer.
 
         @type  config: object
         @param config: The Config class instance.
         """
         self.config = config
+        self.__registry = []
 
-    def error(self, *chain):
+    def register(self, callback, delay=0):
         """
-        Log an error message if log is enabled.
+        Register a tick callback, with an optional delay between calls.
 
-        @type  chain: list
-        @param chain: Ordered chain of messages.
+        @type  callback: function
+        @param callback: Callback to register.
+        @type  delay: int
+        @param delay: (Optional) Delay between calls.
         """
-        if self.config["log"]["enabled"]:
-            print("[{0}] ".format(str(SDL_GetTicks())) + ": ".join(chain))
+        for reg in self.__registry:
+            if reg[2] == callback:
+                return
+        self.__registry.append([SDL_GetTicks(), delay, callback])
 
-    def info(self, *chain):
+    def unregister(self, callback):
         """
-        Log an info message if log and verbosity are enabled..
+        Unregister a tick callback.
 
-        @type  chain: list
-        @param chain: Ordered chain of messages.
+        @type  callback: function
+        @param callback: Callback to register.
         """
-        if self.config["log"]["enabled"] and self.config["log"]["verbose"]:
-            print("[(0)] ".format(str(SDL_GetTicks())) + ": ".join(chain))
+        for n, reg in enumerate(self.__registry):
+            if reg[2] == callback:
+                del self.__registry[n]
+
+    def tick(self):
+        """
+        Call all registered tick callbacks not currently delayed, and regulate tps.
+        """
+        for n, reg in enumerate(self.__registry):
+            if reg[1]:
+                if SDL_GetTicks() - reg[0] >= reg[1]:
+                    self.__registry[n][0] = SDL_GetTicks()
+                    reg[2]()
+            else:
+                reg[2]()
+
+        SDL_Delay(int(1000 / self.config["tick"]["tps"])) # Regulate ticks per second.
