@@ -3,7 +3,7 @@
 all: driftwood.pyz
 
 driftwood.pyz:
-	cd src && zip -r driftwood.pyz *.py basedata/ filetype/
+	cd src && zip -r driftwood.pyz *.py basedata/
 	mv src/driftwood.pyz ./
 
 clean:

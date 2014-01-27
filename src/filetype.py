@@ -1,6 +1,6 @@
 ###################################
 ## Project Driftwood             ##
-## image.py                      ##
+## filetype.py                   ##
 ## Copyright 2013 PariahSoft LLC ##
 ###################################
 
@@ -24,10 +24,24 @@
 ## IN THE SOFTWARE.
 ## **********
 
-import sys
-from io import BytesIO
+import json
 from sdl2 import *
 from sdl2.sdlimage import *
+
+
+# This module contains the filetype handler classes.
+
+class AudioFile:
+    """
+    This class represents and abstracts a single OGG Vorbis audio file.
+    """
+    def __init__(self, data):
+        self.__data = data
+        self.__open(self.__data)
+
+    def __open(self, data):
+        pass
+        # TODO: Complicated magic with Mix_LoadMUS_RW
 
 
 class ImageFile:
@@ -62,3 +76,13 @@ class ImageFile:
     def __del__(self):
         SDL_FreeSurface(self.surface)
         SDL_DestroyTexture(self.texture)
+
+
+class JsonFile:
+    """
+    This class represents and abstracts a single JSON file. This stub is here to provide JSON handling to scripts
+    without requiring an external import.
+    """
+
+    def __init__(self, data):
+        self.json = json.loads(data)

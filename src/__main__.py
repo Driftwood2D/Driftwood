@@ -31,6 +31,7 @@ import sdl2.ext as sdl2ext
 
 import config
 import log
+import filetype
 import tick
 import cache
 import path
@@ -48,11 +49,13 @@ class Driftwood:
         """Base class initializer. Also initialize manager classes."""
         self.config = config.ConfigManager(self)
         self.log = log.LogManager(self.config)
+        self.filetype = filetype  # Provide this interface to scripts.
         self.tick = tick.TickManager(self.config)
         self.cache = cache.CacheManager(self.config)
         self.path = path.PathManager(self.config)
         self.resource = resource.ResourceManager(self.config)
         self.window = window.WindowManager(self.config)
+
         self.running = False
 
     def run(self):
@@ -63,12 +66,12 @@ class Driftwood:
             self.running = True
 
             while self.running:
-                sdlevents = sdl2ext.get_events() # Process SDL events.
+                sdlevents = sdl2ext.get_events()  # Process SDL events.
                 for event in sdlevents:
                     if event.type == SDL_QUIT:
                         self.running = False
 
-                self.tick.tick() # Process tick callbacks.
+                self.tick.tick()  # Process tick callbacks.
 
             return 0
 
