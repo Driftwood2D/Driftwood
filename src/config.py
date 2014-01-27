@@ -51,6 +51,7 @@ class ConfigManager:
         self.__config_file = ""
         self.__config = {}
         self.__cmdline_args = self.__read_cmdline()
+        print("Project Driftwood\nStarting up...")
         self.__prepare_config()
 
     def __contains__(self, item):

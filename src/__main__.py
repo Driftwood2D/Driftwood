@@ -74,8 +74,6 @@ class Driftwood:
 
 
 if __name__ == "__main__":
-    print("-------------------\n|Project Driftwood|\n-------------------\n\nStarting up...")
-
     entry = Driftwood()
 
     def sigint_handler(signum, frame):

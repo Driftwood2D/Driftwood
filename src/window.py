@@ -40,6 +40,7 @@ class WindowManager:
         @param config: The Config class instance.
         """
         self.config = config
+        self.__frame = None
 
         SDL_Init(SDL_INIT_EVERYTHING)
 
@@ -55,11 +56,22 @@ class WindowManager:
 
         self.config.baseclass.tick.register(self.tick)
 
+    def frame(self, tex):
+        """
+        Copy an SDL_Texture frame onto the window.
+
+        @type  tex: SDL_Texture
+        @param tex: New frame.
+        """
+        self.__frame = tex
+
     def tick(self):
         """
         Tick callback which refreshes the renderer.
         """
         SDL_RenderClear(self.renderer)
+        if self.__frame:
+            SDL_RenderCopy(self.renderer, self.__frame, None, None)
         SDL_RenderPresent(self.renderer)
 
     def __del__(self):
@@ -69,4 +81,3 @@ class WindowManager:
         SDL_DestroyWindow(self.window)
         SDL_DestroyRenderer(self.renderer)
         SDL_Quit()
-

@@ -41,7 +41,7 @@ class CacheManager:
 
         if self.config["cache"]["enabled"] and self.config["cache"]["size"] > 0 and self.config["cache"]["ttl"] > 0:
             self.__enabled = True
-            self.config.baseclass.tick.register(self.tick, self.config["cache"]["clean_rate"]*1000)
+            self.config.baseclass.tick.register(self.tick, self.config["cache"]["clean_rate"] * 1000)
 
         self.__enabled = False
 
