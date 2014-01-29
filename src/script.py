@@ -63,7 +63,7 @@ class ScriptManager:
         @param filename: Name of python script to load.
         """
         if not filename in self.__modules:
-            importpath = self.__path.check(filename)
+            importpath = self.__path.find(filename)
 
             if importpath:
                 self.__log.info("Script", "loaded", filename)

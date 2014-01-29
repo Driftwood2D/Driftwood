@@ -74,26 +74,35 @@ class Driftwood:
 
     def run(self):
         """
-        The mainloop.
+        Perform startup procedures and enter the mainloop.
         """
-        if not self.running:  # Only run if not already running.
+        # Only run if not already running.
+        if not self.running:
             self.running = True
 
-            if not self.path.check("init.py"):
+            # Execute the init script, or shutdown if not present.
+            if not self.path.find("init.py"):
                 self.log.log("ERROR", "init.py missing")
                 self.running = False
             else:
                 self.script.load("init.py")
 
+            # This is the mainloop.
             while self.running:
-                sdlevents = sdl2ext.get_events()  # Process SDL events.
+                # Process SDL events.
+                sdlevents = sdl2ext.get_events()
                 for event in sdlevents:
                     if event.type == SDL_QUIT:
+                        # Stop running.
                         self.running = False
+
                     elif event.type == SDL_KEYDOWN:
-                        self.input.key_down(event.key.keysym.sym)  # Pass a keydown to the Input Manager.
+                        # Pass a keydown to the Input Manager.
+                        self.input.key_down(event.key.keysym.sym)
+
                     elif event.type == SDL_KEYUP:
-                        self.input.key_up(event.key.keysym.sym)  # Pass a keyup to the Input Manager.
+                        # Pass a keyup to the Input Manager.
+                        self.input.key_up(event.key.keysym.sym)
 
                 self.tick.tick()  # Process tick callbacks.
 
@@ -102,13 +111,15 @@ class Driftwood:
 
 
 if __name__ == "__main__":
+    # Set up the entry point.
     entry = Driftwood()
     __builtins__.Driftwood = entry
 
+    # Handle shutting down gracefully on INT and TERM signals.
     def sigint_handler(signum, frame):
         entry.running = False
-
     signal.signal(signal.SIGINT, sigint_handler)
     signal.signal(signal.SIGTERM, sigint_handler)
 
+    # Run Driftwood and exit with its return code.
     sys.exit(entry.run())
