@@ -29,7 +29,9 @@ import zipfile
 
 
 class ResourceManager:
-    """Simple resource management class which retrieves the contents of a file in the path vfs."""
+    """
+    Simple resource management class which retrieves the contents of a file in the path vfs.
+    """
 
     def __init__(self, config):
         """
@@ -39,6 +41,7 @@ class ResourceManager:
         @param config: The Config class instance.
         """
         self.config = config
+        self.__log = self.config.baseclass.log
         self.__cache = self.config.baseclass.cache
         self.__path = self.config.baseclass.path
 
@@ -49,9 +52,9 @@ class ResourceManager:
 
     def __getitem__(self, item):
         if self.__contains__(item):
-            return self.get(item)
+            return self.request(item)
 
-    def get(self, filename):
+    def request(self, filename):
         """
         Retrieve the contents of a file.
 
@@ -60,6 +63,8 @@ class ResourceManager:
         @rtype:          str
         @return:         File contents.
         """
+        self.__log.info("Resource", "requested", filename)
+
         if filename in self.__cache:  # Is this already cached?
             return self.__cache[filename]
 

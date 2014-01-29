@@ -41,6 +41,7 @@ class TickManager:
         @param config: The Config class instance.
         """
         self.config = config
+        self.__log = self.config.baseclass.log
         self.__registry = []
 
     def register(self, callback, delay=0):
@@ -50,12 +51,14 @@ class TickManager:
         @type  callback: function
         @param callback: Callback to register.
         @type  delay: int
-        @param delay: (Optional) Delay between calls.
+        @param delay: (Optional) Delay in seconds between calls.
         """
         for reg in self.__registry:
             if reg[2] == callback:
                 return
         self.__registry.append([SDL_GetTicks(), delay, callback])
+
+        self.__log.info("Tick", "registered", callback.__qualname__)
 
     def unregister(self, callback):
         """
@@ -67,6 +70,8 @@ class TickManager:
         for n, reg in enumerate(self.__registry):
             if reg[2] == callback:
                 del self.__registry[n]
+
+        self.__log.info("Tick", "unregistered", callback.__qualname__)
 
     def tick(self):
         """

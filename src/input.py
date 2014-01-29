@@ -1,6 +1,6 @@
 ###################################
 ## Project Driftwood             ##
-## window.py                     ##
+## input.py                      ##
 ## Copyright 2013 PariahSoft LLC ##
 ###################################
 
@@ -24,65 +24,70 @@
 ## IN THE SOFTWARE.
 ## **********
 
-from sdl2 import *
-
-
-class WindowManager:
+class InputManager:
     """
-    SDL window manager class.
+    This class manages keyboard input.
     """
 
     def __init__(self, config):
         """
-        WindowManager class initializer. Initializes SDL, and creates a window and a renderer.
+        InputManager class initializer.
 
         @type  config: object
         @param config: The Config class instance.
         """
         self.config = config
-        self.__frame = None
-        self.__prepare_window()
+        self.__registry = {}
+        self.__stack = []
 
         self.config.baseclass.tick.register(self.tick)
 
-    def __prepare_window(self):
+    def key_down(self, keysym):
         """
-        Prepare the window for use.
+        Push a keypress onto the input stack if not present.
+
+        @type  keysym: SDLKey
+        @param keysym: Key which was pressed.
         """
-        SDL_Init(SDL_INIT_EVERYTHING)
+        if not keysym in self.__stack:
+            self.__stack.insert(0, keysym)
 
-        if self.config["window"]["fullscreen"] == True:
-            flags = SDL_WINDOW_SHOWN | SDL_WINDOW_FULLSCREEN
-        else:
-            flags = SDL_WINDOW_SHOWN
-
-        self.window = SDL_CreateWindow(self.config["window"]["title"].encode(), SDL_WINDOWPOS_CENTERED,
-                                       SDL_WINDOWPOS_CENTERED, self.config["window"]["width"],
-                                       self.config["window"]["height"], flags)
-        self.renderer = SDL_CreateRenderer(self.window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC)
-
-    def frame(self, tex):
+    def key_up(self, keysym):
         """
-        Copy an SDL_Texture frame onto the window.
+        Remove a keypress from the input stack if present.
 
-        @type  tex: SDL_Texture
-        @param tex: New frame.
+        @type  keysym: SDLKey
+        @param keysym: Key which was released.
         """
-        self.__frame = tex
+        if keysym in self.__stack:
+            self.__stack.remove(keysym)
+
+    def register(self, keysym, callback):
+        """
+        Register an input callback.
+
+        @type  keysym: SDLKey
+        @param keysym: Keypress which triggers the callback.
+        @type  callback: function
+        @param callback: Function to be called on keypress.
+        """
+        if not keysym in self.__registry:
+            self.__registry[keysym] = callback
+
+    def unregister(self, keysym):
+        """
+        Unegister an input callback.
+
+        @type  keysym: SDLKey
+        @param keysym: Keypress which triggers the callback.
+        """
+        if keysym in self.__registry:
+            del self.__registry[keysym]
 
     def tick(self):
         """
-        Tick callback which refreshes the renderer.
+        If there is a keypress on top of the stack and it maps to a callback in the registry, call it.
         """
-        SDL_RenderClear(self.renderer)
-        if self.__frame:
-            SDL_RenderCopy(self.renderer, self.__frame, None, None)
-        SDL_RenderPresent(self.renderer)
-
-    def __del__(self):
-        """
-        Window class destructor.
-        """
-        SDL_DestroyWindow(self.window)
-        SDL_DestroyRenderer(self.renderer)
-        SDL_Quit()
+        if self.__stack:
+            if self.__stack[0] in self.__registry:
+                self.__registry[self.__stack[0]]()

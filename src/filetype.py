@@ -35,6 +35,7 @@ class AudioFile:
     """
     This class represents and abstracts a single OGG Vorbis audio file.
     """
+
     def __init__(self, data):
         self.__data = data
         self.__open(self.__data)

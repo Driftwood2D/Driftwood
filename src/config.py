@@ -73,15 +73,33 @@ class ConfigManager:
         @rtype:  object
         @return: result of parser.parse_args().
         """
-        parser = argparse.ArgumentParser(description="Project Driftwood PreAlpha")
+        parser = argparse.ArgumentParser(description="Project Driftwood PreAlpha",
+                                         formatter_class=lambda prog: argparse.HelpFormatter(prog,
+                                                                                             max_help_position=40))
         parser.add_argument("config", nargs='?', default="./config.json", help="config file to use")
         parser.add_argument("--path", nargs=1, dest="path", metavar="<name,...>", help="set path")
         parser.add_argument("--root", nargs=1, dest="root", metavar="<root>", help="set path root")
         parser.add_argument("--size", nargs=1, dest="size", metavar="<WxH>", help="set window dimensions")
-        group = parser.add_mutually_exclusive_group()
-        group.add_argument("--fullscreen", action="store_true", dest="fullscreen", help="run in fullscreen mode")
-        group.add_argument("--window", action="store_false", dest="fullscreen", help="run in windowed mode")
+        parser.add_argument("--cache-size", nargs=1, dest="cachesize", metavar="<megabytes>", help="set max cache size")
+        parser.add_argument("--cache-ttl", nargs=1, dest="cachettl", metavar="<seconds>", help="set cache time-to-live")
+        parser.add_argument("--cache-cycle", nargs=1, dest="cachecycle", metavar="<seconds>",
+                            help="set cache clean cycle delay")
+        parser.add_argument("--tps", nargs=1, dest="tps", metavar="<hertz>", help="set ticks-per-second")
+
+        group1 = parser.add_mutually_exclusive_group()
+        group1.add_argument("--window", default=None, action="store_false", dest="fullscreen",
+                            help="run in windowed mode")
+        group1.add_argument("--fullscreen", default=None, action="store_true", dest="fullscreen",
+                            help="run in fullscreen mode")
+
+        group2 = parser.add_mutually_exclusive_group()
+        group2.add_argument("--quiet", default=None, action="store_false", dest="verbose",
+                            help="run in quiet logging mode")
+        group2.add_argument("--verbose", default=None, action="store_true", dest="verbose",
+                            help="run in verbose logging mode")
+
         parser.add_argument("--version", action="store_true", dest="version", help="print the version string")
+
         return parser.parse_args()
 
     def __prepare_config(self):
@@ -97,13 +115,34 @@ class ConfigManager:
 
         if self.__cmdline_args.path:
             self.__config["path"]["path"] = self.__cmdline_args.path[0].split(',')
+
         if self.__cmdline_args.root:
             self.__config["path"]["root"] = self.__cmdline_args.root
+
         if self.__cmdline_args.size:
             w, h = self.__cmdline_args.size[0].split('x')
             self.__config["window"]["width"], self.__config["window"]["height"] = int(w), int(h)
+
+        if self.__cmdline_args.cachesize:
+            self.__config["cache"]["size"] = int(self.__cmdline_args.cachesize)
+
+        if self.__cmdline_args.cachettl:
+            self.__config["cache"]["ttl"] = int(self.__cmdline_args.cachettl)
+
+        if self.__cmdline_args.cachecycle:
+            self.__config["cache"]["cycle"] = int(self.__cmdline_args.cachecycle)
+
+        if self.__cmdline_args.tps:
+            self.__config["tick"]["tps"] = int(self.__cmdline_args.tps)
+
         if self.__cmdline_args.fullscreen != None:
             if self.__cmdline_args.fullscreen:
                 self.__config["window"]["fullscreen"] = True
             else:
                 self.__config["window"]["fullscreen"] = False
+
+        if self.__cmdline_args.verbose != None:
+            if self.__cmdline_args.verbose:
+                self.__config["log"]["verbose"] = True
+            else:
+                self.__config["log"]["verbose"] = False

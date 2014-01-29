@@ -28,6 +28,11 @@ from sdl2 import SDL_GetTicks
 
 
 class CacheManager:
+    """
+    This class handles the cache of recently used files. If enabled, files are stored in memory for a specified period
+    of time and up to the specified maximum cache size.
+    """
+
     def __init__(self, config):
         """
         CacheManager class initializer.
@@ -36,12 +41,14 @@ class CacheManager:
         @param config: The Config class instance.
         """
         self.config = config
+        self.__log = self.config.baseclass.log
         self.__cache = {}
+        self.__cachesize = 0
         self.__ticks = 0
 
         if self.config["cache"]["enabled"] and self.config["cache"]["size"] > 0 and self.config["cache"]["ttl"] > 0:
             self.__enabled = True
-            self.config.baseclass.tick.register(self.tick, self.config["cache"]["clean_rate"] * 1000)
+            self.config.baseclass.tick.register(self.tick, self.config["cache"]["cycle"] * 1000)
 
         self.__enabled = False
 
@@ -61,28 +68,34 @@ class CacheManager:
 
     def upload(self, filename, contents):
         """
-        Upload a file into the cache if enabled.
+        Upload a file into the cache if the cache is enabled and the file won't push the cache over its size limit.
 
         @type  filename: str
         @param filename: Name of file to upload.
         @type  contents: str
         @param contents: Contents of file to upload.
         """
-        if not self.__enabled:
-            pass
+        if not self.__enabled or (self.__cachesize + len(contents)) / 1048576 > self.config["cache"]["size"]:
+            self.__log.error("WARNING", "Cache", "upload", "cache full")
+            return
 
         self.__cache[filename] = {}
         self.__cache[filename]["timestamp"] = self.__ticks
         self.__cache[filename]["contents"] = contents
+        self.__cachesize += len(contents)
+
+        self.__log.info("Cache", "uploaded", filename)
 
     def download(self, filename):
         """
-        Download a file from the cache if present.
+        Download a file from the cache if present, and update the timestamp.
 
         @type  filename: str
         @param filename: Name of file to download.
         """
         if filename in self.__cache:
+            self.__cache[filename]["timestamp"] = self.__ticks
+            self.__log.info("Cache", "downloaded", filename)
             return self.__cache[filename]["contents"]
 
     def purge(self, filename):
@@ -93,13 +106,16 @@ class CacheManager:
         @param filename: Name of file to purge.
         """
         if filename in self.__cache:
+            self.__cachesize -= len(self.__cache[filename]["contents"])
             del self.__cache[filename]
+            self.__log.info("Cache", "purged", filename)
 
     def flush(self):
         """
         Flush the cache.
         """
         self.__cache = {}
+        self.__log.info("Cache", "flushed")
 
     def tick(self):
         """
@@ -110,24 +126,10 @@ class CacheManager:
 
     def clean(self):
         """
-        Perform garbage collection on expired files and clear space when overdrawn.
+        Perform garbage collection on expired files.
         """
         for filename in self.__cache:
             if self.__ticks / 1000 - self.__cache[filename]["timestamp"] / 1000 >= self.config["cache"]["ttl"]:
                 self.purge(filename)
 
-        # TODO: Optimize this next part.
-        oversized = True
-        while oversized:  # Check if we're overdrawn and delete the oldest files until under the size limit.
-            cachesize = 0
-            eldest = [{}, self.__ticks]
-            for filename in self.__cache:  # Calculate the size in memory of the cache.
-                cachesize += self.__cache[filename]["contents"].__len__()
-                if self.__cache[filename]["timestamp"] < eldest[1]:  # Find the oldest file.
-                    eldest[0] = filename
-                    eldest[1] = self.__cache[filename]["timestamp"]
-
-            if cachesize / 1000 > self.config["cache"]["size"]:  # We're overdrawn, purge it.
-                self.purge(eldest[0])
-            else: # It's all good.
-                oversized = False
+        self.__log.info("Cache", "cleaned")

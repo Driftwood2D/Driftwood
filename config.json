@@ -1,8 +1,8 @@
 {
 	"cache": {
 		"enabled": true,
-		"clean_rate": 60,
-		"size": 102400,
+		"cycle": 60,
+		"size": 100,
 		"ttl": 300
 	},
 	"log": {
@@ -13,6 +13,7 @@
 		"self": "driftwood.pyz",
 		"root": "data/",
 		"path": [
+			"test/"
 		]
 	},
 	"tick": {

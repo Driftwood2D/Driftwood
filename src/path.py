@@ -35,8 +35,6 @@ class PathManager:
 
     The last item on the path has the highest priority; if a file exists in multiple pathnames, the last occurence is
     the only one recorded in the virtual filesystem.
-
-    This class keeps track of files, but does not read them. For file management, see the File class.
     """
 
     def __init__(self, config):
@@ -47,11 +45,15 @@ class PathManager:
         @param config: The Config class instance.
         """
         self.config = config
+        self.__log = self.config.baseclass.log
         self.__root = self.config["path"]["root"] # Path root.
         self.__path = [self.config["path"]["self"]] # Start with base module.
         self.__vfs = {}
 
-        self.append(self.config["path"]["path"]) # Start with the configured path.
+        if self.config["path"]["path"]:
+            self.append(self.config["path"]["path"]) # Start with the configured path.
+        else:
+            self.rebuild()
 
     def examine(self, pathname):
         """
@@ -92,6 +94,8 @@ class PathManager:
             for name in filelist:
                 self.__vfs[name] = pathname
 
+        self.__log.info("Path", "rebuilt")
+
     def prepend(self, pathnames):
         """
         Prepend additional pathnames to the path list, preserving their order. If any of the pathnames already exist,
@@ -100,6 +104,8 @@ class PathManager:
         @type  pathnames: list(str)
         @param pathnames: Pathnames to prepend.
         """
+        if not pathnames:
+            return
         pathnames = list(pathnames)
 
         i = 0
@@ -111,6 +117,9 @@ class PathManager:
 
         pathnames.extend(self.__path)
         self.__path = pathnames
+
+        self.__log.info("Path", "prepended", ", ".join(pathnames))
+
         self.rebuild()
 
     def append(self, pathnames):
@@ -121,6 +130,8 @@ class PathManager:
         @type  pathnames: list(str)
         @param pathnames: Pathnames to append.
         """
+        if not pathnames:
+            return
         pathnames = list(pathnames)
 
         i = 0
@@ -131,6 +142,9 @@ class PathManager:
             i += 1
 
         self.__path.extend(pathnames)
+
+        self.__log.info("Path", "appended", ", ".join(pathnames))
+
         self.rebuild()
 
     def remove(self, pathnames):
@@ -140,12 +154,16 @@ class PathManager:
         @type  pathnames: list(str)
         @param pathnames: Pathnames to remove.
         """
+        if not pathnames:
+            return
         pathnames = list(pathnames)
 
         for pn in pathnames:
             pn = os.path.join(self.__root, pn)  # Search in root where pathnames are jailed.
             if pn in self.__path:
                 self.__path.remove(pn)
+
+        self.__log.info("Path", "removed", ", ".join(pathnames))
 
         self.rebuild()
 

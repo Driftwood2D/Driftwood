@@ -1,4 +1,6 @@
 *.pyz
+*.pyc
 .idea
 __pycache__
+TODO
 

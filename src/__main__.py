@@ -33,28 +33,39 @@ import config
 import log
 import filetype
 import tick
-import cache
 import path
+import cache
 import resource
+import input
 import window
+import viewport
+import area
+import script
 
 
 class Driftwood:
     """
     The top-level base class, containing the manager class instances and the mainloop. The instance of this class is
-    passed to event scripts as an API reference.
+    passed to scripts as an API reference.
     """
 
     def __init__(self):
-        """Base class initializer. Also initialize manager classes."""
+        """
+        Base class initializer. Also initialize manager classes. Manager classes and their methods form the Driftwood
+        Scripting API.
+        """
         self.config = config.ConfigManager(self)
         self.log = log.LogManager(self.config)
         self.filetype = filetype  # Provide this interface to scripts.
         self.tick = tick.TickManager(self.config)
-        self.cache = cache.CacheManager(self.config)
         self.path = path.PathManager(self.config)
+        self.cache = cache.CacheManager(self.config)
         self.resource = resource.ResourceManager(self.config)
+        self.input = input.InputManager(self.config)
         self.window = window.WindowManager(self.config)
+        self.viewport = viewport.ViewportManager(self.config)
+        #self.area = area.AreaManager(self.config)
+        self.script = script.ScriptManager(self.config)
 
         self.running = False
 
@@ -70,14 +81,20 @@ class Driftwood:
                 for event in sdlevents:
                     if event.type == SDL_QUIT:
                         self.running = False
+                    elif event.type == SDL_KEYDOWN:
+                        self.input.key_down(event.key.keysym.sym)  # Pass a keydown to the Input Manager.
+                    elif event.type == SDL_KEYUP:
+                        self.input.key_up(event.key.keysym.sym)  # Pass a keyup to the Input Manager.
 
                 self.tick.tick()  # Process tick callbacks.
 
+            print("Shutting down...")
             return 0
 
 
 if __name__ == "__main__":
     entry = Driftwood()
+    __builtins__.Driftwood = entry
 
     def sigint_handler(signum, frame):
         entry.running = False
