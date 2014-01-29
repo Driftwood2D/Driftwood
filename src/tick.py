@@ -24,6 +24,7 @@
 ## IN THE SOFTWARE.
 ## **********
 
+import sys
 from sdl2 import SDL_Delay
 from sdl2 import SDL_GetTicks
 
@@ -58,7 +59,9 @@ class TickManager:
                 return
         self.__registry.append([SDL_GetTicks(), delay, callback])
 
-        self.__log.info("Tick", "registered", callback.__qualname__)
+        # This log message is only possible in python >= 3.3
+        if sys.version_info[0] == 3 and sys.version_info[1] >= 3:
+            self.__log.info("Tick", "registered", callback.__qualname__)
 
     def unregister(self, callback):
         """
@@ -71,7 +74,9 @@ class TickManager:
             if reg[2] == callback:
                 del self.__registry[n]
 
-        self.__log.info("Tick", "unregistered", callback.__qualname__)
+        # This log message is only possible in python >= 3.3
+        if sys.version_info[0] == 3 and sys.version_info[1] >= 3:
+            self.__log.info("Tick", "unregistered", callback.__qualname__)
 
     def tick(self):
         """
@@ -85,4 +90,5 @@ class TickManager:
             else:
                 reg[2]()
 
-        SDL_Delay(int(1000 / self.config["tick"]["tps"])) # Regulate ticks per second.
+        # Regulate ticks per second.
+        SDL_Delay(int(1000 / self.config["tick"]["tps"]))

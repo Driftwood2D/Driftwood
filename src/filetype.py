@@ -63,6 +63,11 @@ class ImageFile:
         self.texture = None
         self.__renderer = renderer_ATTR
         self.__data = data
+
+        # We need to save SDL's destructors because their continued existence is undefined during shutdown.
+        self.__sdl_freesurface = SDL_FreeSurface
+        self.__sdl_destroytexture = SDL_DestroyTexture
+
         self.__open(self.__data)
 
     def __open(self, data):
@@ -73,8 +78,10 @@ class ImageFile:
         self.texture = SDL_CreateTextureFromSurface(self.__renderer, self.surface)
 
     def __del__(self):
-        SDL_FreeSurface(self.surface)
-        SDL_DestroyTexture(self.texture)
+        if self.surface:
+            self.__sdl_freesurface(self.surface)
+        if self.texture:
+            self.__sdl_destroytexture(self.texture)
 
 
 class JsonFile:

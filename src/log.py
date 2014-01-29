@@ -24,6 +24,7 @@
 ## IN THE SOFTWARE.
 ## **********
 
+import sys
 from sdl2 import SDL_GetTicks
 
 
@@ -43,13 +44,13 @@ class LogManager:
 
     def log(self, *chain):
         """
-        Log an error message if log is enabled.
+        Log a message if log is enabled.
 
         @type  chain: list
         @param chain: Ordered chain of messages.
         """
         if self.config["log"]["enabled"]:
-            print("[{0}] ".format(str(SDL_GetTicks())) + ": ".join(chain))
+            self.__print(*chain)
 
     def info(self, *chain):
         """
@@ -59,4 +60,9 @@ class LogManager:
         @param chain: Ordered chain of messages.
         """
         if self.config["log"]["enabled"] and self.config["log"]["verbose"]:
-            print("[{0}] ".format(str(SDL_GetTicks())) + ": ".join(chain))
+            self.__print(*chain)
+
+    def __print(self, *chain):
+        ticks = "[{0}] ".format(str(SDL_GetTicks()))
+        print(ticks + ": ".join(chain))
+        sys.stdout.flush()

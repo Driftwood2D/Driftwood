@@ -43,6 +43,12 @@ class WindowManager:
         self.window = None
         self.renderer = None
         self.__frame = None
+
+        # We need to save SDL's destructors because their continued existence is undefined during shutdown.
+        self.__sdl_destroytexture = SDL_DestroyTexture
+        self.__sdl_destroyrenderer = SDL_DestroyRenderer
+        self.__sdl_destroywindow = SDL_DestroyWindow
+
         self.__prepare_window()
 
         self.config.baseclass.tick.register(self.tick)
@@ -85,6 +91,9 @@ class WindowManager:
         """
         Window class destructor.
         """
-        SDL_DestroyWindow(self.window)
-        SDL_DestroyRenderer(self.renderer)
+        if self.__frame:
+            self.__sdl_destroytexture(self.__frame)
+        self.__sdl_destroyrenderer(self.renderer)
+        self.__sdl_destroywindow(self.window)
+
         SDL_Quit()

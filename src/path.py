@@ -51,7 +51,9 @@ class PathManager:
         self.__vfs = {}
 
         if self.config["path"]["path"]:
-            self.append(self.config["path"]["path"]) # Start with the configured path.
+            # Start with the configured path.
+            self.append(self.config["path"]["path"])
+
         else:
             self.rebuild()
 
@@ -59,19 +61,21 @@ class PathManager:
         """
         Examine a directory or zip archive pathname and return the list of filenames therein.
 
-        @type  pathname: str
+        @type  pathname: list[str]
         @param pathname: Pathname to examine.
         @rtype:          str
         @return:         List of files inside the pathname.
         """
         filelist = []
 
-        if os.path.isdir(pathname):  # This is a directory.
+        # This is a directory.
+        if os.path.isdir(pathname):
             for root, dirs, files in os.walk(pathname):
                 for name in files:
                     filelist.append(name)
 
-        else:  # This is hopefully a zip archive.
+        # This is hopefully a zip archive.
+        else:
             with zipfile.ZipFile(pathname, 'r') as zf:
                 for name in zf.namelist():
                     filelist.append(name)
@@ -84,11 +88,13 @@ class PathManager:
         """
         basepath = self.config["path"]["self"]
 
-        if self.__path[0] != basepath:  # Base module missing.
-            if basepath in self.__path:  # Is it not at the top?
-                self.__path.remove(basepath)  # Remove it from its current position.
-            self.__path.insert(0, basepath)  # Put it back at the top.
+        # If the base module is missing, put it back at the top.
+        if self.__path[0] != basepath:
+            if basepath in self.__path:
+                self.__path.remove(basepath)
+            self.__path.insert(0, basepath)
 
+        # Scan all pathnames for the files they contain and rebuild the vfs.
         for pathname in self.__path:
             filelist = self.examine(pathname)
             for name in filelist:
@@ -101,7 +107,7 @@ class PathManager:
         Prepend additional pathnames to the path list, preserving their order. If any of the pathnames already exist,
         they are moved to the new location.
 
-        @type  pathnames: list(str)
+        @type  pathnames: list[str]
         @param pathnames: Pathnames to prepend.
         """
         if not pathnames:
@@ -110,11 +116,15 @@ class PathManager:
 
         i = 0
         while i < len(pathnames):
-            pathnames[i] = os.path.join(self.__root, pathnames[i])  # Jail the pathname to root.
+            # Jail the pathname to root.
+            pathnames[i] = os.path.join(self.__root, pathnames[i])
+
+            # Remove duplicates so they can be added back in the new order.
             if pathnames[i] in self.__path:
                 self.__path.remove(pathnames[i])
             i += 1
 
+        # Prepend.
         pathnames.extend(self.__path)
         self.__path = pathnames
 
@@ -136,11 +146,15 @@ class PathManager:
 
         i = 0
         while i < len(pathnames):
-            pathnames[i] = os.path.join(self.__root, pathnames[i])  # Jail the pathname to root.
+            # Jail the pathname to root.
+            pathnames[i] = os.path.join(self.__root, pathnames[i])
+
+            # Remove duplicates so they can be added back in the new order.
             if pathnames[i] in self.__path:
                 self.__path.remove(pathnames[i])
             i += 1
 
+        # Append.
         self.__path.extend(pathnames)
 
         self.__log.info("Path", "appended", ", ".join(pathnames))
@@ -151,7 +165,7 @@ class PathManager:
         """
         Remove pathnames from the path list if present.
 
-        @type  pathnames: list(str)
+        @type  pathnames: list[str]
         @param pathnames: Pathnames to remove.
         """
         if not pathnames:
@@ -159,7 +173,10 @@ class PathManager:
         pathnames = list(pathnames)
 
         for pn in pathnames:
-            pn = os.path.join(self.__root, pn)  # Search in root where pathnames are jailed.
+            # Search in root where pathnames are jailed.
+            pn = os.path.join(self.__root, pn)
+
+            # Remove.
             if pn in self.__path:
                 self.__path.remove(pn)
 
@@ -167,7 +184,7 @@ class PathManager:
 
         self.rebuild()
 
-    def check(self, filename, pathname=None):
+    def find(self, filename, pathname=None):
         """
         Return the pathname which owns the filename, if present. If pathname is set, check that specific pathname for
         existence of the file instead of checking the path list.

@@ -46,7 +46,7 @@ class ResourceManager:
         self.__path = self.config.baseclass.path
 
     def __contains__(self, item):
-        if self.__path.check(item):
+        if self.__path.find(item):
             return True
         return False
 
@@ -65,20 +65,26 @@ class ResourceManager:
         """
         self.__log.info("Resource", "requested", filename)
 
-        if filename in self.__cache:  # Is this already cached?
+        # If the file is already cached, return the cached version.
+        if filename in self.__cache:
             return self.__cache[filename]
 
-        pathname = self.__path.check(filename)
+        pathname = self.__path.find(filename)
         if pathname:
-            if os.path.isdir(pathname):  # This is a directory.
+            # This is a directory.
+            if os.path.isdir(pathname):
                 f = open(os.path.join(pathname, filename))
                 contents = f.read()
+                f.close()
 
-            else:  # This is hopefully a zip archive.
+            # This is hopefully a zip archive.
+            else:
                 with zipfile.ZipFile(pathname, 'r') as zf:
                     contents = zf.read(filename)
 
+            # Upload the file to the cache.
             self.__cache.upload(filename, contents)
+
             return contents
 
         else:

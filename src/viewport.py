@@ -35,5 +35,8 @@ class ViewportManager:
         self.__frame = SDL_CreateTexture(self.__window.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING,
                                          self.config["window"]["width"], self.config["window"]["height"])
 
+        # We need to save SDL's destructors because their continued existence is undefined during shutdown.
+        self.__sdl_destroytexture = SDL_DestroyTexture
+
     def __del__(self):
-        SDL_DestroyTexture(self.__frame)
+        self.__sdl_destroytexture(self.__frame)

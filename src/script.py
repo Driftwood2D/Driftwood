@@ -66,24 +66,27 @@ class ScriptManager:
             importpath = self.__path.check(filename)
 
             if importpath:
-                if os.path.isdir(importpath):  # This is a directory.
+                self.__log.info("Script", "loaded", filename)
+
+                # This is a directory.
+                if os.path.isdir(importpath):
                     mname = os.path.splitext(os.path.split(filename)[-1])[0]
                     self.__modules[filename] = imp.load_source(mname, os.path.join(importpath, filename))
 
-                else:  # This is hopefully a zip archive.
+                # This is hopefully a zip archive.
+                else:
                     importer = zipimport.zipimporter(importpath)
                     mpath = self.__convert_path(filename)
                     self.__modules[filename] = importer.load_module(mpath)
 
-                setattr(self.__modules[filename], "Driftwood", self.config.baseclass)  # Give the script our baseclass.
+                # Give the script our baseclass.
+                setattr(self.__modules[filename], "Driftwood", self.config.baseclass)
 
             else:
                 self.__log.log("ERROR", "Script", "no such script", filename)
 
         else:
             self.__log.log("ERROR", "Script", "already loaded", filename)
-
-        self.__log.info("Script", "loaded", filename)
 
     def call(self, filename, func):
         """

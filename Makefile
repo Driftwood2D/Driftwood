@@ -8,4 +8,5 @@ driftwood.pyz:
 
 clean:
 	rm -f driftwood.pyz
+	rm -f src/*.pyc
 
