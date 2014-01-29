@@ -75,8 +75,11 @@ class CacheManager:
         @type  contents: str
         @param contents: Contents of file to upload.
         """
-        if not self.__enabled or (self.__cachesize + len(contents)) / 1048576 > self.config["cache"]["size"]:
-            self.__log.error("WARNING", "Cache", "upload", "cache full")
+        if not self.__enabled:
+            return
+
+        if (self.__cachesize + len(contents)) / 1048576 > self.config["cache"]["size"]:
+            self.__log.log("WARNING", "Cache", "upload", "cache full")
             return
 
         self.__cache[filename] = {}

@@ -27,7 +27,7 @@
 import json
 from sdl2 import *
 from sdl2.sdlimage import *
-
+renderer_ATTR = None  # setattr by the base module for API cleanliness.
 
 # This module contains the filetype handler classes.
 
@@ -52,18 +52,16 @@ class ImageFile:
     Surface and an SDL Texture.
     """
 
-    def __init__(self, renderer, data):
+    def __init__(self, data):
         """
         ImageFile class initializer.
 
-        @type  renderer: SDL_Renderer
-        @param renderer: WindowManager's renderer.
         @type  data: bytes
-        @param renderer: Image data from ResourceManager.
+        @param data: Image data from ResourceManager.
         """
         self.surface = None
         self.texture = None
-        self.__renderer = renderer
+        self.__renderer = renderer_ATTR
         self.__data = data
         self.__open(self.__data)
 

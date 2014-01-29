@@ -29,7 +29,7 @@ import json
 import sys
 
 
-VERSION = "Project Driftwood PreAlpha\nCopyright 2014 PariahSoft LLC"
+VERSION = "Project Driftwood PreAlpha-dev0"
 
 
 class ConfigManager:
@@ -51,8 +51,8 @@ class ConfigManager:
         self.__config_file = ""
         self.__config = {}
         self.__cmdline_args = self.__read_cmdline()
-        print("Project Driftwood\nStarting up...")
         self.__prepare_config()
+        print("Project Driftwood\nStarting up...")
 
     def __contains__(self, item):
         if item in self.__config:
@@ -73,7 +73,7 @@ class ConfigManager:
         @rtype:  object
         @return: result of parser.parse_args().
         """
-        parser = argparse.ArgumentParser(description="Project Driftwood PreAlpha",
+        parser = argparse.ArgumentParser(description=VERSION,
                                          formatter_class=lambda prog: argparse.HelpFormatter(prog,
                                                                                              max_help_position=40))
         parser.add_argument("config", nargs='?', default="./config.json", help="config file to use")
@@ -111,6 +111,7 @@ class ConfigManager:
 
         if self.__cmdline_args.version:  # Print the version string and exit.
             print(VERSION)
+            print("Copyright 2014 PariahSoft LLC")
             sys.exit(0)
 
         if self.__cmdline_args.path:

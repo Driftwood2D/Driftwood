@@ -40,6 +40,8 @@ class WindowManager:
         @param config: The Config class instance.
         """
         self.config = config
+        self.window = None
+        self.renderer = None
         self.__frame = None
         self.__prepare_window()
 

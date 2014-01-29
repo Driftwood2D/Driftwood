@@ -67,6 +67,9 @@ class Driftwood:
         #self.area = area.AreaManager(self.config)
         self.script = script.ScriptManager(self.config)
 
+        # filetype API cleanup
+        setattr(self.filetype, "renderer_ATTR", self.window.renderer)
+
         self.running = False
 
     def run(self):
@@ -75,6 +78,12 @@ class Driftwood:
         """
         if not self.running:  # Only run if not already running.
             self.running = True
+
+            if not self.path.check("init.py"):
+                self.log.log("ERROR", "init.py missing")
+                self.running = False
+            else:
+                self.script.load("init.py")
 
             while self.running:
                 sdlevents = sdl2ext.get_events()  # Process SDL events.

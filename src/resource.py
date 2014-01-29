@@ -80,3 +80,6 @@ class ResourceManager:
 
             self.__cache.upload(filename, contents)
             return contents
+
+        else:
+            self.__log.log("ERROR", "Resource", "no such file", filename)

@@ -31,7 +31,8 @@ import zipimport
 
 class ScriptManager:
     """
-    This class handles loading scripts and calling their functions.
+    This class handles loading scripts and calling their functions. It defines its own method for retrieving the
+    script file (independant of ResourceManager) and internally caches it forever.
     """
 
     def __init__(self, config):
@@ -77,10 +78,12 @@ class ScriptManager:
                 setattr(self.__modules[filename], "Driftwood", self.config.baseclass)  # Give the script our baseclass.
 
             else:
-                self.__log.log("ERROR", "Script", filename, "no such script")
+                self.__log.log("ERROR", "Script", "no such script", filename)
 
         else:
-            self.__log.log("ERROR", "Script", filename, "already loaded")
+            self.__log.log("ERROR", "Script", "already loaded", filename)
+
+        self.__log.info("Script", "loaded", filename)
 
     def call(self, filename, func):
         """
@@ -93,4 +96,5 @@ class ScriptManager:
         """
         if not filename in self.__modules:
             self.load(filename)
+        self.__log.info("Script", "called", filename, func + "()")
         getattr(self.__modules[filename], func)()
