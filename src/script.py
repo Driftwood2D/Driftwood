@@ -55,38 +55,31 @@ class ScriptManager:
         cpath[-1] = os.path.splitext(cpath[-1])[0]
         return os.sep.join(cpath)
 
-    def load(self, filename):
+    def __load(self, filename):
         """
         Load a script.
 
         @type  filename: str
         @param filename: Name of python script to load.
         """
-        if not filename in self.__modules:
-            importpath = self.__path.find(filename)
+        importpath = self.__path.find(filename)
 
-            if importpath:
-                self.__log.info("Script", "loaded", filename)
+        if importpath:
+            self.__log.info("Script", "loaded", filename)
 
-                # This is a directory.
-                if os.path.isdir(importpath):
-                    mname = os.path.splitext(os.path.split(filename)[-1])[0]
-                    self.__modules[filename] = imp.load_source(mname, os.path.join(importpath, filename))
+            # This is a directory.
+            if os.path.isdir(importpath):
+                mname = os.path.splitext(os.path.split(filename)[-1])[0]
+                self.__modules[filename] = imp.load_source(mname, os.path.join(importpath, filename))
 
-                # This is hopefully a zip archive.
-                else:
-                    importer = zipimport.zipimporter(importpath)
-                    mpath = self.__convert_path(filename)
-                    self.__modules[filename] = importer.load_module(mpath)
-
-                # Give the script our baseclass.
-                setattr(self.__modules[filename], "Driftwood", self.config.baseclass)
-
+            # This is hopefully a zip archive.
             else:
-                self.__log.log("ERROR", "Script", "no such script", filename)
+                importer = zipimport.zipimporter(importpath)
+                mpath = self.__convert_path(filename)
+                self.__modules[filename] = importer.load_module(mpath)
 
         else:
-            self.__log.log("ERROR", "Script", "already loaded", filename)
+            self.__log.log("ERROR", "Script", "no such script", filename)
 
     def call(self, filename, func):
         """
@@ -98,6 +91,11 @@ class ScriptManager:
         @param func: Name of function to call.
         """
         if not filename in self.__modules:
-            self.load(filename)
-        self.__log.info("Script", "called", filename, func + "()")
-        getattr(self.__modules[filename], func)()
+            self.__load(filename)
+
+        if hasattr(self.__modules[filename], func):
+            self.__log.info("Script", "called", filename, func + "()")
+            getattr(self.__modules[filename], func)()
+
+        else:
+            self.__log.log("ERROR", "Script", filename, "no such function", func + "()")

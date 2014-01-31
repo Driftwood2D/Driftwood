@@ -45,7 +45,7 @@ class TickManager:
         self.__log = self.config.baseclass.log
         self.__registry = []
 
-    def register(self, callback, delay=0):
+    def register(self, callback, delay=0, once=False):
         """
         Register a tick callback, with an optional delay between calls.
 
@@ -55,9 +55,10 @@ class TickManager:
         @param delay: (Optional) Delay in seconds between calls.
         """
         for reg in self.__registry:
-            if reg[2] == callback:
+            if reg["callback"] == callback:
                 return
-        self.__registry.append([SDL_GetTicks(), delay, callback])
+
+        self.__registry.append({"ticks": SDL_GetTicks(), "delay": delay, "callback": callback, "once": once})
 
         # This log message is only possible in python >= 3.3
         if sys.version_info[0] == 3 and sys.version_info[1] >= 3:
@@ -71,7 +72,7 @@ class TickManager:
         @param callback: Callback to register.
         """
         for n, reg in enumerate(self.__registry):
-            if reg[2] == callback:
+            if reg["callback"] == callback:
                 del self.__registry[n]
 
         # This log message is only possible in python >= 3.3
@@ -83,12 +84,19 @@ class TickManager:
         Call all registered tick callbacks not currently delayed, and regulate tps.
         """
         for n, reg in enumerate(self.__registry):
-            if reg[1]:
-                if SDL_GetTicks() - reg[0] >= reg[1]:
-                    self.__registry[n][0] = SDL_GetTicks()
-                    reg[2]()
+            # Handle a delayed tick.
+            if reg["delay"]:
+                if SDL_GetTicks() - reg["ticks"] >= reg["delay"]:
+                    self.__registry[n]["ticks"] = SDL_GetTicks()
+                    reg["callback"]()
+
+            # Don't handle a delayed tick
             else:
-                reg[2]()
+                reg["callback"]()
+
+            # Unregister ticks set to only run once.
+            if reg["once"]:
+                self.unregister(reg["callback"])
 
         # Regulate ticks per second.
         SDL_Delay(int(1000 / self.config["tick"]["tps"]))

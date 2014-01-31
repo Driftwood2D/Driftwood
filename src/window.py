@@ -24,7 +24,11 @@
 ## IN THE SOFTWARE.
 ## **********
 
+from ctypes import byref
+from ctypes import c_int
 from sdl2 import *
+
+import filetype
 
 
 class WindowManager:
@@ -43,6 +47,7 @@ class WindowManager:
         self.window = None
         self.renderer = None
         self.__frame = None
+        self.__imagefile = None
 
         # We need to save SDL's destructors because their continued existence is undefined during shutdown.
         self.__sdl_destroytexture = SDL_DestroyTexture
@@ -59,7 +64,7 @@ class WindowManager:
         """
         SDL_Init(SDL_INIT_EVERYTHING)
 
-        if self.config["window"]["fullscreen"] == True:
+        if self.config["window"]["fullscreen"]:
             flags = SDL_WINDOW_SHOWN | SDL_WINDOW_FULLSCREEN
         else:
             flags = SDL_WINDOW_SHOWN
@@ -69,6 +74,9 @@ class WindowManager:
                                        self.config["window"]["height"], flags)
         self.renderer = SDL_CreateRenderer(self.window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC)
 
+    def title(self, title):
+        SDL_SetWindowTitle(self.window, title.encode())
+
     def frame(self, tex):
         """
         Copy an SDL_Texture frame onto the window.
@@ -76,7 +84,46 @@ class WindowManager:
         @type  tex: SDL_Texture
         @param tex: New frame.
         """
-        self.__frame = tex
+        # Prevent this ImageFile (probably from a script) from losing scope and taking our texture with it.
+        if isinstance(tex, filetype.ImageFile):
+            self.__imagefile = tex
+            texture = self.__imagefile.texture
+
+        # It's just an ordinary texture, probably passed from the engine code.
+        else:
+            texture = tex
+
+        # Variables for viewport calculation.
+        tw, th = c_int(), c_int()
+        SDL_QueryTexture(texture, None, None, byref(tw), byref(th))
+        tw, th = tw.value, th.value
+        srcrect, dstrect = SDL_Rect(), SDL_Rect()
+        srcrect.x, srcrect.y, srcrect.w, srcrect.h = 0, 0, tw, th
+        dstrect.x, dstrect.y, dstrect.w, dstrect.h = 0, 0, self.config["window"]["width"],\
+                                                     self.config["window"]["height"]
+
+        # Area width is smaller than window width.
+        if tw < self.config["window"]["width"]:
+            dstrect.x = int(self.config["window"]["width"]/2 - tw/2)
+            dstrect.w = tw
+
+        # Area width is larger than window width
+        elif tw > self.config["window"]["width"]:
+            srcrect.x = 0
+            srcrect.w = self.config["window"]["width"]
+
+        # Area height is smaller than window height
+        if th < self.config["window"]["height"]:
+            dstrect.y = int(self.config["window"]["height"]/2 - th/2)
+            dstrect.h = th
+
+        # Area height is larger than window height
+        elif th > self.config["window"]["height"]:
+            srcrect.y = 0
+            srcrect.h = self.config["window"]["height"]
+
+        # Adjust and copy the frame onto the window.
+        self.__frame = [texture, srcrect, dstrect]
 
     def tick(self):
         """
@@ -84,7 +131,7 @@ class WindowManager:
         """
         SDL_RenderClear(self.renderer)
         if self.__frame:
-            SDL_RenderCopy(self.renderer, self.__frame, None, None)
+            SDL_RenderCopy(self.renderer, *self.__frame)
         SDL_RenderPresent(self.renderer)
 
     def __del__(self):

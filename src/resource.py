@@ -46,7 +46,7 @@ class ResourceManager:
         self.__path = self.config.baseclass.path
 
     def __contains__(self, item):
-        if self.__path.find(item):
+        if self.__path[item]:
             return True
         return False
 
@@ -69,7 +69,7 @@ class ResourceManager:
         if filename in self.__cache:
             return self.__cache[filename]
 
-        pathname = self.__path.find(filename)
+        pathname = self.__path[filename]
         if pathname:
             # This is a directory.
             if os.path.isdir(pathname):

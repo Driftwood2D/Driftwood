@@ -24,6 +24,7 @@
 ## IN THE SOFTWARE.
 ## **********
 
+import builtins
 import signal
 import sys
 from sdl2 import *
@@ -38,7 +39,6 @@ import cache
 import resource
 import input
 import window
-import viewport
 import area
 import script
 
@@ -63,7 +63,6 @@ class Driftwood:
         self.resource = resource.ResourceManager(self.config)
         self.input = input.InputManager(self.config)
         self.window = window.WindowManager(self.config)
-        self.viewport = viewport.ViewportManager(self.config)
         #self.area = area.AreaManager(self.config)
         self.script = script.ScriptManager(self.config)
 
@@ -80,12 +79,12 @@ class Driftwood:
         if not self.running:
             self.running = True
 
-            # Execute the init script, or shutdown if not present.
-            if not self.path.find("init.py"):
+            # Execute the init function of the init script, or shutdown if not present.
+            if not self.path["init.py"]:
                 self.log.log("ERROR", "init.py missing")
                 self.running = False
             else:
-                self.script.load("init.py")
+                self.script.call("init.py", "init")
 
             # This is the mainloop.
             while self.running:
@@ -113,7 +112,9 @@ class Driftwood:
 if __name__ == "__main__":
     # Set up the entry point.
     entry = Driftwood()
-    __builtins__.Driftwood = entry
+
+    # Make sure scripts have access to the base class.
+    builtins.Driftwood = entry
 
     # Handle shutting down gracefully on INT and TERM signals.
     def sigint_handler(signum, frame):

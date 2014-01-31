@@ -57,11 +57,20 @@ class PathManager:
         else:
             self.rebuild()
 
+    def __contains__(self, item):
+        if self.find(item):
+            return True
+        return False
+
+    def __getitem__(self, item):
+        if self.__contains__(item):
+            return self.find(item)
+
     def examine(self, pathname):
         """
         Examine a directory or zip archive pathname and return the list of filenames therein.
 
-        @type  pathname: list[str]
+        @type  pathname: str
         @param pathname: Pathname to examine.
         @rtype:          str
         @return:         List of files inside the pathname.

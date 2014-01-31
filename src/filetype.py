@@ -31,6 +31,7 @@ renderer_ATTR = None  # setattr by the base module for API cleanliness.
 
 # This module contains the filetype handler classes.
 
+
 class AudioFile:
     """
     This class represents and abstracts a single OGG Vorbis audio file.
@@ -47,9 +48,7 @@ class AudioFile:
 
 class ImageFile:
     """
-    This class represents and abstracts a single image file. The code is mostly a copy of PySDL2's sdl2.ext.load_image,
-    adapted to allow for loading from a buffer. The class loads an image with PIL and then converts it into an SDL
-    Surface and an SDL Texture.
+    This class represents and abstracts a single image file.
     """
 
     def __init__(self, data):
@@ -59,13 +58,11 @@ class ImageFile:
         @type  data: bytes
         @param data: Image data from ResourceManager.
         """
-        self.surface = None
         self.texture = None
         self.__renderer = renderer_ATTR
         self.__data = data
 
         # We need to save SDL's destructors because their continued existence is undefined during shutdown.
-        self.__sdl_freesurface = SDL_FreeSurface
         self.__sdl_destroytexture = SDL_DestroyTexture
 
         self.__open(self.__data)
@@ -74,12 +71,12 @@ class ImageFile:
         """
         Open the image data with SDL_Image.
         """
-        self.surface = IMG_Load_RW(SDL_RWFromConstMem(data, len(data)), 1)
-        self.texture = SDL_CreateTextureFromSurface(self.__renderer, self.surface)
+        if data:
+            img = IMG_Load_RW(SDL_RWFromConstMem(data, len(data)), 1)
+            self.texture = SDL_CreateTextureFromSurface(self.__renderer, img)
+            SDL_FreeSurface(img)
 
     def __del__(self):
-        if self.surface:
-            self.__sdl_freesurface(self.surface)
         if self.texture:
             self.__sdl_destroytexture(self.texture)
 
