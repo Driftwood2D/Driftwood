@@ -65,11 +65,11 @@ class ImageFile:
         # We need to save SDL's destructors because their continued existence is undefined during shutdown.
         self.__sdl_destroytexture = SDL_DestroyTexture
 
-        self.__open(self.__data)
+        self.__load(self.__data)
 
-    def __open(self, data):
+    def __load(self, data):
         """
-        Open the image data with SDL_Image.
+        Load the image data with SDL_Image.
         """
         if data:
             img = IMG_Load_RW(SDL_RWFromConstMem(data, len(data)), 1)

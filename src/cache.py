@@ -43,14 +43,14 @@ class CacheManager:
         self.config = config
         self.__log = self.config.baseclass.log
         self.__cache = {}
-        self.__cachesize = 0
         self.__ticks = 0
 
-        if self.config["cache"]["enabled"] and self.config["cache"]["size"] > 0 and self.config["cache"]["ttl"] > 0:
+        if self.config["cache"]["enabled"] and self.config["cache"]["ttl"] > 0:
             self.__enabled = True
-            self.config.baseclass.tick.register(self.tick, self.config["cache"]["cycle"] * 1000)
+            self.config.baseclass.tick.register(self.clean, self.config["cache"]["ttl"] * 1000)
 
-        self.__enabled = False
+        else:
+            self.__enabled = False
 
     def __contains__(self, item):
         if item in self.__cache:
@@ -68,7 +68,7 @@ class CacheManager:
 
     def upload(self, filename, contents):
         """
-        Upload a file into the cache if the cache is enabled and the file won't push the cache over its size limit.
+        Upload a file into the cache if the cache is enabled.
 
         @type  filename: str
         @param filename: Name of file to upload.
@@ -78,14 +78,9 @@ class CacheManager:
         if not self.__enabled:
             return
 
-        if (self.__cachesize + len(contents)) / 1048576 > self.config["cache"]["size"]:
-            self.__log.log("WARNING", "Cache", "upload", "cache full")
-            return
-
         self.__cache[filename] = {}
-        self.__cache[filename]["timestamp"] = self.__ticks
+        self.__cache[filename]["timestamp"] = SDL_GetTicks()
         self.__cache[filename]["contents"] = contents
-        self.__cachesize += len(contents)
 
         self.__log.info("Cache", "uploaded", filename)
 
@@ -97,7 +92,7 @@ class CacheManager:
         @param filename: Name of file to download.
         """
         if filename in self.__cache:
-            self.__cache[filename]["timestamp"] = self.__ticks
+            self.__cache[filename]["timestamp"] = SDL_GetTicks()
             self.__log.info("Cache", "downloaded", filename)
             return self.__cache[filename]["contents"]
 
@@ -109,7 +104,6 @@ class CacheManager:
         @param filename: Name of file to purge.
         """
         if filename in self.__cache:
-            self.__cachesize -= len(self.__cache[filename]["contents"])
             del self.__cache[filename]
             self.__log.info("Cache", "purged", filename)
 
@@ -120,19 +114,20 @@ class CacheManager:
         self.__cache = {}
         self.__log.info("Cache", "flushed")
 
-    def tick(self):
-        """
-        Tick callback which calls clean() at appropriate times.
-        """
-        self.__ticks = SDL_GetTicks()
-        self.clean()
-
     def clean(self):
         """
         Perform garbage collection on expired files.
         """
+        expired = []
+
+        # Collect expired filenames to be purged.
         for filename in self.__cache:
-            if self.__ticks / 1000 - self.__cache[filename]["timestamp"] / 1000 >= self.config["cache"]["ttl"]:
+            if SDL_GetTicks() / 1000 - self.__cache[filename]["timestamp"] / 1000 >= self.config["cache"]["ttl"]:
+                expired.append(filename)
+
+        # Clean expired files
+        if expired:
+            for filename in expired:
                 self.purge(filename)
 
-        self.__log.info("Cache", "cleaned")
+            self.__log.info("Cache", "cleaned", str(len(expired))+" file(s)")

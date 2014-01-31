@@ -1,8 +1,6 @@
 {
 	"cache": {
 		"enabled": true,
-		"cycle": 60,
-		"size": 100,
 		"ttl": 300
 	},
 	"log": {
