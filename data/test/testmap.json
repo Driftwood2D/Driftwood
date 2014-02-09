@@ -1,0 +1,40 @@
+{ "height":10,
+ "layers":[
+        {
+         "data":[25, 175, 191, 191, 25, 25, 157, 192, 158, 25, 191, 76, 157, 174, 158, 157, 175, 174, 76, 175, 158, 174, 94, 191, 157, 158, 175, 94, 191, 191, 175, 191, 175, 76, 158, 158, 76, 158, 192, 175, 25, 157, 174, 192, 25, 25, 174, 175, 174, 25, 25, 192, 175, 191, 25, 25, 174, 175, 157, 25, 158, 192, 174, 76, 191, 157, 76, 158, 191, 175, 192, 192, 94, 157, 158, 157, 191, 94, 192, 191, 191, 76, 158, 192, 157, 175, 157, 192, 76, 158, 25, 158, 157, 158, 25, 25, 191, 174, 157, 25],
+         "height":10,
+         "name":"Tile Layer 1",
+         "opacity":1,
+         "type":"tilelayer",
+         "visible":true,
+         "width":10,
+         "x":0,
+         "y":0
+        }],
+ "orientation":"orthogonal",
+ "properties":
+    {
+     "prop1":"test",
+     "prop2":"spaghetti"
+    },
+ "tileheight":16,
+ "tilesets":[
+        {
+         "firstgid":1,
+         "image":"forest.png",
+         "imageheight":304,
+         "imagewidth":272,
+         "margin":0,
+         "name":"forest",
+         "properties":
+            {
+
+            },
+         "spacing":0,
+         "tileheight":16,
+         "tilewidth":16
+        }],
+ "tilewidth":16,
+ "version":1,
+ "width":10
+}

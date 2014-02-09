@@ -44,13 +44,12 @@ class LogManager:
 
     def log(self, *chain):
         """
-        Log a message if log is enabled.
+        Log a message.
 
         @type  chain: list
         @param chain: Ordered chain of messages.
         """
-        if self.config["log"]["enabled"]:
-            self.__print(*chain)
+        self.__print(*chain)
 
     def info(self, *chain):
         """
@@ -59,7 +58,7 @@ class LogManager:
         @type  chain: list
         @param chain: Ordered chain of messages.
         """
-        if self.config["log"]["enabled"] and self.config["log"]["verbose"]:
+        if self.config["log"]["verbose"]:
             self.__print(*chain)
 
     def __print(self, *chain):

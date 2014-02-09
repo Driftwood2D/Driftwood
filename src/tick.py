@@ -52,7 +52,7 @@ class TickManager:
         @type  callback: function
         @param callback: Callback to register.
         @type  delay: int
-        @param delay: (Optional) Delay in seconds between calls.
+        @param delay: (Optional) Delay in milliseconds between calls.
         """
         for reg in self.__registry:
             if reg["callback"] == callback:
@@ -90,13 +90,17 @@ class TickManager:
                     self.__registry[n]["ticks"] = SDL_GetTicks()
                     reg["callback"]()
 
+                    # Unregister ticks set to only run once.
+                    if reg["once"]:
+                        self.unregister(reg["callback"])
+
             # Don't handle a delayed tick
             else:
                 reg["callback"]()
 
-            # Unregister ticks set to only run once.
-            if reg["once"]:
-                self.unregister(reg["callback"])
+                # Unregister ticks set to only run once.
+                if reg["once"]:
+                    self.unregister(reg["callback"])
 
         # Regulate ticks per second.
         SDL_Delay(int(1000 / self.config["tick"]["tps"]))

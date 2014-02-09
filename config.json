@@ -4,7 +4,6 @@
 		"ttl": 300
 	},
 	"log": {
-		"enabled": true,
 		"verbose": true
 	},
 	"path": {

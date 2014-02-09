@@ -46,6 +46,7 @@ class WindowManager:
         self.config = config
         self.window = None
         self.renderer = None
+        self.__texture = None
         self.__frame = None
         self.__imagefile = None
 
@@ -54,11 +55,11 @@ class WindowManager:
         self.__sdl_destroyrenderer = SDL_DestroyRenderer
         self.__sdl_destroywindow = SDL_DestroyWindow
 
-        self.__prepare_window()
+        self.__prepare()
 
         self.config.baseclass.tick.register(self.tick)
 
-    def __prepare_window(self):
+    def __prepare(self):
         """
         Prepare the window for use.
         """
@@ -87,15 +88,15 @@ class WindowManager:
         # Prevent this ImageFile (probably from a script) from losing scope and taking our texture with it.
         if isinstance(tex, filetype.ImageFile):
             self.__imagefile = tex
-            texture = self.__imagefile.texture
+            self.__texture = self.__imagefile.texture
 
         # It's just an ordinary texture, probably passed from the engine code.
         else:
-            texture = tex
+            self.__texture = tex
 
         # Variables for viewport calculation.
         tw, th = c_int(), c_int()
-        SDL_QueryTexture(texture, None, None, byref(tw), byref(th))
+        SDL_QueryTexture(self.__texture, None, None, byref(tw), byref(th))
         tw, th = tw.value, th.value
         srcrect, dstrect = SDL_Rect(), SDL_Rect()
         srcrect.x, srcrect.y, srcrect.w, srcrect.h = 0, 0, tw, th
@@ -123,7 +124,7 @@ class WindowManager:
             srcrect.h = self.config["window"]["height"]
 
         # Adjust and copy the frame onto the window.
-        self.__frame = [texture, srcrect, dstrect]
+        self.__frame = [self.__texture, srcrect, dstrect]
 
     def tick(self):
         """

@@ -54,7 +54,7 @@ class ResourceManager:
         if self.__contains__(item):
             return self.request(item)
 
-    def request(self, filename):
+    def request(self, filename, binary = False):
         """
         Retrieve the contents of a file.
 
@@ -73,7 +73,10 @@ class ResourceManager:
         if pathname:
             # This is a directory.
             if os.path.isdir(pathname):
-                f = open(os.path.join(pathname, filename))
+                if binary:
+                    f = open(os.path.join(pathname, filename), "rb")
+                else:
+                    f = open(os.path.join(pathname, filename))
                 contents = f.read()
                 f.close()
 

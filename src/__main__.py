@@ -63,7 +63,7 @@ class Driftwood:
         self.resource = resource.ResourceManager(self.config)
         self.input = input.InputManager(self.config)
         self.window = window.WindowManager(self.config)
-        #self.area = area.AreaManager(self.config)
+        self.area = area.AreaManager(self.config)
         self.script = script.ScriptManager(self.config)
 
         # filetype API cleanup
@@ -79,10 +79,9 @@ class Driftwood:
         if not self.running:
             self.running = True
 
-            # Execute the init function of the init script, or shutdown if not present.
+            # Execute the init function of the init script if present.
             if not self.path["init.py"]:
-                self.log.log("ERROR", "init.py missing")
-                self.running = False
+                self.log.log("WARNING", "Driftwood", "init.py missing, nothing will happen")
             else:
                 self.script.call("init.py", "init")
 

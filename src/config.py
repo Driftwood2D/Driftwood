@@ -29,7 +29,7 @@ import json
 import sys
 
 
-VERSION = "Project Driftwood PreAlpha-dev0"
+VERSION = "Project Driftwood PreAlpha-dev1"
 
 
 class ConfigManager:
@@ -76,15 +76,12 @@ class ConfigManager:
         parser = argparse.ArgumentParser(description=VERSION,
                                          formatter_class=lambda prog: argparse.HelpFormatter(prog,
                                                                                              max_help_position=40))
-        parser.add_argument("config", nargs='?', default="./config.json", help="config file to use")
+        parser.add_argument("config", nargs='?', default="config.json", help="config file to use")
         parser.add_argument("--path", nargs=1, dest="path", metavar="<name,...>", help="set path")
         parser.add_argument("--root", nargs=1, dest="root", metavar="<root>", help="set path root")
         parser.add_argument("--size", nargs=1, dest="size", metavar="<WxH>", help="set window dimensions")
-        parser.add_argument("--cache-size", nargs=1, dest="cachesize", metavar="<megabytes>", help="set max cache size")
-        parser.add_argument("--cache-ttl", nargs=1, dest="cachettl", metavar="<seconds>", help="set cache time-to-live")
-        parser.add_argument("--cache-cycle", nargs=1, dest="cachecycle", metavar="<seconds>",
-                            help="set cache clean cycle delay")
         parser.add_argument("--tps", nargs=1, dest="tps", metavar="<hertz>", help="set ticks-per-second")
+        parser.add_argument("--ttl", nargs=1, dest="ttl", metavar="<seconds>", help="set cache time-to-live")
 
         group1 = parser.add_mutually_exclusive_group()
         group1.add_argument("--window", default=None, action="store_false", dest="fullscreen",
@@ -107,7 +104,11 @@ class ConfigManager:
         Combine the command line arguments and the configuration file into the internal __config dictionary, favoring
         command line arguments.
         """
-        self.__config = json.load(open(self.__cmdline_args.config, 'r'))
+        try:
+            self.__config = json.load(open(self.__cmdline_args.config, 'r'))
+        except FileNotFoundError:
+            print("Project Driftwood\n[0] ERROR: Config: config file missing")
+            sys.exit(1)
 
         if self.__cmdline_args.version:  # Print the version string and exit.
             print(VERSION)
@@ -124,17 +125,11 @@ class ConfigManager:
             w, h = self.__cmdline_args.size[0].split('x')
             self.__config["window"]["width"], self.__config["window"]["height"] = int(w), int(h)
 
-        if self.__cmdline_args.cachesize:
-            self.__config["cache"]["size"] = int(self.__cmdline_args.cachesize)
-
-        if self.__cmdline_args.cachettl:
-            self.__config["cache"]["ttl"] = int(self.__cmdline_args.cachettl)
-
-        if self.__cmdline_args.cachecycle:
-            self.__config["cache"]["cycle"] = int(self.__cmdline_args.cachecycle)
-
         if self.__cmdline_args.tps:
             self.__config["tick"]["tps"] = int(self.__cmdline_args.tps)
+
+        if self.__cmdline_args.ttl:
+            self.__config["cache"]["ttl"] = int(self.__cmdline_args.ttl)
 
         if self.__cmdline_args.fullscreen != None:
             if self.__cmdline_args.fullscreen:
