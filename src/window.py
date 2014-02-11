@@ -94,34 +94,36 @@ class WindowManager:
         else:
             self.__texture = tex
 
-        # Variables for viewport calculation.
+        # Get texture width and height.
         tw, th = c_int(), c_int()
         SDL_QueryTexture(self.__texture, None, None, byref(tw), byref(th))
         tw, th = tw.value, th.value
+
+        # Get current window width and height.
+        ww, wh = c_int(), c_int()
+        SDL_GetWindowSize(self.window, byref(ww), byref(wh))
+        ww, wh = ww.value, wh.value
+
+        # Set up viewport calculation variables.
         srcrect, dstrect = SDL_Rect(), SDL_Rect()
         srcrect.x, srcrect.y, srcrect.w, srcrect.h = 0, 0, tw, th
-        dstrect.x, dstrect.y, dstrect.w, dstrect.h = 0, 0, self.config["window"]["width"],\
-                                                     self.config["window"]["height"]
+        dstrect.x, dstrect.y, dstrect.w, dstrect.h = 0, 0, ww, wh
 
         # Area width is smaller than window width.
-        if tw < self.config["window"]["width"]:
-            dstrect.x = int(self.config["window"]["width"]/2 - tw/2)
+        if tw < ww:
+            dstrect.x = int(ww/2 - tw/2)
             dstrect.w = tw
 
         # Area width is larger than window width
-        elif tw > self.config["window"]["width"]:
-            srcrect.x = 0
-            srcrect.w = self.config["window"]["width"]
+        # TODO
 
         # Area height is smaller than window height
-        if th < self.config["window"]["height"]:
-            dstrect.y = int(self.config["window"]["height"]/2 - th/2)
+        if th < wh:
+            dstrect.y = int(wh/2 - th/2)
             dstrect.h = th
 
         # Area height is larger than window height
-        elif th > self.config["window"]["height"]:
-            srcrect.y = 0
-            srcrect.h = self.config["window"]["height"]
+        # TODO
 
         # Adjust and copy the frame onto the window.
         self.__frame = [self.__texture, srcrect, dstrect]
@@ -139,6 +141,8 @@ class WindowManager:
         """
         Window class destructor.
         """
+        if self.__texture:
+            self.__sdl_destroytexture(self.__texture)
         if self.__frame:
             self.__sdl_destroytexture(self.__frame)
         self.__sdl_destroyrenderer(self.renderer)

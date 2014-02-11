@@ -87,5 +87,14 @@ class JsonFile:
     without requiring an external import.
     """
 
-    def __init__(self, data):
+    def __init__(self, data = "{}"):
         self.json = json.loads(data)
+
+    def __contains__(self, item):
+        if self.json[item]:
+            return True
+        return False
+
+    def __getitem__(self, item):
+        if self.__contains__(item):
+            return self.json[item]

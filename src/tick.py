@@ -60,9 +60,7 @@ class TickManager:
 
         self.__registry.append({"ticks": SDL_GetTicks(), "delay": delay, "callback": callback, "once": once})
 
-        # This log message is only possible in python >= 3.3
-        if sys.version_info[0] == 3 and sys.version_info[1] >= 3:
-            self.__log.info("Tick", "registered", callback.__qualname__)
+        self.__log.info("Tick", "registered", callback.__qualname__)
 
     def unregister(self, callback):
         """
@@ -75,9 +73,7 @@ class TickManager:
             if reg["callback"] == callback:
                 del self.__registry[n]
 
-        # This log message is only possible in python >= 3.3
-        if sys.version_info[0] == 3 and sys.version_info[1] >= 3:
-            self.__log.info("Tick", "unregistered", callback.__qualname__)
+        self.__log.info("Tick", "unregistered", callback.__qualname__)
 
     def tick(self):
         """

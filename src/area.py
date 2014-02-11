@@ -36,12 +36,12 @@ class AreaManager:
         self.__filetype = self.config.baseclass.filetype
         self.__resource = self.config.baseclass.resource
         self.__window = self.config.baseclass.window
-        self.__area = {}
-        self.__tileset = []
-        self.__tileset_texture = None
+        self.__area = []
+        self.__map = {}
+        self.__tilesets = []
+        self.__tileset_textures = []
         self.__frame = None
-        self.__img = None  # Save image so its texture doesn't vanish
-        self.__imgw, self.__imgh, self.__imgs = 0, 0, 0
+        self.__img = []  # Save images so their textures dob't vanish
 
         # We need to save SDL's destructors because their continued existence is undefined during shutdown.
         self.__sdl_destroytexture = SDL_DestroyTexture
@@ -50,9 +50,10 @@ class AreaManager:
 
     def focus(self, filename):
         if filename in self.__resource:
-            self.__area = json.loads(self.__resource[filename])
+            self.__map = json.loads(self.__resource[filename])
             self.__prepare_frame()
-            self.__prepare_tileset()
+            self.__prepare_tilesets()
+            self.__prepare_layers()
             self.__build_frame()
             self.__log.info("Area", "loaded", filename)
             return True
@@ -69,41 +70,63 @@ class AreaManager:
             SDL_DestroyTexture(self.__frame)
 
         self.__frame = SDL_CreateTexture(self.__window.renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET,
-                                         self.__area["width"] * self.__area["tilewidth"],
-                                         self.__area["height"] * self.__area["tileheight"])
+                                         self.__map["width"] * self.__map["tilewidth"],
+                                         self.__map["height"] * self.__map["tileheight"])
 
-    def __prepare_tileset(self):
-        # Request the image for the first tileset.
-        self.__img = self.__filetype.ImageFile(self.__resource.request(self.__area["tilesets"][0]["image"], True))
-        self.__tileset_texture = self.__img.texture
+    def __prepare_tilesets(self):
+        for ts, tileset in enumerate(self.__map["tilesets"]):
+            self.__tilesets.append([])
 
-        # Calculate width and height in tiles and number of tiles.
-        self.__imgw = int(self.__area["tilesets"][0]["imagewidth"] / self.__area["tilesets"][0]["tilewidth"])
-        self.__imgh = int(self.__area["tilesets"][0]["imageheight"] / self.__area["tilesets"][0]["tileheight"])
-        self.__imgs = int(self.__imgw * self.__imgh)
+            # Request the image for the first tileset.
+            self.__img.append(self.__filetype.ImageFile(self.__resource.request(self.__map["tilesets"][ts]["image"],
+                                                                                True)))
+            self.__tileset_textures.append(self.__img[-1].texture)
 
-        # Precalculate the coordinates of tile graphics in the tileset.
-        i = 0
-        while i < self.__imgs:
-            cx = i % self.__imgw
-            cy = math.floor(i / self.__imgw)
-            self.__tileset.append([int(cx), int(cy)])
-            i += 1
+            # Calculate width and height in tiles and number of tiles.
+            imgw = int(self.__map["tilesets"][ts]["imagewidth"] / self.__map["tilesets"][ts]["tilewidth"])
+            imgh = int(self.__map["tilesets"][ts]["imageheight"] / self.__map["tilesets"][ts]["tileheight"])
+            imgs = int(imgw * imgh)
+
+            # Precalculate the coordinates of tile graphics in the tileset.
+            i = 0
+            while i < imgs:
+                cx = i % imgw
+                cy = math.floor(i / imgw)
+                self.__tilesets[-1].append([int(cx), int(cy)])
+                i += 1
+
+    def __prepare_layers(self):
+        for l, layer in enumerate(self.__map["layers"]):
+            self.__area.append([])
+
+            for t, tile in enumerate(layer["data"]):
+                self.__area[l].append({})
+
+                self.__area[l][t]["src"] = [
+                    self.__tilesets[0][tile-1][0] * self.__map["tilesets"][0]["tilewidth"],
+                    self.__tilesets[0][tile-1][1] * self.__map["tilesets"][0]["tileheight"],
+                    self.__map["tilesets"][0]["tilewidth"],
+                    self.__map["tilesets"][0]["tileheight"]
+                ]
+
+                self.__area[l][t]["dst"] = [
+                    (t % self.__map["width"]) * self.__map["tilesets"][0]["tilewidth"],
+                    math.floor(t / self.__map["width"]) * self.__map["tilesets"][0]["tileheight"],
+                    self.__map["tilesets"][0]["tilewidth"],
+                    self.__map["tilesets"][0]["tileheight"]
+                ]
 
     def __build_frame(self):
-        srcrect, dstrect = SDL_Rect(), SDL_Rect()
+        for l, layer in enumerate(self.__area):
+            srcrect, dstrect = SDL_Rect(), SDL_Rect()
 
-        SDL_SetRenderTarget(self.__window.renderer, self.__frame)
-        for i, tile in enumerate(self.__area["layers"][0]["data"]):
-            srcrect.x = self.__tileset[tile-1][0] * self.__area["tilesets"][0]["tilewidth"]
-            srcrect.y = self.__tileset[tile-1][1] * self.__area["tilesets"][0]["tileheight"]
-            srcrect.w, srcrect.h = self.__area["tilesets"][0]["tilewidth"], self.__area["tilesets"][0]["tileheight"]
+            SDL_SetRenderTarget(self.__window.renderer, self.__frame)
 
-            dstrect.x = (i % self.__area["width"]) * self.__area["tilesets"][0]["tilewidth"]
-            dstrect.y = math.floor(i / self.__area["width"]) * self.__area["tilesets"][0]["tileheight"]
-            dstrect.w, dstrect.h = self.__area["tilesets"][0]["tilewidth"], self.__area["tilesets"][0]["tileheight"]
+            for t, tile in enumerate(layer):
+                srcrect.x, srcrect.y, srcrect.w, srcrect.h = self.__area[l][t]["src"]
+                dstrect.x, dstrect.y, dstrect.w, dstrect.h = self.__area[l][t]["dst"]
 
-            SDL_RenderCopy(self.__window.renderer, self.__tileset_texture, srcrect, dstrect)
+                SDL_RenderCopy(self.__window.renderer, self.__tileset_textures[0], srcrect, dstrect)
 
         SDL_SetRenderTarget(self.__window.renderer, None)
         self.__window.frame(self.__frame)
@@ -111,5 +134,5 @@ class AreaManager:
     def __del__(self):
         if self.__frame:
             self.__sdl_destroytexture(self.__frame)
-        if self.__tileset_texture:
-            self.__sdl_destroytexture(self.__tileset_texture)
+        for texture in self.__tileset_textures:
+            self.__sdl_destroytexture(texture)

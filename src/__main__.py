@@ -24,7 +24,6 @@
 ## IN THE SOFTWARE.
 ## **********
 
-import builtins
 import signal
 import sys
 from sdl2 import *
@@ -41,6 +40,10 @@ import input
 import window
 import area
 import script
+
+
+VCUR = sys.version_info
+VREQ = [3, 3, 3]
 
 
 class Driftwood:
@@ -109,10 +112,17 @@ class Driftwood:
 
 
 if __name__ == "__main__":
+    # Check Python version.
+    if VCUR[0] < VREQ[0] or VCUR[1] < VREQ[1] or VCUR[2] < VREQ[2]:
+        print("ERROR: python >= {0}.{1}.{2} required, found python {3}.{4}.{5}".format(VREQ[0], VREQ[1], VREQ[2],
+                                                                                       VCUR[0], VCUR[1], VCUR[2]))
+        sys.exit(1)
+
     # Set up the entry point.
     entry = Driftwood()
 
     # Make sure scripts have access to the base class.
+    import builtins
     builtins.Driftwood = entry
 
     # Handle shutting down gracefully on INT and TERM signals.
