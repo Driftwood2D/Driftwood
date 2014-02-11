@@ -38,7 +38,7 @@ class AreaManager:
         self.__window = self.config.baseclass.window
         self.__area = []
         self.__map = {}
-        self.__tilesets = []
+        self.__tileset = [[]]
         self.__tileset_textures = []
         self.__frame = None
         self.__img = []  # Save images so their textures dob't vanish
@@ -75,8 +75,6 @@ class AreaManager:
 
     def __prepare_tilesets(self):
         for ts, tileset in enumerate(self.__map["tilesets"]):
-            self.__tilesets.append([])
-
             # Request the image for the first tileset.
             self.__img.append(self.__filetype.ImageFile(self.__resource.request(self.__map["tilesets"][ts]["image"],
                                                                                 True)))
@@ -92,7 +90,7 @@ class AreaManager:
             while i < imgs:
                 cx = i % imgw
                 cy = math.floor(i / imgw)
-                self.__tilesets[-1].append([int(cx), int(cy)])
+                self.__tileset.append([int(cx), int(cy), ts])
                 i += 1
 
     def __prepare_layers(self):
@@ -100,21 +98,27 @@ class AreaManager:
             self.__area.append([])
 
             for t, tile in enumerate(layer["data"]):
+                if tile == 0:
+                    self.__area[l].append(None)
+                    continue
+
                 self.__area[l].append({})
 
-                self.__area[l][t]["src"] = [
-                    self.__tilesets[0][tile-1][0] * self.__map["tilesets"][0]["tilewidth"],
-                    self.__tilesets[0][tile-1][1] * self.__map["tilesets"][0]["tileheight"],
-                    self.__map["tilesets"][0]["tilewidth"],
-                    self.__map["tilesets"][0]["tileheight"]
+                self.__area[l][t]["srcrect"] = [
+                    self.__tileset[tile][0] * self.__map["tilesets"][self.__tileset[tile][2]]["tilewidth"],
+                    self.__tileset[tile][1] * self.__map["tilesets"][self.__tileset[tile][2]]["tileheight"],
+                    self.__map["tilesets"][self.__tileset[tile][2]]["tilewidth"],
+                    self.__map["tilesets"][self.__tileset[tile][2]]["tileheight"]
                 ]
 
-                self.__area[l][t]["dst"] = [
-                    (t % self.__map["width"]) * self.__map["tilesets"][0]["tilewidth"],
-                    math.floor(t / self.__map["width"]) * self.__map["tilesets"][0]["tileheight"],
-                    self.__map["tilesets"][0]["tilewidth"],
-                    self.__map["tilesets"][0]["tileheight"]
+                self.__area[l][t]["dstrect"] = [
+                    (t % self.__map["width"]) * self.__map["tilesets"][self.__tileset[tile][2]]["tilewidth"],
+                    math.floor(t / self.__map["width"]) * self.__map["tilesets"][self.__tileset[tile][2]]["tileheight"],
+                    self.__map["tilesets"][self.__tileset[tile][2]]["tilewidth"],
+                    self.__map["tilesets"][self.__tileset[tile][2]]["tileheight"]
                 ]
+
+                self.__area[l][t]["tileset"] = self.__tileset_textures[self.__tileset[tile][2]]
 
     def __build_frame(self):
         for l, layer in enumerate(self.__area):
@@ -122,11 +126,14 @@ class AreaManager:
 
             SDL_SetRenderTarget(self.__window.renderer, self.__frame)
 
-            for t, tile in enumerate(layer):
-                srcrect.x, srcrect.y, srcrect.w, srcrect.h = self.__area[l][t]["src"]
-                dstrect.x, dstrect.y, dstrect.w, dstrect.h = self.__area[l][t]["dst"]
+            for tile in layer:
+                if not tile:
+                    continue
 
-                SDL_RenderCopy(self.__window.renderer, self.__tileset_textures[0], srcrect, dstrect)
+                srcrect.x, srcrect.y, srcrect.w, srcrect.h = tile["srcrect"]
+                dstrect.x, dstrect.y, dstrect.w, dstrect.h = tile["dstrect"]
+
+                SDL_RenderCopy(self.__window.renderer, tile["tileset"], srcrect, dstrect)
 
         SDL_SetRenderTarget(self.__window.renderer, None)
         self.__window.frame(self.__frame)
