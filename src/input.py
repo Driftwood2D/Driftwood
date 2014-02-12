@@ -25,67 +25,68 @@
 ## **********
 
 class InputManager:
-    """
+    """The Input Manager
+
     This class manages keyboard input.
+
+    Attributes:
+        config: ConfigManager instance.
     """
 
     def __init__(self, config):
-        """
-        InputManager class initializer.
+        """InputManager class initializer.
 
-        @type  config: object
-        @param config: The Config class instance.
+        Args:
+            config: Link back to the ConfigManager.
         """
         self.config = config
+
         self.__registry = {}
         self.__stack = []
 
+        # Register the tick callback.
         self.config.baseclass.tick.register(self.tick)
 
     def key_down(self, keysym):
-        """
-        Push a keypress onto the input stack if not present.
+        """Push a keypress onto the input stack if not present.
 
-        @type  keysym: SDLKey
-        @param keysym: Key which was pressed.
+        Args:
+            keysym: SDLKey for the key which was pressed.
         """
         if not keysym in self.__stack:
             self.__stack.insert(0, keysym)
 
     def key_up(self, keysym):
-        """
-        Remove a keypress from the input stack if present.
+        """Remove a keypress from the input stack if present.
 
-        @type  keysym: SDLKey
-        @param keysym: Key which was released.
+        Args:
+            keysym: SDLKey for the key which was released.
         """
         if keysym in self.__stack:
             self.__stack.remove(keysym)
 
     def register(self, keysym, callback):
-        """
-        Register an input callback.
+        """Register an input callback.
 
-        @type  keysym: SDLKey
-        @param keysym: Keypress which triggers the callback.
-        @type  callback: function
-        @param callback: Function to be called on keypress.
+        Args:
+            keysym: SDLKey for the key which triggers the callback.
+            callback: Function to be called on keypress.
         """
         if not keysym in self.__registry:
             self.__registry[keysym] = callback
 
     def unregister(self, keysym):
-        """
-        Unegister an input callback.
+        """Unregister an input callback.
 
-        @type  keysym: SDLKey
-        @param keysym: Keypress which triggers the callback.
+        Args:
+            keysym: SDLKey for the key which triggers the callback.
         """
         if keysym in self.__registry:
             del self.__registry[keysym]
 
     def tick(self):
-        """
+        """Tick callback.
+
         If there is a keypress on top of the stack and it maps to a callback in the registry, call it.
         """
         if self.__stack:

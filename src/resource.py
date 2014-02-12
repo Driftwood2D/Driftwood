@@ -29,18 +29,22 @@ import zipfile
 
 
 class ResourceManager:
-    """
+    """The Resource Manager
+
     Simple resource management class which retrieves the contents of a file in the path vfs.
+
+    Attributes:
+        config: ConfigManager instance.
     """
 
     def __init__(self, config):
-        """
-        FileManager class initializer.
+        """ResourceManager class initializer.
 
-        @type  config: object
-        @param config: The Config class instance.
+        Args:
+            config: Link back to the ConfigManager.
         """
         self.config = config
+
         self.__log = self.config.baseclass.log
         self.__cache = self.config.baseclass.cache
         self.__path = self.config.baseclass.path
@@ -55,13 +59,14 @@ class ResourceManager:
             return self.request(item)
 
     def request(self, filename, binary = False):
-        """
-        Retrieve the contents of a file.
+        """Retrieve the contents of a file.
 
-        @type  filename: str
-        @param filename: Name of file to read.
-        @rtype:          str
-        @return:         File contents.
+        Args:
+            filename: Filename of the file to read.
+            binary: Whether the file is a binary file, rather than a plaintext file.
+
+        Returns:
+            Contents of the requested file, if present.
         """
         self.__log.info("Resource", "requested", filename)
 

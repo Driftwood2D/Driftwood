@@ -28,25 +28,32 @@ from sdl2 import SDL_GetTicks
 
 
 class CacheManager:
-    """
+    """The Cache Manager
+
     This class handles the cache of recently used files. If enabled, files are stored in memory for a specified period
     of time and up to the specified maximum cache size.
+
+    Attributes:
+        config: ConfigManager instance.
     """
 
     def __init__(self, config):
-        """
-        CacheManager class initializer.
+        """CacheManager class initializer.
 
-        @type  config: object
-        @param config: The Config class instance.
+        Args:
+            config: Link back to the ConfigManager.
         """
         self.config = config
+
         self.__log = self.config.baseclass.log
         self.__cache = {}
         self.__ticks = 0
 
+        # Check if the cache should be enabled.
         if self.config["cache"]["enabled"] and self.config["cache"]["ttl"] > 0:
             self.__enabled = True
+
+            # Register the tick callback.
             self.config.baseclass.tick.register(self.clean, self.config["cache"]["ttl"] * 1000)
 
         else:
@@ -67,13 +74,11 @@ class CacheManager:
         return self.__cache.items()
 
     def upload(self, filename, contents):
-        """
-        Upload a file into the cache if the cache is enabled.
+        """Upload a file into the cache if the cache is enabled.
 
-        @type  filename: str
-        @param filename: Name of file to upload.
-        @type  contents: str
-        @param contents: Contents of file to upload.
+        Args:
+            filename: Filename of the file to upload.
+            contents: Contents of the file to upload.
         """
         if not self.__enabled:
             return
@@ -85,11 +90,10 @@ class CacheManager:
         self.__log.info("Cache", "uploaded", filename)
 
     def download(self, filename):
-        """
-        Download a file from the cache if present, and update the timestamp.
+        """Download a file from the cache if present, and update the timestamp.
 
-        @type  filename: str
-        @param filename: Name of file to download.
+        Args:
+            filename: Filename of the file to download.
         """
         if filename in self.__cache:
             self.__cache[filename]["timestamp"] = SDL_GetTicks()
@@ -97,26 +101,23 @@ class CacheManager:
             return self.__cache[filename]["contents"]
 
     def purge(self, filename):
-        """
-        Purge a file from the cache.
+        """Purge a file from the cache.
 
-        @type  filename: str
-        @param filename: Name of file to purge.
+        Args:
+            filename: Filename of the file to purge.
         """
         if filename in self.__cache:
             del self.__cache[filename]
             self.__log.info("Cache", "purged", filename)
 
     def flush(self):
-        """
-        Flush the cache.
+        """Empty the cache.
         """
         self.__cache = {}
         self.__log.info("Cache", "flushed")
 
     def clean(self):
-        """
-        Perform garbage collection on expired files.
+        """Perform garbage collection on expired files.
         """
         expired = []
 

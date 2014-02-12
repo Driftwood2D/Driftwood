@@ -1,6 +1,6 @@
 ###################################
 ## Project Driftwood             ##
-## tick.py                       ##
+## area.py                       ##
 ## Copyright 2013 PariahSoft LLC ##
 ###################################
 
@@ -24,36 +24,52 @@
 ## IN THE SOFTWARE.
 ## **********
 
-import json
-import math
 from sdl2 import *
 
+import map
 
 class AreaManager:
+    """The Area Manager
+
+    This class manages the currently focused area.
+
+    Attributes:
+        config: ConfigManager instance.
+        map: MapManager instance.
+    """
     def __init__(self, config):
+        """AreaManager class initializer.
+
+        Args:
+            config: Link back to the ConfigManager.
+        """
         self.config = config
+        self.map = map.MapManager(self.config)
+
         self.__log = self.config.baseclass.log
         self.__filetype = self.config.baseclass.filetype
         self.__resource = self.config.baseclass.resource
         self.__window = self.config.baseclass.window
-        self.__area = []
-        self.__map = {}
-        self.__tileset = [[]]
-        self.__tileset_textures = []
         self.__frame = None
-        self.__img = []  # Save images so their textures dob't vanish
 
         # We need to save SDL's destructors because their continued existence is undefined during shutdown.
         self.__sdl_destroytexture = SDL_DestroyTexture
 
+        # Register the tick callback.
         self.config.baseclass.tick.register(self.tick)
 
     def focus(self, filename):
+        """Load and make active a new area.
+
+        Args:
+            filename: Filename of the area's Tiled map file.
+
+        Returns:
+            True if succeeded, False if failed.
+        """
         if filename in self.__resource:
-            self.__map = json.loads(self.__resource[filename])
+            self.map._read(self.__resource[filename])  # This is the only place this should ever be called from.
             self.__prepare_frame()
-            self.__prepare_tilesets()
-            self.__prepare_layers()
             self.__build_frame()
             self.__log.info("Area", "loaded", filename)
             return True
@@ -63,77 +79,44 @@ class AreaManager:
             return False
 
     def tick(self):
+        """Tick callback.
+        """
         pass
 
     def __prepare_frame(self):
+        """Prepare the local frame.
+
+        Prepare self.__frame as a new SDL_Texture in the size of the area.
+        """
         if self.__frame:
             SDL_DestroyTexture(self.__frame)
 
         self.__frame = SDL_CreateTexture(self.__window.renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET,
-                                         self.__map["width"] * self.__map["tilewidth"],
-                                         self.__map["height"] * self.__map["tileheight"])
-
-    def __prepare_tilesets(self):
-        for ts, tileset in enumerate(self.__map["tilesets"]):
-            # Request the image for the first tileset.
-            self.__img.append(self.__filetype.ImageFile(self.__resource.request(self.__map["tilesets"][ts]["image"],
-                                                                                True)))
-            self.__tileset_textures.append(self.__img[-1].texture)
-
-            # Calculate width and height in tiles and number of tiles.
-            imgw = int(self.__map["tilesets"][ts]["imagewidth"] / self.__map["tilesets"][ts]["tilewidth"])
-            imgh = int(self.__map["tilesets"][ts]["imageheight"] / self.__map["tilesets"][ts]["tileheight"])
-            imgs = int(imgw * imgh)
-
-            # Precalculate the coordinates of tile graphics in the tileset.
-            i = 0
-            while i < imgs:
-                cx = i % imgw
-                cy = math.floor(i / imgw)
-                self.__tileset.append([int(cx), int(cy), ts])
-                i += 1
-
-    def __prepare_layers(self):
-        for l, layer in enumerate(self.__map["layers"]):
-            self.__area.append([])
-
-            for t, tile in enumerate(layer["data"]):
-                if tile == 0:
-                    self.__area[l].append(None)
-                    continue
-
-                self.__area[l].append({})
-
-                self.__area[l][t]["srcrect"] = [
-                    self.__tileset[tile][0] * self.__map["tilesets"][self.__tileset[tile][2]]["tilewidth"],
-                    self.__tileset[tile][1] * self.__map["tilesets"][self.__tileset[tile][2]]["tileheight"],
-                    self.__map["tilesets"][self.__tileset[tile][2]]["tilewidth"],
-                    self.__map["tilesets"][self.__tileset[tile][2]]["tileheight"]
-                ]
-
-                self.__area[l][t]["dstrect"] = [
-                    (t % self.__map["width"]) * self.__map["tilesets"][self.__tileset[tile][2]]["tilewidth"],
-                    math.floor(t / self.__map["width"]) * self.__map["tilesets"][self.__tileset[tile][2]]["tileheight"],
-                    self.__map["tilesets"][self.__tileset[tile][2]]["tilewidth"],
-                    self.__map["tilesets"][self.__tileset[tile][2]]["tileheight"]
-                ]
-
-                self.__area[l][t]["tileset"] = self.__tileset_textures[self.__tileset[tile][2]]
+                                         self.map.width * self.map.tilewidth, self.map.height * self.map.tileheight)
 
     def __build_frame(self):
-        for l, layer in enumerate(self.__area):
-            srcrect, dstrect = SDL_Rect(), SDL_Rect()
+        """Build the frame and pass to WindowManager.
 
-            SDL_SetRenderTarget(self.__window.renderer, self.__frame)
+        For every tile in each layer, copy its graphic onto the frame, then give the frame to WindowManager for display.
+        """
+        SDL_SetRenderTarget(self.__window.renderer, self.__frame)
 
-            for tile in layer:
+        srcrect = SDL_Rect()
+        dstrect = SDL_Rect()
+
+        for layer in range(self.map.num_layers):
+            for t in range(self.map.width * self.map.height):
+                x, y = self.map.get_tile_coords(layer, t)
+
+                tile = self.map.get_tile(layer, x, y)
                 if not tile:
                     continue
 
-                srcrect.x, srcrect.y, srcrect.w, srcrect.h = tile["srcrect"]
-                dstrect.x, dstrect.y, dstrect.w, dstrect.h = tile["dstrect"]
+                srcrect.x, srcrect.y, srcrect.w, srcrect.h = self.map.get_tile_srcrect(layer, x, y)
+                dstrect.x, dstrect.y, dstrect.w, dstrect.h = self.map.get_tile_dstrect(layer, x, y)
 
-                SDL_RenderCopy(self.__window.renderer, tile["tileset"], srcrect, dstrect)
+                SDL_RenderCopy(self.__window.renderer, self.map.get_tileset(tile["tileset"])["texture"], srcrect,
+                               dstrect)
 
         SDL_SetRenderTarget(self.__window.renderer, None)
         self.__window.frame(self.__frame)
@@ -141,5 +124,3 @@ class AreaManager:
     def __del__(self):
         if self.__frame:
             self.__sdl_destroytexture(self.__frame)
-        for texture in self.__tileset_textures:
-            self.__sdl_destroytexture(texture)

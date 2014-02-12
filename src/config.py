@@ -33,25 +33,30 @@ VERSION = "Project Driftwood PreAlpha-dev1"
 
 
 class ConfigManager:
-    """
-    Configuration management class. This class handles command line imput and a configuration file and presents the
-    resulting configuration for easy access. This class' state is not modified after initialization.
+    """The Config Manager
 
-    Command line options always supercede their configuration file equivalents.
+    This class reads command line input and a configuration file and presents the resulting configuration for easy
+    access. This class' state is not modified after initialization.
+
+    Note: Command line options always supercede their configuration file equivalents.
+
+    Attributes:
+        baseclass: Base class instance.
     """
 
     def __init__(self, baseclass):
-        """
-        ConfigManager class initializer.
+        """ConfigManager class initializer.
 
-        @type  baseclass: object
-        @param baseclass: The base class instance.
+        Args:
+            baseclass: Link back to the base class.
         """
         self.baseclass = baseclass  # A link back to the top-level base class.
+
         self.__config_file = ""
         self.__config = {}
         self.__cmdline_args = self.__read_cmdline()
         self.__prepare_config()
+
         print("Project Driftwood\nStarting up...")
 
     def __contains__(self, item):
@@ -67,11 +72,10 @@ class ConfigManager:
         return self.__config.items()
 
     def __read_cmdline(self):
-        """
-        Read in command line options using ArgumentParser.
+        """Read in command line options using ArgumentParser.
 
-        @rtype:  object
-        @return: result of parser.parse_args().
+        Returns:
+            Result of parser.parse_args()
         """
         parser = argparse.ArgumentParser(description=VERSION,
                                          formatter_class=lambda prog: argparse.HelpFormatter(prog,
@@ -100,17 +104,20 @@ class ConfigManager:
         return parser.parse_args()
 
     def __prepare_config(self):
-        """
+        """Prepare the configuration for use.
+
         Combine the command line arguments and the configuration file into the internal __config dictionary, favoring
         command line arguments.
         """
+        # Open the configuration file.
         try:
             self.__config = json.load(open(self.__cmdline_args.config, 'r'))
         except FileNotFoundError:
             print("Project Driftwood\n[0] ERROR: Config: config file missing")
             sys.exit(1)
 
-        if self.__cmdline_args.version:  # Print the version string and exit.
+        # If --version was used, print the version string and exit.
+        if self.__cmdline_args.version:
             print(VERSION)
             print("Copyright 2014 PariahSoft LLC")
             sys.exit(0)

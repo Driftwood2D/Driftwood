@@ -29,39 +29,45 @@ from sdl2 import SDL_GetTicks
 
 
 class LogManager:
-    """
+    """The Log Manager
+
     This class handles the filtering and formatting of log messages.
+
+    Attributes:
+        config: ConfigManager instance.
     """
 
     def __init__(self, config):
-        """
-        LogManager class initializer.
+        """LogManager class initializer.
 
-        @type  config: object
-        @param config: The Config class instance.
+        Args:
+            config: Link back to the ConfigManager.
         """
         self.config = config
 
     def log(self, *chain):
-        """
-        Log a message.
+        """Log a message.
 
-        @type  chain: list
-        @param chain: Ordered chain of messages.
+        Args:
+            chain: A list of strings to be separated by colon-spaces and printed.
         """
         self.__print(*chain)
 
     def info(self, *chain):
-        """
-        Log an info message if log and verbosity are enabled..
+        """Log an info message if verbosity is enabled..
 
-        @type  chain: list
-        @param chain: Ordered chain of messages.
+        Args:
+            chain: A list of strings to be separated by colon-spaces and printed.
         """
         if self.config["log"]["verbose"]:
             self.__print(*chain)
 
     def __print(self, *chain):
+        """Format and print the string.
+
+        Args:
+            chain: A list of strings to be separated by colon-spaces and printed.
+        """
         ticks = "[{0}] ".format(str(SDL_GetTicks()))
         print(ticks + ": ".join(chain))
         sys.stdout.flush()

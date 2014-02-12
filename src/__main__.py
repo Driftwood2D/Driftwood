@@ -47,19 +47,35 @@ VREQ = [3, 3, 3]
 
 
 class Driftwood:
-    """
-    The top-level base class, containing the manager class instances and the mainloop. The instance of this class is
+    """The top-level base class
+
+    This class contains the top level manager class instances and the mainloop. The instance of this class is
     passed to scripts as an API reference.
     """
 
     def __init__(self):
-        """
-        Base class initializer. Also initialize manager classes. Manager classes and their methods form the Driftwood
-        Scripting API.
+        """Base class initializer.
+
+        Initialize base class and manager classes. Manager classes and their methods form the Driftwood Scripting API.
+
+        Attributes:
+            config: ConfigManager instance.
+            log: LogManager instance.
+            filetype: Shortcut to filetype module.
+            tick: TickManager instance.
+            path: PathManager instance.
+            cache: CacheManager instance.
+            resource: ResourceManager instance.
+            input: InputManager instance.
+            window: WindowManager instance.
+            area: AreaManager instance.
+            script: ScriptManager instance.
+
+            running: Whether the mainloop should continue running. Set false to kill the engine.
         """
         self.config = config.ConfigManager(self)
         self.log = log.LogManager(self.config)
-        self.filetype = filetype  # Provide this interface to scripts.
+        self.filetype = filetype
         self.tick = tick.TickManager(self.config)
         self.path = path.PathManager(self.config)
         self.cache = cache.CacheManager(self.config)
@@ -75,8 +91,7 @@ class Driftwood:
         self.running = False
 
     def run(self):
-        """
-        Perform startup procedures and enter the mainloop.
+        """Perform startup procedures and enter the mainloop.
         """
         # Only run if not already running.
         if not self.running:

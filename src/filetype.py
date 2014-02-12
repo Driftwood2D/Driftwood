@@ -33,8 +33,7 @@ renderer_ATTR = None  # setattr by the base module for API cleanliness.
 
 
 class AudioFile:
-    """
-    This class represents and abstracts a single OGG Vorbis audio file.
+    """This class represents and abstracts a single OGG Vorbis audio file.
     """
 
     def __init__(self, data):
@@ -47,8 +46,7 @@ class AudioFile:
 
 
 class ImageFile:
-    """
-    This class represents and abstracts a single image file.
+    """This class represents and abstracts a single image file.
     """
 
     def __init__(self, data):
@@ -82,9 +80,9 @@ class ImageFile:
 
 
 class JsonFile:
-    """
-    This class represents and abstracts a single JSON file. This stub is here to provide JSON handling to scripts
-    without requiring an external import.
+    """This class represents and abstracts a single JSON file.
+
+    This stub is here to provide JSON handling to scripts without requiring an external import.
     """
 
     def __init__(self, data = "{}"):

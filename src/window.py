@@ -32,23 +32,36 @@ import filetype
 
 
 class WindowManager:
-    """
-    SDL window manager class.
+    """The Window Manager
+
+    This class contains the SDL Window, and handles the viewport and display.
+
+    Attributes:
+        config: ConfigManager instance.
+        window: The SDL Window.
+        renderer: The SDL Renderer attached to the window.
     """
 
     def __init__(self, config):
-        """
-        WindowManager class initializer. Initializes SDL, and creates a window and a renderer.
+        """WindowManager class initializer.
 
-        @type  config: object
-        @param config: The Config class instance.
+        Initializes SDL, and creates a window and a renderer.
+
+        Args:
+            config: Link back to the ConfigManager.
         """
         self.config = config
         self.window = None
         self.renderer = None
-        self.__texture = None
-        self.__frame = None
+
+        # A copy of the imagefile the texture to be framed belongs to, if any.
         self.__imagefile = None
+
+        # A copy of the texture to be framed.
+        self.__texture = None
+
+        # The current frame.
+        self.__frame = None
 
         # We need to save SDL's destructors because their continued existence is undefined during shutdown.
         self.__sdl_destroytexture = SDL_DestroyTexture
@@ -60,8 +73,9 @@ class WindowManager:
         self.config.baseclass.tick.register(self.tick)
 
     def __prepare(self):
-        """
-        Prepare the window for use.
+        """Prepare the window for use.
+
+        Create a new window and renderer with the configured settings.
         """
         SDL_Init(SDL_INIT_EVERYTHING)
 
@@ -76,14 +90,18 @@ class WindowManager:
         self.renderer = SDL_CreateRenderer(self.window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC)
 
     def title(self, title):
+        """Set the window title.
+
+        Args:
+            title: The new title to be set.
+        """
         SDL_SetWindowTitle(self.window, title.encode())
 
     def frame(self, tex):
-        """
-        Copy an SDL_Texture frame onto the window.
+        """Copy an SDL_Texture or ImageFile frame onto the window, adjusting the viewport accordingly.
 
-        @type  tex: SDL_Texture
-        @param tex: New frame.
+        Args:
+            tex: SDL_Texture or filetype.ImageFile instance.
         """
         # Prevent this ImageFile (probably from a script) from losing scope and taking our texture with it.
         if isinstance(tex, filetype.ImageFile):
@@ -129,8 +147,7 @@ class WindowManager:
         self.__frame = [self.__texture, srcrect, dstrect]
 
     def tick(self):
-        """
-        Tick callback which refreshes the renderer.
+        """Tick callback which refreshes the renderer.
         """
         SDL_RenderClear(self.renderer)
         if self.__frame:
@@ -138,8 +155,7 @@ class WindowManager:
         SDL_RenderPresent(self.renderer)
 
     def __del__(self):
-        """
-        Window class destructor.
+        """Window class destructor.
         """
         if self.__texture:
             self.__sdl_destroytexture(self.__texture)

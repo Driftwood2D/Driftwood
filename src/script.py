@@ -30,37 +30,44 @@ import zipimport
 
 
 class ScriptManager:
-    """
+    """The Script Manager
+
     This class handles loading scripts and calling their functions. It defines its own method for retrieving the
     script file (independant of ResourceManager) and internally caches it forever.
+
+    Attributes:
+        config: ConfigManager instance.
     """
 
     def __init__(self, config):
-        """
-        ScriptManager class initializer.
+        """ScriptManager class initializer.
 
-        @type  config: object
-        @param config: The Config class instance.
+        Args:
+            config: Link back to the ConfigManager.
         """
         self.config = config
+
         self.__log = self.config.baseclass.log
         self.__path = self.config.baseclass.path
+
+        # Dictionary of module instances mapped by filename.
         self.__modules = {}
 
     def __convert_path(self, filename):
-        """
-        Get around a zipimport flaw.
+        """Get around a documented zipimport flaw.
+
+        Args:
+            filename: The filename to fix.
         """
         cpath = list(os.path.split(filename))
         cpath[-1] = os.path.splitext(cpath[-1])[0]
         return os.sep.join(cpath)
 
     def __load(self, filename):
-        """
-        Load a script.
+        """Load a script.
 
-        @type  filename: str
-        @param filename: Name of python script to load.
+        Args:
+            filename: Filename of the python script to load.
         """
         importpath = self.__path.find(filename)
 
@@ -82,13 +89,11 @@ class ScriptManager:
             self.__log.log("ERROR", "Script", "no such script", filename)
 
     def call(self, filename, func):
-        """
-        Call a function from a script, loading if not already loaded.
+        """Call a function from a script, loading if not already loaded.
 
-        @type  filename: str
-        @param filename: Name of python script containing the function.
-        @type  func: str
-        @param func: Name of function to call.
+        Args:
+            filename: Filename of the python script containing the function.
+            func: Name of the function to call.
         """
         if not filename in self.__modules:
             self.__load(filename)

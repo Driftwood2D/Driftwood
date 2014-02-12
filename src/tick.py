@@ -30,29 +30,40 @@ from sdl2 import SDL_GetTicks
 
 
 class TickManager:
-    """
+    """The Tick Manager
+
     This class manages tick callbacks.
+
+    Attributes:
+        config: ConfigManager instance.
     """
 
     def __init__(self, config):
-        """
-        TickManager class initializer.
+        """TickManager class initializer.
 
-        @type  config: object
-        @param config: The Config class instance.
+        Args:
+            config: Link back to the ConfigManager.
         """
         self.config = config
+
         self.__log = self.config.baseclass.log
+
+        # A list of dicts representing tick callbacks.
+        #
+        # Dict Keys:
+        #     ticks: Ticks (milliseconds since engine start) at registration or last delayed call.
+        #     delay: Delay in milliseconds between calls.
+        #     callback: The function to be called.
+        #     once: Whether to only call once.
         self.__registry = []
 
     def register(self, callback, delay=0, once=False):
-        """
-        Register a tick callback, with an optional delay between calls.
+        """Register a tick callback, with an optional delay between calls.
 
-        @type  callback: function
-        @param callback: Callback to register.
-        @type  delay: int
-        @param delay: (Optional) Delay in milliseconds between calls.
+        Args:
+            callback: The function to be called.
+            delay: (optional) Delay in milliseconds between calls.
+            once: Whether to only call once.
         """
         for reg in self.__registry:
             if reg["callback"] == callback:
@@ -63,11 +74,10 @@ class TickManager:
         self.__log.info("Tick", "registered", callback.__qualname__)
 
     def unregister(self, callback):
-        """
-        Unregister a tick callback.
+        """Unregister a tick callback.
 
-        @type  callback: function
-        @param callback: Callback to register.
+        Args:
+            callback: The function to unregister.
         """
         for n, reg in enumerate(self.__registry):
             if reg["callback"] == callback:
@@ -76,8 +86,7 @@ class TickManager:
         self.__log.info("Tick", "unregistered", callback.__qualname__)
 
     def tick(self):
-        """
-        Call all registered tick callbacks not currently delayed, and regulate tps.
+        """Call all registered tick callbacks not currently delayed, and regulate tps.
         """
         for n, reg in enumerate(self.__registry):
             # Handle a delayed tick.
