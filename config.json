@@ -20,7 +20,8 @@
 		"title": "Driftwood",
 		"width": 640,
 		"height": 480,
-		"fullscreen": false
+		"fullscreen": false,
+		"zoom": 2
 	}
 }
 

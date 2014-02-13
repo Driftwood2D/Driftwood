@@ -131,7 +131,7 @@ class AreaManager:
         SDL_SetRenderTarget(self.__window.renderer, None)
 
         # Give our frame to WindowManager for positioning and display.
-        self.__window.frame(self.__frame)
+        self.__window.frame(self.__frame, True)
 
     def __del__(self):
         if self.__frame:

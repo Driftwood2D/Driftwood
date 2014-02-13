@@ -81,11 +81,12 @@ class ConfigManager:
                                          formatter_class=lambda prog: argparse.HelpFormatter(prog,
                                                                                              max_help_position=40))
         parser.add_argument("config", nargs='?', default="config.json", help="config file to use")
-        parser.add_argument("--path", nargs=1, dest="path", metavar="<name,...>", help="set path")
-        parser.add_argument("--root", nargs=1, dest="root", metavar="<root>", help="set path root")
-        parser.add_argument("--size", nargs=1, dest="size", metavar="<WxH>", help="set window dimensions")
-        parser.add_argument("--tps", nargs=1, dest="tps", metavar="<hertz>", help="set ticks-per-second")
-        parser.add_argument("--ttl", nargs=1, dest="ttl", metavar="<seconds>", help="set cache time-to-live")
+        parser.add_argument("--path", nargs=1, dest="path", type=str, metavar="<name,...>", help="set path")
+        parser.add_argument("--root", nargs=1, dest="root", type=str, metavar="<root>", help="set path root")
+        parser.add_argument("--size", nargs=1, dest="size", type=str, metavar="<WxH>", help="set window dimensions")
+        parser.add_argument("--tps", nargs=1, dest="tps", type=int, metavar="<hertz>", help="set ticks-per-second")
+        parser.add_argument("--ttl", nargs=1, dest="ttl", type=int, metavar="<seconds>", help="set cache time-to-live")
+        parser.add_argument("--zoom", nargs=1, dest="zoom", type=int, metavar="<multiplier>", help="set viewport zoom")
 
         group1 = parser.add_mutually_exclusive_group()
         group1.add_argument("--window", default=None, action="store_false", dest="fullscreen",
@@ -126,17 +127,20 @@ class ConfigManager:
             self.__config["path"]["path"] = self.__cmdline_args.path[0].split(',')
 
         if self.__cmdline_args.root:
-            self.__config["path"]["root"] = self.__cmdline_args.root
+            self.__config["path"]["root"] = self.__cmdline_args.root[0]
 
         if self.__cmdline_args.size:
             w, h = self.__cmdline_args.size[0].split('x')
             self.__config["window"]["width"], self.__config["window"]["height"] = int(w), int(h)
 
         if self.__cmdline_args.tps:
-            self.__config["tick"]["tps"] = int(self.__cmdline_args.tps)
+            self.__config["tick"]["tps"] = self.__cmdline_args.tps[0]
 
         if self.__cmdline_args.ttl:
-            self.__config["cache"]["ttl"] = int(self.__cmdline_args.ttl)
+            self.__config["cache"]["ttl"] = self.__cmdline_args.ttl[0]
+
+        if self.__cmdline_args.zoom:
+            self.__config["window"]["zoom"] = self.__cmdline_args.zoom[0]
 
         if self.__cmdline_args.fullscreen != None:
             if self.__cmdline_args.fullscreen:

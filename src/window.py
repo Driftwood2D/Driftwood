@@ -100,11 +100,12 @@ class WindowManager:
         """
         SDL_SetWindowTitle(self.window, title.encode())
 
-    def frame(self, tex):
+    def frame(self, tex, zoom=False):
         """Copy an SDL_Texture or ImageFile frame onto the window, adjusting the viewport accordingly.
 
         Args:
             tex: SDL_Texture or filetype.ImageFile instance.
+            zoom: Whether or not to zoom the texture.
         """
         # Prevent this ImageFile (probably from a script) from losing scope and taking our texture with it.
         if isinstance(tex, filetype.ImageFile):
@@ -119,6 +120,11 @@ class WindowManager:
         tw, th = c_int(), c_int()
         SDL_QueryTexture(self.__texture, None, None, byref(tw), byref(th))
         tw, th = tw.value, th.value
+
+        # Zoom the texture.
+        if zoom:
+            tw *= self.config["window"]["zoom"]
+            th *= self.config["window"]["zoom"]
 
         # Get current window width and height.
         ww, wh = c_int(), c_int()
