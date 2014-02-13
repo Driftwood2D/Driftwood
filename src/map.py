@@ -85,6 +85,7 @@ class MapManager:
         #     spacing: Spacing in pixels between tiles in the tileset.
         #     range: Range of tile graphic IDs covered by this tileset.
         #     properties: A dict containing any custom properties of the tileset.
+        #     tileproperties: A dict containing tile IDs and properties which should be applied to them.
         self.__tilesets = []
 
         # This contains the JSON of the Tiled map.
@@ -150,6 +151,9 @@ class MapManager:
             self.__tilesets[ts]["properties"] = {}
             if "properties" in tileset:
                 self.__tilesets[ts]["properties"] = tileset["properties"]
+            self.__tilesets[ts]["tileproperties"] = {}
+            if "tileproperties" in tileset:
+                self.__tilesets[ts]["tileproperties"] = tileset["tileproperties"]
 
         # Build the tile and layer abstractions.
         for layer in self.__map["layers"]:
@@ -176,6 +180,12 @@ class MapManager:
                             if d in range(*tileset["range"]):
                                 # Set the tile's tileset.
                                 self.__layers[-1]["tiles"][-1]["tileset"] = ts
+
+                                # If the tileset has any global properties for this tile, apply them.
+                                tstileid = str(d - tileset["range"][0])
+                                if "tileproperties" in tileset and tstileid in tileset["tileproperties"]:
+                                    self.__layers[-1]["tiles"][-1]["properties"] = tileset["tileproperties"][tstileid]
+
                                 break
 
                         # Set the tile's x and y graphic coordinates.

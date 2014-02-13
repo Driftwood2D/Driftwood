@@ -63,6 +63,9 @@ class WindowManager:
         # The current frame.
         self.__frame = None
 
+        # Whether the frame has been changed since last display.
+        self.__changed = False
+
         # We need to save SDL's destructors because their continued existence is undefined during shutdown.
         self.__sdl_destroytexture = SDL_DestroyTexture
         self.__sdl_destroyrenderer = SDL_DestroyRenderer
@@ -146,12 +149,17 @@ class WindowManager:
         # Adjust and copy the frame onto the window.
         self.__frame = [self.__texture, srcrect, dstrect]
 
+        # Mark the frame changed.
+        self.__changed = True
+
     def tick(self):
         """Tick callback which refreshes the renderer.
         """
-        SDL_RenderClear(self.renderer)
-        if self.__frame:
+        if self.__changed:
+            SDL_RenderClear(self.renderer)
             SDL_RenderCopy(self.renderer, *self.__frame)
+            self.__changed = False
+
         SDL_RenderPresent(self.renderer)
 
     def __del__(self):

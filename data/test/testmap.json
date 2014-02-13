@@ -87,6 +87,13 @@
             },
          "spacing":0,
          "tileheight":16,
+         "tileproperties":
+            {
+             "42":
+                {
+                 "chest":"true"
+                }
+            },
          "tilewidth":16
         }],
  "tilewidth":16,
