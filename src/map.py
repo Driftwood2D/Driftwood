@@ -42,27 +42,31 @@ class MapManager:
         tileheight: Height of tiles in the map.
         num_layers: Number of layers in the map.
         num_tilesets: Number of tilesets in the map.
+        properties: A dict containing any custom properties in the map.
     """
 
     def __init__(self, config):
         self.config = config
 
+        # Attributes which will be updated with information about the map.
         self.width = 0
         self.height = 0
         self.tilewidth = 0
         self.tileheight = 0
         self.num_layers = 0
         self.num_tilesets = 0
+        self.properties = {}
 
-        # A list of lists of dictionaries, wherein each list represents a layer starting at layer 0, and each layer is a
-        # list of dictionaries representing individual tiles.
+        # A list of dictionaries, wherein each dictionary represents a layer starting at layer 0, and contains two
+        # keys, "properties" and "tiles", with "properties" being another dictionary containing the layer properties,
+        # if any, and "tiles" being a list of dictionaries containing information about the tiles in the layer.
         #
-        # Dict Keys:
+        # "tiles" Dict Keys:
         #     tileset: The number of the tileset containing the tile's graphic.
         #     tx: The x-coordinate of the graphic.
         #     ty: The y-coordinate of the graphic.
-        #     properties: TODO: A dict containing any object properties covering the tile.
-        self.__tiles = []
+        #     objects: A dict containing objects which apply to the tile.
+        self.__layers = []
 
         # A list of dicts wherein each member represents a tileset.
         #
@@ -78,7 +82,7 @@ class MapManager:
         #     tilewidth: Width of tiles in the tileset.
         #     tileheight: Height of tiles in the tileset.
         #     size: Number of tiles in the tileset.
-        #     spacing: TODO: Spacing in pixels between tiles in the tileset.
+        #     spacing: Spacing in pixels between tiles in the tileset.
         #     range: Range of tile graphic IDs covered by this tileset.
         #     properties: A dict containing any custom properties of the tileset.
         self.__tilesets = []
@@ -93,12 +97,19 @@ class MapManager:
     def _read(self, data):
         """Read and abstract a Tiled map.
 
-        Reads the JSON Tiled map and processes its information into useful abstractions. This method is private even
-        though it's called from AreaManager, because it should never be called from anywhere else.
+        Reads the JSON Tiled map and processes its information into useful abstractions. This method is marked private
+        even though it's called from AreaManager, because it must only be called once per area focus.
 
         Args:
             data: JSON contents of the Tiled map.
         """
+        # Reset variables left over from the last map.
+        if self.__layers:
+            self.__layers = []
+        if self.__tilesets:
+            self.__tilesets = []
+
+        # Load the JSON data.
         self.__map = json.loads(data)
 
         # Set class attributes representing information about the map.
@@ -106,8 +117,17 @@ class MapManager:
         self.height = self.__map["height"]
         self.tilewidth = self.__map["tilewidth"]
         self.tileheight = self.__map["tileheight"]
-        self.num_layers = len(self.__map["layers"])
+
+        # Only count tile layers, object layers are merged internally.
+        i = 0
+        for layer in self.__map["layers"]:
+            if layer["type"] == "tilelayer":
+                i += 1
+        self.num_layers = i
+
         self.num_tilesets = len(self.__map["tilesets"])
+        if "properties" in self.__map:
+            self.properties = self.__map["properties"]
 
         # Build the tileset abstractions.
         for ts, tileset in enumerate(self.__map["tilesets"]):
@@ -128,31 +148,92 @@ class MapManager:
             self.__tilesets[ts]["spacing"] = tileset["spacing"]
             self.__tilesets[ts]["range"] = [tileset["firstgid"], tileset["firstgid"]-1 + self.__tilesets[ts]["size"]]
             self.__tilesets[ts]["properties"] = {}
-            for prop in tileset["properties"]:
-                self.__tilesets[ts]["properties"][prop] = tileset["properties"][prop]
+            if "properties" in tileset:
+                self.__tilesets[ts]["properties"] = tileset["properties"]
 
-        # Build the tile abstractions.
+        # Build the tile and layer abstractions.
         for layer in self.__map["layers"]:
-            self.__tiles.append([])
+            # This layer is marked invisible, skip it.
+            if not layer["visible"]:
+                continue
 
-            # Iterate through the tile graphic IDs.
-            for d in layer["data"]:
-                self.__tiles[-1].append({})
+            # This is a tile layer.
+            if layer["type"] == "tilelayer":
+                self.__layers.append({"properties": {}, "tiles": []})
 
-                # Does this tile actually exist?
-                if d:
-                    # Find which tileset the tile's graphic is in.
-                    for ts, tileset in enumerate(self.__tilesets):
-                        if d in range(*tileset["range"]):
-                            # Set the tile's tileset.
-                            self.__tiles[-1][-1]["tileset"] = ts
-                            break
+                # Set layer properties if present.
+                if "properties" in layer:
+                    self.__layers[-1]["properties"] = layer["properties"]
 
-                    # Set the tile's x and y graphic coordinates.
-                    self.__tiles[-1][-1]["tx"] = ((d - tileset["range"][0]) %
-                                                  self.__tilesets[self.__tiles[-1][-1]["tileset"]]["width"])
-                    self.__tiles[-1][-1]["ty"] = math.floor((d - tileset["range"][0]) /
-                                                            self.__tilesets[self.__tiles[-1][-1]["tileset"]]["width"])
+                # Iterate through the tile graphic IDs.
+                for d in layer["data"]:
+                    self.__layers[-1]["tiles"].append({})
+
+                    # Does this tile actually exist?
+                    if d:
+                        # Find which tileset the tile's graphic is in.
+                        for ts, tileset in enumerate(self.__tilesets):
+                            if d in range(*tileset["range"]):
+                                # Set the tile's tileset.
+                                self.__layers[-1]["tiles"][-1]["tileset"] = ts
+                                break
+
+                        # Set the tile's x and y graphic coordinates.
+                        # The quotient of the tile's sequence number and the width of the map is its y coordinate.
+                        # The remainder is its x coordinate.
+                        self.__layers[-1]["tiles"][-1]["tx"] = \
+                            ((d - tileset["range"][0]) %
+                             self.__tilesets[self.__layers[-1]["tiles"][-1]["tileset"]]["width"])
+                        self.__layers[-1]["tiles"][-1]["ty"] = \
+                            math.floor((d - tileset["range"][0]) /
+                                       self.__tilesets[self.__layers[-1]["tiles"][-1]["tileset"]]["width"])
+
+            # This is an object layer.
+            elif layer["type"] == "objectgroup":
+                # Set additional properties if present here.
+                if "properties" in layer:
+                    self.__layers[-1]["properties"].update(layer["properties"])
+
+                # Iterate through the objects in the object layer.
+                for obj in layer["objects"]:
+                    # Is the object properly sized?
+                    if (obj["x"] % self.tilewidth or obj["y"] % self.tileheight or
+                            obj["width"] % self.tilewidth or obj["height"] % self.tileheight):
+                        self.__log.log("ERROR", "Map", "invalid object size or placement")
+                        continue
+
+                    # Map objects onto their tiles.
+                    for x in range(1, int(obj["width"] / self.tilewidth)+1):
+                        for y in range(1, int(obj["height"] / self.tileheight)+1):
+                            tx = (x * obj["x"]) / self.tilewidth
+                            ty = (y * obj["y"]) / self.tileheight
+
+                            # Place the "objects" key.
+                            if not "objects" in self.__layers[-1]["tiles"][int((ty * self.width) + tx)]:
+                                self.__layers[-1]["tiles"][int((ty * self.width) + tx)]["objects"] = []
+
+                            # Place the object.
+                            self.__layers[-1]["tiles"][int((ty * self.width) + tx)]["objects"].append(
+                                {
+                                    "name": obj["name"],
+                                    "type": obj["type"],
+                                    "properties": obj["properties"]
+                                }
+                            )
+
+    def get_layer(self, layer):
+        """Get a layer by its position.
+
+        Args:
+            layer: The layer (z) coordinate.
+
+        Returns:
+            Member of self.__layers.
+        """
+        if layer >= len(self.__layers):
+            return None
+
+        return self.__layers[layer]
 
     def get_tile(self, layer, x, y):
         """Get a tile by its layer and x y coordinates.
@@ -163,12 +244,12 @@ class MapManager:
             y: The y-coordinate.
 
         Returns:
-            Member of self.__tiles.
+            Member of self.__layers[layer]["tiles"].
         """
-        if layer >= len(self.__tiles) or x > self.width or y > self.height:
+        if layer >= len(self.__layers) or x > self.width or y > self.height:
             return None
 
-        return self.__tiles[layer][(y * self.width) + x]
+        return self.__layers[layer]["tiles"][(y * self.width) + x]
 
     def get_tile_coords(self, layer, num):
         """Figure out the coordinates of a tile by its number in the sequence.
@@ -180,9 +261,12 @@ class MapManager:
         Returns:
             List containing the x and y coordinates of the tile.
         """
-        if layer >= len(self.__tiles) or num >= len(self.__tiles[layer]):
+        if layer >= len(self.__layers) or num >= len(self.__layers[layer]["tiles"]):
             return None
 
+        # Calculate the tile's x and y coordinates.
+        # The quotient of the tile's sequence number and the width of the map is its y coordinate.
+        # The remainder is its x coordinate.
         return [num % self.width, math.floor(num / self.width)]
 
     def get_tileset(self, num):
@@ -200,10 +284,10 @@ class MapManager:
         return self.__tilesets[num]
 
     def get_tile_srcrect(self, layer, x, y):
-        """Get a source SDL_Rect for the tile's graphic in the tileset.
+        """Get a source rectangle for the tile's graphic in the tileset.
 
         For the tile at the given coordinates, produce an x,y,w,h source rectangle describing the position of the tile's
-        graphic in its tileset. This rectangle is used by SDL_RenderCopy.
+        graphic in its tileset. This rectangle is used by SDL_RenderCopy inside AreaManager.
 
         Args:
             layer: The layer (z) coordinate.
@@ -216,18 +300,20 @@ class MapManager:
 
         srcrect = [0, 0, 0, 0]
 
-        srcrect[0] = tile["tx"] * self.get_tileset(tile["tileset"])["tilewidth"]
-        srcrect[1] = tile["ty"] * self.get_tileset(tile["tileset"])["tileheight"]
+        srcrect[0] = (tile["tx"] * self.get_tileset(tile["tileset"])["tilewidth"]) + \
+                     (tile["tx"] * self.__tilesets[tile["tileset"]]["spacing"])
+        srcrect[1] = (tile["ty"] * self.get_tileset(tile["tileset"])["tileheight"]) + \
+                     (tile["ty"] * self.__tilesets[tile["tileset"]]["spacing"])
         srcrect[2] = self.get_tileset(tile["tileset"])["tilewidth"]
         srcrect[3] = self.get_tileset(tile["tileset"])["tileheight"]
 
         return srcrect
 
     def get_tile_dstrect(self, layer, x, y):
-        """Get a destination SDL_Rect for the tile graphic's position on the display.
+        """Get a destination rectangle for the tile graphic's position on the display.
 
         For the tile at the given coordinates, produce an x,y,w,h destination rectangle describing the position of the
-        tile graphic's appearance on the display. This rectangle is used by SDL_RenderCopy.
+        tile graphic's appearance on the display. This rectangle is used by SDL_RenderCopy inside AreaManager.
 
         Args:
             layer: The layer (z) coordinate.

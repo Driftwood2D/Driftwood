@@ -5,6 +5,10 @@
          "height":10,
          "name":"Tile Layer 1",
          "opacity":1,
+         "properties":
+            {
+             "test":"lol"
+            },
          "type":"tilelayer",
          "visible":true,
          "width":10,
@@ -17,6 +21,30 @@
          "name":"Tile Layer 2",
          "opacity":1,
          "type":"tilelayer",
+         "visible":true,
+         "width":10,
+         "x":0,
+         "y":0
+        }, 
+        {
+         "height":10,
+         "name":"Object Layer 1",
+         "objects":[
+                {
+                 "height":16,
+                 "name":"testname",
+                 "properties":
+                    {
+                     "foo":"bar"
+                    },
+                 "type":"testtype",
+                 "visible":true,
+                 "width":16,
+                 "x":32,
+                 "y":80
+                }],
+         "opacity":1,
+         "type":"objectgroup",
          "visible":true,
          "width":10,
          "x":0,

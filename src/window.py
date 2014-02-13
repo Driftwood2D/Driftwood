@@ -127,20 +127,20 @@ class WindowManager:
         srcrect.x, srcrect.y, srcrect.w, srcrect.h = 0, 0, tw, th
         dstrect.x, dstrect.y, dstrect.w, dstrect.h = 0, 0, ww, wh
 
-        # Area width is smaller than window width.
+        # Area width is smaller than window width. Center by width on area.
         if tw < ww:
             dstrect.x = int(ww/2 - tw/2)
             dstrect.w = tw
 
-        # Area width is larger than window width
+        # Area width is larger than window width. Center by width on player.
         # TODO
 
-        # Area height is smaller than window height
+        # Area height is smaller than window height. Center by height on area.
         if th < wh:
             dstrect.y = int(wh/2 - th/2)
             dstrect.h = th
 
-        # Area height is larger than window height
+        # Area height is larger than window height. Center by height on player.
         # TODO
 
         # Adjust and copy the frame onto the window.

@@ -99,26 +99,38 @@ class AreaManager:
 
         For every tile in each layer, copy its graphic onto the frame, then give the frame to WindowManager for display.
         """
+        # Tell SDL to render to our frame instead of the window's frame.
         SDL_SetRenderTarget(self.__window.renderer, self.__frame)
 
         srcrect = SDL_Rect()
         dstrect = SDL_Rect()
 
+        # Start with the bottom layer and work up.
         for layer in range(self.map.num_layers):
+            # Draw each tile in the layer into its position.
             for t in range(self.map.width * self.map.height):
+                # Figure out the coordinates of the tile.
                 x, y = self.map.get_tile_coords(layer, t)
 
+                # Retrieve data about the tile.
                 tile = self.map.get_tile(layer, x, y)
+
+                # This tile has no data and does not exist.
                 if not tile:
                     continue
 
+                # Get the source and destination rectangles needed by SDL_RenderCopy.
                 srcrect.x, srcrect.y, srcrect.w, srcrect.h = self.map.get_tile_srcrect(layer, x, y)
                 dstrect.x, dstrect.y, dstrect.w, dstrect.h = self.map.get_tile_dstrect(layer, x, y)
 
+                # Copy the tile onto our frame.
                 SDL_RenderCopy(self.__window.renderer, self.map.get_tileset(tile["tileset"])["texture"], srcrect,
                                dstrect)
 
+        # Tell SDL to switch rendering back to the window's frame.
         SDL_SetRenderTarget(self.__window.renderer, None)
+
+        # Give our frame to WindowManager for positioning and display.
         self.__window.frame(self.__frame)
 
     def __del__(self):
