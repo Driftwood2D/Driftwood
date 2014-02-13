@@ -67,6 +67,9 @@ class ConfigManager:
     def __getitem__(self, item):
         if self.__contains__(item):
             return self.__config[item]
+        else:
+            # This should be initialized by now.
+            self.baseclass.log("ERROR", "Config", "no such entry", item)
 
     def __iter__(self):
         return self.__config.items()
@@ -83,6 +86,7 @@ class ConfigManager:
         parser.add_argument("config", nargs='?', default="config.json", help="config file to use")
         parser.add_argument("--path", nargs=1, dest="path", type=str, metavar="<name,...>", help="set path")
         parser.add_argument("--root", nargs=1, dest="root", type=str, metavar="<root>", help="set path root")
+        parser.add_argument("--db", nargs=1, dest="db", type=str, metavar="<database>", help="set database to use")
         parser.add_argument("--size", nargs=1, dest="size", type=str, metavar="<WxH>", help="set window dimensions")
         parser.add_argument("--tps", nargs=1, dest="tps", type=int, metavar="<hertz>", help="set ticks-per-second")
         parser.add_argument("--ttl", nargs=1, dest="ttl", type=int, metavar="<seconds>", help="set cache time-to-live")
@@ -128,6 +132,9 @@ class ConfigManager:
 
         if self.__cmdline_args.root:
             self.__config["path"]["root"] = self.__cmdline_args.root[0]
+
+        if self.__cmdline_args.db:
+            self.__config["database"]["name"] = self.__cmdline_args.db[0]
 
         if self.__cmdline_args.size:
             w, h = self.__cmdline_args.size[0].split('x')

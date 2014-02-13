@@ -71,7 +71,7 @@ class CacheManager:
         self.purge(item)
 
     def __iter__(self):
-        return self.__cache.items()
+        return self.__cache.keys()
 
     def upload(self, filename, contents):
         """Upload a file into the cache if the cache is enabled.

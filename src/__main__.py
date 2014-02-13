@@ -31,6 +31,7 @@ import sdl2.ext as sdl2ext
 
 import config
 import log
+import database
 import filetype
 import tick
 import path
@@ -61,6 +62,7 @@ class Driftwood:
         Attributes:
             config: ConfigManager instance.
             log: LogManager instance.
+            database: DatabaseManager instance.
             filetype: Shortcut to filetype module.
             tick: TickManager instance.
             path: PathManager instance.
@@ -75,6 +77,7 @@ class Driftwood:
         """
         self.config = config.ConfigManager(self)
         self.log = log.LogManager(self.config)
+        self.database = database.DatabaseManager(self.config)
         self.filetype = filetype
         self.tick = tick.TickManager(self.config)
         self.path = path.PathManager(self.config)

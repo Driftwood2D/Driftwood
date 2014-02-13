@@ -1,4 +1,8 @@
 {
+	"database": {
+		"root": "db/",
+		"name": "testdb"
+	},
 	"cache": {
 		"enabled": true,
 		"ttl": 300
