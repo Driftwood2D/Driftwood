@@ -67,7 +67,7 @@ class TickManager:
         """
         for reg in self.__registry:
             if reg["callback"] == callback:
-                return
+                self.unregister(callback)
 
         self.__registry.append({"ticks": SDL_GetTicks(), "delay": delay, "callback": callback, "once": once})
 
@@ -82,8 +82,7 @@ class TickManager:
         for n, reg in enumerate(self.__registry):
             if reg["callback"] == callback:
                 del self.__registry[n]
-
-        self.__log.info("Tick", "unregistered", callback.__qualname__)
+                self.__log.info("Tick", "unregistered", callback.__qualname__)
 
     def tick(self):
         """Call all registered tick callbacks not currently delayed, and regulate tps.

@@ -76,24 +76,28 @@ class ResourceManager:
 
         pathname = self.__path[filename]
         if pathname:
-            # This is a directory.
-            if os.path.isdir(pathname):
-                if binary:
-                    f = open(os.path.join(pathname, filename), "rb")
+            try:
+                # This is a directory.
+                if os.path.isdir(pathname):
+                    if binary:
+                        f = open(os.path.join(pathname, filename), "rb")
+                    else:
+                        f = open(os.path.join(pathname, filename))
+                    contents = f.read()
+                    f.close()
+
+                # This is hopefully a zip archive.
                 else:
-                    f = open(os.path.join(pathname, filename))
-                contents = f.read()
-                f.close()
+                    with zipfile.ZipFile(pathname, 'r') as zf:
+                        contents = zf.read(filename)
 
-            # This is hopefully a zip archive.
-            else:
-                with zipfile.ZipFile(pathname, 'r') as zf:
-                    contents = zf.read(filename)
+                # Upload the file to the cache.
+                self.__cache.upload(filename, contents)
 
-            # Upload the file to the cache.
-            self.__cache.upload(filename, contents)
+                return contents
 
-            return contents
+            except ():
+                self.__log.log("ERROR", "Resource", "could not read file", filename)
 
         else:
             self.__log.log("ERROR", "Resource", "no such file", filename)

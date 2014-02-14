@@ -81,17 +81,21 @@ class PathManager:
         """
         filelist = []
 
-        # This is a directory.
-        if os.path.isdir(pathname):
-            for root, dirs, files in os.walk(pathname):
-                for name in files:
-                    filelist.append(name)
+        try:
+            # This is a directory.
+            if os.path.isdir(pathname):
+                for root, dirs, files in os.walk(pathname):
+                    for name in files:
+                        filelist.append(name)
 
-        # This is hopefully a zip archive.
-        else:
-            with zipfile.ZipFile(pathname, 'r') as zf:
-                for name in zf.namelist():
-                    filelist.append(name)
+            # This is hopefully a zip archive.
+            else:
+                with zipfile.ZipFile(pathname, 'r') as zf:
+                    for name in zf.namelist():
+                        filelist.append(name)
+
+        except ():
+            self.__log.log("ERROR", "Path", "could not examine pathname", pathname)
 
         return filelist
 

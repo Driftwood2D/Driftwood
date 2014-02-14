@@ -30,6 +30,7 @@ import sys
 
 
 VERSION = "Project Driftwood PreAlpha-dev1"
+COPYRIGHT = "Copyright 2014 PariahSoft LLC"
 
 
 class ConfigManager:
@@ -118,13 +119,13 @@ class ConfigManager:
         try:
             self.__config = json.load(open(self.__cmdline_args.config, 'r'))
         except FileNotFoundError:
-            print("Project Driftwood\n[0] ERROR: Config: config file missing")
+            print("Project Driftwood\n[0] FATAL: Config: config file missing")
             sys.exit(1)
 
         # If --version was used, print the version string and exit.
         if self.__cmdline_args.version:
             print(VERSION)
-            print("Copyright 2014 PariahSoft LLC")
+            print(COPYRIGHT)
             sys.exit(0)
 
         if self.__cmdline_args.path:

@@ -132,7 +132,7 @@ class Driftwood:
 if __name__ == "__main__":
     # Check Python version.
     if VCUR[0] < VREQ[0] or VCUR[1] < VREQ[1] or VCUR[2] < VREQ[2]:
-        print("ERROR: python >= {0}.{1}.{2} required, found python {3}.{4}.{5}".format(VREQ[0], VREQ[1], VREQ[2],
+        print("FATAL: python >= {0}.{1}.{2} required, found python {3}.{4}.{5}".format(VREQ[0], VREQ[1], VREQ[2],
                                                                                        VCUR[0], VCUR[1], VCUR[2]))
         sys.exit(1)
 

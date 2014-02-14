@@ -74,16 +74,20 @@ class ScriptManager:
         if importpath:
             self.__log.info("Script", "loaded", filename)
 
-            # This is a directory.
-            if os.path.isdir(importpath):
-                mname = os.path.splitext(os.path.split(filename)[-1])[0]
-                self.__modules[filename] = imp.load_source(mname, os.path.join(importpath, filename))
+            try:
+                # This is a directory.
+                if os.path.isdir(importpath):
+                    mname = os.path.splitext(os.path.split(filename)[-1])[0]
+                    self.__modules[filename] = imp.load_source(mname, os.path.join(importpath, filename))
 
-            # This is hopefully a zip archive.
-            else:
-                importer = zipimport.zipimporter(importpath)
-                mpath = self.__convert_path(filename)
-                self.__modules[filename] = importer.load_module(mpath)
+                # This is hopefully a zip archive.
+                else:
+                    importer = zipimport.zipimporter(importpath)
+                    mpath = self.__convert_path(filename)
+                    self.__modules[filename] = importer.load_module(mpath)
+
+            except ():
+                self.__log.log("ERROR", "Script", "could not load script", filename)
 
         else:
             self.__log.log("ERROR", "Script", "no such script", filename)

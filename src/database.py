@@ -26,12 +26,15 @@
 
 from dbm import dumb as dumbdbm
 import os
+import sys
 
 
 class DatabaseManager:
     """The Database Manager
 
-    Manages a simple database for storing persistent values.
+    Manages a simple database for storing persistent values, using Python's dumbdbm.
+
+    Note: The database only accepts string values.
     """
     def __init__(self, config):
         """DatabaseManager class initializer.
@@ -60,7 +63,7 @@ class DatabaseManager:
             try:
                 value = str(value)
             except ValueError:
-                self.__log.log("ERROR", "Database", "cannot convert value to string")
+                self.__log.log("ERROR", "Database", "cannot convert value to string", value)
 
         self.__database[item] = value
 
@@ -76,9 +79,17 @@ class DatabaseManager:
         Args:
             Basename of database to open.
         """
-        self.__database = dumbdbm.open(os.path.join(self.config["database"]["root"], name), 'c')
+        try:
+            self.__database = dumbdbm.open(os.path.join(self.config["database"]["root"], name), 'c')
+
+        except FileNotFoundError:
+            self.__log.log("FATAL", "Database", "cannot open database in directory", self.config["database"]["root"])
+            sys.exit(1)
+
         self.__log.info("Database", "opened", name)
 
     def __del__(self):
+        """DatabaseManager class destructor.
+        """
         if self.__database:
             self.__database.close()

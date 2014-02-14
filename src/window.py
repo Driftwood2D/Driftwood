@@ -169,7 +169,7 @@ class WindowManager:
         SDL_RenderPresent(self.renderer)
 
     def __del__(self):
-        """Window class destructor.
+        """WindowManager class destructor.
         """
         if self.__texture:
             self.__sdl_destroytexture(self.__texture)

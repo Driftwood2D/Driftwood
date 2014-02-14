@@ -26,7 +26,8 @@
 
 from sdl2 import *
 
-import map
+import tilemap
+
 
 class AreaManager:
     """The Area Manager
@@ -35,7 +36,7 @@ class AreaManager:
 
     Attributes:
         config: ConfigManager instance.
-        map: MapManager instance.
+        map: Map instance.
     """
     def __init__(self, config):
         """AreaManager class initializer.
@@ -44,7 +45,9 @@ class AreaManager:
             config: Link back to the ConfigManager.
         """
         self.config = config
-        self.map = map.MapManager(self.config)
+
+        # The Tilemap associated with the area.
+        self.tilemap = tilemap.Tilemap(self)
 
         self.__log = self.config.baseclass.log
         self.__filetype = self.config.baseclass.filetype
@@ -68,7 +71,7 @@ class AreaManager:
             True if succeeded, False if failed.
         """
         if filename in self.__resource:
-            self.map._read(self.__resource[filename])  # This is the only place this should ever be called from.
+            self.tilemap._read(self.__resource[filename])  # This is the only place this should ever be called from.
             self.__prepare_frame()
             self.__build_frame()
             self.__log.info("Area", "loaded", filename)
@@ -92,7 +95,8 @@ class AreaManager:
             SDL_DestroyTexture(self.__frame)
 
         self.__frame = SDL_CreateTexture(self.__window.renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET,
-                                         self.map.width * self.map.tilewidth, self.map.height * self.map.tileheight)
+                                         self.tilemap.width * self.tilemap.tilewidth,
+                                         self.tilemap.height * self.tilemap.tileheight)
 
     def __build_frame(self):
         """Build the frame and pass to WindowManager.
@@ -106,25 +110,22 @@ class AreaManager:
         dstrect = SDL_Rect()
 
         # Start with the bottom layer and work up.
-        for layer in range(self.map.num_layers):
+        for l in range(self.tilemap.num_layers):
             # Draw each tile in the layer into its position.
-            for t in range(self.map.width * self.map.height):
-                # Figure out the coordinates of the tile.
-                x, y = self.map.get_tile_coords(layer, t)
-
+            for t in range(self.tilemap.width * self.tilemap.height):
                 # Retrieve data about the tile.
-                tile = self.map.get_tile(layer, x, y)
+                tile = self.tilemap.layers[l].tiles[t]
 
                 # This tile has no data and does not exist.
                 if not tile:
                     continue
 
                 # Get the source and destination rectangles needed by SDL_RenderCopy.
-                srcrect.x, srcrect.y, srcrect.w, srcrect.h = self.map.get_tile_srcrect(layer, x, y)
-                dstrect.x, dstrect.y, dstrect.w, dstrect.h = self.map.get_tile_dstrect(layer, x, y)
+                srcrect.x, srcrect.y, srcrect.w, srcrect.h = tile.srcrect
+                dstrect.x, dstrect.y, dstrect.w, dstrect.h = tile.dstrect
 
                 # Copy the tile onto our frame.
-                SDL_RenderCopy(self.__window.renderer, self.map.get_tileset(tile["tileset"])["texture"], srcrect,
+                SDL_RenderCopy(self.__window.renderer, tile.tileset.texture, srcrect,
                                dstrect)
 
         # Tell SDL to switch rendering back to the window's frame.
