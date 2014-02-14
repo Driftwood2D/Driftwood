@@ -1,7 +1,7 @@
 ###################################
-## Project Driftwood             ##
+## Driftwood 2D Game Dev. Suite  ##
 ## config.py                     ##
-## Copyright 2013 PariahSoft LLC ##
+## Copyright 2014 PariahSoft LLC ##
 ###################################
 
 ## **********
@@ -29,7 +29,7 @@ import json
 import sys
 
 
-VERSION = "Project Driftwood PreAlpha-dev1"
+VERSION = "Driftwood 2D PreAlpha-dev1"
 COPYRIGHT = "Copyright 2014 PariahSoft LLC"
 
 
@@ -58,7 +58,7 @@ class ConfigManager:
         self.__cmdline_args = self.__read_cmdline()
         self.__prepare_config()
 
-        print("Project Driftwood\nStarting up...")
+        print("Driftwood 2D\nStarting up...")
 
     def __contains__(self, item):
         if item in self.__config:
@@ -119,7 +119,7 @@ class ConfigManager:
         try:
             self.__config = json.load(open(self.__cmdline_args.config, 'r'))
         except FileNotFoundError:
-            print("Project Driftwood\n[0] FATAL: Config: config file missing")
+            print("Driftwood 2D\n[0] FATAL: Config: config file missing")
             sys.exit(1)
 
         # If --version was used, print the version string and exit.

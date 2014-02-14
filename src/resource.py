@@ -1,7 +1,7 @@
 ###################################
-## Project Driftwood             ##
+## Driftwood 2D Game Dev. Suite  ##
 ## resource.py                   ##
-## Copyright 2013 PariahSoft LLC ##
+## Copyright 2014 PariahSoft LLC ##
 ###################################
 
 ## **********

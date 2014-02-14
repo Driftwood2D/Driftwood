@@ -1,4 +1,4 @@
-# Load an image file and put it on the screen.
+# Load our logo and put it on the screen.
 # Then wait two seconds and load the testing map.
 # All Driftwood scripts are aware of the "Driftwood" instance.
 

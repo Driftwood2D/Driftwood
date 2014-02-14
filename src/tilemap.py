@@ -1,7 +1,7 @@
 ###################################
-## Project Driftwood             ##
+## Driftwood 2D Game Dev. Suite  ##
 ## map.py                        ##
-## Copyright 2013 PariahSoft LLC ##
+## Copyright 2014 PariahSoft LLC ##
 ###################################
 
 ## **********
@@ -122,5 +122,4 @@ class Tilemap:
 
             # This is an object layer.
             elif l["type"] == "objectgroup":
-                # This should only be called from here.
-                self.layers[-1]._process_objects(l)
+                self.layers[-1]._process_objects(l)  # This is the only place this should ever be called from.
