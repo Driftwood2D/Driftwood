@@ -38,25 +38,28 @@ class PathManager:
     the only one recorded in the virtual filesystem.
 
     Attributes:
-        config: ConfigManager instance.
+        driftwood: Base class instance.
     """
 
-    def __init__(self, config):
+    def __init__(self, driftwood):
         """PathManager class initializer.
 
         Args:
-            config: Link back to the ConfigManager.
+            driftwood: Base class instance.
         """
-        self.config = config
+        self.driftwood = driftwood
 
-        self.__log = self.config.baseclass.log
-        self.__root = self.config["path"]["root"] # Path root.
-        self.__path = [self.config["path"]["self"]] # Start with base module.
         self.__vfs = {}
 
-        if self.config["path"]["path"]:
+        self.__config = self.driftwood.config
+        self.__log = self.driftwood.log
+
+        self.__root = self.__config["path"]["root"] # Path root.
+        self.__path = [self.__config["path"]["self"]] # Start with base module.
+
+        if self.__config["path"]["path"]:
             # Start with the configured path.
-            self.append(self.config["path"]["path"])
+            self.append(self.__config["path"]["path"])
 
         else:
             self.rebuild()
@@ -104,7 +107,7 @@ class PathManager:
 
         Rebuild the virtual filesystem from the path list, and make sure the base module is at the top.
         """
-        basepath = self.config["path"]["self"]
+        basepath = self.__config["path"]["self"]
 
         # If the base module is missing, put it back at the top.
         if self.__path[0] != basepath:

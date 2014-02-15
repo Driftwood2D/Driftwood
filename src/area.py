@@ -35,31 +35,33 @@ class AreaManager:
     This class manages the currently focused area.
 
     Attributes:
-        config: ConfigManager instance.
-        map: Map instance.
+        driftwood: Base class instance.
+        tilemap: Tilemap instance for the area's tilemap.
     """
-    def __init__(self, config):
+    def __init__(self, driftwood):
         """AreaManager class initializer.
 
         Args:
-            config: Link back to the ConfigManager.
+            driftwood: Base class instance.
         """
-        self.config = config
+        self.driftwood = driftwood
 
-        # The Tilemap associated with the area.
         self.tilemap = tilemap.Tilemap(self)
 
-        self.__log = self.config.baseclass.log
-        self.__filetype = self.config.baseclass.filetype
-        self.__resource = self.config.baseclass.resource
-        self.__window = self.config.baseclass.window
+        # The current rendered frame.
         self.__frame = None
+
+        self.__log = self.driftwood.log
+        #self.__entity = self.driftwood.entity
+        self.__filetype = self.driftwood.filetype
+        self.__resource = self.driftwood.resource
+        self.__window = self.driftwood.window
 
         # We need to save SDL's destructors because their continued existence is undefined during shutdown.
         self.__sdl_destroytexture = SDL_DestroyTexture
 
         # Register the tick callback.
-        self.config.baseclass.tick.register(self.tick)
+        self.driftwood.tick.register(self.tick)
 
     def focus(self, filename):
         """Load and make active a new area.
@@ -81,11 +83,6 @@ class AreaManager:
             self.__log.log("ERROR", "Area", "no such area", filename)
             return False
 
-    def tick(self):
-        """Tick callback.
-        """
-        pass
-
     def __prepare_frame(self):
         """Prepare the local frame.
 
@@ -101,7 +98,8 @@ class AreaManager:
     def __build_frame(self):
         """Build the frame and pass to WindowManager.
 
-        For every tile in each layer, copy its graphic onto the frame, then give the frame to WindowManager for display.
+        For every tile and entity in each layer, copy its graphic onto the frame, then give the frame to WindowManager
+        for display.
         """
         # Tell SDL to render to our frame instead of the window's frame.
         SDL_SetRenderTarget(self.__window.renderer, self.__frame)
@@ -110,7 +108,7 @@ class AreaManager:
         dstrect = SDL_Rect()
 
         # Start with the bottom layer and work up.
-        for l in range(self.tilemap.num_layers):
+        for l in range(len(self.tilemap.layers)):
             # Draw each tile in the layer into its position.
             for t in range(self.tilemap.width * self.tilemap.height):
                 # Retrieve data about the tile.
@@ -133,6 +131,11 @@ class AreaManager:
 
         # Give our frame to WindowManager for positioning and display.
         self.__window.frame(self.__frame, True)
+
+    def tick(self):
+        """Tick callback.
+        """
+        pass
 
     def __del__(self):
         if self.__frame:

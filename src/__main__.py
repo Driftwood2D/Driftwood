@@ -40,6 +40,7 @@ import resource
 import input
 import window
 import area
+import entity
 import script
 
 
@@ -71,22 +72,24 @@ class Driftwood:
             input: InputManager instance.
             window: WindowManager instance.
             area: AreaManager instance.
+            entity: EntityManager instance.
             script: ScriptManager instance.
 
             running: Whether the mainloop should continue running. Set false to kill the engine.
         """
         self.config = config.ConfigManager(self)
-        self.log = log.LogManager(self.config)
-        self.database = database.DatabaseManager(self.config)
+        self.log = log.LogManager(self)
+        self.database = database.DatabaseManager(self)
         self.filetype = filetype
-        self.tick = tick.TickManager(self.config)
-        self.path = path.PathManager(self.config)
-        self.cache = cache.CacheManager(self.config)
-        self.resource = resource.ResourceManager(self.config)
-        self.input = input.InputManager(self.config)
-        self.window = window.WindowManager(self.config)
-        self.area = area.AreaManager(self.config)
-        self.script = script.ScriptManager(self.config)
+        self.tick = tick.TickManager(self)
+        self.path = path.PathManager(self)
+        self.cache = cache.CacheManager(self)
+        self.resource = resource.ResourceManager(self)
+        self.input = input.InputManager(self)
+        self.window = window.WindowManager(self)
+        self.area = area.AreaManager(self)
+        self.entity = entity.EntityManager(self)
+        self.script = script.ScriptManager(self)
 
         # filetype API cleanup
         setattr(self.filetype, "renderer_ATTR", self.window.renderer)

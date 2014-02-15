@@ -36,19 +36,19 @@ class ScriptManager:
     script file (independant of ResourceManager) and internally caches it forever.
 
     Attributes:
-        config: ConfigManager instance.
+        driftwood: Base class instance.
     """
 
-    def __init__(self, config):
+    def __init__(self, driftwood):
         """ScriptManager class initializer.
 
         Args:
-            config: Link back to the ConfigManager.
+            driftwood: Base class instance.
         """
-        self.config = config
+        self.driftwood = driftwood
 
-        self.__log = self.config.baseclass.log
-        self.__path = self.config.baseclass.path
+        self.__log = self.driftwood.log
+        self.__path = self.driftwood.path
 
         # Dictionary of module instances mapped by filename.
         self.__modules = {}

@@ -42,16 +42,16 @@ class ConfigManager:
     Note: Command line options always supercede their configuration file equivalents.
 
     Attributes:
-        baseclass: Base class instance.
+        driftwood: Base class instance.
     """
 
-    def __init__(self, baseclass):
+    def __init__(self, driftwood):
         """ConfigManager class initializer.
 
         Args:
-            baseclass: Link back to the base class.
+            driftwood: Base class instance.
         """
-        self.baseclass = baseclass  # A link back to the top-level base class.
+        self.driftwood = driftwood  # A link back to the top-level base class.
 
         self.__config_file = ""
         self.__config = {}
@@ -70,7 +70,7 @@ class ConfigManager:
             return self.__config[item]
         else:
             # This should be initialized by now.
-            self.baseclass.log("ERROR", "Config", "no such entry", item)
+            self.driftwood.log.log("ERROR", "Config", "no such entry", item)
 
     def __iter__(self):
         return self.__config.items()

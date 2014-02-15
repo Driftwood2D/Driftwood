@@ -34,27 +34,29 @@ class CacheManager:
     of time and up to the specified maximum cache size.
 
     Attributes:
-        config: ConfigManager instance.
+        driftwood: Base class instance.
     """
 
-    def __init__(self, config):
+    def __init__(self, driftwood):
         """CacheManager class initializer.
 
         Args:
-            config: Link back to the ConfigManager.
+            driftwood: Base class instance.
         """
-        self.config = config
+        self.driftwood = driftwood
 
-        self.__log = self.config.baseclass.log
         self.__cache = {}
         self.__ticks = 0
 
+        self.__config = self.driftwood.config
+        self.__log = self.driftwood.log
+
         # Check if the cache should be enabled.
-        if self.config["cache"]["enabled"] and self.config["cache"]["ttl"] > 0:
+        if self.__config["cache"]["enabled"] and self.__config["cache"]["ttl"] > 0:
             self.__enabled = True
 
             # Register the tick callback.
-            self.config.baseclass.tick.register(self.clean, self.config["cache"]["ttl"] * 1000)
+            self.driftwood.tick.register(self.clean, self.__config["cache"]["ttl"] * 1000)
 
         else:
             self.__enabled = False
@@ -123,7 +125,7 @@ class CacheManager:
 
         # Collect expired filenames to be purged.
         for filename in self.__cache:
-            if SDL_GetTicks() / 1000 - self.__cache[filename]["timestamp"] / 1000 >= self.config["cache"]["ttl"]:
+            if SDL_GetTicks() / 1000 - self.__cache[filename]["timestamp"] / 1000 >= self.__config["cache"]["ttl"]:
                 expired.append(filename)
 
         # Clean expired files

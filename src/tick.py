@@ -35,18 +35,19 @@ class TickManager:
     This class manages tick callbacks.
 
     Attributes:
-        config: ConfigManager instance.
+        driftwood: Base class instance.
     """
 
-    def __init__(self, config):
+    def __init__(self, driftwood):
         """TickManager class initializer.
 
         Args:
-            config: Link back to the ConfigManager.
+            driftwood: Base class instance.
         """
-        self.config = config
+        self.driftwood = driftwood
 
-        self.__log = self.config.baseclass.log
+        self.__config = self.driftwood.config
+        self.__log = self.driftwood.log
 
         # A list of dicts representing tick callbacks.
         #
@@ -107,4 +108,4 @@ class TickManager:
                     self.unregister(reg["callback"])
 
         # Regulate ticks per second.
-        SDL_Delay(int(1000 / self.config["tick"]["tps"]))
+        SDL_Delay(int(1000 / self.__config["tick"]["tps"]))

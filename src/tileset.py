@@ -75,8 +75,8 @@ class Tileset:
         # This contains the JSON of the tileset.
         self.__tileset = tilesetdata
 
-        self.__filetype = self.tilemap.area.config.baseclass.filetype
-        self.__resource = self.tilemap.area.config.baseclass.resource
+        self.__filetype = self.tilemap.area.driftwood.filetype
+        self.__resource = self.tilemap.area.driftwood.resource
 
         # Prepare the tileset abstractions.
         self.__prepare_tileset()

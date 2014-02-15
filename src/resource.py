@@ -34,20 +34,20 @@ class ResourceManager:
     Simple resource management class which retrieves the contents of a file in the path vfs.
 
     Attributes:
-        config: ConfigManager instance.
+        driftwood: Base class instance.
     """
 
-    def __init__(self, config):
+    def __init__(self, driftwood):
         """ResourceManager class initializer.
 
         Args:
-            config: Link back to the ConfigManager.
+            driftwood: Base class instance.
         """
-        self.config = config
+        self.driftwood = driftwood
 
-        self.__log = self.config.baseclass.log
-        self.__cache = self.config.baseclass.cache
-        self.__path = self.config.baseclass.path
+        self.__log = self.driftwood.log
+        self.__cache = self.driftwood.cache
+        self.__path = self.driftwood.path
 
     def __contains__(self, item):
         if self.__path[item]:

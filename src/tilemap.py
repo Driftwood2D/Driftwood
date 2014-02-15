@@ -40,8 +40,6 @@ class Tilemap:
         height: Height of the map in tiles.
         tilewidth: Width of tiles in the map.
         tileheight: Height of tiles in the map.
-        num_layers: Number of layers in the map.
-        num_tilesets: Number of tilesets in the map.
         properties: A dictionary containing map properties.
 
         layers: The list of Layer class instances for each layer.
@@ -61,8 +59,6 @@ class Tilemap:
         self.height = 0
         self.tilewidth = 0
         self.tileheight = 0
-        self.num_layers = 0
-        self.num_tilesets = 0
         self.properties = {}
 
         self.layers = []
@@ -94,21 +90,15 @@ class Tilemap:
         self.height = self.__tilemap["height"]
         self.tilewidth = self.__tilemap["tilewidth"]
         self.tileheight = self.__tilemap["tileheight"]
-
-        # Only count tile layers, object layers are merged internally.
-        i = 0
-        for l in self.__tilemap["layers"]:
-            if l["type"] == "tilelayer":
-                i += 1
-        self.num_layers = i
-
-        self.num_tilesets = len(self.__tilemap["tilesets"])
         if "properties" in self.__tilemap:
             self.properties = self.__tilemap["properties"]
 
         # Build the tileset abstractions.
         for ts in self.__tilemap["tilesets"]:
             self.tilesets.append(tileset.Tileset(self, ts))
+
+        # Global object layer.
+        gobjlayer = {}
 
         # Build the tile and layer abstractions.
         for l in self.__tilemap["layers"]:
@@ -122,4 +112,14 @@ class Tilemap:
 
             # This is an object layer.
             elif l["type"] == "objectgroup":
-                self.layers[-1]._process_objects(l)  # This is the only place this should ever be called from.
+                # If this is the very first layer, it's the global object layer.
+                if not self.layers:
+                    gobjlayer = l
+
+                else:
+                    self.layers[-1]._process_objects(l)
+
+        # Merge the global object layer into all tile layers.
+        if gobjlayer:
+            for l in self.layers:
+                l._process_objects(gobjlayer)

@@ -34,16 +34,18 @@ class LogManager:
     This class handles the filtering and formatting of log messages.
 
     Attributes:
-        config: ConfigManager instance.
+        driftwood: Base class instance.
     """
 
-    def __init__(self, config):
+    def __init__(self, driftwood):
         """LogManager class initializer.
 
         Args:
-            config: Link back to the ConfigManager.
+            driftwood: Base class instance.
         """
-        self.config = config
+        self.driftwood = driftwood
+
+        self.__config = self.driftwood.config
 
     def log(self, *chain):
         """Log a message.
@@ -59,7 +61,7 @@ class LogManager:
         Args:
             chain: A list of strings to be separated by colon-spaces and printed.
         """
-        if self.config["log"]["verbose"]:
+        if self.__config["log"]["verbose"]:
             self.__print(*chain)
 
     def __print(self, *chain):

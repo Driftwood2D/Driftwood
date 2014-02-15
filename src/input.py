@@ -30,22 +30,22 @@ class InputManager:
     This class manages keyboard input.
 
     Attributes:
-        config: ConfigManager instance.
+        driftwood: Base class instance.
     """
 
-    def __init__(self, config):
+    def __init__(self, driftwood):
         """InputManager class initializer.
 
         Args:
-            config: Link back to the ConfigManager.
+            driftwood: Base class instance.
         """
-        self.config = config
+        self.driftwood = driftwood
 
         self.__registry = {}
         self.__stack = []
 
         # Register the tick callback.
-        self.config.baseclass.tick.register(self.tick)
+        self.driftwood.tick.register(self.tick)
 
     def key_down(self, keysym):
         """Push a keypress onto the input stack if not present.

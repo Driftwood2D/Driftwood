@@ -37,20 +37,22 @@ class WindowManager:
     This class contains the SDL Window, and handles the viewport and display.
 
     Attributes:
-        config: ConfigManager instance.
+        driftwood: Base class instance.
         window: The SDL Window.
         renderer: The SDL Renderer attached to the window.
     """
 
-    def __init__(self, config):
+    def __init__(self, driftwood):
         """WindowManager class initializer.
 
         Initializes SDL, and creates a window and a renderer.
 
         Args:
-            config: Link back to the ConfigManager.
+            driftwood: Base class instance.
         """
-        self.config = config
+        self.driftwood = driftwood
+
+        # The SDL Window and Renderer.
         self.window = None
         self.renderer = None
 
@@ -66,6 +68,8 @@ class WindowManager:
         # Whether the frame has been changed since last display.
         self.__changed = False
 
+        self.__config = self.driftwood.config
+
         # We need to save SDL's destructors because their continued existence is undefined during shutdown.
         self.__sdl_destroytexture = SDL_DestroyTexture
         self.__sdl_destroyrenderer = SDL_DestroyRenderer
@@ -73,7 +77,7 @@ class WindowManager:
 
         self.__prepare()
 
-        self.config.baseclass.tick.register(self.tick)
+        self.driftwood.tick.register(self.tick)
 
     def __prepare(self):
         """Prepare the window for use.
@@ -82,14 +86,14 @@ class WindowManager:
         """
         SDL_Init(SDL_INIT_EVERYTHING)
 
-        if self.config["window"]["fullscreen"]:
+        if self.__config["window"]["fullscreen"]:
             flags = SDL_WINDOW_SHOWN | SDL_WINDOW_FULLSCREEN
         else:
             flags = SDL_WINDOW_SHOWN
 
-        self.window = SDL_CreateWindow(self.config["window"]["title"].encode(), SDL_WINDOWPOS_CENTERED,
-                                       SDL_WINDOWPOS_CENTERED, self.config["window"]["width"],
-                                       self.config["window"]["height"], flags)
+        self.window = SDL_CreateWindow(self.__config["window"]["title"].encode(), SDL_WINDOWPOS_CENTERED,
+                                       SDL_WINDOWPOS_CENTERED, self.__config["window"]["width"],
+                                       self.__config["window"]["height"], flags)
         self.renderer = SDL_CreateRenderer(self.window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC)
 
     def title(self, title):
@@ -123,8 +127,8 @@ class WindowManager:
 
         # Zoom the texture.
         if zoom:
-            tw *= self.config["window"]["zoom"]
-            th *= self.config["window"]["zoom"]
+            tw *= self.__config["window"]["zoom"]
+            th *= self.__config["window"]["zoom"]
 
         # Get current window width and height.
         ww, wh = c_int(), c_int()

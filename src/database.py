@@ -34,21 +34,25 @@ class DatabaseManager:
 
     Manages a simple database for storing persistent values, using Python's dumbdbm.
 
+    Args:
+        driftwood: Base class instance.
+
     Note: The database only accepts string values.
     """
-    def __init__(self, config):
+    def __init__(self, driftwood):
         """DatabaseManager class initializer.
 
         Args:
-            config: Link back to the ConfigManager.
+            driftwood: Base class instance.
         """
-        self.config = config
+        self.driftwood = driftwood
 
-        self.__log = self.config.baseclass.log
+        self.__config = self.driftwood.config
+        self.__log = self.driftwood.log
 
         self.__database = None
 
-        self.__open(self.config["database"]["name"])
+        self.__open(self.__config["database"]["name"])
 
     def __contains__(self, item):
         if item in self.__database:
@@ -80,10 +84,10 @@ class DatabaseManager:
             Basename of database to open.
         """
         try:
-            self.__database = dumbdbm.open(os.path.join(self.config["database"]["root"], name), 'c')
+            self.__database = dumbdbm.open(os.path.join(self.__config["database"]["root"], name), 'c')
 
         except FileNotFoundError:
-            self.__log.log("FATAL", "Database", "cannot open database in directory", self.config["database"]["root"])
+            self.__log.log("FATAL", "Database", "cannot open database in directory", self.__config["database"]["root"])
             sys.exit(1)
 
         self.__log.info("Database", "opened", name)
