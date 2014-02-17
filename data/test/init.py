@@ -14,4 +14,5 @@ def init():
 
 def init_area():
 	Driftwood.area.focus("testmap.json")
+	Driftwood.entity.insert("player.json", 0, 16, 32)
 

@@ -29,6 +29,19 @@ import sys
 from sdl2 import *
 import sdl2.ext as sdl2ext
 
+VCUR = sys.version_info
+VREQ = [3, 3, 3]
+
+# We have to do this here before we start pulling in nonexistent imports.
+if __name__ == "__main__":
+    print("Driftwood 2D\nStarting up...")
+
+    # Check Python version.
+    if VCUR[0] < VREQ[0] or VCUR[1] < VREQ[1] or VCUR[2] < VREQ[2]:
+        print("[0] FATAL: python >= {0}.{1}.{2} required, found python {3}.{4}.{5}".format(VREQ[0], VREQ[1], VREQ[2],
+                                                                                           VCUR[0], VCUR[1], VCUR[2]))
+        sys.exit(1)
+
 import config
 import log
 import database
@@ -39,13 +52,9 @@ import cache
 import resource
 import input
 import window
-import area
 import entity
+import area
 import script
-
-
-VCUR = sys.version_info
-VREQ = [3, 3, 3]
 
 
 class Driftwood:
@@ -71,8 +80,8 @@ class Driftwood:
             resource: ResourceManager instance.
             input: InputManager instance.
             window: WindowManager instance.
-            area: AreaManager instance.
             entity: EntityManager instance.
+            area: AreaManager instance.
             script: ScriptManager instance.
 
             running: Whether the mainloop should continue running. Set false to kill the engine.
@@ -87,8 +96,8 @@ class Driftwood:
         self.resource = resource.ResourceManager(self)
         self.input = input.InputManager(self)
         self.window = window.WindowManager(self)
-        self.area = area.AreaManager(self)
         self.entity = entity.EntityManager(self)
+        self.area = area.AreaManager(self)
         self.script = script.ScriptManager(self)
 
         # filetype API cleanup
@@ -133,12 +142,6 @@ class Driftwood:
 
 
 if __name__ == "__main__":
-    # Check Python version.
-    if VCUR[0] < VREQ[0] or VCUR[1] < VREQ[1] or VCUR[2] < VREQ[2]:
-        print("FATAL: python >= {0}.{1}.{2} required, found python {3}.{4}.{5}".format(VREQ[0], VREQ[1], VREQ[2],
-                                                                                       VCUR[0], VCUR[1], VCUR[2]))
-        sys.exit(1)
-
     # Set up the entry point.
     entry = Driftwood()
 

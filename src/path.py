@@ -136,15 +136,13 @@ class PathManager:
             return
         pathnames = list(pathnames)
 
-        i = 0
-        while i < len(pathnames):
+        for i in range(len(pathnames)):
             # Jail the pathname to root.
             pathnames[i] = os.path.join(self.__root, pathnames[i])
 
             # Remove duplicates so they can be added back in the new order.
             if pathnames[i] in self.__path:
                 self.__path.remove(pathnames[i])
-            i += 1
 
         # Prepend.
         pathnames.extend(self.__path)
@@ -167,15 +165,13 @@ class PathManager:
             return
         pathnames = list(pathnames)
 
-        i = 0
-        while i < len(pathnames):
+        for i in range(len(pathnames)):
             # Jail the pathname to root.
             pathnames[i] = os.path.join(self.__root, pathnames[i])
 
             # Remove duplicates so they can be added back in the new order.
             if pathnames[i] in self.__path:
                 self.__path.remove(pathnames[i])
-            i += 1
 
         # Append.
         self.__path.extend(pathnames)

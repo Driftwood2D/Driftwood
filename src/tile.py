@@ -33,7 +33,7 @@ class Tile:
     Attributes:
         layer: Parent Layer instance.
 
-        seq: Tile's sequence in the map.
+        seq: Tile's sequence in the layer.
         tileset: Tileset instance of the tileset which owns this tile's graphic.
         gid: Global Graphic-ID of the tile.
         localgid: Graphic-ID of the tile in relation to its own tileset.
@@ -41,6 +41,7 @@ class Tile:
         tpos: A two-member list containing the x and y coordinates of the tile's position in the map.
         srcrect: A four-member list containing an x,y,w,h source rectangle for the tile's graphic.
         srcrect: A four-member list containing an x,y,w,h destination rectangle for the tile's placement.
+        entities: A list of entities bound to this tile.
         properties: A dictionary containing tile properties.
     """
     def __init__(self, layer, seq, tileset, gid):
@@ -78,5 +79,6 @@ class Tile:
             self.tileset.tilewidth,
             self.tileset.tileheight
         ]
+        self.entities = []
         if self.tileset.tileproperties and self.localgid in self.tileset.tileproperties:
             self.properties = self.tileset.tileproperties[self.localgid]

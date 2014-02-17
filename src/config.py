@@ -58,8 +58,6 @@ class ConfigManager:
         self.__cmdline_args = self.__read_cmdline()
         self.__prepare_config()
 
-        print("Driftwood 2D\nStarting up...")
-
     def __contains__(self, item):
         if item in self.__config:
             return True
@@ -119,7 +117,7 @@ class ConfigManager:
         try:
             self.__config = json.load(open(self.__cmdline_args.config, 'r'))
         except FileNotFoundError:
-            print("Driftwood 2D\n[0] FATAL: Config: config file missing")
+            print("[0] FATAL: Config: config file missing")
             sys.exit(1)
 
         # If --version was used, print the version string and exit.

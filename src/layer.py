@@ -37,15 +37,17 @@ class Layer:
 
         tiles: The list of Tile class instances for each tile.
     """
-    def __init__(self, tilemap, layerdata):
+    def __init__(self, tilemap, layerdata, zpos):
         """Layer class initializer.
 
         Args:
             tilemap: Link back to the parent Tilemap instance.
             layerdata: JSON layer segment.
+            zpos: Layer's z-position.
         """
         self.tilemap = tilemap
 
+        self.zpos = zpos
         self.properties = {}
 
         self.tiles = []

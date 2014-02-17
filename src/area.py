@@ -37,6 +37,7 @@ class AreaManager:
     Attributes:
         driftwood: Base class instance.
         tilemap: Tilemap instance for the area's tilemap.
+        changed: Whether the area should be rebuilt.
     """
     def __init__(self, driftwood):
         """AreaManager class initializer.
@@ -48,11 +49,13 @@ class AreaManager:
 
         self.tilemap = tilemap.Tilemap(self)
 
+        self.changed = False
+
         # The current rendered frame.
         self.__frame = None
 
         self.__log = self.driftwood.log
-        #self.__entity = self.driftwood.entity
+        self.__entity = self.driftwood.entity
         self.__filetype = self.driftwood.filetype
         self.__resource = self.driftwood.resource
         self.__window = self.driftwood.window
@@ -126,6 +129,17 @@ class AreaManager:
                 SDL_RenderCopy(self.__window.renderer, tile.tileset.texture, srcrect,
                                dstrect)
 
+            # Draw each entity on the layer into its position.
+            for entity in self.driftwood.entity.layer(l):
+
+                # Get the source and destination rectangles needed by SDL_RenderCopy.
+                srcrect.x, srcrect.y, srcrect.w, srcrect.h = entity.gpos
+                dstrect.x, dstrect.y, dstrect.w, dstrect.h = entity.x, entity.y, entity.gpos[2], entity.gpos[3]
+
+                # Copy the entity onto our frame.
+                SDL_RenderCopy(self.__window.renderer, entity.spritesheet.texture, srcrect,
+                               dstrect)
+
         # Tell SDL to switch rendering back to the window's frame.
         SDL_SetRenderTarget(self.__window.renderer, None)
 
@@ -135,7 +149,8 @@ class AreaManager:
     def tick(self):
         """Tick callback.
         """
-        pass
+        if self.changed:
+            self.__build_frame()
 
     def __del__(self):
         if self.__frame:

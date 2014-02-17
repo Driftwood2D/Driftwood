@@ -101,14 +101,14 @@ class Tilemap:
         gobjlayer = {}
 
         # Build the tile and layer abstractions.
-        for l in self.__tilemap["layers"]:
+        for zpos, l in enumerate(self.__tilemap["layers"]):
             # This layer is marked invisible, skip it.
             if not l["visible"]:
                 continue
 
             # This is a tile layer.
             if l["type"] == "tilelayer":
-                self.layers.append(layer.Layer(self, l))
+                self.layers.append(layer.Layer(self, l, zpos))
 
             # This is an object layer.
             elif l["type"] == "objectgroup":
