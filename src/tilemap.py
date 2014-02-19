@@ -24,8 +24,6 @@
 ## IN THE SOFTWARE.
 ## **********
 
-import json
-
 import layer
 import tileset
 
@@ -83,7 +81,7 @@ class Tilemap:
             self.tilesets = []
 
         # Load the JSON data.
-        self.__tilemap = json.loads(data)
+        self.__tilemap = data
 
         # Set class attributes representing information about the map.
         self.width = self.__tilemap["width"]

@@ -70,7 +70,7 @@ class AreaManager:
             True if succeeded, False if failed.
         """
         if filename in self.driftwood.resource:
-            self.tilemap._read(self.driftwood.resource[filename])  # This should only be called from here.
+            self.tilemap._read(self.driftwood.resource.request_json(filename))  # This should only be called from here.
             self.__prepare_frame()
             self.__build_frame()
             self.driftwood.log.info("Area", "loaded", filename)

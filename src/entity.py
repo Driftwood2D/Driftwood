@@ -24,8 +24,6 @@
 ## IN THE SOFTWARE.
 ## **********
 
-import json
-
 import spritesheet
 
 
