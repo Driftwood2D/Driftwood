@@ -1,6 +1,6 @@
 ###################################
 ## Driftwood 2D Game Dev. Suite  ##
-## area.py                       ##
+## areamanager.py                ##
 ## Copyright 2014 PariahSoft LLC ##
 ###################################
 
@@ -149,8 +149,9 @@ class AreaManager:
     def tick(self):
         """Tick callback.
         """
-        if self.changed:
+        if self.changed:  # TODO: Only redraw portions that have changed.
             self.__build_frame()
+            self.changed = False
 
     def __del__(self):
         if self.__frame:

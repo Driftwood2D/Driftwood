@@ -1,6 +1,6 @@
 ###################################
 ## Driftwood 2D Game Dev. Suite  ##
-## window.py                     ##
+## windowmanager.py              ##
 ## Copyright 2014 PariahSoft LLC ##
 ###################################
 

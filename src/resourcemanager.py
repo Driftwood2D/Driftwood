@@ -1,6 +1,6 @@
 ###################################
 ## Driftwood 2D Game Dev. Suite  ##
-## resource.py                   ##
+## resourcemanager.py            ##
 ## Copyright 2014 PariahSoft LLC ##
 ###################################
 

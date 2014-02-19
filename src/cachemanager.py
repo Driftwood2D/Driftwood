@@ -1,6 +1,6 @@
 ###################################
 ## Driftwood 2D Game Dev. Suite  ##
-## cache.py                      ##
+## cachemanager.py               ##
 ## Copyright 2014 PariahSoft LLC ##
 ###################################
 

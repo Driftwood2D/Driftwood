@@ -1,6 +1,6 @@
 ###################################
 ## Driftwood 2D Game Dev. Suite  ##
-## script.py                     ##
+## scriptmanager.py              ##
 ## Copyright 2014 PariahSoft LLC ##
 ###################################
 

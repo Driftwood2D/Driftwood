@@ -42,19 +42,20 @@ if __name__ == "__main__":
                                                                                            VCUR[0], VCUR[1], VCUR[2]))
         sys.exit(1)
 
-import config
-import log
-import database
+from configmanager import ConfigManager
+from logmanager import LogManager
+from databasemanager import DatabaseManager
+from tickmanager import TickManager
+from pathmanager import PathManager
+from cachemanager import CacheManager
+from resourcemanager import ResourceManager
+from inputmanager import InputManager
+from windowmanager import WindowManager
+from entitymanager import EntityManager
+from areamanager import AreaManager
+from scriptmanager import ScriptManager
+
 import filetype
-import tick
-import path
-import cache
-import resource
-import input
-import window
-import entity
-import area
-import script
 
 
 class Driftwood:
@@ -86,21 +87,24 @@ class Driftwood:
 
             running: Whether the mainloop should continue running. Set false to kill the engine.
         """
-        self.config = config.ConfigManager(self)
-        self.log = log.LogManager(self)
-        self.database = database.DatabaseManager(self)
+        # Initialize helpers.
         self.filetype = filetype
-        self.tick = tick.TickManager(self)
-        self.path = path.PathManager(self)
-        self.cache = cache.CacheManager(self)
-        self.resource = resource.ResourceManager(self)
-        self.input = input.InputManager(self)
-        self.window = window.WindowManager(self)
-        self.entity = entity.EntityManager(self)
-        self.area = area.AreaManager(self)
-        self.script = script.ScriptManager(self)
 
-        # filetype API cleanup
+        # Initialize managers.
+        self.config = ConfigManager(self)
+        self.log = LogManager(self)
+        self.database = DatabaseManager(self)
+        self.tick = TickManager(self)
+        self.path = PathManager(self)
+        self.cache = CacheManager(self)
+        self.resource = ResourceManager(self)
+        self.input = InputManager(self)
+        self.window = WindowManager(self)
+        self.entity = EntityManager(self)
+        self.area = AreaManager(self)
+        self.script = ScriptManager(self)
+
+        # Filetype API setup.
         setattr(self.filetype, "renderer_ATTR", self.window.renderer)
 
         self.running = False

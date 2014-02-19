@@ -1,6 +1,6 @@
 ###################################
 ## Driftwood 2D Game Dev. Suite  ##
-## tick.py                       ##
+## tickmanager.py                ##
 ## Copyright 2014 PariahSoft LLC ##
 ###################################
 
