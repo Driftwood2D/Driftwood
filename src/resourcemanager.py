@@ -24,8 +24,11 @@
 ## IN THE SOFTWARE.
 ## **********
 
+import json
 import os
 import zipfile
+
+import filetype
 
 
 class ResourceManager:
@@ -45,12 +48,8 @@ class ResourceManager:
         """
         self.driftwood = driftwood
 
-        self.__log = self.driftwood.log
-        self.__cache = self.driftwood.cache
-        self.__path = self.driftwood.path
-
     def __contains__(self, item):
-        if self.__path[item]:
+        if self.driftwood.path[item]:
             return True
         return False
 
@@ -68,13 +67,13 @@ class ResourceManager:
         Returns:
             Contents of the requested file, if present.
         """
-        self.__log.info("Resource", "requested", filename)
+        self.driftwood.log.info("Resource", "requested", filename)
 
         # If the file is already cached, return the cached version.
-        if filename in self.__cache:
-            return self.__cache[filename]
+        if filename in self.driftwood.cache:
+            return self.driftwood.cache[filename]
 
-        pathname = self.__path[filename]
+        pathname = self.driftwood.path[filename]
         if pathname:
             try:
                 # This is a directory.
@@ -92,12 +91,25 @@ class ResourceManager:
                         contents = zf.read(filename)
 
                 # Upload the file to the cache.
-                self.__cache.upload(filename, contents)
+                self.driftwood.cache.upload(filename, contents)
 
                 return contents
 
             except ():
-                self.__log.log("ERROR", "Resource", "could not read file", filename)
+                self.driftwood.log.msg("ERROR", "Resource", "could not read file", filename)
 
         else:
-            self.__log.log("ERROR", "Resource", "no such file", filename)
+            self.driftwood.log.msg("ERROR", "Resource", "no such file", filename)
+
+    def request_json(self, filename):
+        data = self.request(filename)
+        if data:
+            return json.loads(data)
+
+    def request_image(self, filename):
+        data = self.request(filename, True)
+        if data:
+            return filetype.ImageFile(data, self.driftwood.window.renderer)
+
+    def request_audio(self, filename):
+        pass  # TODO

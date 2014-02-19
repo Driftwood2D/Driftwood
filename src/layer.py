@@ -91,7 +91,7 @@ class Layer:
             # Is the object properly sized?
             if (obj["x"] % self.tilemap.tilewidth or obj["y"] % self.tilemap.tileheight or
                     obj["width"] % self.tilemap.tilewidth or obj["height"] % self.tilemap.tileheight):
-                self.tilemap.__log.log("ERROR", "Map", "invalid object size or placement")
+                self.tilemap.area.driftwood.log.msg("ERROR", "Map", "invalid object size or placement")
                 continue
 
             # Map object properties onto their tiles.

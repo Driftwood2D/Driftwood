@@ -46,9 +46,6 @@ class TickManager:
         """
         self.driftwood = driftwood
 
-        self.__config = self.driftwood.config
-        self.__log = self.driftwood.log
-
         # A list of dicts representing tick callbacks.
         #
         # Dict Keys:
@@ -72,7 +69,7 @@ class TickManager:
 
         self.__registry.append({"ticks": SDL_GetTicks(), "delay": delay, "callback": callback, "once": once})
 
-        self.__log.info("Tick", "registered", callback.__qualname__)
+        self.driftwood.log.info("Tick", "registered", callback.__qualname__)
 
     def unregister(self, callback):
         """Unregister a tick callback.
@@ -83,7 +80,7 @@ class TickManager:
         for n, reg in enumerate(self.__registry):
             if reg["callback"] == callback:
                 del self.__registry[n]
-                self.__log.info("Tick", "unregistered", callback.__qualname__)
+                self.driftwood.log.info("Tick", "unregistered", callback.__qualname__)
 
     def tick(self):
         """Call all registered tick callbacks not currently delayed, and regulate tps.
@@ -108,4 +105,4 @@ class TickManager:
                     self.unregister(reg["callback"])
 
         # Regulate ticks per second.
-        SDL_Delay(int(1000 / self.__config["tick"]["tps"]))
+        SDL_Delay(int(1000 / self.driftwood.config["tick"]["tps"]))

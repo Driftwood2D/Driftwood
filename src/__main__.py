@@ -87,10 +87,6 @@ class Driftwood:
 
             running: Whether the mainloop should continue running. Set false to kill the engine.
         """
-        # Initialize helpers.
-        self.filetype = filetype
-
-        # Initialize managers.
         self.config = ConfigManager(self)
         self.log = LogManager(self)
         self.database = DatabaseManager(self)
@@ -104,9 +100,6 @@ class Driftwood:
         self.area = AreaManager(self)
         self.script = ScriptManager(self)
 
-        # Filetype API setup.
-        setattr(self.filetype, "renderer_ATTR", self.window.renderer)
-
         self.running = False
 
     def run(self):
@@ -118,7 +111,7 @@ class Driftwood:
 
             # Execute the init function of the init script if present.
             if not self.path["init.py"]:
-                self.log.log("WARNING", "Driftwood", "init.py missing, nothing will happen")
+                self.log.msg("WARNING", "Driftwood", "init.py missing, nothing will happen")
             else:
                 self.script.call("init.py", "init")
 

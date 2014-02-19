@@ -68,8 +68,6 @@ class WindowManager:
         # Whether the frame has been changed since last display.
         self.__changed = False
 
-        self.__config = self.driftwood.config
-
         # We need to save SDL's destructors because their continued existence is undefined during shutdown.
         self.__sdl_destroytexture = SDL_DestroyTexture
         self.__sdl_destroyrenderer = SDL_DestroyRenderer
@@ -86,14 +84,14 @@ class WindowManager:
         """
         SDL_Init(SDL_INIT_EVERYTHING)
 
-        if self.__config["window"]["fullscreen"]:
+        if self.driftwood.config["window"]["fullscreen"]:
             flags = SDL_WINDOW_SHOWN | SDL_WINDOW_FULLSCREEN
         else:
             flags = SDL_WINDOW_SHOWN
 
-        self.window = SDL_CreateWindow(self.__config["window"]["title"].encode(), SDL_WINDOWPOS_CENTERED,
-                                       SDL_WINDOWPOS_CENTERED, self.__config["window"]["width"],
-                                       self.__config["window"]["height"], flags)
+        self.window = SDL_CreateWindow(self.driftwood.config["window"]["title"].encode(), SDL_WINDOWPOS_CENTERED,
+                                       SDL_WINDOWPOS_CENTERED, self.driftwood.config["window"]["width"],
+                                       self.driftwood.config["window"]["height"], flags)
         self.renderer = SDL_CreateRenderer(self.window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC)
 
     def title(self, title):
@@ -127,8 +125,8 @@ class WindowManager:
 
         # Zoom the texture.
         if zoom:
-            tw *= self.__config["window"]["zoom"]
-            th *= self.__config["window"]["zoom"]
+            tw *= self.driftwood.config["window"]["zoom"]
+            th *= self.driftwood.config["window"]["zoom"]
 
         # Get current window width and height.
         ww, wh = c_int(), c_int()

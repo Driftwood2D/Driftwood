@@ -45,9 +45,7 @@ class LogManager:
         """
         self.driftwood = driftwood
 
-        self.__config = self.driftwood.config
-
-    def log(self, *chain):
+    def msg(self, *chain):
         """Log a message.
 
         Args:
@@ -61,7 +59,7 @@ class LogManager:
         Args:
             chain: A list of strings to be separated by colon-spaces and printed.
         """
-        if self.__config["log"]["verbose"]:
+        if self.driftwood.config["log"]["verbose"]:
             self.__print(*chain)
 
     def __print(self, *chain):

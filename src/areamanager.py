@@ -54,12 +54,6 @@ class AreaManager:
         # The current rendered frame.
         self.__frame = None
 
-        self.__log = self.driftwood.log
-        self.__entity = self.driftwood.entity
-        self.__filetype = self.driftwood.filetype
-        self.__resource = self.driftwood.resource
-        self.__window = self.driftwood.window
-
         # We need to save SDL's destructors because their continued existence is undefined during shutdown.
         self.__sdl_destroytexture = SDL_DestroyTexture
 
@@ -75,15 +69,15 @@ class AreaManager:
         Returns:
             True if succeeded, False if failed.
         """
-        if filename in self.__resource:
-            self.tilemap._read(self.__resource[filename])  # This is the only place this should ever be called from.
+        if filename in self.driftwood.resource:
+            self.tilemap._read(self.driftwood.resource[filename])  # This should only be called from here.
             self.__prepare_frame()
             self.__build_frame()
-            self.__log.info("Area", "loaded", filename)
+            self.driftwood.log.info("Area", "loaded", filename)
             return True
 
         else:
-            self.__log.log("ERROR", "Area", "no such area", filename)
+            self.driftwood.log.msg("ERROR", "Area", "no such area", filename)
             return False
 
     def __prepare_frame(self):
@@ -94,7 +88,8 @@ class AreaManager:
         if self.__frame:
             SDL_DestroyTexture(self.__frame)
 
-        self.__frame = SDL_CreateTexture(self.__window.renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET,
+        self.__frame = SDL_CreateTexture(self.driftwood.window.renderer,
+                                         SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET,
                                          self.tilemap.width * self.tilemap.tilewidth,
                                          self.tilemap.height * self.tilemap.tileheight)
 
@@ -105,7 +100,7 @@ class AreaManager:
         for display.
         """
         # Tell SDL to render to our frame instead of the window's frame.
-        SDL_SetRenderTarget(self.__window.renderer, self.__frame)
+        SDL_SetRenderTarget(self.driftwood.window.renderer, self.__frame)
 
         srcrect = SDL_Rect()
         dstrect = SDL_Rect()
@@ -126,7 +121,7 @@ class AreaManager:
                 dstrect.x, dstrect.y, dstrect.w, dstrect.h = tile.dstrect
 
                 # Copy the tile onto our frame.
-                SDL_RenderCopy(self.__window.renderer, tile.tileset.texture, srcrect,
+                SDL_RenderCopy(self.driftwood.window.renderer, tile.tileset.texture, srcrect,
                                dstrect)
 
             # Draw each entity on the layer into its position.
@@ -137,14 +132,14 @@ class AreaManager:
                 dstrect.x, dstrect.y, dstrect.w, dstrect.h = entity.x, entity.y, entity.gpos[2], entity.gpos[3]
 
                 # Copy the entity onto our frame.
-                SDL_RenderCopy(self.__window.renderer, entity.spritesheet.texture, srcrect,
+                SDL_RenderCopy(self.driftwood.window.renderer, entity.spritesheet.texture, srcrect,
                                dstrect)
 
         # Tell SDL to switch rendering back to the window's frame.
-        SDL_SetRenderTarget(self.__window.renderer, None)
+        SDL_SetRenderTarget(self.driftwood.window.renderer, None)
 
         # Give our frame to WindowManager for positioning and display.
-        self.__window.frame(self.__frame, True)
+        self.driftwood.window.frame(self.__frame, True)
 
     def tick(self):
         """Tick callback.

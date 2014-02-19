@@ -63,12 +63,10 @@ class Entity:
 
         self.__entity = {}
 
-        self.__resource = self.manager.driftwood.resource
-
     def _read(self, filename):
         self.filename = filename
 
-        self.__entity = json.loads(self.__resource[filename])
+        self.__entity = self.manager.driftwood.resource.request_json(filename)
 
         self.gpos = self.__entity["gpos"]
 

@@ -4,8 +4,7 @@
 
 
 def init():
-	imagedata = Driftwood.resource.request("basedata/pariahsoft_logo.png", True)
-	image = Driftwood.filetype.ImageFile(imagedata)
+	image = Driftwood.resource.request_image("basedata/pariahsoft_logo.png")
 
 	Driftwood.window.frame(image)
 

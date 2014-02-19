@@ -54,16 +54,12 @@ class Spritesheet:
         self.texture = None
         self.imagewidth = 0
         self.imageheight = 0
-
-        self.__filetype = self.entitymanager.driftwood.filetype
         self.__resource = self.entitymanager.driftwood.resource
 
         self.__prepare_spritesheet()
 
     def __prepare_spritesheet(self):
-        self.image = self.__filetype.ImageFile(
-            self.__resource.request(self.filename, True)
-        )
+        self.image = self.__resource.request_image(self.filename)
         self.texture = self.image.texture
 
         tw, th = c_int(), c_int()

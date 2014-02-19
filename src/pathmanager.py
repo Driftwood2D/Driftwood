@@ -51,15 +51,12 @@ class PathManager:
 
         self.__vfs = {}
 
-        self.__config = self.driftwood.config
-        self.__log = self.driftwood.log
+        self.__root = self.driftwood.config["path"]["root"] # Path root.
+        self.__path = [self.driftwood.config["path"]["self"]] # Start with base module.
 
-        self.__root = self.__config["path"]["root"] # Path root.
-        self.__path = [self.__config["path"]["self"]] # Start with base module.
-
-        if self.__config["path"]["path"]:
+        if self.driftwood.config["path"]["path"]:
             # Start with the configured path.
-            self.append(self.__config["path"]["path"])
+            self.append(self.driftwood.config["path"]["path"])
 
         else:
             self.rebuild()
@@ -98,7 +95,7 @@ class PathManager:
                         filelist.append(name)
 
         except ():
-            self.__log.log("ERROR", "Path", "could not examine pathname", pathname)
+            self.driftwood.log.msg("ERROR", "Path", "could not examine pathname", pathname)
 
         return filelist
 
@@ -107,7 +104,7 @@ class PathManager:
 
         Rebuild the virtual filesystem from the path list, and make sure the base module is at the top.
         """
-        basepath = self.__config["path"]["self"]
+        basepath = self.driftwood.config["path"]["self"]
 
         # If the base module is missing, put it back at the top.
         if self.__path[0] != basepath:
@@ -121,7 +118,7 @@ class PathManager:
             for name in filelist:
                 self.__vfs[name] = pathname
 
-        self.__log.info("Path", "rebuilt")
+        self.driftwood.log.info("Path", "rebuilt")
 
     def prepend(self, pathnames):
         """Prepend pathnames to the path list.
@@ -148,7 +145,7 @@ class PathManager:
         pathnames.extend(self.__path)
         self.__path = pathnames
 
-        self.__log.info("Path", "prepended", ", ".join(pathnames))
+        self.driftwood.log.info("Path", "prepended", ", ".join(pathnames))
 
         self.rebuild()
 
@@ -176,7 +173,7 @@ class PathManager:
         # Append.
         self.__path.extend(pathnames)
 
-        self.__log.info("Path", "appended", ", ".join(pathnames))
+        self.driftwood.log.info("Path", "appended", ", ".join(pathnames))
 
         self.rebuild()
 
@@ -198,7 +195,7 @@ class PathManager:
             if pn in self.__path:
                 self.__path.remove(pn)
 
-        self.__log.info("Path", "removed", ", ".join(pathnames))
+        self.driftwood.log.info("Path", "removed", ", ".join(pathnames))
 
         self.rebuild()
 

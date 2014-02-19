@@ -48,15 +48,12 @@ class CacheManager:
         self.__cache = {}
         self.__ticks = 0
 
-        self.__config = self.driftwood.config
-        self.__log = self.driftwood.log
-
         # Check if the cache should be enabled.
-        if self.__config["cache"]["enabled"] and self.__config["cache"]["ttl"] > 0:
+        if self.driftwood.config["cache"]["enabled"] and self.driftwood.config["cache"]["ttl"] > 0:
             self.__enabled = True
 
             # Register the tick callback.
-            self.driftwood.tick.register(self.clean, self.__config["cache"]["ttl"] * 1000)
+            self.driftwood.tick.register(self.clean, self.driftwood.config["cache"]["ttl"] * 1000)
 
         else:
             self.__enabled = False
@@ -89,7 +86,7 @@ class CacheManager:
         self.__cache[filename]["timestamp"] = SDL_GetTicks()
         self.__cache[filename]["contents"] = contents
 
-        self.__log.info("Cache", "uploaded", filename)
+        self.driftwood.log.info("Cache", "uploaded", filename)
 
     def download(self, filename):
         """Download a file from the cache if present, and update the timestamp.
@@ -99,7 +96,7 @@ class CacheManager:
         """
         if filename in self.__cache:
             self.__cache[filename]["timestamp"] = SDL_GetTicks()
-            self.__log.info("Cache", "downloaded", filename)
+            self.driftwood.log.info("Cache", "downloaded", filename)
             return self.__cache[filename]["contents"]
 
     def purge(self, filename):
@@ -110,13 +107,13 @@ class CacheManager:
         """
         if filename in self.__cache:
             del self.__cache[filename]
-            self.__log.info("Cache", "purged", filename)
+            self.driftwood.log.info("Cache", "purged", filename)
 
     def flush(self):
         """Empty the cache.
         """
         self.__cache = {}
-        self.__log.info("Cache", "flushed")
+        self.driftwood.log.info("Cache", "flushed")
 
     def clean(self):
         """Perform garbage collection on expired files.
@@ -125,7 +122,8 @@ class CacheManager:
 
         # Collect expired filenames to be purged.
         for filename in self.__cache:
-            if SDL_GetTicks() / 1000 - self.__cache[filename]["timestamp"] / 1000 >= self.__config["cache"]["ttl"]:
+            if SDL_GetTicks() / 1000 - \
+                    self.__cache[filename]["timestamp"] / 1000 >= self.driftwood.config["cache"]["ttl"]:
                 expired.append(filename)
 
         # Clean expired files
@@ -133,4 +131,4 @@ class CacheManager:
             for filename in expired:
                 self.purge(filename)
 
-            self.__log.info("Cache", "cleaned", str(len(expired))+" file(s)")
+            self.driftwood.log.info("Cache", "cleaned", str(len(expired))+" file(s)")

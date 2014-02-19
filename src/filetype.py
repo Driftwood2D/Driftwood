@@ -24,10 +24,8 @@
 ## IN THE SOFTWARE.
 ## **********
 
-import json
 from sdl2 import *
 from sdl2.sdlimage import *
-renderer_ATTR = None  # setattr by the base module for API cleanliness.
 
 # This module contains the filetype handler classes.
 
@@ -49,7 +47,7 @@ class ImageFile:
     """This class represents and abstracts a single image file.
     """
 
-    def __init__(self, data):
+    def __init__(self, data, renderer):
         """
         ImageFile class initializer.
 
@@ -57,7 +55,7 @@ class ImageFile:
         @param data: Image data from ResourceManager.
         """
         self.texture = None
-        self.__renderer = renderer_ATTR
+        self.__renderer = renderer
         self.__data = data
 
         # We need to save SDL's destructors because their continued existence is undefined during shutdown.
@@ -77,22 +75,3 @@ class ImageFile:
     def __del__(self):
         if self.texture:
             self.__sdl_destroytexture(self.texture)
-
-
-class JsonFile:
-    """This class represents and abstracts a single JSON file.
-
-    This stub is here to provide JSON handling to scripts without requiring an external import.
-    """
-
-    def __init__(self, data = "{}"):
-        self.json = json.loads(data)
-
-    def __contains__(self, item):
-        if self.json[item]:
-            return True
-        return False
-
-    def __getitem__(self, item):
-        if self.__contains__(item):
-            return self.json[item]

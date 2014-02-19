@@ -75,18 +75,13 @@ class Tileset:
         # This contains the JSON of the tileset.
         self.__tileset = tilesetdata
 
-        self.__filetype = self.tilemap.area.driftwood.filetype
-        self.__resource = self.tilemap.area.driftwood.resource
-
         # Prepare the tileset abstractions.
         self.__prepare_tileset()
 
     def __prepare_tileset(self):
         self.filename = self.__tileset["image"]
         self.name = self.__tileset["name"]
-        self.image = self.__filetype.ImageFile(
-            self.__resource.request(self.filename, True)
-        )
+        self.image = self.tilemap.area.driftwood.resource.request_image(self.filename)  # Ouch
         self.texture = self.image.texture
         self.imagewidth = self.__tileset["imagewidth"]
         self.imageheight = self.__tileset["imageheight"]

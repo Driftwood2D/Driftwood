@@ -54,9 +54,6 @@ class EntityManager:
 
         self.spritesheets = []
 
-        self.__log = self.driftwood.log
-        self.__resource = self.driftwood.resource
-
     def insert(self, filename, layer, x, y):
         """Insert an entity at a position in the area.
 
@@ -75,8 +72,9 @@ class EntityManager:
 
         self.driftwood.area.changed = True
 
-        self.__log.info("Entity", "inserted", "{0} entity on layer {1} at position {2}, {3}".format(filename, layer,
-                                                                                                        x, y))
+        self.driftwood.log.info("Entity", "inserted", "{0} entity on layer {1} at position {2}, {3}".format(filename,
+                                                                                                            layer,
+                                                                                                            x, y))
 
     def entity(self, filename):
         """Retrieve an entity by its filename.

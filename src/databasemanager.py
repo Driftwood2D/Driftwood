@@ -47,12 +47,9 @@ class DatabaseManager:
         """
         self.driftwood = driftwood
 
-        self.__config = self.driftwood.config
-        self.__log = self.driftwood.log
-
         self.__database = None
 
-        self.__open(self.__config["database"]["name"])
+        self.__open(self.driftwood.config["database"]["name"])
 
     def __contains__(self, item):
         if item in self.__database:
@@ -67,7 +64,7 @@ class DatabaseManager:
             try:
                 value = str(value)
             except ValueError:
-                self.__log.log("ERROR", "Database", "cannot convert value to string", value)
+                self.driftwood.log.msg("ERROR", "Database", "cannot convert value to string", value)
 
         self.__database[item] = value
 
@@ -84,13 +81,14 @@ class DatabaseManager:
             Basename of database to open.
         """
         try:
-            self.__database = dumbdbm.open(os.path.join(self.__config["database"]["root"], name), 'c')
+            self.__database = dumbdbm.open(os.path.join(self.driftwood.config["database"]["root"], name), 'c')
 
         except FileNotFoundError:
-            self.__log.log("FATAL", "Database", "cannot open database in directory", self.__config["database"]["root"])
+            self.driftwood.log.msg("FATAL", "Database", "cannot open database in directory",
+                           self.driftwood.config["database"]["root"])
             sys.exit(1)
 
-        self.__log.info("Database", "opened", name)
+        self.driftwood.log.info("Database", "opened", name)
 
     def __del__(self):
         """DatabaseManager class destructor.

@@ -47,9 +47,6 @@ class ScriptManager:
         """
         self.driftwood = driftwood
 
-        self.__log = self.driftwood.log
-        self.__path = self.driftwood.path
-
         # Dictionary of module instances mapped by filename.
         self.__modules = {}
 
@@ -69,10 +66,10 @@ class ScriptManager:
         Args:
             filename: Filename of the python script to load.
         """
-        importpath = self.__path.find(filename)
+        importpath = self.driftwood.path.find(filename)
 
         if importpath:
-            self.__log.info("Script", "loaded", filename)
+            self.driftwood.log.info("Script", "loaded", filename)
 
             try:
                 # This is a directory.
@@ -87,10 +84,10 @@ class ScriptManager:
                     self.__modules[filename] = importer.load_module(mpath)
 
             except ():
-                self.__log.log("ERROR", "Script", "could not load script", filename)
+                self.driftwood.log.msg("ERROR", "Script", "could not load script", filename)
 
         else:
-            self.__log.log("ERROR", "Script", "no such script", filename)
+            self.driftwood.log.msg("ERROR", "Script", "no such script", filename)
 
     def call(self, filename, func):
         """Call a function from a script, loading if not already loaded.
@@ -103,8 +100,8 @@ class ScriptManager:
             self.__load(filename)
 
         if hasattr(self.__modules[filename], func):
-            self.__log.info("Script", "called", filename, func + "()")
+            self.driftwood.log.info("Script", "called", filename, func + "()")
             getattr(self.__modules[filename], func)()
 
         else:
-            self.__log.log("ERROR", "Script", filename, "no such function", func + "()")
+            self.driftwood.log.msg("ERROR", "Script", filename, "no such function", func + "()")
