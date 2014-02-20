@@ -24,7 +24,6 @@
 ## IN THE SOFTWARE.
 ## **********
 
-import base64
 import os
 import struct
 
@@ -111,9 +110,9 @@ class DatabaseManager:
 
                 if self.hash(key) == stored_key:
                     self.driftwood.log.info("Database", "get", "\"{0}\"".format(key))
-                    return base64.b64decode(dbfile.read(sz)).decode("utf-8")
+                    return dbfile.read(sz).decode("utf-8")
                 else:
-                    dbfile.read(sz)
+                    dbfile.seek(sz, 1)
 
         self.driftwood.log.msg("ERROR", "Database", "no such key", "\"{0}\"".format(key))
 
@@ -131,8 +130,6 @@ class DatabaseManager:
             print(type(key))
             return
 
-        origvalue = value
-        value = base64.b64encode(value.encode("utf-8"))
         if len(value) > 65535:
             self.driftwood.log.msg("ERROR", "Database", "value too long", "\"{0}\"".format(key))
 
@@ -143,7 +140,7 @@ class DatabaseManager:
                 with open(self.filename+'~', "wb") as tmpfile:
                     tmpfile.write(dbfile.read(pos))
                     tmpfile.write(struct.pack("<QH", self.hash(key), len(value)))
-                    tmpfile.write(value)
+                    tmpfile.write(value.encode("utf-8"))
                     dbfile.seek(10+psz, 1)
                     tmpfile.write(dbfile.read())
 
@@ -153,7 +150,7 @@ class DatabaseManager:
         else:
             with open(self.filename, "ab") as dbfile:
                 dbfile.write(struct.pack("<QH", self.hash(key), len(value)))
-                dbfile.write(value)
+                dbfile.write(value.encode("utf-8"))
 
         self.driftwood.log.info("Database", "put", "\"{0}\"".format(key))
 
