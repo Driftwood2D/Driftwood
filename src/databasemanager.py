@@ -26,6 +26,7 @@
 
 import os
 import struct
+import sys
 
 
 class DatabaseManager:
@@ -50,8 +51,9 @@ class DatabaseManager:
         self.filename = os.path.join(self.driftwood.config["database"]["root"],
                                      self.driftwood.config["database"]["name"])
 
-        if not os.path.exists(self.filename):
-            open(self.filename, "a+").close()
+        # Make sure the database is accessible.
+        if not self.__test_open():
+            sys.exit(1)
 
     def __contains__(self, item):
         if self.__get_pos(item)[0] >= 0:
@@ -75,10 +77,10 @@ class DatabaseManager:
         Args:
             string: The string to hash.
 
-        Returns: A 64-bit integer.
+        Returns: A 64-bit integer hash.
         """
         h = 0
-        string += "ohscaffy"
+        string += "ohscaffy"  # Pad the end of the string to increase variety.
 
         for i in range(len(string)):
             h = (37 * h) + ord(string[i])
@@ -96,21 +98,28 @@ class DatabaseManager:
 
         Returns: String value of the key.
         """
+        # Make sure our key is a string.
         key = self.__test_str(key)
         if not key:
             return
 
         with open(self.filename, "rb") as dbfile:
+            # Search through each key/value block in the database.
             while True:
+                # Read the key hash and value size.
                 block = dbfile.read(10)
                 if not block:
                     break
 
-                stored_key, sz = struct.unpack("<QH", block)
+                # Unpack the key hash and value size.
+                stored_key, sz = struct.unpack(">QH", block)
 
+                # Retrieve the value.
                 if self.hash(key) == stored_key:
                     self.driftwood.log.info("Database", "get", "\"{0}\"".format(key))
                     return dbfile.read(sz).decode("utf-8")
+
+                # Skip this value and keep looking.
                 else:
                     dbfile.seek(sz, 1)
 
@@ -125,31 +134,37 @@ class DatabaseManager:
             key: The key to create or update.
             value: The value to store.
         """
+        # Make sure our key and value are strings.
         key, value = self.__test_str(key), self.__test_str(value)
         if not key or not value:
-            print(type(key))
             return
 
+        # We only support 2-byte value sizes.
         if len(value) > 65535:
             self.driftwood.log.msg("ERROR", "Database", "value too long", "\"{0}\"".format(key))
 
+        # Try to find the position in the file of the key if it exists.
         pos, psz = self.__get_pos(key)
 
+        # The key exists already, replace its value.
         if pos >= 0:
             with open(self.filename, "rb") as dbfile:
                 with open(self.filename+'~', "wb") as tmpfile:
+                    # Rebuild the database into a temporary file.
                     tmpfile.write(dbfile.read(pos))
-                    tmpfile.write(struct.pack("<QH", self.hash(key), len(value)))
+                    tmpfile.write(struct.pack(">QH", self.hash(key), len(value)))
                     tmpfile.write(value.encode("utf-8"))
                     dbfile.seek(10+psz, 1)
                     tmpfile.write(dbfile.read())
 
+            # Copy the temporary file over the database.
             os.remove(self.filename)
             os.rename(self.filename+'~', self.filename)
 
+        # The key does not exist yet, add it onto the end of the database.
         else:
             with open(self.filename, "ab") as dbfile:
-                dbfile.write(struct.pack("<QH", self.hash(key), len(value)))
+                dbfile.write(struct.pack(">QH", self.hash(key), len(value)))
                 dbfile.write(value.encode("utf-8"))
 
         self.driftwood.log.info("Database", "put", "\"{0}\"".format(key))
@@ -162,19 +177,24 @@ class DatabaseManager:
         Args:
             key: The key to remove.
         """
+        # Make sure our key is a string.
         key = self.__test_str(key)
         if not key:
             return
 
+        # Try to find the position in the file of the key if it exists.
         pos, psz = self.__get_pos(key)
 
+        # The key exists, remove it.
         if pos >= 0:
             with open(self.filename, "rb") as dbfile:
                 with open(self.filename+'~', "wb") as tmpfile:
+                    # Rebuild the database into a temporary file.
                     tmpfile.write(dbfile.read(pos))
                     dbfile.seek(10+psz, 1)
                     tmpfile.write(dbfile.read())
 
+            # Copy the temporary file over the database.
             os.remove(self.filename)
             os.rename(self.filename+'~', self.filename)
 
@@ -197,7 +217,7 @@ class DatabaseManager:
                 if not block:
                     break
 
-                stored_key, sz = struct.unpack("<QH", block)
+                stored_key, sz = struct.unpack(">QH", block)
 
                 if self.hash(key) == stored_key:
                     pos = ptmp
@@ -220,3 +240,26 @@ class DatabaseManager:
 
         else:
             return value
+
+    def __test_open(self):
+        """Test if we can create or open the database file.
+        """
+        # The database exists, try to open it.
+        if os.path.exists(self.filename):
+            try:
+                open(self.filename, "r").close()
+
+            except ():
+                self.driftwood.log.msg("FATAL", "Database", "cannot open database", self.filename)
+                return False
+
+        # The database does not exist, try to create it.
+        else:
+            try:
+                open(self.filename, "a+").close()
+
+            except ():
+                self.driftwood.log.msg("FATAL", "Database", "cannot create database", self.filename)
+                return False
+
+        return True
