@@ -34,6 +34,14 @@ class DatabaseManager:
 
     Manages a simple database for storing persistent values, using a custom format.
 
+    ScaffyDB v1 Format:
+        MAGIC: "ScaffyDB01"
+
+        FOR EACH KEY:
+            1. Key Hash   := 8 BYTES       (unsigned integer) [BIG ENDIAN]
+            2. Value Size := 2 BYTES       (unsigned integer) [BIG ENDIAN]
+            3. Value      := 0-65535 BYTES (string)
+
     Attributes:
         driftwood: Base class instance.
         filename: Filename of the database.
@@ -50,6 +58,8 @@ class DatabaseManager:
 
         self.filename = os.path.join(self.driftwood.config["database"]["root"],
                                      self.driftwood.config["database"]["name"])
+
+        self.__magic = "ScaffyDB01".encode("utf-8")  # Magic header.
 
         # Make sure the database is accessible.
         if not self.__test_open():
@@ -105,6 +115,7 @@ class DatabaseManager:
             return
 
         with open(self.filename, "rb") as dbfile:
+            dbfile.seek(len(self.__magic))  # Skip the magic header.
             # Search through each key/value block in the database.
             while True:
                 # Read the key hash and value size.
@@ -150,8 +161,10 @@ class DatabaseManager:
         # The key exists already, replace its value.
         if pos >= 0:
             with open(self.filename, "rb") as dbfile:
+                dbfile.seek(len(self.__magic))
                 with open(self.filename+'~', "wb") as tmpfile:
                     # Rebuild the database into a temporary file.
+                    tmpfile.write(self.__magic)
                     tmpfile.write(dbfile.read(pos))
                     tmpfile.write(struct.pack(">QH", self.hash(key), len(value)))
                     tmpfile.write(value.encode("utf-8"))
@@ -189,8 +202,10 @@ class DatabaseManager:
         # The key exists, remove it.
         if pos >= 0:
             with open(self.filename, "rb") as dbfile:
+                dbfile.seek(len(self.__magic))
                 with open(self.filename+'~', "wb") as tmpfile:
                     # Rebuild the database into a temporary file.
+                    tmpfile.write(self.__magic)
                     tmpfile.write(dbfile.read(pos))
                     dbfile.seek(10+psz, 1)
                     tmpfile.write(dbfile.read())
@@ -212,8 +227,9 @@ class DatabaseManager:
 
         # Search through each key/value block in the database.
         with open(self.filename, "rb") as dbfile:
+            dbfile.seek(len(self.__magic))
             while True:
-                ptmp = dbfile.tell()
+                ptmp = dbfile.tell() - len(self.__magic)
 
                 # Read the key hash and value size.
                 block = dbfile.read(10)
@@ -252,7 +268,21 @@ class DatabaseManager:
         """Test if we can create or open the database file.
         """
         try:
-            open(self.filename, "ab+").close()
+            # Read the magic header.
+            test = open(self.filename, "ab+")
+            test.seek(0)
+            magic = test.read(len(self.__magic))
+
+            # New file, add magic header.
+            if not magic:
+                test.write(self.__magic)
+                test.close()
+
+            # Wrong magic header.
+            elif magic != self.__magic:
+                test.close()
+                self.driftwood.log.msg("FATAL", "Database", "invalid or unsupported database", self.filename)
+                return False
 
         except ():
             self.driftwood.log.msg("FATAL", "Database", "cannot open database", self.filename)
