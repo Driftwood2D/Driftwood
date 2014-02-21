@@ -53,7 +53,7 @@ class DatabaseManager:
 
         # Make sure the database is accessible.
         if not self.__test_open():
-            sys.exit(1)
+            sys.exit(1)  # Fail.
 
     def __contains__(self, item):
         if self.__get_pos(item)[0] >= 0:
@@ -82,11 +82,12 @@ class DatabaseManager:
         h = 0
         string += "ohscaffy"  # Pad the end of the string to increase variety.
 
+        # A product-addition and left-shift hash routine using empirically effective values.
         for i in range(len(string)):
             h = (37 * h) + ord(string[i])
-        h += (h << 33)
+        h += (h << 33)  # The left-shift increases variety in the lower half of the integer.
 
-        return h % 2**64
+        return h % 2**64  # Overflow into 64-bit integer.
 
     def get(self, key):
         """Get a value by key.
@@ -119,7 +120,7 @@ class DatabaseManager:
                     self.driftwood.log.info("Database", "get", "\"{0}\"".format(key))
                     return dbfile.read(sz).decode("utf-8")
 
-                # Skip this value and keep looking.
+                # Skip the value and keep looking.
                 else:
                     dbfile.seek(sz, 1)
 
@@ -209,24 +210,30 @@ class DatabaseManager:
         pos = -1
         psz = 0
 
+        # Search through each key/value block in the database.
         with open(self.filename, "rb") as dbfile:
             while True:
                 ptmp = dbfile.tell()
 
+                # Read the key hash and value size.
                 block = dbfile.read(10)
                 if not block:
                     break
 
+                # Unpack the key hash and value size.
                 stored_key, sz = struct.unpack(">QH", block)
 
+                # The keys match, return this position.
                 if self.hash(key) == stored_key:
                     pos = ptmp
                     psz = sz
                     break
+
+                # Skip the value and keep looking.
                 else:
                     dbfile.seek(sz, 1)
 
-            return (pos, psz)
+            return pos, psz
 
     def __test_str(self, value):
         """Convert a value into a string if possible.
@@ -244,22 +251,11 @@ class DatabaseManager:
     def __test_open(self):
         """Test if we can create or open the database file.
         """
-        # The database exists, try to open it.
-        if os.path.exists(self.filename):
-            try:
-                open(self.filename, "r").close()
+        try:
+            open(self.filename, "ab+").close()
 
-            except ():
-                self.driftwood.log.msg("FATAL", "Database", "cannot open database", self.filename)
-                return False
-
-        # The database does not exist, try to create it.
-        else:
-            try:
-                open(self.filename, "a+").close()
-
-            except ():
-                self.driftwood.log.msg("FATAL", "Database", "cannot create database", self.filename)
-                return False
+        except ():
+            self.driftwood.log.msg("FATAL", "Database", "cannot open database", self.filename)
+            return False
 
         return True

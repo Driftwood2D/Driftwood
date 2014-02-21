@@ -40,7 +40,7 @@ if __name__ == "__main__":
     if VCUR[0] < VREQ[0] or VCUR[1] < VREQ[1] or VCUR[2] < VREQ[2]:
         print("[0] FATAL: python >= {0}.{1}.{2} required, found python {3}.{4}.{5}".format(VREQ[0], VREQ[1], VREQ[2],
                                                                                            VCUR[0], VCUR[1], VCUR[2]))
-        sys.exit(1)
+        sys.exit(1)  # Fail.
 
 from configmanager import ConfigManager
 from logmanager import LogManager
@@ -54,8 +54,6 @@ from windowmanager import WindowManager
 from entitymanager import EntityManager
 from areamanager import AreaManager
 from scriptmanager import ScriptManager
-
-import filetype
 
 
 class Driftwood:

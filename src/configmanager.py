@@ -118,13 +118,13 @@ class ConfigManager:
             self.__config = json.load(open(self.__cmdline_args.config, 'r'))
         except FileNotFoundError:
             print("[0] FATAL: Config: config file missing")
-            sys.exit(1)
+            sys.exit(1)  # Fail.
 
         # If --version was used, print the version string and exit.
         if self.__cmdline_args.version:
             print(VERSION)
             print(COPYRIGHT)
-            sys.exit(0)
+            sys.exit(0)  # Exit here, this is all we're doing today.
 
         if self.__cmdline_args.path:
             self.__config["path"]["path"] = self.__cmdline_args.path[0].split(',')
