@@ -41,6 +41,7 @@ class InputManager:
         """
         self.driftwood = driftwood
 
+        self.__handler = None
         self.__registry = {}
         self.__stack = []
 
@@ -65,15 +66,28 @@ class InputManager:
         if keysym in self.__stack:
             self.__stack.remove(keysym)
 
+    def handler(self, callback):
+        """Register the handler callback.
+
+        The handler callback function will receive a call every tick that a key is being pressed. The handler must take
+        one argument: the SDLKey for the key on top of the input stack. (the key which was most recently pressed.)
+
+        Args:
+            callback: Handler function to be called on any keypress.
+        """
+        self.__handler = callback
+
     def register(self, keysym, callback):
         """Register an input callback.
 
+        The callback function will receive a call every tick that the key is on top of the input stack. (the key which
+        was most recently pressed.)
+
         Args:
             keysym: SDLKey for the key which triggers the callback.
-            callback: Function to be called on keypress.
+            callback: Function to be called on the registered keypress.
         """
-        if not keysym in self.__registry:
-            self.__registry[keysym] = callback
+        self.__registry[keysym] = callback
 
     def unregister(self, keysym):
         """Unregister an input callback.
@@ -92,3 +106,5 @@ class InputManager:
         if self.__stack:
             if self.__stack[0] in self.__registry:
                 self.__registry[self.__stack[0]]()
+            elif self.__handler:
+                self.__handler(self.__stack[0])

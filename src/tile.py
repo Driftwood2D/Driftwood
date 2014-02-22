@@ -24,8 +24,6 @@
 ## IN THE SOFTWARE.
 ## **********
 
-import math
-
 
 class Tile:
     """This class represents a tile.
@@ -41,7 +39,6 @@ class Tile:
         tpos: A two-member list containing the x and y coordinates of the tile's position in the map.
         srcrect: A four-member list containing an x,y,w,h source rectangle for the tile's graphic.
         srcrect: A four-member list containing an x,y,w,h destination rectangle for the tile's placement.
-        entities: A list of entities bound to this tile.
         properties: A dictionary containing tile properties.
     """
     def __init__(self, layer, seq, tileset, gid):
@@ -61,11 +58,11 @@ class Tile:
         self.localgid = self.gid - self.tileset.range[0]
         self.gpos = [
             (self.gid - self.tileset.range[0]) % self.tileset.width,
-            math.floor((self.gid - self.tileset.range[0]) / self.tileset.width)
+            (self.gid - self.tileset.range[0]) // self.tileset.width
         ]
         self.tpos = [
             self.seq % self.layer.tilemap.width,
-            math.floor(self.seq / self.layer.tilemap.width)
+            self.seq // self.layer.tilemap.width
         ]
         self.srcrect = [
             (self.gpos[0] * self.tileset.tilewidth) + (self.gpos[0] * self.tileset.spacing),
@@ -79,6 +76,5 @@ class Tile:
             self.tileset.tilewidth,
             self.tileset.tileheight
         ]
-        self.entities = []
         if self.tileset.tileproperties and self.localgid in self.tileset.tileproperties:
             self.properties = self.tileset.tileproperties[self.localgid]

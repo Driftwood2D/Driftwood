@@ -99,9 +99,23 @@ class ScriptManager:
         if not filename in self.__modules:
             self.__load(filename)
 
-        if hasattr(self.__modules[filename], func):
+        if filename in self.__modules and hasattr(self.__modules[filename], func):
             self.driftwood.log.info("Script", "called", filename, func + "()")
             getattr(self.__modules[filename], func)()
 
         else:
             self.driftwood.log.msg("ERROR", "Script", filename, "no such function", func + "()")
+
+    def module(self, filename):
+        """Return the module instance of a script, loading if not already loaded.
+
+        Args:
+            filename: Filename of the python script whose module instance should be returned.
+
+        Returns: Python module instance.
+        """
+        if not filename in self.__modules:
+            self.__load(filename)
+
+        if filename in self.__modules:
+            return self.__modules[filename]

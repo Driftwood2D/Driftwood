@@ -48,7 +48,7 @@ class EntityManager:
         """
         self.driftwood = driftwood
 
-        self.player = None  # TODO
+        self.player = None
 
         self.entities = []
 
@@ -68,7 +68,6 @@ class EntityManager:
         self.entities[-1].layer = layer
         self.entities[-1].x = x
         self.entities[-1].y = y
-        self.entities[-1].bound.append([layer, x, y])
 
         self.driftwood.area.changed = True
 
@@ -77,16 +76,20 @@ class EntityManager:
                                                                                                             x, y))
 
     def entity(self, filename):
-        """Retrieve an entity by its filename.
+        """Retrieve a list of entities by filename.
 
         Args:
             filename: Filename of the JSON entity descriptor.
 
-        Returns: Entity class instance.
+        Returns: List of Entity class instances.
         """
+        ret = []
+
         for ent in self.entities:
             if ent.filename == filename:
-                return ent
+                ret += ent
+
+        return ret
 
     def layer(self, layer):
         """Retrieve a list of entities on a certain layer.
@@ -113,6 +116,8 @@ class EntityManager:
         for ent in range(len(self.entities)):
             if self.entities[ent].filename == filename:
                 del self.entities[ent]
+
+        self.driftwood.area.changed = True
 
     def spritesheet(self, filename):
         """Retrieve a sprite sheet by its filename.

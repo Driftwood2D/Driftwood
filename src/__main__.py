@@ -83,7 +83,9 @@ class Driftwood:
             area: AreaManager instance.
             script: ScriptManager instance.
 
-            running: Whether the mainloop should continue running. Set false to kill the engine.
+            keycode: Contains the SDL keycodes.
+
+            running: Whether the mainloop should continue running. Set False to shut down the engine.
         """
         self.config = ConfigManager(self)
         self.log = LogManager(self)
@@ -97,6 +99,9 @@ class Driftwood:
         self.entity = EntityManager(self)
         self.area = AreaManager(self)
         self.script = ScriptManager(self)
+
+        # SDL Keycodes.
+        self.keycode = keycode
 
         self.running = False
 

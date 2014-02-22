@@ -38,8 +38,9 @@ class Entity:
         layer: The layer of the entity.
         x: The x-coordinate of the entity.
         y: The y-coordinate of the entity.
+        width: The width in pixels of the entity.
+        height: The height in pixels of the entity.
         gpos: A four-member list containing an x,y,w,h source rectangle for the entity's graphic.
-        bound: A list of [layer, x, y] positions for tiles the entity is bound to.
         properties: Any custom properties of the entity.
     """
     def __init__(self, entitymanager):
@@ -55,8 +56,9 @@ class Entity:
         self.layer = 0
         self.x = 0
         self.y = 0
+        self.width = 0
+        self.height = 0
         self.gpos = [0, 0, 0, 0]
-        self.bound = []
         self.properties = {}
 
         self.__entity = {}
@@ -67,6 +69,7 @@ class Entity:
         self.__entity = self.manager.driftwood.resource.request_json(filename)
 
         self.gpos = self.__entity["gpos"]
+        self.width, self.height = self.gpos[2], self.gpos[3]
 
         if "properties" in self.__entity:
             self.properties = self.__entity["properties"]
@@ -80,36 +83,8 @@ class Entity:
             self.manager.spritesheets.append(spritesheet.Spritesheet(self.manager, self.__entity["image"]))
             self.spritesheet = self.manager.spritesheets[-1]
 
-    def bind(self, layer, x, y):
-        """Bind the entity to a tile by its coordinates.
-
-        Args:
-            layer: Layer of the tile.
-            x: x-coordinate of the tile.
-            y: y-coordinate of the tile.
-        """
-        if not [layer, x, y] in self.bound:
-            self.bound.append([layer, x, y])
-
-            # Ouch.
-            self.manager.driftwood.area.tilemap.layers[layer].tile(x, y).entities.append(self)
-
-    def unbind(self, layer, x, y):
-        """Unbind the entity from a tile by its coordinates.
-
-        Args:
-            layer: Layer of the tile.
-            x: x-coordinate of the tile.
-            y: y-coordinate of the tile.
-        """
-        if [layer, x, y] in self.bound:
-            self.bound.remove([layer, x, y])
-
-            # Ouch.
-            self.manager.driftwood.area.tilemap.layers[layer].tile(x, y).entities.remove(self)
-
-    def move(self, layer, x, y):
-        """Move the entity to a new graphical position.
+    def teleport(self, layer, x, y):
+        """Teleport the entity to a new graphical position.
 
         Args:
             layer: New layer, or None to skip.
@@ -124,3 +99,14 @@ class Entity:
 
         if y:
             self.y = y
+
+        self.manager.driftwood.area.changed = True
+
+    def move(self, x, y):
+        if x:
+            self.x += x
+
+        if y:
+            self.y += y
+
+        self.manager.driftwood.area.changed = True

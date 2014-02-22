@@ -103,6 +103,10 @@ class Layer:
                     # Insert the object properties.
                     self.tiles[int((ty * self.tilemap.width) + tx)].properties.update(obj["properties"])
 
+            # TODO: Handle entity spawns on object type "entity".
+            if obj["type"] == "entity":
+                pass
+
     def tile(self, x, y):
         """Retrieve a tile from the layer by its coordinates.
 
