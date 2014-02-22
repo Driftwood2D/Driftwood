@@ -29,7 +29,7 @@ import json
 import sys
 
 
-VERSION = "Driftwood 2D PreAlpha-dev1"
+VERSION = "Driftwood 2D PreAlpha-dev2"
 COPYRIGHT = "Copyright 2014 PariahSoft LLC"
 
 
