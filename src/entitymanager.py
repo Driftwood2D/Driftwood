@@ -36,6 +36,7 @@ class EntityManager:
         driftwood: Base class instance.
 
         player: The player entity.
+        collider: The collision callback. The callback must take as arguments the two entities that collided.
 
         entities: The list of Entity class instances for each entity.
         spritesheets: The list of Spritesheet class instances for each sprite sheet.
@@ -49,10 +50,13 @@ class EntityManager:
         self.driftwood = driftwood
 
         self.player = None
+        self.collider = None
 
         self.entities = []
 
         self.spritesheets = []
+
+        self.__last_eid = -1
 
     def insert(self, filename, layer, x, y):
         """Insert an entity at a position in the area.
@@ -63,11 +67,24 @@ class EntityManager:
             x: x-coordinate of insertion.
             y: y-coordinate of insertion.
         """
-        self.entities.append(entity.Entity(self))
-        self.entities[-1]._read(filename)
-        self.entities[-1].layer = layer
+        data = self.driftwood.resource.request_json(filename)
+
+        if data["mode"] == "tile":
+            self.entities.append(entity.TileModeEntity(self))
+
+        elif data["mode"] == "pixel":
+            self.entities.append(entity.PixelModeEntity(self))
+
+        else:
+            self.driftwood.log.msg("ERROR", "Entity", "invalid mode", "\"{0}\"".format(data["mode"]))
+            return
+
+        self.entities[-1]._read(filename, self.__last_eid+1)
+        self.__last_eid += 1
+
         self.entities[-1].x = x
         self.entities[-1].y = y
+        self.entities[-1].layer = layer
 
         self.driftwood.area.changed = True
 
@@ -75,21 +92,17 @@ class EntityManager:
                                                                                                             layer,
                                                                                                             x, y))
 
-    def entity(self, filename):
-        """Retrieve a list of entities by filename.
+    def entity(self, eid):
+        """Retrieve an entity by eid
 
         Args:
-            filename: Filename of the JSON entity descriptor.
+            eid: The Entity ID of the entity to retrieve.
 
-        Returns: List of Entity class instances.
+        Returns: Entity class instance.
         """
-        ret = []
-
         for ent in self.entities:
-            if ent.filename == filename:
-                ret += ent
-
-        return ret
+            if ent.eid == eid:
+                return ent
 
     def layer(self, layer):
         """Retrieve a list of entities on a certain layer.
@@ -130,3 +143,13 @@ class EntityManager:
         for ss in self.spritesheets:
             if ss.filename == filename:
                 return ss
+
+    def collision(self, a, b):
+        """Notify the collision callback, if set, that entity "a" has collided with entity or tile "b".
+
+        Args:
+            a: First colliding entity.
+            b: Second colliding entity or tile.
+        """
+        if self.collider:
+            self.collider(a, b)

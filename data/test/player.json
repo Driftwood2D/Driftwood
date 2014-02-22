@@ -1,4 +1,6 @@
 {
+    "mode": "tile",
+    "collision": true,
 	"image": "basedata/pariahsoft_logo_16x16.png",
 	"gpos": [0, 0, 16, 16],
 	"properties": {"nerd": true}

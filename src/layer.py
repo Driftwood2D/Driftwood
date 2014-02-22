@@ -95,13 +95,15 @@ class Layer:
                 continue
 
             # Map object properties onto their tiles.
-            for x in range(1, int(obj["width"] / self.tilemap.tilewidth)+1):
-                for y in range(1, int(obj["height"] / self.tilemap.tileheight)+1):
-                    tx = (x * obj["x"]) / self.tilemap.tilewidth
-                    ty = (y * obj["y"]) / self.tilemap.tileheight
+            for x in range(0, int(obj["width"] / self.tilemap.tilewidth)):
+                for y in range(0, int(obj["height"] / self.tilemap.tileheight)):
+                    tx = int(obj["x"] / self.tilemap.tilewidth + x)
+                    ty = int(obj["y"] / self.tilemap.tileheight + y)
 
                     # Insert the object properties.
-                    self.tiles[int((ty * self.tilemap.width) + tx)].properties.update(obj["properties"])
+                    self.tile(tx, ty).properties.update(obj["properties"])
+                    if "nowalk" in self.tile(tx, ty).properties:
+                        self.tile(tx, ty).nowalk = True
 
             # TODO: Handle entity spawns on object type "entity".
             if obj["type"] == "entity":
@@ -113,5 +115,15 @@ class Layer:
         Args:
             x: x-coordinate
             y: y-coordinate
+
+        Returns: Tile instance or None if out of bounds.
         """
-        return self.tiles[int((y * self.tilemap.width) + x)]
+        if x < 0 or y < 0 or x >= self.tilemap.width or y >= self.tilemap.height:
+            return None
+
+        try:
+            tile = self.tiles[int((y * self.tilemap.width) + x)]
+            return tile
+
+        except IndexError:
+            return None

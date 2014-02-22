@@ -40,6 +40,8 @@ class Tile:
         srcrect: A four-member list containing an x,y,w,h source rectangle for the tile's graphic.
         srcrect: A four-member list containing an x,y,w,h destination rectangle for the tile's placement.
         properties: A dictionary containing tile properties.
+
+        nowalk: If true, the tile is not walkable.
     """
     def __init__(self, layer, seq, tileset, gid):
         """Tile class initializer.
@@ -76,5 +78,10 @@ class Tile:
             self.tileset.tilewidth,
             self.tileset.tileheight
         ]
+
         if self.tileset.tileproperties and self.localgid in self.tileset.tileproperties:
             self.properties = self.tileset.tileproperties[self.localgid]
+        else:
+            self.properties = {}
+
+        self.nowalk = False
