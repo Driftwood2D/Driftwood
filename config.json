@@ -7,6 +7,14 @@
 		"enabled": true,
 		"ttl": 300
 	},
+	"input": {
+		"keybindings": {
+			"up": "SDLK_UP",
+			"down": "SDLK_DOWN",
+			"left": "SDLK_LEFT",
+			"right": "SDLK_RIGHT"
+		}
+	},
 	"log": {
 		"verbose": true
 	},

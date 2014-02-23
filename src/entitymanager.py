@@ -66,6 +66,8 @@ class EntityManager:
             layer: Layer of insertion.
             x: x-coordinate of insertion.
             y: y-coordinate of insertion.
+
+        Returns: New entity if succeeded, None if failed.
         """
         data = self.driftwood.resource.request_json(filename)
 
@@ -77,7 +79,7 @@ class EntityManager:
 
         else:
             self.driftwood.log.msg("ERROR", "Entity", "invalid mode", "\"{0}\"".format(data["mode"]))
-            return
+            return None
 
         self.entities[-1]._read(filename, self.__last_eid+1)
         self.__last_eid += 1
@@ -91,6 +93,8 @@ class EntityManager:
         self.driftwood.log.info("Entity", "inserted", "{0} entity on layer {1} at position {2}, {3}".format(filename,
                                                                                                             layer,
                                                                                                             x, y))
+
+        return self.entities[-1]
 
     def entity(self, eid):
         """Retrieve an entity by eid
@@ -165,3 +169,42 @@ class EntityManager:
         """
         if self.collider:
             self.collider(a, b)
+
+    def setup_player(self, ent):
+        """Helper function to setup an entity as a functional player.
+
+        Sets the player and its default keybindings.
+
+        Args:
+            ent: Entity to become the player
+        """
+
+        self.player = ent
+
+        self.driftwood.input.register(getattr(self.driftwood.keycode,
+                                      self.driftwood.config["input"]["keybindings"]["up"]),
+                                      self.__default_keybind_move_up)
+
+        self.driftwood.input.register(getattr(self.driftwood.keycode,
+                                      self.driftwood.config["input"]["keybindings"]["down"]),
+                                      self.__default_keybind_move_down)
+
+        self.driftwood.input.register(getattr(self.driftwood.keycode,
+                                      self.driftwood.config["input"]["keybindings"]["left"]),
+                                      self.__default_keybind_move_left)
+        
+        self.driftwood.input.register(getattr(self.driftwood.keycode,
+                                      self.driftwood.config["input"]["keybindings"]["right"]),
+                                      self.__default_keybind_move_right)
+
+    def __default_keybind_move_up(self):
+        self.driftwood.entity.player.move(0, -1)
+
+    def __default_keybind_move_down(self):
+        self.driftwood.entity.player.move(0, 1)
+
+    def __default_keybind_move_left(self):
+        self.driftwood.entity.player.move(-1, 0)
+
+    def __default_keybind_move_right(self):
+        self.driftwood.entity.player.move(1, 0)

@@ -16,23 +16,6 @@ def init_area():
 	Driftwood.area.focus("testmap.json")
 	
 	# Insert an entity and make it the player.
-	Driftwood.entity.insert("player.json", 0, 16, 32)
-	Driftwood.entity.player = Driftwood.entity.entities[-1]
-	
-	# Register key bindings.
-	Driftwood.input.register(Driftwood.keycode.SDLK_UP, move_up)
-	Driftwood.input.register(Driftwood.keycode.SDLK_DOWN, move_down)
-	Driftwood.input.register(Driftwood.keycode.SDLK_LEFT, move_left)
-	Driftwood.input.register(Driftwood.keycode.SDLK_RIGHT, move_right)
+	player = Driftwood.entity.insert("player.json", 0, 16, 32)
+	Driftwood.entity.setup_player(player)
 
-def move_up():
-	Driftwood.entity.player.move(0, -1)
-
-def move_down():
-	Driftwood.entity.player.move(0, 1)
-
-def move_left():
-	Driftwood.entity.player.move(-1, 0)
-
-def move_right():
-	Driftwood.entity.player.move(1, 0)
