@@ -62,7 +62,7 @@ class DatabaseManager:
         self.__magic = "ScaffyDB01".encode("utf-8")  # Magic header.
 
         # Make sure the database is accessible.
-        if not self.__test_open():
+        if not self.__test_db_dir() or not self.__test_open():
             sys.exit(1)  # Fail.
 
     def __contains__(self, item):
@@ -263,6 +263,28 @@ class DatabaseManager:
 
         else:
             return value
+
+    def __test_db_dir(self):
+        """Test if we can create or open the database directory.
+        """
+        db_dir_path = self.driftwood.config["database"]["root"]
+        try:
+            # Create db directory
+            if not os.path.isdir(db_dir_path):
+                self.driftwood.log.info("Database", "not a directory, creating it as one", db_dir_path)
+                os.mkdir(db_dir_path)
+        except ():
+            self.driftwood.log.msg("FATAL", "Database", "cannot create database directory", db_dir_path)
+            return False
+
+        try:
+            # Try openning the dir
+            files = os.listdir(db_dir_path)
+        except ():
+            self.driftwood.log.msg("FATAL", "Database", "cannot open database directory", db_dir_path)
+            return False
+
+        return True
 
     def __test_open(self):
         """Test if we can create or open the database file.
