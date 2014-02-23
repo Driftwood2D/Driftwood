@@ -54,8 +54,7 @@ class ResourceManager:
         return False
 
     def __getitem__(self, item):
-        if self.__contains__(item):
-            return self.request(item)
+        return self.request(item)
 
     def request(self, filename, binary = False):
         """Retrieve the contents of a file.

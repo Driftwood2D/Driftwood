@@ -105,7 +105,7 @@ class Layer:
 
                     # Set nowalk if present.
                     if "nowalk" in self.tile(tx, ty).properties:
-                        self.tile(tx, ty).nowalk = True
+                        self.tile(tx, ty).nowalk = self.tile(tx, ty).properties["nowalk"]
 
                     # Set exit if present.
                     for exittype in ["exit", "exit:up", "exit:down", "exit:left", "exit:right"]:

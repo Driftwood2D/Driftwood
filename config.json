@@ -16,7 +16,8 @@
 		}
 	},
 	"log": {
-		"verbose": true
+		"verbose": false,
+		"halt": true
 	},
 	"path": {
 		"self": "driftwood.pyz",

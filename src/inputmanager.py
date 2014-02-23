@@ -101,10 +101,12 @@ class InputManager:
     def tick(self):
         """Tick callback.
 
-        If there is a keypress on top of the stack and it maps to a callback in the registry, call it.
+        If there is a keypress on top of the stack and it maps to a callback in the registry, call it. Also pass the
+        keypress to the secondary handler if it exists.
         """
         if self.__stack:
             if self.__stack[0] in self.__registry:
                 self.__registry[self.__stack[0]]()
-            elif self.__handler:
+
+            if self.__handler:
                 self.__handler(self.__stack[0])

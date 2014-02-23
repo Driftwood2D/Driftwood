@@ -103,6 +103,8 @@ class ConfigManager:
         group2.add_argument("--verbose", default=None, action="store_true", dest="verbose",
                             help="run in verbose logging mode")
 
+        parser.add_argument("--halt", action="store_true", dest="halt", help="halt execution on errors or warnings")
+
         parser.add_argument("--version", action="store_true", dest="version", help="print the version string")
 
         return parser.parse_args()
@@ -159,3 +161,6 @@ class ConfigManager:
                 self.__config["log"]["verbose"] = True
             else:
                 self.__config["log"]["verbose"] = False
+
+        if self.__cmdline_args.halt:
+            self.__config["log"]["halt"] = True

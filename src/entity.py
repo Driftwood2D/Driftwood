@@ -174,31 +174,35 @@ class TileModeEntity(Entity):
                 # Don't walk on nowalk tiles or off the edge of the map unless there's a lazy exit.
                 if self._curtile:
                     if dsttile:
-                        if dsttile.nowalk:
-                            self._collide(dsttile)
-                            return False
+                        if dsttile.nowalk or dsttile.nowalk == "":
+                            # Is the tile a player or npc specific nowalk?
+                            if (dsttile.nowalk == "player" and self.manager.player.eid == self.eid
+                                    or dsttile.nowalk == "npc" and self.manager.player.eid != self.eid):
+                                self._collide(dsttile)
+                                return False
+
+                            # Any other values are an unconditional nowalk.
+                            elif not dsttile.nowalk in ["player", "npc"]:
+                                self._collide(dsttile)
+                                return False
 
                     else:
                         # Are we allowed to walk off the edge of the area to follow a lazy exit?
-                        if (("exit:up" in self._curtile.exits or "exit:down" in self._curtile.exits
-                                or "exit:left" in self._curtile.exits or "exit:right" in self._curtile.exits)
-                                and (not dsttile) or (not dsttile.nowalk)):
-                            # Process lazy exit.
-                            if "exit:up" in self._curtile.exits and y == -1:
-                                self._next_area = self._curtile.exits["exit:up"].split(',')
+                        if "exit:up" in self._curtile.exits and y == -1:
+                            self._next_area = self._curtile.exits["exit:up"].split(',')
 
-                            elif "exit:down" in self._curtile.exits and y == 1:
-                                self._next_area = self._curtile.exits["exit:down"].split(',')
+                        elif "exit:down" in self._curtile.exits and y == 1:
+                            self._next_area = self._curtile.exits["exit:down"].split(',')
 
-                            elif "exit:left" in self._curtile.exits and x == -1:
-                                self._next_area = self._curtile.exits["exit:left"].split(',')
+                        elif "exit:left" in self._curtile.exits and x == -1:
+                            self._next_area = self._curtile.exits["exit:left"].split(',')
 
-                            elif "exit:right" in self._curtile.exits and x == 1:
-                                self._next_area = self._curtile.exits["exit:right"].split(',')
+                        elif "exit:right" in self._curtile.exits and x == 1:
+                            self._next_area = self._curtile.exits["exit:right"].split(',')
 
-                            else:
-                                self._collide(dsttile)
-                                return False
+                        else:
+                            self._collide(dsttile)
+                            return False
 
                 # Is there a regular exit on the destination tile?
                 if (not self._next_area) and "exit" in dsttile.exits:
@@ -274,6 +278,7 @@ class TileModeEntity(Entity):
         self.manager.driftwood.area.changed = True
 
 
+# TODO: Finish pixel mode.
 class PixelModeEntity(Entity):
     def teleport(self, layer, x, y):
         """Teleport the entity to a new pixel position.

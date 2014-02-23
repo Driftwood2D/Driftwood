@@ -192,7 +192,7 @@ class EntityManager:
         self.driftwood.input.register(getattr(self.driftwood.keycode,
                                       self.driftwood.config["input"]["keybindings"]["left"]),
                                       self.__default_keybind_move_left)
-        
+
         self.driftwood.input.register(getattr(self.driftwood.keycode,
                                       self.driftwood.config["input"]["keybindings"]["right"]),
                                       self.__default_keybind_move_right)

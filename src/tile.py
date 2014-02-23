@@ -86,5 +86,5 @@ class Tile:
         else:
             self.properties = {}
 
-        self.nowalk = False
+        self.nowalk = None
         self.exits = {}

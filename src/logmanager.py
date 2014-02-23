@@ -53,6 +53,10 @@ class LogManager:
         """
         self.__print(*chain)
 
+        # Die on non-info (error or warning) messages.
+        if self.driftwood.config["log"]["halt"]:
+            self.driftwood.running = False
+
     def info(self, *chain):
         """Log an info message if verbosity is enabled..
 
