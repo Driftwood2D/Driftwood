@@ -30,7 +30,6 @@ from sdl2 import *
 
 import filetype
 
-
 class WindowManager:
     """The Window Manager
 
@@ -41,6 +40,9 @@ class WindowManager:
         window: The SDL Window.
         renderer: The SDL Renderer attached to the window.
     """
+
+    # Mac OS X 10.9 with SDL 2.0.1 does double buffering and needs a second rendering of the same image on still frames.
+    NOTCHANGED, BACKBUFFER_NEEDS_UPDATE, CHANGED = range(3)
 
     def __init__(self, driftwood):
         """WindowManager class initializer.
@@ -66,7 +68,7 @@ class WindowManager:
         self.__frame = None
 
         # Whether the frame has been changed since last display.
-        self.__changed = False
+        self.__changed = WindowManager.NOTCHANGED
 
         # We need to save SDL's destructors because their continued existence is undefined during shutdown.
         self.__sdl_destroytexture = SDL_DestroyTexture
@@ -158,7 +160,7 @@ class WindowManager:
         self.__frame = [self.__texture, srcrect, dstrect]
 
         # Mark the frame changed.
-        self.__changed = True
+        self.__changed = WindowManager.CHANGED
 
     def tick(self):
         """Tick callback which refreshes the renderer.
@@ -166,7 +168,7 @@ class WindowManager:
         if self.__changed:
             SDL_RenderClear(self.renderer)
             SDL_RenderCopy(self.renderer, *self.__frame)
-            self.__changed = False
+            self.__changed -= 1
 
         SDL_RenderPresent(self.renderer)
 
