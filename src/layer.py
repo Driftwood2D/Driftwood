@@ -102,8 +102,15 @@ class Layer:
 
                     # Insert the object properties.
                     self.tile(tx, ty).properties.update(obj["properties"])
+
+                    # Set nowalk if present.
                     if "nowalk" in self.tile(tx, ty).properties:
                         self.tile(tx, ty).nowalk = True
+
+                    # Set exit if present.
+                    for exittype in ["exit", "exit:up", "exit:down", "exit:left", "exit:right"]:
+                        if exittype in self.tile(tx, ty).properties:
+                            self.tile(tx, ty).exits[exittype] = self.tile(tx, ty).properties[exittype]
 
             # TODO: Handle entity spawns on object type "entity".
             if obj["type"] == "entity":
@@ -122,8 +129,8 @@ class Layer:
             return None
 
         try:
-            tile = self.tiles[int((y * self.tilemap.width) + x)]
-            return tile
+            t = self.tiles[int((y * self.tilemap.width) + x)]
+            return t
 
         except IndexError:
             return None

@@ -20,20 +20,6 @@
          "name":"Object Layer 1",
          "objects":[
                 {
-                 "height":16,
-                 "name":"testname",
-                 "properties":
-                    {
-                     "foo":"bar",
-                     "nowalk":""
-                    },
-                 "type":"testtype",
-                 "visible":true,
-                 "width":16,
-                 "x":32,
-                 "y":80
-                }, 
-                {
                  "height":32,
                  "name":"",
                  "properties":
@@ -43,20 +29,7 @@
                  "type":"",
                  "visible":true,
                  "width":32,
-                 "x":96,
-                 "y":112
-                }, 
-                {
-                 "height":48,
-                 "name":"",
-                 "properties":
-                    {
-                     "nowalk":""
-                    },
-                 "type":"",
-                 "visible":true,
-                 "width":64,
-                 "x":48,
+                 "x":64,
                  "y":64
                 }, 
                 {
@@ -68,35 +41,9 @@
                     },
                  "type":"",
                  "visible":true,
-                 "width":16,
+                 "width":32,
                  "x":32,
-                 "y":16
-                }, 
-                {
-                 "height":32,
-                 "name":"",
-                 "properties":
-                    {
-                     "nowalk":""
-                    },
-                 "type":"",
-                 "visible":true,
-                 "width":80,
-                 "x":80,
-                 "y":0
-                }, 
-                {
-                 "height":112,
-                 "name":"",
-                 "properties":
-                    {
-                     "nowalk":""
-                    },
-                 "type":"",
-                 "visible":true,
-                 "width":16,
-                 "x":144,
-                 "y":32
+                 "y":80
                 }, 
                 {
                  "height":16,
@@ -107,9 +54,48 @@
                     },
                  "type":"",
                  "visible":true,
-                 "width":160,
+                 "width":32,
+                 "x":64,
+                 "y":112
+                }, 
+                {
+                 "height":16,
+                 "name":"",
+                 "properties":
+                    {
+                     "nowalk":""
+                    },
+                 "type":"",
+                 "visible":true,
+                 "width":16,
+                 "x":96,
+                 "y":48
+                }, 
+                {
+                 "height":144,
+                 "name":"",
+                 "properties":
+                    {
+                     "nowalk":""
+                    },
+                 "type":"",
+                 "visible":true,
+                 "width":16,
                  "x":0,
-                 "y":144
+                 "y":16
+                }, 
+                {
+                 "height":16,
+                 "name":"",
+                 "properties":
+                    {
+                     "nowalk":""
+                    },
+                 "type":"",
+                 "visible":true,
+                 "width":128,
+                 "x":0,
+                 "y":0
                 }, 
                 {
                  "height":128,
@@ -120,8 +106,8 @@
                     },
                  "type":"",
                  "visible":true,
-                 "width":16,
-                 "x":0,
+                 "width":32,
+                 "x":128,
                  "y":0
                 }, 
                 {
@@ -133,21 +119,21 @@
                     },
                  "type":"",
                  "visible":true,
-                 "width":64,
+                 "width":144,
                  "x":16,
-                 "y":0
+                 "y":144
                 }, 
                 {
                  "height":16,
                  "name":"",
                  "properties":
                     {
-                     "exit:left":"testmap2.json,0,9,8"
+                     "exit:right":"testmap.json,0,0,8"
                     },
                  "type":"",
                  "visible":true,
                  "width":16,
-                 "x":0,
+                 "x":144,
                  "y":128
                 }],
          "opacity":1,
@@ -158,7 +144,7 @@
          "y":0
         }, 
         {
-         "data":[5, 112, 164, 162, 144, 290, 291, 292, 291, 292, 22, 0, 162, 0, 0, 307, 308, 309, 308, 309, 39, 0, 0, 0, 0, 0, 0, 0, 0, 1, 56, 0, 0, 80, 81, 0, 124, 0, 0, 18, 22, 0, 0, 97, 98, 110, 141, 0, 0, 35, 39, 0, 366, 86, 87, 88, 89, 0, 0, 52, 56, 0, 0, 137, 138, 139, 140, 0, 0, 18, 73, 0, 0, 0, 0, 0, 196, 345, 0, 35, 0, 0, 0, 0, 0, 0, 345, 346, 0, 69, 2, 3, 4, 2, 3, 4, 2, 3, 4, 5],
+         "data":[69, 70, 71, 72, 70, 71, 72, 73, 1, 2, 110, 0, 0, 0, 0, 0, 0, 0, 18, 19, 5, 0, 114, 115, 0, 0, 124, 0, 35, 36, 22, 0, 131, 132, 0, 0, 141, 0, 52, 53, 39, 0, 148, 149, 86, 89, 0, 0, 18, 19, 56, 0, 165, 166, 137, 140, 0, 0, 35, 36, 22, 0, 0, 0, 80, 81, 0, 0, 52, 53, 39, 0, 0, 0, 97, 98, 0, 0, 69, 70, 56, 0, 0, 0, 0, 0, 0, 0, 0, 0, 73, 86, 87, 88, 87, 88, 87, 88, 89, 1],
          "height":10,
          "name":"Tile Layer 2",
          "opacity":1,
@@ -171,7 +157,7 @@
  "orientation":"orthogonal",
  "properties":
     {
-     "title":"Test Map"
+     "title":"Test Map 2"
     },
  "tileheight":16,
  "tilesets":[

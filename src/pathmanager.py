@@ -77,7 +77,7 @@ class PathManager:
             pathname: Pathname to examine.
 
         Returns:
-            List of files inside the pathname.
+            Tuple of files inside the pathname.
         """
         filelist = []
 
@@ -97,7 +97,7 @@ class PathManager:
         except ():
             self.driftwood.log.msg("ERROR", "Path", "could not examine pathname", pathname)
 
-        return filelist
+        return tuple(filelist)
 
     def rebuild(self):
         """Rebuild the vfs.

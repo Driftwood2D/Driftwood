@@ -21,11 +21,10 @@
 		"tps": 100
 	},
 	"window": {
-		"title": "Driftwood",
+		"title": "Driftwood 2D",
 		"width": 640,
 		"height": 480,
 		"fullscreen": false,
 		"zoom": 2
 	}
 }
-

@@ -110,7 +110,7 @@ class EntityManager:
         Args:
             layer: Layer to find entities on.
 
-        Returns: List of Entity class instances.
+        Returns: Tuple of Entity class instances.
         """
         ents = []
 
@@ -118,7 +118,19 @@ class EntityManager:
             if ent.layer == layer:
                 ents.append(ent)
 
-        return ents
+        return tuple(ents)
+
+    def kill(self, eid):
+        """Kill an entity by eid.
+
+        Args:
+            eid: The Entity ID of the entity to kill.
+        """
+        for ent in range(len(self.entities)):
+            if self.entities[ent].eid == eid:
+                del self.entities[ent]
+
+        self.driftwood.area.changed = True
 
     def killall(self, filename):
         """Kill all entities by filename.

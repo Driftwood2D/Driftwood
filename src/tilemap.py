@@ -91,6 +91,10 @@ class Tilemap:
         if "properties" in self.__tilemap:
             self.properties = self.__tilemap["properties"]
 
+        # Set the window title.
+        if "title" in self.properties:
+            self.area.driftwood.window.title(self.properties["title"])
+
         # Build the tileset abstractions.
         for ts in self.__tilemap["tilesets"]:
             self.tilesets.append(tileset.Tileset(self, ts))

@@ -42,6 +42,8 @@ class Tile:
         properties: A dictionary containing tile properties.
 
         nowalk: If true, the tile is not walkable.
+        exits: A dictionary of exit types ("exit", "exit:up", "exit:down", "exit:left", "exit:right"], with those
+            present mapped to a list containing the destination [area, layer, x, y].
     """
     def __init__(self, layer, seq, tileset, gid):
         """Tile class initializer.
@@ -85,3 +87,4 @@ class Tile:
             self.properties = {}
 
         self.nowalk = False
+        self.exits = {}
