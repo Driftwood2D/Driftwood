@@ -2,11 +2,11 @@
 
 all: driftwood.pyz
 
-driftwood.pyz: $(shell find src/*.py src/basedata/ -newer driftwood.pyz)
-	cd src && zip -r driftwood.pyz *.py basedata/
+driftwood.pyz: $(shell find src/ -newer driftwood.pyz)
+	cd src && zip -r driftwood.pyz *.py basedata/ libs/
 	mv src/driftwood.pyz ./
 
 clean:
 	rm -f driftwood.pyz
-	rm -f src/*.pyc
+	find src -name \*.pyc -delete
 
