@@ -2,6 +2,9 @@
 
 all: bin/driftwood
 
+run: bin/driftwood
+	bin/driftwood
+
 bin:
 	mkdir -p bin
 
@@ -16,3 +19,4 @@ clean:
 	rm -f bin/driftwood src/driftwood.pyz
 	find src data -name __pycache__ -delete -or -name \*.pyc -delete
 
+.PHONY: run clean
