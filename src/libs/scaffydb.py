@@ -1,3 +1,4 @@
+#!/bin/env python3
 ###################################
 ## ScaffyDB - A Scaffy Database  ##
 ## scaffydb.py                   ##
@@ -37,7 +38,7 @@ COPYRIGHT = "Copyright 2014 PariahSoft LLC"
 class ScaffyDB:
     """ScaffyDB - A Scaffy Database
 
-    A simple flat file database for storing string keys and values.
+    A simple on-disk flat file database for storing string keys and values.
 
     ScaffyDB v1 Format:
         MAGIC: "ScaffyDB01"
@@ -48,13 +49,15 @@ class ScaffyDB:
             3. Value      := 0-65535 BYTES (string)
 
     Attributes:
-        filename: Filename of the database..
+        filename: Filename of the database.
     """
     def __new__(cls, filename):
         """ScaffyDB class constructor.
 
         Args:
             filename: Filename of the database to use.
+
+        Returns: ScaffyDB instance if succeeded, None if failed.
         """
         inst = object.__new__(cls)
 
@@ -327,6 +330,7 @@ class ScaffyDB:
             return False
 
         return True
+
 
 # Running as a standalone program.
 if __name__ == "__main__":
