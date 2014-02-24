@@ -239,28 +239,23 @@ class TileModeEntity(Entity):
 
         return True
 
-    def __move_callback(self):
+    def __move_callback(self, millis_past):
         if self.moving:
-            self.x += self.moving[0]
-            self.y += self.moving[1]
+            self.x += (self.moving[0] * self.speed * millis_past) // 1000
+            self.y += (self.moving[1] * self.speed * millis_past) // 1000
 
             # Check if we've reached or overreached our destination.
+            tilewidth = self.manager.driftwood.area.tilemap.tilewidth
+            tileheight = self.manager.driftwood.area.tilemap.tileheight
             if (
-                (self.moving[0] == -1 and
-                    self.x <= self._prev_xy[0] + (self.manager.driftwood.area.tilemap.tilewidth * -1))
-
-                or (self.moving[0] == 1 and
-                    self.x >= self._prev_xy[0] + self.manager.driftwood.area.tilemap.tilewidth)
-
-                or (self.moving[1] == -1 and
-                    self.y <= self._prev_xy[1] + (self.manager.driftwood.area.tilemap.tileheight * -1))
-
-                or (self.moving[1] == 1 and
-                    self.y >= self._prev_xy[1] + self.manager.driftwood.area.tilemap.tileheight)
+                   (self.moving[0] == -1 and self.x <= self._prev_xy[0] + (tilewidth * -1))
+                or (self.moving[0] ==  1 and self.x >= self._prev_xy[0] + tilewidth)
+                or (self.moving[1] == -1 and self.y <= self._prev_xy[1] + (tilewidth * -1))
+                or (self.moving[1] ==  1 and self.y >= self._prev_xy[1] + tilewidth)
             ):
                 # Set the final position and cease movement.
-                self.x = self._prev_xy[0] + (self.manager.driftwood.area.tilemap.tilewidth * self.moving[0])
-                self.y = self._prev_xy[1] + (self.manager.driftwood.area.tilemap.tileheight * self.moving[1])
+                self.x = self._prev_xy[0] + (tilewidth * self.moving[0])
+                self.y = self._prev_xy[1] + (tileheight * self.moving[1])
                 self.moving = None
                 self.manager.driftwood.tick.unregister(self.__move_callback)
 

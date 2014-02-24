@@ -95,10 +95,10 @@ class Layer:
                 continue
 
             # Map object properties onto their tiles.
-            for x in range(0, int(obj["width"] / self.tilemap.tilewidth)):
-                for y in range(0, int(obj["height"] / self.tilemap.tileheight)):
-                    tx = int(obj["x"] / self.tilemap.tilewidth + x)
-                    ty = int(obj["y"] / self.tilemap.tileheight + y)
+            for x in range(0, obj["width"] // self.tilemap.tilewidth):
+                for y in range(0, obj["height"] // self.tilemap.tileheight):
+                    tx = obj["x"] // self.tilemap.tilewidth + x
+                    ty = obj["y"] // self.tilemap.tileheight + y
 
                     # Insert the object properties.
                     self.tile(tx, ty).properties.update(obj["properties"])

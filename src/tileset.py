@@ -87,8 +87,8 @@ class Tileset:
         self.imageheight = self.__tileset["imageheight"]
         self.tilewidth = self.__tileset["tilewidth"]
         self.tileheight = self.__tileset["tileheight"]
-        self.width = int(self.imagewidth / self.tilewidth)
-        self.height = int(self.imageheight / self.tileheight)
+        self.width = self.imagewidth // self.tilewidth
+        self.height = self.imageheight // self.tileheight
         self.size = int(self.width * self.height)
         self.spacing = self.__tileset["spacing"]
         self.range = [self.__tileset["firstgid"], self.__tileset["firstgid"]-1 + self.size]

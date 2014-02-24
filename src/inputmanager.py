@@ -98,7 +98,7 @@ class InputManager:
         if keysym in self.__registry:
             del self.__registry[keysym]
 
-    def tick(self):
+    def tick(self, millis_past):
         """Tick callback.
 
         If there is a keypress on top of the stack and it maps to a callback in the registry, call it. Also pass the

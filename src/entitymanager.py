@@ -81,12 +81,14 @@ class EntityManager:
             self.driftwood.log.msg("ERROR", "Entity", "invalid mode", "\"{0}\"".format(data["mode"]))
             return None
 
-        self.entities[-1]._read(filename, self.__last_eid+1)
         self.__last_eid += 1
+        eid = self.__last_eid
 
-        self.entities[-1].x = x
-        self.entities[-1].y = y
-        self.entities[-1].layer = layer
+        self.entities[eid]._read(filename, eid)
+
+        self.entities[eid].x = x
+        self.entities[eid].y = y
+        self.entities[eid].layer = layer
 
         self.driftwood.area.changed = True
 

@@ -85,12 +85,13 @@ class TickManager:
     def tick(self):
         """Call all registered tick callbacks not currently delayed, and regulate tps.
         """
-        for n, reg in enumerate(self.__registry):
+        for reg in self.__registry:
             # Handle a delayed tick.
+            millis_past = SDL_GetTicks() - reg["ticks"]
             if reg["delay"]:
-                if SDL_GetTicks() - reg["ticks"] >= reg["delay"]:
-                    self.__registry[n]["ticks"] = SDL_GetTicks()
-                    reg["callback"]()
+                if millis_past >= reg["delay"]:
+                    reg["ticks"] = SDL_GetTicks()
+                    reg["callback"](millis_past)
 
                     # Unregister ticks set to only run once.
                     if reg["once"]:
@@ -98,11 +99,11 @@ class TickManager:
 
             # Don't handle a delayed tick
             else:
-                reg["callback"]()
+                reg["callback"](millis_past)
 
                 # Unregister ticks set to only run once.
                 if reg["once"]:
                     self.unregister(reg["callback"])
 
         # Regulate ticks per second.
-        SDL_Delay(int(1000 / self.driftwood.config["tick"]["tps"]))
+        SDL_Delay(1000 // self.driftwood.config["tick"]["tps"])

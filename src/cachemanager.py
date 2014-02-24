@@ -115,7 +115,7 @@ class CacheManager:
         self.__cache = {}
         self.driftwood.log.info("Cache", "flushed")
 
-    def clean(self):
+    def clean(self, millis_past):
         """Perform garbage collection on expired files.
         """
         expired = []
