@@ -5,9 +5,9 @@ all: bin/driftwood
 bin:
 	mkdir -p bin
 
-bin/driftwood: bin $(shell test -d bin && find src/ -newer bin/driftwood)
+bin/driftwood: bin $(shell test -f bin/driftwood && find src/ -newer bin/driftwood)
 	echo '#!/usr/bin/env python' > bin/driftwood
-	cd src && zip -r driftwood.pyz *.py `find . -type d -mindepth 1`
+	cd src && zip -q -r driftwood.pyz *.py `find . -type d -mindepth 1`
 	cat src/driftwood.pyz >> bin/driftwood
 	rm src/driftwood.pyz
 	chmod +x bin/driftwood
