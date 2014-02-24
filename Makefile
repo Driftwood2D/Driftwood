@@ -1,12 +1,18 @@
 # Makefile for Project Driftwood
 
-all: driftwood.pyz
+all: bin/driftwood
 
-driftwood.pyz: $(shell find src/ -newer driftwood.pyz)
-	cd src && zip -r driftwood.pyz *.py basedata/ libs/
-	mv src/driftwood.pyz ./
+bin:
+	mkdir -p bin
+
+bin/driftwood: bin $(shell test -d bin && find src/ -newer bin/driftwood)
+	echo '#!/usr/bin/env python' > bin/driftwood
+	cd src && zip -r driftwood.pyz *.py `find . -type d -mindepth 1`
+	cat src/driftwood.pyz >> bin/driftwood
+	rm src/driftwood.pyz
+	chmod +x bin/driftwood
 
 clean:
-	rm -f driftwood.pyz
+	rm -f bin/driftwood src/driftwood.pyz
 	find src -name \*.pyc -delete
 

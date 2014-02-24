@@ -20,7 +20,7 @@
 		"halt": true
 	},
 	"path": {
-		"self": "driftwood.pyz",
+		"self": "bin/driftwood",
 		"root": "data/",
 		"path": [
 			"test/"
