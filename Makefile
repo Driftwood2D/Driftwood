@@ -14,5 +14,5 @@ bin/driftwood: bin $(shell test -f bin/driftwood && find src/ -newer bin/driftwo
 
 clean:
 	rm -f bin/driftwood src/driftwood.pyz
-	find src -name \*.pyc -delete
+	find src data -name __pycache__ -delete -or -name \*.pyc -delete
 
