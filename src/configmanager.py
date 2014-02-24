@@ -82,7 +82,7 @@ class ConfigManager:
         parser = argparse.ArgumentParser(description=VERSION,
                                          formatter_class=lambda prog: argparse.HelpFormatter(prog,
                                                                                              max_help_position=40))
-        parser.add_argument("config", nargs='?', default="config.json", help="config file to use")
+        parser.add_argument("config", nargs='?', type=str, default="config.json", help="config file to use")
         parser.add_argument("--path", nargs=1, dest="path", type=str, metavar="<name,...>", help="set path")
         parser.add_argument("--root", nargs=1, dest="root", type=str, metavar="<root>", help="set path root")
         parser.add_argument("--db", nargs=1, dest="db", type=str, metavar="<database>", help="set database to use")
