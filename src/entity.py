@@ -96,6 +96,7 @@ class Entity:
         self.__entity = self.manager.driftwood.resource.request_json(filename)
 
         self.collision = self.__entity["collision"]
+        self.speed = self.__entity["speed"]
         self.gpos = self.__entity["gpos"]
         self.width, self.height = self.gpos[2], self.gpos[3]
 

@@ -35,14 +35,6 @@ class DatabaseManager:
 
     Manages a wrapper around ScaffyDB for storing persistent values.
 
-    ScaffyDB v1 Format:
-        MAGIC: "ScaffyDB01"
-
-        FOR EACH KEY:
-            1. Key Hash   := 8 BYTES       (unsigned integer) [BIG ENDIAN]
-            2. Value Size := 2 BYTES       (unsigned integer) [BIG ENDIAN]
-            3. Value      := 0-65535 BYTES (string)
-
     Attributes:
         driftwood: Base class instance.
         filename: Filename of the database.
