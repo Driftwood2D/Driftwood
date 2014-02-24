@@ -235,14 +235,17 @@ class TileModeEntity(Entity):
             # Set up the movement animation.
             self.manager.driftwood.tick.register(self.__move_callback)
             self._prev_xy = [self.x, self.y]
+            self._partial_xy = [self.x, self.y]
             self.moving = [x, y]
 
         return True
 
     def __move_callback(self, millis_past):
         if self.moving:
-            self.x += (self.moving[0] * self.speed * millis_past) // 1000
-            self.y += (self.moving[1] * self.speed * millis_past) // 1000
+            self._partial_xy[0] += self.moving[0] * self.speed * millis_past / 1000
+            self._partial_xy[1] += self.moving[1] * self.speed * millis_past / 1000
+            self.x = int(self._partial_xy[0])
+            self.y = int(self._partial_xy[1])
 
             # Check if we've reached or overreached our destination.
             tilewidth = self.manager.driftwood.area.tilemap.tilewidth

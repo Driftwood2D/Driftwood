@@ -99,6 +99,7 @@ class TickManager:
 
             # Don't handle a delayed tick
             else:
+                reg["ticks"] = SDL_GetTicks()
                 reg["callback"](millis_past)
 
                 # Unregister ticks set to only run once.
