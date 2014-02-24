@@ -38,7 +38,7 @@ COPYRIGHT = "Copyright 2014 PariahSoft LLC"
 class ScaffyDB:
     """ScaffyDB - A Scaffy Database
 
-    A simple on-disk flat file database for storing string keys and values.
+    A simple on-disk flat file database for storing string key/value pairs.
 
     ScaffyDB v1 Format:
         MAGIC: "ScaffyDB01"

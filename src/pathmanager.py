@@ -25,6 +25,7 @@
 ## **********
 
 import os
+import sys
 import zipfile
 
 
@@ -52,7 +53,7 @@ class PathManager:
         self.__vfs = {}
 
         self.__root = self.driftwood.config["path"]["root"] # Path root.
-        self.__path = [self.driftwood.config["path"]["self"]] # Start with base module.
+        self.__path = [sys.argv[0]] # Start with base module.
 
         if self.driftwood.config["path"]["path"]:
             # Start with the configured path.

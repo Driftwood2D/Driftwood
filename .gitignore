@@ -1,9 +1,0 @@
-*.pyz
-*.pyc
-.idea
-__pycache__
-TODO
-db
-docs
-driftwood.log
-
