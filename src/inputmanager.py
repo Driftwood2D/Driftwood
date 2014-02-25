@@ -24,6 +24,8 @@
 ## IN THE SOFTWARE.
 ## **********
 
+from sdl2 import SDL_GetTicks
+
 
 class InputManager:
     """The Input Manager
@@ -43,7 +45,10 @@ class InputManager:
         self.driftwood = driftwood
 
         self.__handler = None
+
+        # [callback, throttle, delay, once, last_call, times_called]
         self.__registry = {}
+
         self.__stack = []
 
         # Register the tick callback.
@@ -81,6 +86,10 @@ class InputManager:
         if keysym in self.__stack:
             self.__stack.remove(keysym)
 
+        # Set the key callback as not called yet.
+        if keysym in self.__registry:
+            self.__registry[keysym][5] = 0
+
     def handler(self, callback):
         """Register the handler callback.
 
@@ -92,7 +101,7 @@ class InputManager:
         """
         self.__handler = callback
 
-    def register(self, keysym, callback):
+    def register(self, keysym, callback, throttle=0, delay=0, once=False):
         """Register an input callback.
 
         The callback function will receive a call every tick that the key is on top of the input stack. (the key which
@@ -101,8 +110,11 @@ class InputManager:
         Args:
             keysym: SDLKey for the key which triggers the callback.
             callback: Function to be called on the registered keypress.
+            throttle: Number of milliseconds to wait between calls when the key is held down.
+            delay: Delay in milliseconds between the first call and subsequent calls while the key is held down.
+            once: Only call once for each time the key is pressed.
         """
-        self.__registry[keysym] = callback
+        self.__registry[keysym] = [callback, throttle, delay, once, SDL_GetTicks(), 0]
 
     def unregister(self, keysym):
         """Unregister an input callback.
@@ -118,10 +130,35 @@ class InputManager:
 
         If there is a keypress on top of the stack and it maps to a callback in the registry, call it. Also pass the
         keypress to the secondary handler if it exists.
+
+        If a second-callback delay is set, make sure to wait the proper amount of time before the second call.
         """
         if self.__stack:
-            if self.__stack[0] in self.__registry:
-                self.__registry[self.__stack[0]]()
+            # Is the keypress in the registry? Have we waited long enough between calls?
+            if (
+                    self.__stack[0] in self.__registry and
+                    SDL_GetTicks() - self.__registry[self.__stack[0]][4] >= self.__registry[self.__stack[0]][1]
+            ):
+                # Handle delay after first call if set.
+                if self.__registry[self.__stack[0]][2] and self.__registry[self.__stack[0]][5] == 1:
+                        # Check if we've waited long enough for the second call.
+                        if SDL_GetTicks() - self.__registry[self.__stack[0]][4] < self.__registry[self.__stack[0]][2]:
+                            # Not time yet.
+                            return
 
+                # Update time last called.
+                self.__registry[self.__stack[0]][4] = SDL_GetTicks()
+
+                # Call the callback.
+                self.__registry[self.__stack[0]][0]()
+
+                # Update number of times called.
+                self.__registry[self.__stack[0]][5] += 1
+
+                # Only call once?
+                if self.__registry[self.__stack[0]][3]:
+                    self.unregister(self.__stack[0])
+
+            # Call the handler if set.
             if self.__handler:
                 self.__handler(self.__stack[0])
