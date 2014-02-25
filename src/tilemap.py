@@ -91,6 +91,10 @@ class Tilemap:
         if "properties" in self.__tilemap:
             self.properties = self.__tilemap["properties"]
 
+        # Call the on_enter event if set.
+        if "on_enter" in self.properties:
+            self.area.driftwood.script.call(*self.properties["on_enter"].split(':'))
+
         # Set the window title.
         if "title" in self.properties:
             self.area.driftwood.window.title(self.properties["title"])

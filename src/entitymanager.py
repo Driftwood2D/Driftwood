@@ -90,6 +90,17 @@ class EntityManager:
         self.entities[eid].y = y
         self.entities[eid].layer = layer
 
+        # Are we on a tile?
+        if (x % self.driftwood.area.tilemap.tilewidth == 0) and (y % self.driftwood.area.tilemap.tileheight == 0):
+            self.entities[eid].tile = self.driftwood.area.tilemap.layers[layer].tile(
+                x / self.driftwood.area.tilemap.tilewidth,
+                y / self.driftwood.area.tilemap.tileheight
+            )
+
+        else:
+            self.driftwood.log.msg("ERROR", "Entity", "must start on a tile")
+            return None
+
         self.driftwood.area.changed = True
 
         self.driftwood.log.info("Entity", "inserted", "{0} entity on layer {1} at position {2}, {3}".format(filename,
