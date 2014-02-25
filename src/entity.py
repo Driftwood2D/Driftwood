@@ -134,9 +134,12 @@ class Entity:
         if self.manager.collider:
             self.manager.collider(self, dsttile)
 
+
 class TileModeEntity(Entity):
     def teleport(self, layer, x, y):
         """Teleport the entity to a new tile position.
+
+        This is also used to change layers.
 
         Args:
             layer: New layer, or None to skip.
@@ -151,6 +154,21 @@ class TileModeEntity(Entity):
 
         if y:
             self.y = y * self.manager.driftwood.area.tilemap.tileheight
+
+        # Set the new tile.
+        self.tile = self.manager.driftwood.area.tilemap.layers[self.layer].tile(self.x / self.width,
+                                                                                self.y / self.height)
+
+        # Call the on_tile event if set.
+        if self.tile and "on_tile" in self.tile.properties:
+            self.manager.driftwood.script.call(*self.tile.properties["on_tile"].split(':'))
+
+        # If we changed the layer, call the on_layer event if set.
+        if layer:
+            if "on_layer" in self.manager.driftwood.area.tilemap.layers[self.layer].properties:
+                self.manager.driftwood.script.call(
+                    *self.manager.driftwood.area.tilemap.layers[self.layer].properties["on_layer"].split(':')
+                )
 
         self.manager.driftwood.area.changed = True
 
@@ -269,9 +287,25 @@ class TileModeEntity(Entity):
                 self.moving = None
                 self.manager.driftwood.tick.unregister(self.__move_callback)
 
-                # Call the on_tile event if set.
-                if self.tile and "on_tile" in self.tile.properties:
-                    self.manager.driftwood.script.call(*self.tile.properties["on_tile"].split(':'))
+                if self.tile:
+                    # Call the on_tile event if set.
+                    if "on_tile" in self.tile.properties:
+                        self.manager.driftwood.script.call(*self.tile.properties["on_tile"].split(':'))
+
+                    # Layermod macro, change the layer.
+                    if "layermod" in self.tile.properties:
+                        layermod = self.tile.properties["layermod"]
+                        # Go down so many layers.
+                        if layermod.startswith('-'):
+                            self.teleport(self.layer - int(layermod[1:]), None, None)
+
+                        # Go up so many layers.
+                        elif layermod.startswith('+'):
+                            self.teleport(self.layer + int(layermod[1:]), None, None)
+
+                        # Go to a specific layer.
+                        else:
+                            self.teleport(int(layermod[1:]), None, None)
 
                 # If there is an exit, take it.
                 if self._next_area:
