@@ -46,7 +46,7 @@ class InputManager:
 
         self.__handler = None
 
-        # [callback, throttle, delay, once, last_call, times_called]
+        # {keysym: {callback, throttle, delay, once, last_call, times_called}}
         self.__registry = {}
 
         self.__stack = []
@@ -114,7 +114,14 @@ class InputManager:
             delay: Delay in milliseconds between the first call and subsequent calls while the key is held down.
             once: Only call once for each time the key is pressed.
         """
-        self.__registry[keysym] = [callback, throttle, delay, once, SDL_GetTicks(), 0]
+        self.__registry[keysym] = {
+            "callback": callback,
+            "throttle": throttle,
+            "delay": delay,
+            "once": once,
+            "last_called": SDL_GetTicks(),
+            "times_called": 0
+        }
 
     def unregister(self, keysym):
         """Unregister an input callback.
@@ -147,29 +154,31 @@ class InputManager:
         if self.__stack:
             # Is the keypress in the registry? Have we waited long enough between calls? Callable more than once?
             if (
-                    self.__stack[0] in self.__registry and
-                    self.__registry[self.__stack[0]][5] >= 0 and
-                    SDL_GetTicks() - self.__registry[self.__stack[0]][4] >= self.__registry[self.__stack[0]][1]
+                self.__stack[0] in self.__registry and
+                self.__registry[self.__stack[0]]["times_called"] >= 0 and
+                SDL_GetTicks() - self.__registry[self.__stack[0]]["last_called"] >=
+                self.__registry[self.__stack[0]]["throttle"]
             ):
                 # Handle delay after first call if set.
-                if self.__registry[self.__stack[0]][2] and self.__registry[self.__stack[0]][5] == 1:
+                if self.__registry[self.__stack[0]]["delay"] and self.__registry[self.__stack[0]]["times_called"] == 1:
                         # Check if we've waited long enough for the second call.
-                        if SDL_GetTicks() - self.__registry[self.__stack[0]][4] < self.__registry[self.__stack[0]][2]:
+                        if SDL_GetTicks() - self.__registry[self.__stack[0]]["last_called"] < \
+                                self.__registry[self.__stack[0]]["delay"]:
                             # Not time yet.
                             return
 
                 # Update time last called.
-                self.__registry[self.__stack[0]][4] = SDL_GetTicks()
+                self.__registry[self.__stack[0]]["last_called"] = SDL_GetTicks()
 
                 # Call the callback.
-                self.__registry[self.__stack[0]][0]()
+                self.__registry[self.__stack[0]]["callback"]()
 
                 # Update number of times called.
-                self.__registry[self.__stack[0]][5] += 1
+                self.__registry[self.__stack[0]]["times_called"] += 1
 
                 # Only call once?
-                if self.__registry[self.__stack[0]][3]:
-                    self.__registry[self.__stack[0]][5] = -1
+                if self.__registry[self.__stack[0]]["once"]:
+                    self.__registry[self.__stack[0]]["times_called"] = -1
 
             # Call the handler if set.
             if self.__handler:
