@@ -118,6 +118,9 @@ class Driftwood:
             else:
                 self.script.call("init.py", "init")
 
+            # Escape key pauses the engine.
+            self.input.register(self.keycode.SDLK_ESCAPE, self.__handle_pause, once=True)
+
             # This is the mainloop.
             while self.running:
                 # Process SDL events.
@@ -135,12 +138,19 @@ class Driftwood:
                         # Pass a keyup to the Input Manager.
                         self.input.key_up(event.key.keysym.sym)
 
-                # Only tick if not paused. FIXME: This will throw off the timing of things.
-                if not self.tick.paused:
-                    self.tick.tick()  # Process tick callbacks.
+                # Process tick callbacks.
+                self.tick.tick()
 
             print("Shutting down...")
             return 0
+
+    def __handle_pause(self):
+        # Shift+Escape shuts down the engine.
+        if self.input.pressed(self.keycode.SDLK_LSHIFT) or self.input.pressed(self.keycode.SDLK_RSHIFT):
+            self.running = False
+
+        else:
+            self.tick.paused = not self.tick.paused
 
 
 if __name__ == "__main__":

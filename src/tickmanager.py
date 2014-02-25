@@ -88,10 +88,21 @@ class TickManager:
         """Call all registered tick callbacks not currently delayed, and regulate tps.
         """
         for reg in self.__registry:
-            # Handle a delayed tick.
-            millis_past = SDL_GetTicks() - reg["ticks"]
-            if reg["delay"]:
-                if millis_past >= reg["delay"]:
+            # Only tick if not paused. FIXME: This will throw off the timing of callbacks.
+            if not self.paused:
+                # Handle a delayed tick.
+                millis_past = SDL_GetTicks() - reg["ticks"]
+                if reg["delay"]:
+                    if millis_past >= reg["delay"]:
+                        reg["ticks"] = SDL_GetTicks()
+                        reg["callback"](millis_past)
+
+                        # Unregister ticks set to only run once.
+                        if reg["once"]:
+                            self.unregister(reg["callback"])
+
+                # Don't handle a delayed tick
+                else:
                     reg["ticks"] = SDL_GetTicks()
                     reg["callback"](millis_past)
 
@@ -99,14 +110,10 @@ class TickManager:
                     if reg["once"]:
                         self.unregister(reg["callback"])
 
-            # Don't handle a delayed tick
+            # We're paused, only call ticks for InputManager and WindowManager.
             else:
-                reg["ticks"] = SDL_GetTicks()
-                reg["callback"](millis_past)
-
-                # Unregister ticks set to only run once.
-                if reg["once"]:
-                    self.unregister(reg["callback"])
+                self.driftwood.input.tick(None)
+                self.driftwood.window.tick(None)
 
         # Regulate ticks per second.
         SDL_Delay(1000 // self.driftwood.config["tick"]["tps"])

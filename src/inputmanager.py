@@ -60,7 +60,7 @@ class InputManager:
         return False
 
     def __getitem__(self, item):
-        return self.__registry[item]
+        return self.__registry[item][0]
 
     def __setitem__(self, item, value):
         self.register(item, value)
@@ -125,6 +125,17 @@ class InputManager:
         if keysym in self.__registry:
             del self.__registry[keysym]
 
+    def pressed(self, keysym):
+        """Check if a key is currently being pressed.
+
+        Args:
+            keysym: SDLKey for the keypress to check.
+        """
+        if keysym in self.__stack:
+            return True
+
+        return False
+
     def tick(self, millis_past):
         """Tick callback.
 
@@ -134,9 +145,10 @@ class InputManager:
         If a second-callback delay is set, make sure to wait the proper amount of time before the second call.
         """
         if self.__stack:
-            # Is the keypress in the registry? Have we waited long enough between calls?
+            # Is the keypress in the registry? Have we waited long enough between calls? Callable more than once?
             if (
                     self.__stack[0] in self.__registry and
+                    self.__registry[self.__stack[0]][5] >= 0 and
                     SDL_GetTicks() - self.__registry[self.__stack[0]][4] >= self.__registry[self.__stack[0]][1]
             ):
                 # Handle delay after first call if set.
@@ -157,7 +169,7 @@ class InputManager:
 
                 # Only call once?
                 if self.__registry[self.__stack[0]][3]:
-                    self.unregister(self.__stack[0])
+                    self.__registry[self.__stack[0]][5] = -1
 
             # Call the handler if set.
             if self.__handler:
