@@ -100,6 +100,13 @@ class Layer:
                     tx = obj["x"] // self.tilemap.tilewidth + x
                     ty = obj["y"] // self.tilemap.tileheight + y
 
+                    # Check if the tile exists.
+                    if not self.tile(tx, ty):
+                        self.tilemap.area.driftwood.log.msg("ERROR", "Map", "object mapped to nonexistent tile",
+                                                            "z={0}, x={1}, y={2}".format(str(self.zpos),
+                                                                                         str(tx), str(ty)))
+                        continue
+
                     # Insert the object properties.
                     self.tile(tx, ty).properties.update(obj["properties"])
 
