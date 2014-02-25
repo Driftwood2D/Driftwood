@@ -52,10 +52,14 @@ class DatabaseManager:
         self.filename = os.path.join(self.driftwood.config["database"]["root"],
                                      self.driftwood.config["database"]["name"])
 
+        # Make sure the database directory is accessible.
+        if not self.__test_db_dir():
+            sys.exit(1)  # Fail.
+
         self.__scaffydb = scaffydb.ScaffyDB(self.filename)
 
         # Make sure the database is accessible.
-        if not self.__scaffydb or not self.__test_db_dir():
+        if not self.__scaffydb:
             self.driftwood.log.msg("FATAL", "Database", "cannot open database", self.filename)
             sys.exit(1)  # Fail.
 
