@@ -150,13 +150,13 @@ class ConfigManager:
         if self.__cmdline_args.zoom:
             self.__config["window"]["zoom"] = self.__cmdline_args.zoom[0]
 
-        if self.__cmdline_args.fullscreen != None:
+        if self.__cmdline_args.fullscreen is not None:
             if self.__cmdline_args.fullscreen:
                 self.__config["window"]["fullscreen"] = True
             else:
                 self.__config["window"]["fullscreen"] = False
 
-        if self.__cmdline_args.verbose != None:
+        if self.__cmdline_args.verbose is not None:
             if self.__cmdline_args.verbose:
                 self.__config["log"]["verbose"] = True
             else:

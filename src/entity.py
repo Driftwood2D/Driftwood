@@ -135,6 +135,7 @@ class Entity:
             self.manager.collider(self, dsttile)
 
 
+# TODO: When PixelModeEntity is done, move common logic into functions in the superclass.
 class TileModeEntity(Entity):
     def teleport(self, layer, x, y):
         """Teleport the entity to a new tile position.
@@ -146,13 +147,22 @@ class TileModeEntity(Entity):
             x: New x-coordinate, or None to skip.
             y: New y-coordinate, or None to skip.
         """
-        if layer:
+        # Make sure this is a tile.
+        if (
+                (x is not None and not x % self.manager.driftwood.area.tilemap.tilewidth == 0)
+                or (y is not None and not y % self.manager.driftwood.area.tilemap.tileheight == 0)
+                or (layer is not None and layer >= len(self.manager.driftwood.area.tilemap.layers))
+        ):
+            self.manager.driftwood.log.msg("ERROR", "Entity", "attempted teleport to non-tile position")
+            return
+
+        if layer is not None:
             self.layer = layer
 
-        if x:
+        if x is not None:
             self.x = x * self.manager.driftwood.area.tilemap.tilewidth
 
-        if y:
+        if y is not None:
             self.y = y * self.manager.driftwood.area.tilemap.tileheight
 
         # Set the new tile.
@@ -164,7 +174,7 @@ class TileModeEntity(Entity):
             self.manager.driftwood.script.call(*self.tile.properties["on_tile"].split(':'))
 
         # If we changed the layer, call the on_layer event if set.
-        if layer:
+        if layer is not None:
             if "on_layer" in self.manager.driftwood.area.tilemap.layers[self.layer].properties:
                 self.manager.driftwood.script.call(
                     *self.manager.driftwood.area.tilemap.layers[self.layer].properties["on_layer"].split(':')
