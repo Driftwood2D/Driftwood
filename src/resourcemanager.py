@@ -94,7 +94,7 @@ class ResourceManager:
 
                 return contents
 
-            except ():
+            except:
                 self.driftwood.log.msg("ERROR", "Resource", "could not read file", filename)
 
         else:

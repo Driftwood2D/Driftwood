@@ -94,7 +94,7 @@ class PathManager:
                     for name in zf.namelist():
                         filelist.append(name)
 
-        except ():
+        except:
             self.driftwood.log.msg("ERROR", "Path", "could not examine pathname", pathname)
 
         return tuple(filelist)

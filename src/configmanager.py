@@ -118,8 +118,8 @@ class ConfigManager:
         # Open the configuration file.
         try:
             self.__config = json.load(open(self.__cmdline_args.config, 'r'))
-        except FileNotFoundError:
-            print("[0] FATAL: Config: config file missing")
+        except:
+            print("[0] FATAL: Config: could not read config file")
             sys.exit(1)  # Fail.
 
         # If --version was used, print the version string and exit.

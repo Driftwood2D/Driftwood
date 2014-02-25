@@ -161,14 +161,14 @@ class DatabaseManager:
             if not os.path.isdir(db_dir_path):
                 self.driftwood.log.info("Database", "creating database directory", db_dir_path)
                 os.mkdir(db_dir_path)
-        except ():
+        except:
             self.driftwood.log.msg("FATAL", "Database", "cannot create database directory", db_dir_path)
             return False
 
         try:
             # Try openning the dir
             files = os.listdir(db_dir_path)
-        except ():
+        except:
             self.driftwood.log.msg("FATAL", "Database", "cannot open database directory", db_dir_path)
             return False
 

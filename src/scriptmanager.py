@@ -83,7 +83,7 @@ class ScriptManager:
                     mpath = self.__convert_path(filename)
                     self.__modules[filename] = importer.load_module(mpath)
 
-            except ():
+            except:
                 self.driftwood.log.msg("ERROR", "Script", "could not load script", filename)
 
         else:

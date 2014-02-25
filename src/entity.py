@@ -125,14 +125,21 @@ class Entity:
             self.layer = int(self._next_area[1])
             self.x = int(self._next_area[2]) * self.manager.driftwood.area.tilemap.tilewidth
             self.y = int(self._next_area[3]) * self.manager.driftwood.area.tilemap.tileheight
-            self.tile = self.manager.driftwood.area.tilemap.layers[self.layer].tile(self.x / self.width,
-                                                                                    self.y / self.height)
+            self.tile = self._tile_at(self.layer, self.x, self.y)
 
     def _collide(self, dsttile):
         """Report a collision.
         """
         if self.manager.collider:
             self.manager.collider(self, dsttile)
+
+    def _tile_at(self, layer, x, y, px=0, py=0):
+        """Retrieve a tile by layer and pixel coordinates.
+        """
+        return self.manager.driftwood.area.tilemap.layers[layer].tile(
+            (x / self.manager.driftwood.area.tilemap.tilewidth) + px,
+            (y / self.manager.driftwood.area.tilemap.tileheight) + py
+        )
 
 
 # TODO: When PixelModeEntity is done, move common logic into functions in the superclass.
@@ -166,8 +173,7 @@ class TileModeEntity(Entity):
             self.y = y * self.manager.driftwood.area.tilemap.tileheight
 
         # Set the new tile.
-        self.tile = self.manager.driftwood.area.tilemap.layers[self.layer].tile(self.x / self.width,
-                                                                                self.y / self.height)
+        self.tile = self._tile_at(self.layer, self.x, self.y)
 
         # Call the on_tile event if set.
         if self.tile and "on_tile" in self.tile.properties:
@@ -201,8 +207,7 @@ class TileModeEntity(Entity):
             # Perform collision detection.
             if self.collision:
                 # Check if the destination tile is walkable.
-                dsttile = self.manager.driftwood.area.tilemap.layers[self.layer].tile((self.x / self.width) + x,
-                                                                                     (self.y / self.height) + y)
+                dsttile = self._tile_at(self.layer, self.x, self.y, x, y)
 
                 # Don't walk on nowalk tiles or off the edge of the map unless there's a lazy exit.
                 if self.tile:
@@ -292,8 +297,7 @@ class TileModeEntity(Entity):
                 # Set the final position and cease movement.
                 self.x = self._prev_xy[0] + (tilewidth * self.moving[0])
                 self.y = self._prev_xy[1] + (tileheight * self.moving[1])
-                self.tile = self.manager.driftwood.area.tilemap.layers[self.layer].tile(self.x / self.width,
-                                                                                        self.y / self.height)
+                self.tile = self._tile_at(self.layer, self.x, self.y)
                 self.moving = None
                 self.manager.driftwood.tick.unregister(self.__move_callback)
 
