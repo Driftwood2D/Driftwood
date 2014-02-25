@@ -60,16 +60,18 @@ class DatabaseManager:
             sys.exit(1)  # Fail.
 
     def __contains__(self, item):
-        return self.__scaffydb.__contains__(item)
+        if "DB:"+item in self.driftwood.cache or self.__scaffydb.getpos(item)[0] >= 0:
+            return True
+        return False
 
     def __getitem__(self, item):
-        return self.__scaffydb.__getitem__(item)
+        return self.get(item)
 
     def __setitem__(self, item, value):
-        self.__scaffydb.__setitem__(item, value)
+        self.put(item, value)
 
     def __delitem__(self, item):
-        self.__scaffydb.__delitem__(item)
+        self.remove(item)
 
     def hash(self, string):
         """Hash a string.
@@ -93,7 +95,10 @@ class DatabaseManager:
 
         Returns: String value of the key if succeeded, None if failed.
         """
-        value = self.__scaffydb.get(key)
+        value = self.driftwood.cache.download("DB:"+key)  # Check if the value is cached.
+
+        if not value:
+            value = self.__scaffydb.get(key)
 
         if not value:
             self.driftwood.log.msg("ERROR", "Database", "no such key", "\"{0}\"".format(key))
@@ -119,6 +124,7 @@ class DatabaseManager:
             self.driftwood.log.msg("ERROR", "Database", "could not assign value to key", "\"{0}\"".format(key))
             return False
 
+        self.driftwood.cache.upload("DB:"+key, value)  # Cache the value.
         self.driftwood.log.info("Database", "put", "\"{0}\"".format(key))
         return True
 
@@ -138,6 +144,7 @@ class DatabaseManager:
             self.driftwood.log.msg("ERROR", "Database", "no such key", "\"{0}\"".format(key))
             return False
 
+        self.driftwood.cache.purge("DB:"+key)  # Remove the value from the cache.
         self.driftwood.log.info("Database", "remove", "\"{0}\"".format(key))
         return True
 
