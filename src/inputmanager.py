@@ -24,6 +24,7 @@
 ## IN THE SOFTWARE.
 ## **********
 
+
 class InputManager:
     """The Input Manager
 
@@ -47,6 +48,20 @@ class InputManager:
 
         # Register the tick callback.
         self.driftwood.tick.register(self.tick)
+
+    def __contains__(self, item):
+        if item in self.__registry:
+            return True
+        return False
+
+    def __getitem__(self, item):
+        return self.__registry[item]
+
+    def __setitem__(self, item, value):
+        self.register(item, value)
+
+    def __delitem__(self, item):
+        self.unregister(item)
 
     def key_down(self, keysym):
         """Push a keypress onto the input stack if not present.

@@ -55,6 +55,8 @@ class TickManager:
         #     once: Whether to only call once.
         self.__registry = []
 
+        self.paused = False
+
     def register(self, callback, delay=0, once=False):
         """Register a tick callback, with an optional delay between calls.
 

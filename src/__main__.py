@@ -135,7 +135,9 @@ class Driftwood:
                         # Pass a keyup to the Input Manager.
                         self.input.key_up(event.key.keysym.sym)
 
-                self.tick.tick()  # Process tick callbacks.
+                # Only tick if not paused. FIXME: This will throw off the timing of things.
+                if not self.tick.paused:
+                    self.tick.tick()  # Process tick callbacks.
 
             print("Shutting down...")
             return 0
