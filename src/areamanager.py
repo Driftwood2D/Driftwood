@@ -112,8 +112,8 @@ class AreaManager:
                 # Retrieve data about the tile.
                 tile = self.tilemap.layers[l].tiles[t]
 
-                # This tile has no data and does not exist.
-                if not tile:
+                # This is a dummy tile, don't draw it.
+                if not tile.tileset and not tile.gid:
                     continue
 
                 # Get the source and destination rectangles needed by SDL_RenderCopy.

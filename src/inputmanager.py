@@ -46,7 +46,7 @@ class InputManager:
 
         self.__handler = None
 
-        # {keysym: {callback, throttle, delay, once, last_call, times_called}}
+        # {keysym: {callback, throttle, delay, once, last_called, times_called}}
         self.__registry = {}
 
         self.__stack = []
