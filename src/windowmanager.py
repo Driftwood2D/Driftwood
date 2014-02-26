@@ -39,6 +39,8 @@ class WindowManager:
         driftwood: Base class instance.
         window: The SDL Window.
         renderer: The SDL Renderer attached to the window.
+        logical_width: The window's width in pixels.
+        logical_height: The window's height in pixels.
     """
 
     # Mac OS X 10.9 with SDL 2.0.1 does double buffering and needs a second rendering of the same image on still frames.
@@ -57,6 +59,11 @@ class WindowManager:
         # The SDL Window and Renderer.
         self.window = None
         self.renderer = None
+
+        # The resolution that the game wants to pretend it is running at.
+        # (See physical_width in __prepare() for comparison.)
+        self.logical_width = self.driftwood.config["window"]["width"]
+        self.logical_height = self.driftwood.config["window"]["height"]
 
         # A copy of the imagefile the texture to be framed belongs to, if any.
         self.__imagefile = None
@@ -87,14 +94,25 @@ class WindowManager:
         SDL_Init(SDL_INIT_EVERYTHING)
 
         if self.driftwood.config["window"]["fullscreen"]:
-            flags = SDL_WINDOW_SHOWN | SDL_WINDOW_FULLSCREEN
+            # Desktop's current width and height
+            physical_width = 0
+            physical_height = 0
+
+            # No video mode change
+            flags = SDL_WINDOW_FULLSCREEN_DESKTOP
         else:
-            flags = SDL_WINDOW_SHOWN
+            # 1-to-1 mapping between logical and physical pixels
+            physical_width = self.logical_width
+            physical_height = self.logical_height
+            flags = 0
 
         self.window = SDL_CreateWindow(self.driftwood.config["window"]["title"].encode(), SDL_WINDOWPOS_CENTERED,
-                                       SDL_WINDOWPOS_CENTERED, self.driftwood.config["window"]["width"],
-                                       self.driftwood.config["window"]["height"], flags)
+                                       SDL_WINDOWPOS_CENTERED, physical_width, physical_height, flags)
+
         self.renderer = SDL_CreateRenderer(self.window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC)
+
+        # Pixelated goodness, like a rebel.
+        SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, b"nearest")
 
     def title(self, title):
         """Set the window title.
@@ -130,20 +148,22 @@ class WindowManager:
             tw *= self.driftwood.config["window"]["zoom"]
             th *= self.driftwood.config["window"]["zoom"]
 
-        # Get current window width and height.
-        ww, wh = c_int(), c_int()
-        SDL_GetWindowSize(self.window, byref(ww), byref(wh))
-        ww, wh = ww.value, wh.value
+        # Both the dstrect and the window size are measured in logical
+        # coordinates at this stage.  The transformation to physical
+        # coordinates happens below in tick().
 
         # Set up viewport calculation variables.
         srcrect, dstrect = SDL_Rect(), SDL_Rect()
         srcrect.x, srcrect.y, srcrect.w, srcrect.h = 0, 0, tw, th
-        dstrect.x, dstrect.y, dstrect.w, dstrect.h = 0, 0, ww, wh
+        dstrect.x, dstrect.y, dstrect.w, dstrect.h = 0, 0, tw, th
+
+        # Get logical window width and height.
+        ww = self.logical_width
+        wh = self.logical_height
 
         # Area width is smaller than window width. Center by width on area.
         if tw < ww:
             dstrect.x = int(ww/2 - tw/2)
-            dstrect.w = tw
 
         # Area width is larger than window width. Center by width on player.
         # TODO
@@ -151,7 +171,6 @@ class WindowManager:
         # Area height is smaller than window height. Center by height on area.
         if th < wh:
             dstrect.y = int(wh/2 - th/2)
-            dstrect.h = th
 
         # Area height is larger than window height. Center by height on player.
         # TODO
@@ -166,8 +185,13 @@ class WindowManager:
         """Tick callback which refreshes the renderer.
         """
         if self.__changed:
+            SDL_RenderSetLogicalSize(self.renderer,
+                self.logical_width, self.logical_height) # set
+
             SDL_RenderClear(self.renderer)
             SDL_RenderCopy(self.renderer, *self.__frame)
+
+            SDL_RenderSetLogicalSize(self.renderer, 0, 0) # reset
             self.__changed -= 1
 
         SDL_RenderPresent(self.renderer)
