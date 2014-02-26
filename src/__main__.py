@@ -138,6 +138,9 @@ class Driftwood:
                         # Pass a keyup to the Input Manager.
                         self.input.key_up(event.key.keysym.sym)
 
+                    elif event.type == SDL_WINDOWEVENT and event.window.event == SDL_WINDOWEVENT_EXPOSED:
+                        self.window.refresh()
+
                 # Process tick callbacks.
                 self.tick.tick()
 

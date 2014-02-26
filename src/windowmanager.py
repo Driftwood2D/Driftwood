@@ -194,7 +194,12 @@ class WindowManager:
             SDL_RenderSetLogicalSize(self.renderer, 0, 0) # reset
             self.__changed -= 1
 
-        SDL_RenderPresent(self.renderer)
+            SDL_RenderPresent(self.renderer)
+
+    def refresh(self):
+        """Force the window to redraw.
+        """
+        self.__changed = WindowManager.CHANGED
 
     def __del__(self):
         """WindowManager class destructor.
