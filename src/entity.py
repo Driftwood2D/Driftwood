@@ -45,7 +45,8 @@ class Entity:
         width: The width in pixels of the entity.
         height: The height in pixels of the entity.
         speed: The movement speed of the entity in pixels per second.
-        gpos: A four-member list containing an x,y,w,h source rectangle for the entity's graphic.
+        members: A list of sequence positions of member graphics in the spritesheet.
+        afps: Animation frames-per-second.
         properties: Any custom properties of the entity.
     """
     def __init__(self, entitymanager):
@@ -65,10 +66,6 @@ class Entity:
         elif isinstance(self, PixelModeEntity):
             self.mode = "pixel"
 
-        else:
-            self.mode = None
-            print("!!! That's not supposed to happen. [1]")
-
         self.collision = None
         self.spritesheet = None
         self.layer = 0
@@ -78,15 +75,24 @@ class Entity:
         self.width = 0
         self.height = 0
         self.speed = 0
-        self.gpos = [0, 0, 0, 0]
+        self.members = []
+        self.afps = 0
         self.properties = {}
 
         self.moving = None
 
+        self.__cur_member = 0
         self._prev_xy = [0, 0]
         self._next_area = None
 
         self.__entity = {}
+
+    def srcrect(self):
+        """Return an (x, y, w, h) srcrect for the current graphic frame of the entity.
+        """
+        return (((self.__cur_member * self.width) % self.spritesheet.imagewidth) * self.width,
+                ((self.__cur_member * self.width) // self.spritesheet.imagewidth) * self.height,
+                self.width, self.height)
 
     def _read(self, filename, eid):
         """Read the entity descriptor.
@@ -97,9 +103,11 @@ class Entity:
         self.__entity = self.manager.driftwood.resource.request_json(filename)
 
         self.collision = self.__entity["collision"]
+        self.width = self.__entity["width"]
+        self.height = self.__entity["height"]
         self.speed = self.__entity["speed"]
-        self.gpos = self.__entity["gpos"]
-        self.width, self.height = self.gpos[2], self.gpos[3]
+        self.members = self.__entity["members"]
+        self.afps = self.__entity["afps"]
 
         if "properties" in self.__entity:
             self.properties = self.__entity["properties"]
@@ -144,6 +152,8 @@ class Entity:
 
 # TODO: When PixelModeEntity is done, move common logic into functions in the superclass.
 class TileModeEntity(Entity):
+    """This Entity subclass represents an Entity configured for movement in by-tile mode.
+    """
     def teleport(self, layer, x, y):
         """Teleport the entity to a new tile position.
 
@@ -339,6 +349,8 @@ class TileModeEntity(Entity):
 
 # TODO: Finish pixel mode.
 class PixelModeEntity(Entity):
+    """This Entity subclass represents an Entity configured for movement in by-pixel mode.
+    """
     def teleport(self, layer, x, y):
         """Teleport the entity to a new pixel position.
 

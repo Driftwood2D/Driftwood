@@ -24,10 +24,10 @@
 ## IN THE SOFTWARE.
 ## **********
 
+from ctypes import byref
+from ctypes import c_int
 from sdl2 import *
 from sdl2.sdlimage import *
-
-# This module contains the filetype handler classes.
 
 
 class AudioFile:
@@ -62,6 +62,11 @@ class ImageFile:
         self.__sdl_destroytexture = SDL_DestroyTexture
 
         self.__load(self.__data)
+
+        # Get image width and height.
+        tw, th = c_int(), c_int()
+        SDL_QueryTexture(self.texture, None, None, byref(tw), byref(th))
+        self.width, self.height = tw.value, th.value
 
     def __load(self, data):
         """

@@ -3,6 +3,9 @@
 	"collision": true,
 	"speed": 64,
 	"image": "basedata/pariahsoft_logo_16x16.png",
-	"gpos": [0, 0, 16, 16],
+	"width": 16,
+	"height": 16,
+	"members": [0],
+	"afps": 0,
 	"properties": {"nerd": true}
 }

@@ -35,10 +35,10 @@ class Tile:
         tileset: Tileset instance of the tileset which owns this tile's graphic.
         gid: Global Graphic-ID of the tile.
         localgid: Graphic-ID of the tile in relation to its own tileset.
-        tpos: A two-member list containing the x and y coordinates of the tile's position in the map.
-        gpos: A two-member list containing the x and y coordinates of the tile's graphic in its tileset.
-        srcrect: A four-member list containing an x,y,w,h source rectangle for the tile's graphic.
-        srcrect: A four-member list containing an x,y,w,h destination rectangle for the tile's placement.
+        members: A list of sequence positions of member graphics in the tile's tileset.
+        afps: Animation frames-per-second.
+        pos: A two-member list containing the x and y coordinates of the tile's position in the map.
+        dstrect: A four-member list containing an x,y,w,h destination rectangle for the tile's placement.
         properties: A dictionary containing tile properties.
 
         nowalk: If true, the tile is not walkable.
@@ -59,43 +59,43 @@ class Tile:
         self.seq = seq
         self.tileset = tileset
         self.gid = gid
-        self.tpos = [
+        self.localgid = None
+        self.members = []
+        self.afps = 0
+        self.pos = [
             self.seq % self.layer.tilemap.width,
             self.seq // self.layer.tilemap.width
         ]
+        self.dstrect = None
+        self.properties = {}
 
-        # Dummy tile.
-        if not tileset and not gid:
-            self.localgid = None
-            self.gpos = None
-            self.srcrect = None
-            self.dstrect = None
-            self.properties = {}
+        self.nowalk = None
+        self.exits = {}
 
         # Real tile.
-        else:
+        if tileset and gid:
             self.localgid = self.gid - self.tileset.range[0]
-            self.gpos = [
-                (self.gid - self.tileset.range[0]) % self.tileset.width,
-                (self.gid - self.tileset.range[0]) // self.tileset.width
-            ]
-            self.srcrect = [
-                (self.gpos[0] * self.tileset.tilewidth) + (self.gpos[0] * self.tileset.spacing),
-                (self.gpos[1] * self.tileset.tileheight) + (self.gpos[1] * self.tileset.spacing),
-                self.tileset.tilewidth,
-                self.tileset.tileheight
-            ]
+            self.members = [self.localgid]
             self.dstrect = [
-                self.tpos[0] * self.tileset.tilewidth,
-                self.tpos[1] * self.tileset.tileheight,
+                self.pos[0] * self.tileset.tilewidth,
+                self.pos[1] * self.tileset.tileheight,
                 self.tileset.tilewidth,
                 self.tileset.tileheight
             ]
 
             if self.tileset.tileproperties and self.localgid in self.tileset.tileproperties:
                 self.properties = self.tileset.tileproperties[self.localgid]
-            else:
-                self.properties = {}
 
-        self.nowalk = None
-        self.exits = {}
+            if "members" in self.properties:
+                self.members.extend(self.properties["members"])
+            if "afps" in self.properties:
+                self.afps = self.properties["afps"]
+
+            self.__cur_member = self.members[0]
+
+    def srcrect(self):
+        """Return an (x, y, w, h) srcrect for the current graphic frame of the tile.
+        """
+        return (((self.__cur_member * self.tileset.tilewidth) % self.tileset.imagewidth),
+                ((self.__cur_member * self.tileset.tilewidth) // self.tileset.imagewidth) * self.tileset.tileheight,
+                self.tileset.tilewidth, self.tileset.tileheight)

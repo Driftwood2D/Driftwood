@@ -117,7 +117,7 @@ class AreaManager:
                     continue
 
                 # Get the source and destination rectangles needed by SDL_RenderCopy.
-                srcrect.x, srcrect.y, srcrect.w, srcrect.h = tile.srcrect
+                srcrect.x, srcrect.y, srcrect.w, srcrect.h = tile.srcrect()
                 dstrect.x, dstrect.y, dstrect.w, dstrect.h = tile.dstrect
 
                 # Copy the tile onto our frame.
@@ -128,8 +128,8 @@ class AreaManager:
             for entity in self.driftwood.entity.layer(l):
 
                 # Get the source and destination rectangles needed by SDL_RenderCopy.
-                srcrect.x, srcrect.y, srcrect.w, srcrect.h = entity.gpos
-                dstrect.x, dstrect.y, dstrect.w, dstrect.h = entity.x, entity.y, entity.gpos[2], entity.gpos[3]
+                srcrect.x, srcrect.y, srcrect.w, srcrect.h = entity.srcrect()
+                dstrect.x, dstrect.y, dstrect.w, dstrect.h = entity.x, entity.y, entity.width, entity.height
 
                 # Copy the entity onto our frame.
                 SDL_RenderCopy(self.driftwood.window.renderer, entity.spritesheet.texture, srcrect,
