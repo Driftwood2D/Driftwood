@@ -90,8 +90,9 @@ class Entity:
     def srcrect(self):
         """Return an (x, y, w, h) srcrect for the current graphic frame of the entity.
         """
-        return (((self.__cur_member * self.width) % self.spritesheet.imagewidth) * self.width,
-                ((self.__cur_member * self.width) // self.spritesheet.imagewidth) * self.height,
+        current_member = self.members[self.__cur_member]
+        return (((current_member * self.width) % self.spritesheet.imagewidth) * self.width,
+                ((current_member * self.width) // self.spritesheet.imagewidth) * self.height,
                 self.width, self.height)
 
     def _read(self, filename, eid):
@@ -108,6 +109,10 @@ class Entity:
         self.speed = self.__entity["speed"]
         self.members = self.__entity["members"]
         self.afps = self.__entity["afps"]
+
+        # Schedule animation.
+        if self.afps:
+            self.manager.driftwood.tick.register(self.__next_member, delay=(1000//self.afps))
 
         if "properties" in self.__entity:
             self.properties = self.__entity["properties"]
@@ -148,6 +153,10 @@ class Entity:
             (x / self.manager.driftwood.area.tilemap.tilewidth) + px,
             (y / self.manager.driftwood.area.tilemap.tileheight) + py
         )
+
+    def __next_member(self, millis):
+        self.__cur_member = (self.__cur_member + 1) % len(self.members)
+        self.manager.driftwood.area.changed = True
 
 
 # TODO: When PixelModeEntity is done, move common logic into functions in the superclass.

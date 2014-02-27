@@ -87,15 +87,24 @@ class Tile:
                 self.properties = self.tileset.tileproperties[self.localgid]
 
             if "members" in self.properties:
-                self.members.extend(self.properties["members"])
+                self.members = list(map(int, self.properties["members"].split(',')))
             if "afps" in self.properties:
-                self.afps = self.properties["afps"]
+                self.afps = int(self.properties["afps"])
 
-            self.__cur_member = self.members[0]
+            self.__cur_member = 0
+
+            # Schedule animation.
+            if self.afps:
+                self.layer.tilemap.area.driftwood.tick.register(self.__next_member, delay=(1000//self.afps))
 
     def srcrect(self):
         """Return an (x, y, w, h) srcrect for the current graphic frame of the tile.
         """
-        return (((self.__cur_member * self.tileset.tilewidth) % self.tileset.imagewidth),
-                ((self.__cur_member * self.tileset.tilewidth) // self.tileset.imagewidth) * self.tileset.tileheight,
+        current_member = self.members[self.__cur_member]
+        return (((current_member * self.tileset.tilewidth) % self.tileset.imagewidth),
+                ((current_member * self.tileset.tilewidth) // self.tileset.imagewidth) * self.tileset.tileheight,
                 self.tileset.tilewidth, self.tileset.tileheight)
+
+    def __next_member(self, millis):
+        self.__cur_member = (self.__cur_member + 1) % len(self.members)
+        self.layer.tilemap.area.changed = True
