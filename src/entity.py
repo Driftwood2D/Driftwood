@@ -91,7 +91,7 @@ class Entity:
         """Return an (x, y, w, h) srcrect for the current graphic frame of the entity.
         """
         current_member = self.members[self.__cur_member]
-        return (((current_member * self.width) % self.spritesheet.imagewidth) * self.width,
+        return (((current_member * self.width) % self.spritesheet.imagewidth),
                 ((current_member * self.width) // self.spritesheet.imagewidth) * self.height,
                 self.width, self.height)
 
