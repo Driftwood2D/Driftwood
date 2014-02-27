@@ -88,7 +88,7 @@ class InputManager:
 
         # Set the key callback as not called yet.
         if keysym in self.__registry:
-            self.__registry[keysym][5] = 0
+            self.__registry[keysym]["times_called"] = 0
 
     def handler(self, callback):
         """Register the handler callback.
