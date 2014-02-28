@@ -31,6 +31,7 @@ import unittest.mock as mock
 import databasemanager
 
 def driftwood():
+    """Create a mock, shared Driftwood object"""
     d = mock.Mock()
     d.config = {
         'database': {

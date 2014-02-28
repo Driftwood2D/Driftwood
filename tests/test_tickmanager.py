@@ -30,6 +30,7 @@ import unittest.mock as mock
 import tickmanager
 
 def driftwood():
+    """Create a mock, shared Driftwood object"""
     d = mock.Mock()
     d.config = {
         'tick': {
@@ -55,6 +56,7 @@ class TestTickManager(unittest.TestCase):
         ticker.tick()
 
         assert not callback.called
+
     def test_pause_does_call_input_and_window(self):
         """Even when paused, the TickManager should call input.tick(None) and
            window.tick(None)"""
