@@ -1,6 +1,6 @@
 ###################################
 ## Driftwood 2D Game Dev. Suite  ##
-## test_databasemanager.py       ##
+## test_tickmanager.py           ##
 ## Copyright 2014 PariahSoft LLC ##
 ###################################
 
@@ -24,34 +24,44 @@
 ## IN THE SOFTWARE.
 ## **********
 
-import shutil
 import unittest
 import unittest.mock as mock
 
-import databasemanager
+import tickmanager
 
 def driftwood():
     d = mock.Mock()
     d.config = {
-        'database': {
-            'root': 'db.test',
-            'name': 'test.db'
+        'tick': {
+            'tps': 1001,    # 1000 // 1001 == 0
         }
     }
     d.log.msg.side_effect = Exception('log.msg called')
     return d
 
-class TestDatabaseCreation(unittest.TestCase):
-    """Test that the DatabaseManager can initialize itself correctly with defaults on a fresh filesystem.
+class TestTickManager(unittest.TestCase):
+    """Test that the TickManager handles ticks properly.
     """
 
-    def test_create_db_dir_if_not_exist(self):
-        """DatabaseManager should create the directory db.test if it doesn't exist already."""
-        databasemanager.DatabaseManager(driftwood())
+    def test_pause_doesnt_call_ticks(self):
+        """The TickManager should not call registered callbacks when paused"""
+        callback = mock.Mock()
+        callback.__qualname__ = "<blank>" # TickManager requires callbacks have
+                                          # __qualname__
 
-    def test_create_db_file_if_not_exist(self):
-        """DatabaseManager should create the file test.db if it doesn't exist already."""
-        databasemanager.DatabaseManager(driftwood())
+        ticker = tickmanager.TickManager(driftwood())
+        ticker.toggle_pause()
+        ticker.register(callback)
+        ticker.tick()
 
-    def tearDown(self):
-        shutil.rmtree('db.test', ignore_errors=False)
+        assert not callback.called
+    def test_pause_does_call_input_and_window(self):
+        """Even when paused, the TickManager should call input.tick(None) and
+           window.tick(None)"""
+        d = driftwood()
+        ticker = tickmanager.TickManager(d)
+        ticker.toggle_pause()
+        ticker.tick()
+
+        d.input.tick.assert_called_with(None)
+        d.window.tick.assert_called_with(None)

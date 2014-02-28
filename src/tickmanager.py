@@ -56,6 +56,8 @@ class TickManager:
         #     once: Whether to only call once.
         self.__registry = []
 
+        self.__latest_tick = SDL_GetTicks()
+
         self.paused = False
         self.paused_at = None
 
@@ -71,7 +73,7 @@ class TickManager:
             if reg["callback"] == callback:
                 self.unregister(callback)
 
-        self.__registry.append({"ticks": SDL_GetTicks(), "delay": delay,
+        self.__registry.append({"ticks": self.__latest_tick, "delay": delay,
                                 "callback": callback, "once": once})
 
         self.driftwood.log.info("Tick", "registered", callback.__qualname__)
@@ -93,6 +95,8 @@ class TickManager:
            regulate tps.
         """
         current_tick = SDL_GetTicks()
+
+        self.__latest_tick = current_tick
 
         # Only tick if not paused.
         if not self.paused:

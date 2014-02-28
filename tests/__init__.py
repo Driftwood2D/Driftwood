@@ -31,3 +31,4 @@ sys.path.insert(0, "tests")
 
 # Add all tests here.
 from test_databasemanager import TestDatabaseCreation
+from test_tickmanager import TestTickManager
