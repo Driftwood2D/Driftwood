@@ -25,6 +25,7 @@
 ## **********
 
 import entity
+from inputmanager import InputManager
 
 
 class EntityManager:
@@ -194,30 +195,50 @@ class EntityManager:
 
         self.player = ent
 
-        self.driftwood.input.register(getattr(self.driftwood.keycode,
-                                      self.driftwood.config["input"]["keybindings"]["up"]),
-                                      self.__default_keybind_move_up)
+        getkey = lambda keyid: getattr(self.driftwood.keycode,
+                                       self.driftwood.config["input"]["keybindings"][keyid])
 
-        self.driftwood.input.register(getattr(self.driftwood.keycode,
-                                      self.driftwood.config["input"]["keybindings"]["down"]),
-                                      self.__default_keybind_move_down)
+        self.driftwood.input.register(getkey("up"), self.__default_keybind_move_up)
+        self.driftwood.input.register(getkey("down"), self.__default_keybind_move_down)
+        self.driftwood.input.register(getkey("left"), self.__default_keybind_move_left)
+        self.driftwood.input.register(getkey("right"), self.__default_keybind_move_right)
 
-        self.driftwood.input.register(getattr(self.driftwood.keycode,
-                                      self.driftwood.config["input"]["keybindings"]["left"]),
-                                      self.__default_keybind_move_left)
+    def __default_keybind_move_up(self, keyevent):
+        player = self.driftwood.entity.player
+        if keyevent == InputManager.ONDOWN:
+            player.walk_stop()
+            player.walk(0, -1, dont_stop=True)
+        elif keyevent == InputManager.ONREPEAT:
+            player.walk(0, -1, dont_stop=True)
+        elif keyevent == InputManager.ONUP:
+            player.walk_stop()
 
-        self.driftwood.input.register(getattr(self.driftwood.keycode,
-                                      self.driftwood.config["input"]["keybindings"]["right"]),
-                                      self.__default_keybind_move_right)
+    def __default_keybind_move_down(self, keyevent):
+        player = self.driftwood.entity.player
+        if keyevent == InputManager.ONDOWN:
+            player.walk_stop()
+            player.walk(0, 1, dont_stop=True)
+        elif keyevent == InputManager.ONREPEAT:
+            player.walk(0, 1, dont_stop=True)
+        elif keyevent == InputManager.ONUP:
+            player.walk_stop()
 
-    def __default_keybind_move_up(self):
-        self.driftwood.entity.player.move(0, -1)
+    def __default_keybind_move_left(self, keyevent):
+        player = self.driftwood.entity.player
+        if keyevent == InputManager.ONDOWN:
+            player.walk_stop()
+            player.walk(-1, 0, dont_stop=True)
+        if keyevent == InputManager.ONREPEAT:
+            player.walk(-1, 0, dont_stop=True)
+        elif keyevent == InputManager.ONUP:
+            player.walk_stop()
 
-    def __default_keybind_move_down(self):
-        self.driftwood.entity.player.move(0, 1)
-
-    def __default_keybind_move_left(self):
-        self.driftwood.entity.player.move(-1, 0)
-
-    def __default_keybind_move_right(self):
-        self.driftwood.entity.player.move(1, 0)
+    def __default_keybind_move_right(self, keyevent):
+        player = self.driftwood.entity.player
+        if keyevent == InputManager.ONDOWN:
+            player.walk_stop()
+            player.walk(1, 0, dont_stop=True)
+        if keyevent == InputManager.ONREPEAT:
+            player.walk(1, 0, dont_stop=True)
+        elif keyevent == InputManager.ONUP:
+            player.walk_stop()

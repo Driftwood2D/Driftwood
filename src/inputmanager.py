@@ -24,8 +24,7 @@
 ## IN THE SOFTWARE.
 ## **********
 
-from sdl2 import SDL_GetTicks
-
+from sdl2 import SDL_GetTicks, SDL_GetKeyName
 
 class InputManager:
     """The Input Manager
@@ -35,6 +34,8 @@ class InputManager:
     Attributes:
         driftwood: Base class instance.
     """
+
+    ONDOWN, ONREPEAT, ONUP = range(3)
 
     def __init__(self, driftwood):
         """InputManager class initializer.
@@ -46,7 +47,7 @@ class InputManager:
 
         self.__handler = None
 
-        # {keysym: {callback, throttle, delay, once, last_called, times_called}}
+        # {keysym: {callback, throttle, delay, last_called, repeats}}
         self.__registry = {}
 
         self.__stack = []
@@ -68,6 +69,14 @@ class InputManager:
     def __delitem__(self, item):
         self.unregister(item)
 
+    def keyname(self, keysym):
+        """Return a string naming a keysym.  The up arrow key returns "Up," etc.
+
+        Args:
+            keysym: SDLKey which should be named
+        """
+        return SDL_GetKeyName(keysym).decode("utf-8")
+
     def key_down(self, keysym):
         """Push a keypress onto the input stack if not present.
 
@@ -76,6 +85,13 @@ class InputManager:
         """
         if not keysym in self.__stack:
             self.__stack.insert(0, keysym)
+            if keysym in self.__registry:
+                self.__registry[keysym]["callback"](InputManager.ONDOWN)
+        else:
+            # SDL2 gives us key-repeat events so this is actually okay.
+            #self.driftwood.log.msg("WARNING", "InputManager", "key_down", "key already down", self.keyname(keysym))
+            pass
+
 
     def key_up(self, keysym):
         """Remove a keypress from the input stack if present.
@@ -86,41 +102,56 @@ class InputManager:
         if keysym in self.__stack:
             self.__stack.remove(keysym)
 
-        # Set the key callback as not called yet.
-        if keysym in self.__registry:
-            self.__registry[keysym]["times_called"] = 0
+            # Set the key callback as not called yet.
+            if keysym in self.__registry:
+                self.__registry[keysym]["repeats"] = 0
+                self.__registry[keysym]["callback"](InputManager.ONUP)
+        else:
+            self.driftwood.log.msg("WARNING", "InputManager", "key_up", "key not down", self.keyname(keysym))
 
     def handler(self, callback):
         """Register the handler callback.
 
-        The handler callback function will receive a call every tick that a key is being pressed. The handler must take
-        one argument: the SDLKey for the key on top of the input stack. (the key which was most recently pressed.)
+        The handler callback function will receive a call every tick that a key
+        is being pressed. The handler must take one argument: the SDLKey for
+        the key on top of the input stack. (the key which was most recently
+        pressed.)
 
         Args:
             callback: Handler function to be called on any keypress.
         """
+        if callback and self.__handler:
+            self.driftwood.log.msg("WARNING", "InputManager", "handler", "handler already exists (maybe call unhandle first?)")
+
         self.__handler = callback
 
-    def register(self, keysym, callback, throttle=0, delay=0, once=False):
+    def unhandle(self):
+        self.__handler = None
+
+    def register(self, keysym, callback, throttle=0, delay=0):
         """Register an input callback.
 
-        The callback function will receive a call every tick that the key is on top of the input stack. (the key which
-        was most recently pressed.)
+        The callback function will receive a call every tick that the key is on
+        top of the input stack. (the key which was most recently pressed.)
 
         Args:
             keysym: SDLKey for the key which triggers the callback.
-            callback: Function to be called on the registered keypress.
-            throttle: Number of milliseconds to wait between calls when the key is held down.
-            delay: Delay in milliseconds between the first call and subsequent calls while the key is held down.
-            once: Only call once for each time the key is pressed.
+            callback: Function to be called on the registered keypress.  It should take a single integer parameter with a value of InputManager.ONDOWN, ONREPEAT, or ONUP.
+            throttle: Number of milliseconds to wait between ONREPEAT calls when the key is held down.
+            delay: Number of milliseconds to wait after the key is pressed before making the first ONREPEAT call.
         """
+        if keysym in self.__registry:
+            self.driftwood.log.msg("WARNING", "InputManager", "register", "key already registered (maybe unregister it?)", self.keyname(keysym))
+
+        if delay == 0:
+            delay = throttle
+
         self.__registry[keysym] = {
             "callback": callback,
             "throttle": throttle,
             "delay": delay,
-            "once": once,
             "last_called": SDL_GetTicks(),
-            "times_called": 0
+            "repeats": 0
         }
 
     def unregister(self, keysym):
@@ -131,6 +162,8 @@ class InputManager:
         """
         if keysym in self.__registry:
             del self.__registry[keysym]
+        else:
+            self.driftwood.log.msg("WARNING", "InputManager", "unregister", "key not registered", self.keyname(keysym))
 
     def pressed(self, keysym):
         """Check if a key is currently being pressed.
@@ -146,40 +179,40 @@ class InputManager:
     def tick(self, millis_past):
         """Tick callback.
 
-        If there is a keypress on top of the stack and it maps to a callback in the registry, call it. Also pass the
-        keypress to the secondary handler if it exists.
+        If there is a keypress on top of the stack and it maps to a callback in
+        the registry, call it. Also pass the keypress to the secondary handler
+        if it exists.
 
-        If a second-callback delay is set, make sure to wait the proper amount of time before the second call.
+        If a second-callback delay is set, make sure to wait the proper amount
+        of time before the second call.
         """
+        now = SDL_GetTicks()
+
         if self.__stack:
-            # Is the keypress in the registry? Have we waited long enough between calls? Callable more than once?
-            if (
-                self.__stack[0] in self.__registry and
-                self.__registry[self.__stack[0]]["times_called"] >= 0 and
-                SDL_GetTicks() - self.__registry[self.__stack[0]]["last_called"] >=
-                self.__registry[self.__stack[0]]["throttle"]
-            ):
-                # Handle delay after first call if set.
-                if self.__registry[self.__stack[0]]["delay"] and self.__registry[self.__stack[0]]["times_called"] == 1:
-                        # Check if we've waited long enough for the second call.
-                        if SDL_GetTicks() - self.__registry[self.__stack[0]]["last_called"] < \
-                                self.__registry[self.__stack[0]]["delay"]:
-                            # Not time yet.
-                            return
+            # The user's current (or latest, if multiple ongoing,) keydown.
+            top_key = self.__stack[0]
 
-                # Update time last called.
-                self.__registry[self.__stack[0]]["last_called"] = SDL_GetTicks()
+            # Is the keypress in the registry?
+            if top_key in self.__registry:
+                # The callback entry for the top_key.
+                top_callback = self.__registry[top_key]
 
-                # Call the callback.
-                self.__registry[self.__stack[0]]["callback"]()
+                # Have we waited long enough between calls?
+                if top_callback["repeats"] == 0:
+                    waiting_until = top_callback["delay"]
+                else:
+                    waiting_until = top_callback["throttle"]
 
-                # Update number of times called.
-                self.__registry[self.__stack[0]]["times_called"] += 1
+                if now - top_callback["last_called"] >= waiting_until:
+                    # Update time last called.
+                    top_callback["last_called"] = now
 
-                # Only call once?
-                if self.__registry[self.__stack[0]]["once"]:
-                    self.__registry[self.__stack[0]]["times_called"] = -1
+                    # Call the callback.
+                    top_callback["callback"](InputManager.ONREPEAT)
+
+                    # Update number of times called.
+                    top_callback["repeats"] += 1
 
             # Call the handler if set.
             if self.__handler:
-                self.__handler(self.__stack[0])
+                self.__handler(top_key)

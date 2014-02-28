@@ -108,6 +108,7 @@ class DatabaseManager:
             self.driftwood.log.msg("ERROR", "Database", "no such key", "\"{0}\"".format(key))
             return None
 
+        self.driftwood.cache.upload("DB:"+key, value)  # Cache the value.
         self.driftwood.log.info("Database", "get", "\"{0}\"".format(key))
         return value
 

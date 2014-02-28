@@ -119,7 +119,7 @@ class Driftwood:
                 self.script.call("init.py", "init")
 
             # Escape key pauses the engine.
-            self.input.register(self.keycode.SDLK_ESCAPE, self.__handle_pause, once=True)
+            self.input.register(self.keycode.SDLK_ESCAPE, self.__handle_pause)
 
             # This is the mainloop.
             while self.running:
@@ -147,13 +147,14 @@ class Driftwood:
             print("Shutting down...")
             return 0
 
-    def __handle_pause(self):
-        # Shift+Escape shuts down the engine.
-        if self.input.pressed(self.keycode.SDLK_LSHIFT) or self.input.pressed(self.keycode.SDLK_RSHIFT):
-            self.running = False
+    def __handle_pause(self, keyevent):
+        if keyevent == InputManager.ONDOWN:
+            # Shift+Escape shuts down the engine.
+            if self.input.pressed(self.keycode.SDLK_LSHIFT) or self.input.pressed(self.keycode.SDLK_RSHIFT):
+                self.running = False
 
-        else:
-            self.tick.toggle_pause()
+            else:
+                self.tick.toggle_pause()
 
 
 if __name__ == "__main__":

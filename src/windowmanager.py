@@ -106,6 +106,7 @@ class WindowManager:
             physical_height = self.logical_height
             flags = 0
 
+        flags |= SDL_WINDOW_ALLOW_HIGHDPI
         self.window = SDL_CreateWindow(self.driftwood.config["window"]["title"].encode(), SDL_WINDOWPOS_CENTERED,
                                        SDL_WINDOWPOS_CENTERED, physical_width, physical_height, flags)
 

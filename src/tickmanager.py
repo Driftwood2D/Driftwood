@@ -25,8 +25,7 @@
 ## **********
 
 import sys
-from sdl2 import SDL_Delay
-from sdl2 import SDL_GetTicks
+from sdl2 import SDL_Delay, SDL_GetTicks
 
 
 class TickManager:
