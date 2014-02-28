@@ -153,7 +153,7 @@ class Driftwood:
             self.running = False
 
         else:
-            self.tick.paused = not self.tick.paused
+            self.tick.toggle_pause()
 
 
 if __name__ == "__main__":

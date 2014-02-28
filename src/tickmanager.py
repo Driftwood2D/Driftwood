@@ -49,13 +49,16 @@ class TickManager:
         # A list of dicts representing tick callbacks.
         #
         # Dict Keys:
-        #     ticks: Ticks (milliseconds since engine start) at registration or last delayed call.
+        #     ticks: Ticks (milliseconds since engine start) at registration or
+        #            last delayed call.
         #     delay: Delay in milliseconds between calls.
         #     callback: The function to be called.
         #     once: Whether to only call once.
         self.__registry = []
 
         self.paused = False
+        self.paused_at = None
+        self.last_tick = None
 
     def register(self, callback, delay=0, once=False):
         """Register a tick callback, with an optional delay between calls.
@@ -69,7 +72,8 @@ class TickManager:
             if reg["callback"] == callback:
                 self.unregister(callback)
 
-        self.__registry.append({"ticks": SDL_GetTicks(), "delay": delay, "callback": callback, "once": once})
+        self.__registry.append({"ticks": SDL_GetTicks(), "delay": delay,
+                                "callback": callback, "once": once})
 
         self.driftwood.log.info("Tick", "registered", callback.__qualname__)
 
@@ -82,19 +86,23 @@ class TickManager:
         for n, reg in enumerate(self.__registry):
             if reg["callback"] == callback:
                 del self.__registry[n]
-                self.driftwood.log.info("Tick", "unregistered", callback.__qualname__)
+                self.driftwood.log.info("Tick", "unregistered",
+                                        callback.__qualname__)
 
     def tick(self):
-        """Call all registered tick callbacks not currently delayed, and regulate tps.
+        """Call all registered tick callbacks not currently delayed, and
+           regulate tps.
         """
-        for reg in self.__registry:
-            # Only tick if not paused. FIXME: This will throw off the timing of callbacks.
-            if not self.paused:
+        current_tick = SDL_GetTicks()
+
+        # Only tick if not paused.
+        if not self.paused:
+            for reg in self.__registry:
                 # Handle a delayed tick.
-                millis_past = SDL_GetTicks() - reg["ticks"]
+                millis_past = current_tick - reg["ticks"]
                 if reg["delay"]:
                     if millis_past >= reg["delay"]:
-                        reg["ticks"] = SDL_GetTicks()
+                        reg["ticks"] = current_tick
                         reg["callback"](millis_past)
 
                         # Unregister ticks set to only run once.
@@ -103,17 +111,35 @@ class TickManager:
 
                 # Don't handle a delayed tick
                 else:
-                    reg["ticks"] = SDL_GetTicks()
+                    reg["ticks"] = current_tick
                     reg["callback"](millis_past)
 
                     # Unregister ticks set to only run once.
                     if reg["once"]:
                         self.unregister(reg["callback"])
 
-            # We're paused, only call ticks for InputManager and WindowManager.
-            else:
-                self.driftwood.input.tick(None)
-                self.driftwood.window.tick(None)
+        # We're paused, only call ticks for InputManager and WindowManager.
+        else:
+            self.driftwood.input.tick(None)
+            self.driftwood.window.tick(None)
 
         # Regulate ticks per second.
         SDL_Delay(1000 // self.driftwood.config["tick"]["tps"])
+
+    def toggle_pause(self):
+        """Toggle a pause in all registered ticks.  During this time, no ticks
+           will get called, and all timing related information is kept track of
+           and is restored upon unpause.  Contradicting what was just said,
+           InputManager and WindowManager still receieve ticks during a pause,
+           but they are told that the number of milliseconds that have passed is
+           None (not 0).
+        """
+        if self.paused:
+            self.paused = False
+            paused_for = SDL_GetTicks() - self.paused_at
+            for reg in self.__registry:
+                reg["ticks"] += paused_for
+            self.paused_at = None
+        else:
+            self.paused = True
+            self.paused_at = SDL_GetTicks()
