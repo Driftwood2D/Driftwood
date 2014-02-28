@@ -58,7 +58,6 @@ class TickManager:
 
         self.paused = False
         self.paused_at = None
-        self.last_tick = None
 
     def register(self, callback, delay=0, once=False):
         """Register a tick callback, with an optional delay between calls.
