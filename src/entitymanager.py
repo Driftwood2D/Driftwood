@@ -206,32 +206,32 @@ class EntityManager:
     def __default_keybind_move_up(self, keyevent):
         player = self.driftwood.entity.player
         if keyevent == InputManager.ONDOWN:
-            player.walk_stop()
+            player._walk_stop()
             player.walk(0, -1, dont_stop=True)
         elif keyevent == InputManager.ONREPEAT:
             player.walk(0, -1, dont_stop=True)
         elif keyevent == InputManager.ONUP:
-            player.walk_stop()
+            player._walk_stop()
 
     def __default_keybind_move_down(self, keyevent):
         player = self.driftwood.entity.player
         if keyevent == InputManager.ONDOWN:
-            player.walk_stop()
+            player._walk_stop()
             player.walk(0, 1, dont_stop=True)
         elif keyevent == InputManager.ONREPEAT:
             player.walk(0, 1, dont_stop=True)
         elif keyevent == InputManager.ONUP:
-            player.walk_stop()
+            player._walk_stop()
 
     def __default_keybind_move_left(self, keyevent):
         player = self.driftwood.entity.player
         if keyevent == InputManager.ONDOWN:
-            player.walk_stop()
+            player._walk_stop()
             player.walk(-1, 0, dont_stop=True)
         if keyevent == InputManager.ONREPEAT:
             player.walk(-1, 0, dont_stop=True)
         elif keyevent == InputManager.ONUP:
-            player.walk_stop()
+            player._walk_stop()
 
     def __default_keybind_move_right(self, keyevent):
         player = self.driftwood.entity.player
