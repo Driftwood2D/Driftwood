@@ -104,6 +104,8 @@ class ResourceManager:
     def request_json(self, filename):
         data = self.request(filename)
         if data:
+            if type(data) == bytes:
+                data = data.decode()
             return json.loads(data)
 
     def request_image(self, filename):

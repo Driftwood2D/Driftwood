@@ -51,7 +51,7 @@ class LogManager:
         Args:
             chain: A list of strings to be separated by colon-spaces and printed.
         """
-        self.__print(*chain)
+        self.__print(chain)
 
         # Die on non-info (error or warning) messages.
         if self.driftwood.config["log"]["halt"]:

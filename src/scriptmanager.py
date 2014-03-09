@@ -58,7 +58,7 @@ class ScriptManager:
         """
         cpath = list(os.path.split(filename))
         cpath[-1] = os.path.splitext(cpath[-1])[0]
-        return os.sep.join(cpath)
+        return os.sep.join(cpath)[1:]
 
     def __load(self, filename):
         """Load a script.
@@ -69,8 +69,6 @@ class ScriptManager:
         importpath = self.driftwood.path.find(filename)
 
         if importpath:
-            self.driftwood.log.info("Script", "loaded", filename)
-
             try:
                 # This is a directory.
                 if os.path.isdir(importpath):
@@ -82,6 +80,8 @@ class ScriptManager:
                     importer = zipimport.zipimporter(importpath)
                     mpath = self.__convert_path(filename)
                     self.__modules[filename] = importer.load_module(mpath)
+
+                self.driftwood.log.info("Script", "loaded", filename)
 
             except:
                 self.driftwood.log.msg("ERROR", "Script", "could not load script", filename)

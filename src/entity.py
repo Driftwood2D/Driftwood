@@ -446,6 +446,7 @@ class TileModeEntity(Entity):
         self.walk_state = Entity.NOT_WALKING
         self.walking = None
 
+
 # TODO: Finish pixel mode.
 class PixelModeEntity(Entity):
     """This Entity subclass represents an Entity configured for movement in by-pixel mode.
@@ -513,3 +514,9 @@ class PixelModeEntity(Entity):
         self.manager.driftwood.area.changed = True
 
         return True
+
+
+# TODO: Implement turn mode.
+class TurnModeEntity(Entity):
+    """This Entity subclass represents an Entity configured for movement in turn-based mode.
+    """

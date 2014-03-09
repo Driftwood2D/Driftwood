@@ -24,10 +24,9 @@
 ## IN THE SOFTWARE.
 ## **********
 
+import imp
 import signal
 import sys
-from sdl2 import *
-import sdl2.ext as sdl2ext
 
 VCUR = sys.version_info
 VREQ = [3, 3, 3]
@@ -41,6 +40,16 @@ if __name__ == "__main__":
         print("[0] FATAL: python >= {0}.{1}.{2} required, found python {3}.{4}.{5}".format(VREQ[0], VREQ[1], VREQ[2],
                                                                                            VCUR[0], VCUR[1], VCUR[2]))
         sys.exit(1)  # Fail.
+
+    # Check for PySDL2.
+    try:
+        imp.find_module("sdl2")
+    except ImportError:
+        print("[0] FATAL: PySDL2 required, module \"sdl2\" not found")
+        sys.exit(1)  # Fail.
+
+from sdl2 import *
+import sdl2.ext as sdl2ext
 
 from configmanager import ConfigManager
 from logmanager import LogManager
