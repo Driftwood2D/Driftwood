@@ -240,9 +240,8 @@ class TileModeEntity(Entity):
         Args:
             x: -1 for left, 1 for right, 0 for no x movement.
             y: -1 for up, 1 for down, 0 for no y movement.
-            dont_stop: Walk continuously, don't stop after one tile or pixel.
-                Only stop when self.walk_state externally set to
-                Entity.WALKING_WANT_STOP.  Only has an effect if x or y is set.
+            dont_stop: Walk continuously, don't stop after one tile or pixel. Only stop when self.walk_state externally
+                set to Entity.WALKING_WANT_STOP.  Only has an effect if x or y is set.
 
         Returns: True if succeeded, false if failed (due to collision or already
                  busy walking).
@@ -280,7 +279,8 @@ class TileModeEntity(Entity):
         # Perform collision detection.
         if self.collision:
             # Check if the destination tile is walkable.
-            dsttile = self.manager.driftwood.area.tilemap.layers[self.layer].tile(self.tile.pos[0] + x, self.tile.pos[1] + y)
+            dsttile = self.manager.driftwood.area.tilemap.layers[self.layer].tile(self.tile.pos[0] + x,
+                                                                                  self.tile.pos[1] + y)
 
             # Don't walk on nowalk tiles or off the edge of the map unless there's a lazy exit.
             if self.tile:

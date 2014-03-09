@@ -129,12 +129,11 @@ class TickManager:
         SDL_Delay(1000 // self.driftwood.config["tick"]["tps"])
 
     def toggle_pause(self):
-        """Toggle a pause in all registered ticks.  During this time, no ticks
-           will get called, and all timing related information is kept track of
-           and is restored upon unpause.  Contradicting what was just said,
-           InputManager and WindowManager still receieve ticks during a pause,
-           but they are told that the number of milliseconds that have passed is
-           None (not 0).
+        """Toggle a pause in all registered ticks.
+
+        During this time, no ticks will get called, and all timing related information is kept track of and is restored
+        upon unpause. Contrary to this, this, InputManager and WindowManager still receieve ticks during a pause, but
+        they are told that the number of milliseconds that have passed is None (not 0).
         """
         if self.paused:
             self.paused = False

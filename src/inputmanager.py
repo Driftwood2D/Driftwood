@@ -26,6 +26,7 @@
 
 from sdl2 import SDL_GetTicks, SDL_GetKeyName
 
+
 class InputManager:
     """The Input Manager
 
@@ -69,15 +70,7 @@ class InputManager:
     def __delitem__(self, item):
         self.unregister(item)
 
-    def keyname(self, keysym):
-        """Return a string naming a keysym.  The up arrow key returns "Up," etc.
-
-        Args:
-            keysym: SDLKey which should be named
-        """
-        return SDL_GetKeyName(keysym).decode("utf-8")
-
-    def key_down(self, keysym):
+    def _key_down(self, keysym):
         """Push a keypress onto the input stack if not present.
 
         Args:
@@ -92,8 +85,7 @@ class InputManager:
             #self.driftwood.log.msg("WARNING", "InputManager", "key_down", "key already down", self.keyname(keysym))
             pass
 
-
-    def key_up(self, keysym):
+    def _key_up(self, keysym):
         """Remove a keypress from the input stack if present.
 
         Args:
@@ -106,8 +98,14 @@ class InputManager:
             if keysym in self.__registry:
                 self.__registry[keysym]["repeats"] = 0
                 self.__registry[keysym]["callback"](InputManager.ONUP)
-        else:
-            self.driftwood.log.msg("WARNING", "InputManager", "key_up", "key not down", self.keyname(keysym))
+
+    def keyname(self, keysym):
+        """Return a string naming a keysym.  The up arrow key returns "Up," etc.
+
+        Args:
+            keysym: SDLKey which should be named
+        """
+        return SDL_GetKeyName(keysym).decode("utf-8")
 
     def handler(self, callback):
         """Register the handler callback.
@@ -120,9 +118,6 @@ class InputManager:
         Args:
             callback: Handler function to be called on any keypress.
         """
-        if callback and self.__handler:
-            self.driftwood.log.msg("WARNING", "InputManager", "handler", "handler already exists (maybe call unhandle first?)")
-
         self.__handler = callback
 
     def unhandle(self):
@@ -131,18 +126,16 @@ class InputManager:
     def register(self, keysym, callback, throttle=0, delay=0):
         """Register an input callback.
 
-        The callback function will receive a call every tick that the key is on
-        top of the input stack. (the key which was most recently pressed.)
+        The callback function will receive a call every tick that the key is on top of the input stack. (the key which
+        was most recently pressed.)
 
         Args:
             keysym: SDLKey for the key which triggers the callback.
-            callback: Function to be called on the registered keypress.  It should take a single integer parameter with a value of InputManager.ONDOWN, ONREPEAT, or ONUP.
+            callback: Function to be called on the registered keypress.  It should take a single integer parameter with
+                a value of InputManager.ONDOWN, ONREPEAT, or ONUP.
             throttle: Number of milliseconds to wait between ONREPEAT calls when the key is held down.
             delay: Number of milliseconds to wait after the key is pressed before making the first ONREPEAT call.
         """
-        if keysym in self.__registry:
-            self.driftwood.log.msg("WARNING", "InputManager", "register", "key already registered (maybe unregister it?)", self.keyname(keysym))
-
         if delay == 0:
             delay = throttle
 
@@ -179,12 +172,10 @@ class InputManager:
     def tick(self, millis_past):
         """Tick callback.
 
-        If there is a keypress on top of the stack and it maps to a callback in
-        the registry, call it. Also pass the keypress to the secondary handler
-        if it exists.
+        If there is a keypress on top of the stack and it maps to a callback in the registry, call it. Also pass the
+        keypress to the secondary handler if it exists.
 
-        If a second-callback delay is set, make sure to wait the proper amount
-        of time before the second call.
+        If a second-callback delay is set, make sure to wait the proper amount of time before the second call.
         """
         now = SDL_GetTicks()
 

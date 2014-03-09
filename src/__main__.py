@@ -132,11 +132,11 @@ class Driftwood:
 
                     elif event.type == SDL_KEYDOWN:
                         # Pass a keydown to the Input Manager.
-                        self.input.key_down(event.key.keysym.sym)
+                        self.input._key_down(event.key.keysym.sym)
 
                     elif event.type == SDL_KEYUP:
                         # Pass a keyup to the Input Manager.
-                        self.input.key_up(event.key.keysym.sym)
+                        self.input._key_up(event.key.keysym.sym)
 
                     elif event.type == SDL_WINDOWEVENT and event.window.event == SDL_WINDOWEVENT_EXPOSED:
                         self.window.refresh()

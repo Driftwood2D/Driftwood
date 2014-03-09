@@ -38,6 +38,7 @@ class ResourceManager:
 
     Attributes:
         driftwood: Base class instance.
+
     """
 
     def __init__(self, driftwood):
