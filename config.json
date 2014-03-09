@@ -16,8 +16,11 @@
 		}
 	},
 	"log": {
-		"verbose": false,
-		"halt": true
+		"verbose": true,
+		"halt": true,
+		"suppress": [
+		    ["Tick", "", "TileModeEntity.__process_walk"]
+		]
 	},
 	"path": {
 		"self": "bin/driftwood",

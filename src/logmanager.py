@@ -64,14 +64,28 @@ class LogManager:
             chain: A list of strings to be separated by colon-spaces and printed.
         """
         if self.driftwood.config["log"]["verbose"]:
-            self.__print(*chain)
+            self.__print(chain)
 
-    def __print(self, *chain):
+    def __print(self, chain):
         """Format and print the string.
 
         Args:
             chain: A list of strings to be separated by colon-spaces and printed.
         """
-        ticks = "[{0}] ".format(str(SDL_GetTicks()))
-        print(ticks + ": ".join(chain))
-        sys.stdout.flush()
+        suppress = False
+
+        # Check if the output should be suppressed.
+        for supp in self.driftwood.config["log"]["suppress"]:
+            if supp[0] == chain[0] and len(chain) >= len(supp):
+                for n, s in enumerate(supp):
+                    if s == chain[n] or not s:
+                        suppress = True
+
+                    else:
+                        suppress = False
+
+        # If the output is not suppressed, print it.
+        if not suppress:
+            ticks = "[{0}] ".format(str(SDL_GetTicks()))
+            print(ticks + ": ".join(chain))
+            sys.stdout.flush()
