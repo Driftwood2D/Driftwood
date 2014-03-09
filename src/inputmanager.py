@@ -105,7 +105,7 @@ class InputManager:
         Args:
             keysym: SDLKey which should be named
         """
-        return SDL_GetKeyName(keysym).decode("utf-8")
+        return SDL_GetKeyName(keysym).decode()
 
     def handler(self, callback):
         """Register the handler callback.
