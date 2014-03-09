@@ -145,7 +145,6 @@ class Entity:
             self.x = int(self._next_area[2]) * self.manager.driftwood.area.tilemap.tilewidth
             self.y = int(self._next_area[3]) * self.manager.driftwood.area.tilemap.tileheight
             self.tile = self._tile_at(self.layer, self.x, self.y)
-            self.manager.driftwood.log.info("Entity", "_do_exit", "new self.tile", repr(self.tile))
 
         self._next_area = None
 
@@ -261,19 +260,12 @@ class TileModeEntity(Entity):
 
     def __can_walk(self, x, y):
         if x not in [-1, 0, 1]:
-            self.manager.driftwood.log.msg("WARNING", "Entity", "__can_walk", "x is invalid", repr(x))
             x = 0
 
         if y not in [-1, 0, 1]:
-            self.manager.driftwood.log.msg("WARNING", "Entity", "__can_walk", "y is invalid", repr(y))
             y = 0
 
-        if x == 0 and y == 0:
-            # Are you looking for Entity.__arrive_at_tile()?
-            self.manager.driftwood.log.msg("WARNING", "Entity", "__can_walk", "x=y=0")
-
         if not self.tile:
-            self.manager.driftwood.log.info("Entity", "__can_walk", "self.tile = {0}".format(self.tile))
             return False # panic!
 
         # Perform collision detection.
@@ -426,7 +418,6 @@ class TileModeEntity(Entity):
     def __do_take_exit(self):
         # If there is an exit, take it.
         if self._next_area:
-            self.manager.driftwood.log.info("Entity", "__do_take_exit", "_next_area found!")
 
             # If we're the player, change the area.
             if self.manager.player.eid == self.eid:
@@ -451,8 +442,7 @@ class TileModeEntity(Entity):
         if self.tile:
             self.x = self.tile.pos[0] * tilewidth
             self.y = self.tile.pos[1] * tileheight
-        else:
-            self.manager.driftwood.log.info("Entity", "__stand_still", "self.tile", repr(self.tile))
+
         self.walk_state = Entity.NOT_WALKING
         self.walking = None
 
