@@ -214,25 +214,6 @@ class TileModeEntity(Entity):
 
         self.manager.driftwood.area.changed = True
 
-    def __process_walk(self, millis_past):
-        if self.walk_state == Entity.NOT_WALKING:
-            self.manager.driftwood.tick.unregister(self.__process_walk)
-
-        elif self.walk_state == Entity.WALKING_WANT_CONT:
-            self.__inch_along(millis_past)
-            if self.__is_at_next_tile():
-                self.__walk_set_tile()
-                self.__arrive_at_tile()
-                if not self.__can_walk(*self.walking):
-                    self.__stand_still()
-
-        elif self.walk_state == Entity.WALKING_WANT_STOP:
-            self.__inch_along(millis_past)
-            if self.__is_at_next_tile():
-                self.__walk_set_tile()
-                self.__arrive_at_tile()
-                self.__stand_still()
-
     def walk(self, x, y, dont_stop=False):
         """Walk the entity by one tile to a new position relative to its current
            position.
@@ -255,9 +236,28 @@ class TileModeEntity(Entity):
             self.__arrive_at_tile()
             return True
 
-    def walk_stop(self):
+    def _walk_stop(self):
         if self.walk_state == Entity.WALKING_WANT_CONT:
             self.walk_state = Entity.WALKING_WANT_STOP
+
+    def __process_walk(self, millis_past):
+        if self.walk_state == Entity.NOT_WALKING:
+            self.manager.driftwood.tick.unregister(self.__process_walk)
+
+        elif self.walk_state == Entity.WALKING_WANT_CONT:
+            self.__inch_along(millis_past)
+            if self.__is_at_next_tile():
+                self.__walk_set_tile()
+                self.__arrive_at_tile()
+                if not self.__can_walk(*self.walking):
+                    self.__stand_still()
+
+        elif self.walk_state == Entity.WALKING_WANT_STOP:
+            self.__inch_along(millis_past)
+            if self.__is_at_next_tile():
+                self.__walk_set_tile()
+                self.__arrive_at_tile()
+                self.__stand_still()
 
     def __can_walk(self, x, y):
         if x not in [-1, 0, 1]:
@@ -329,10 +329,11 @@ class TileModeEntity(Entity):
                 # Collision detection.
                 tilewidth = self.manager.driftwood.area.tilemap.tilewidth
                 tileheight = self.manager.driftwood.area.tilemap.tileheight
-                if (   self.x + tilewidth  < ent.x
-                    or self.x              > ent.x + tilewidth
+                if (
+                    self.x + tilewidth < ent.x
+                    or self.x > ent.x + tilewidth
                     or self.y + tileheight < ent.y
-                    or self.y              > ent.y + tileheight
+                    or self.y > ent.y + tileheight
                 ):
                     self.manager.collision(self, ent)
                     return False
@@ -368,9 +369,9 @@ class TileModeEntity(Entity):
         tileheight = self.manager.driftwood.area.tilemap.tileheight
 
         return ((self.walking[0] == -1 and self.x <= self._prev_xy[0] - tilewidth)
-             or (self.walking[0] ==  1 and self.x >= self._prev_xy[0] + tilewidth)
-             or (self.walking[1] == -1 and self.y <= self._prev_xy[1] - tilewidth)
-             or (self.walking[1] ==  1 and self.y >= self._prev_xy[1] + tilewidth))
+                or (self.walking[0] ==  1 and self.x >= self._prev_xy[0] + tilewidth)
+                or (self.walking[1] == -1 and self.y <= self._prev_xy[1] - tilewidth)
+                or (self.walking[1] ==  1 and self.y >= self._prev_xy[1] + tilewidth))
 
     def __arrive_at_tile(self):
         if self.tile:
@@ -394,7 +395,7 @@ class TileModeEntity(Entity):
             self.manager.driftwood.script.call(*args)
 
     def __call_on_layer(self):
-        if "on_layer" in tilemap.layers[self.layer].properties:
+        if "on_layer" in self.manager.driftwood.area.tilemap.layers[self.layer].properties:
             args = self.manager.driftwood.area.tilemap.layers[self.layer].properties["on_layer"].split(':')
             self.manager.driftwood.script.call(*args)
 
