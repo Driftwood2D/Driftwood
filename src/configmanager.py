@@ -119,6 +119,7 @@ class ConfigManager:
         try:
             self.__config = json.load(open(self.__cmdline_args.config, 'r'))
         except:
+            print("Driftwood 2D\nStarting up...")
             print("[0] FATAL: Config: could not read config file")
             sys.exit(1)  # Fail.
 
@@ -127,6 +128,8 @@ class ConfigManager:
             print(VERSION)
             print(COPYRIGHT)
             sys.exit(0)  # Exit here, this is all we're doing today.
+
+        print("Driftwood 2D\nStarting up...")
 
         if self.__cmdline_args.path:
             self.__config["path"]["path"] = self.__cmdline_args.path[0].split(',')

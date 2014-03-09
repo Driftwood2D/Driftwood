@@ -33,10 +33,9 @@ VREQ = [3, 3, 3]
 
 # We have to do this here before we start pulling in nonexistent imports.
 if __name__ == "__main__":
-    print("Driftwood 2D\nStarting up...")
-
     # Check Python version.
     if VCUR[0] < VREQ[0] or VCUR[1] < VREQ[1] or VCUR[2] < VREQ[2]:
+        print("Driftwood 2D\nStarting up...")
         print("[0] FATAL: python >= {0}.{1}.{2} required, found python {3}.{4}.{5}".format(VREQ[0], VREQ[1], VREQ[2],
                                                                                            VCUR[0], VCUR[1], VCUR[2]))
         sys.exit(1)  # Fail.
@@ -45,6 +44,7 @@ if __name__ == "__main__":
     try:
         imp.find_module("sdl2")
     except ImportError:
+        print("Driftwood 2D\nStarting up...")
         print("[0] FATAL: PySDL2 required, module \"sdl2\" not found")
         sys.exit(1)  # Fail.
 

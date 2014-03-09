@@ -121,7 +121,7 @@ class DatabaseManager:
             key: The key to create or update.
             value: The value to store.
 
-        Returns: True if succeeded, false if failed.
+        Returns: True if succeeded, False if failed.
         """
         ret = self.__scaffydb.put(key, value)
 
