@@ -110,10 +110,8 @@ class InputManager:
     def handler(self, callback):
         """Register the handler callback.
 
-        The handler callback function will receive a call every tick that a key
-        is being pressed. The handler must take one argument: the SDLKey for
-        the key on top of the input stack. (the key which was most recently
-        pressed.)
+        The handler callback function will receive a call every tick that a key is being pressed. The handler must take
+        one argument: the SDLKey for the key on top of the input stack. (the key which was most recently pressed.)
 
         Args:
             callback: Handler function to be called on any keypress.
