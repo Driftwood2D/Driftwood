@@ -167,14 +167,40 @@ class WindowManager:
             dstrect.x = int(ww/2 - tw/2)
 
         # Area width is larger than window width. Center by width on player.
-        # TODO
+        if tw > ww:
+            if self.driftwood.entity.player:
+                playermidx = self.driftwood.entity.player.x + (self.driftwood.entity.player.width / 2)
+                prepx = int(ww/2 - playermidx*2)
+
+                if prepx > 0:
+                    dstrect.x = 0
+                elif prepx < ww - tw:
+                    dstrect.x = ww - tw
+                else:
+                    dstrect.x = prepx
+
+            else:
+                dstrect.y = int(wh/2 - th/2)
 
         # Area height is smaller than window height. Center by height on area.
         if th < wh:
             dstrect.y = int(wh/2 - th/2)
 
         # Area height is larger than window height. Center by height on player.
-        # TODO
+        if th > wh:
+            if self.driftwood.entity.player:
+                playermidy = self.driftwood.entity.player.y + (self.driftwood.entity.player.height / 2)
+                prepy = int(wh/2 - playermidy*2)
+
+                if prepy > 0:
+                    dstrect.y = 0
+                elif prepy < wh - th:
+                    dstrect.y = wh - th
+                else:
+                    dstrect.y = prepy
+
+            else:
+                dstrect.y = int(wh/2 - th/2)
 
         # Adjust and copy the frame onto the window.
         self.__frame = [self.__texture, srcrect, dstrect]

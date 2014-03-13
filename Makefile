@@ -1,4 +1,4 @@
-# Makefile for Project Driftwood
+# Makefile for Driftwood 2D
 
 all: bin/driftwood
 
@@ -9,7 +9,7 @@ bin:
 	mkdir -p bin
 
 bin/driftwood: bin $(shell test -f bin/driftwood && find src/ -newer bin/driftwood)
-	echo '#!/usr/bin/env python' > bin/driftwood
+	echo '#!/usr/bin/env python3' > bin/driftwood
 	cd src && zip -q -r driftwood.pyz *.py `find . -mindepth 1 -type d`
 	cat src/driftwood.pyz >> bin/driftwood
 	rm src/driftwood.pyz

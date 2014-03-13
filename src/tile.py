@@ -89,7 +89,7 @@ class Tile:
             if "members" in self.properties:
                 self.members = list(map(int, self.properties["members"].split(',')))
             if "afps" in self.properties:
-                self.afps = int(self.properties["afps"])
+                self.afps = float(self.properties["afps"])
 
             self.__cur_member = 0
 
