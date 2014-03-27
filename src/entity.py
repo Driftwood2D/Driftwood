@@ -392,24 +392,33 @@ class TileModeEntity(Entity):
             self.manager.driftwood.script.call(*args)
 
     def __do_layermod(self):
-        # FIXME: Calling teleport causes choppiness with walking due to setting X,Y
-
         # Layermod macro, change the layer.
         if "layermod" in self.tile.properties:
+            did_teleport = False
+
             layermod = self.tile.properties["layermod"]
             # Go down so many layers.
             if layermod.startswith('-'):
                 self.teleport(self.layer - int(layermod[1:]), None, None)
+                did_teleport = True
 
             # Go up so many layers.
             elif layermod.startswith('+'):
                 self.teleport(self.layer + int(layermod[1:]), None, None)
+                did_teleport = True
 
             # Go to a specific layer.
             else:
                 self.teleport(int(layermod), None, None)
+                did_teleport = True
 
+            if did_teleport:
+                xdiff = self._partial_xy[0] - self.x
+                ydiff = self._partial_xy[1] - self.y
             self.__call_on_tile()
+            if did_teleport:
+                self._partial_xy[0] = xdiff + self.x
+                self._partial_xy[1] = ydiff + self.y
 
             return True
 
