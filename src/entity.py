@@ -184,10 +184,9 @@ class TileModeEntity(Entity):
         tilemap = self.manager.driftwood.area.tilemap
 
         # Make sure this is a tile.
-        if (
-                   (layer not in range(tilemap.layers))
-                or (x is not None and not x % tilemap.tilewidth == 0)
-                or (y is not None and not y % tilemap.tileheight == 0)
+        if ((layer < 0 or len(tilemap.layers) <= layer) or
+            (x is not None and x % tilemap.tilewidth != 0) or
+            (y is not None and y % tilemap.tileheight != 0)
         ):
             self.manager.driftwood.log.msg("ERROR", "Entity", "attempted teleport to non-tile position")
             return
