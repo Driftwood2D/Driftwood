@@ -26,6 +26,8 @@
 
 import imp
 import os
+import sys
+import traceback
 import zipimport
 
 
@@ -82,12 +84,17 @@ class ScriptManager:
                     self.__modules[filename] = importer.load_module(mpath)
 
                 self.driftwood.log.info("Script", "loaded", filename)
+                return True
 
             except:
-                self.driftwood.log.msg("ERROR", "Script", "could not load script", filename)
+                self.driftwood.log.msg("ERROR", "Script", "broken script", filename)
+                traceback.print_exc(0, sys.stdout)
+                sys.stdout.flush()
+                return False
 
         else:
             self.driftwood.log.msg("ERROR", "Script", "no such script", filename)
+            return False
 
     def call(self, filename, func, arg=None):
         """Call a function from a script, loading if not already loaded.
@@ -98,17 +105,26 @@ class ScriptManager:
             arg: Pass this argument if not None.
         """
         if not filename in self.__modules:
-            self.__load(filename)
+            res = self.__load(filename)
+            if not res:
+                return
 
         if filename in self.__modules and hasattr(self.__modules[filename], func):
-            self.driftwood.log.info("Script", "called", filename, func + "()")
-            if arg:
-                getattr(self.__modules[filename], func)(arg)
-            else:
-                getattr(self.__modules[filename], func)()
+            try:
+                self.driftwood.log.info("Script", "called", filename, func + "()")
+                if arg:
+                    getattr(self.__modules[filename], func)(arg)
+                else:
+                    getattr(self.__modules[filename], func)()
+
+            except:
+                self.driftwood.log.msg("ERROR", "Script", "broken function", filename, func + "()")
+                traceback.print_exc(0, sys.stdout)
+                sys.stdout.flush()
+                return False
 
         else:
-            self.driftwood.log.msg("ERROR", "Script", filename, "no such function", func + "()")
+            self.driftwood.log.msg("ERROR", "Script", "no such function", filename, func + "()")
 
     def module(self, filename):
         """Return the module instance of a script, loading if not already loaded.
