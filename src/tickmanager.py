@@ -94,7 +94,7 @@ class TickManager:
            regulate tps.
         """
         current_tick = SDL_GetTicks()
-
+        last_tick = self.__latest_tick
         self.__latest_tick = current_tick
 
         # Only tick if not paused.
@@ -126,7 +126,9 @@ class TickManager:
             self.driftwood.window.tick(None)
 
         # Regulate ticks per second.
-        SDL_Delay(1000 // self.driftwood.config["tick"]["tps"])
+        tick_delta = current_tick - last_tick
+        if tick_delta < 1000 // self.driftwood.config["tick"]["tps"]:
+            SDL_Delay((1000 // self.driftwood.config["tick"]["tps"]) - tick_delta)
 
     def toggle_pause(self):
         """Toggle a pause in all registered ticks.
