@@ -108,6 +108,10 @@ class EntityManager:
                                                                                                             layer,
                                                                                                             x, y))
 
+        if "on_insert" in data:
+            args = data["on_insert"].split(':')
+            self.driftwood.script.call(args[0], args[1], self.entities[eid])
+
         return self.entities[-1]
 
     def entity(self, eid):

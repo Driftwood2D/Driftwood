@@ -89,19 +89,23 @@ class ScriptManager:
         else:
             self.driftwood.log.msg("ERROR", "Script", "no such script", filename)
 
-    def call(self, filename, func):
+    def call(self, filename, func, arg=None):
         """Call a function from a script, loading if not already loaded.
 
         Args:
             filename: Filename of the python script containing the function.
             func: Name of the function to call.
+            arg: Pass this argument if not None.
         """
         if not filename in self.__modules:
             self.__load(filename)
 
         if filename in self.__modules and hasattr(self.__modules[filename], func):
             self.driftwood.log.info("Script", "called", filename, func + "()")
-            getattr(self.__modules[filename], func)()
+            if arg:
+                getattr(self.__modules[filename], func)(arg)
+            else:
+                getattr(self.__modules[filename], func)()
 
         else:
             self.driftwood.log.msg("ERROR", "Script", filename, "no such function", func + "()")

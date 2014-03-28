@@ -7,5 +7,6 @@
 	"height": 16,
 	"members": [0],
 	"afps": 0,
-	"properties": {"nerd": true}
+	"properties": {"nerd": true},
+	"on_insert": "insert.py:test"
 }

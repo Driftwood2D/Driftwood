@@ -394,6 +394,7 @@ class TileModeEntity(Entity):
         # Layermod macro, change the layer.
         if "layermod" in self.tile.properties:
             did_teleport = False
+            xdiff, ydiff = 0, 0
 
             layermod = self.tile.properties["layermod"]
             # Go down so many layers.
