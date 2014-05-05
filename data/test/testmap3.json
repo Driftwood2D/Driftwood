@@ -213,6 +213,19 @@
                  "width":160,
                  "x":0,
                  "y":0
+                }, 
+                {
+                 "height":16,
+                 "name":"",
+                 "properties":
+                    {
+                     "exit:right":"testmap2.json,0,0,1"
+                    },
+                 "type":"",
+                 "visible":true,
+                 "width":16,
+                 "x":144,
+                 "y":272
                 }],
          "opacity":1,
          "type":"objectgroup",
