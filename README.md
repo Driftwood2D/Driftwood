@@ -8,5 +8,7 @@ Copyright (c) 2014 PariahSoft LLC; Released under the MIT license.
 Requirements
 ------------
 
+* SDL2
+* SDL2_image
 * Python >= 3.3.3
 * PySDL2 (https://pypi.python.org/pypi/PySDL2/)
