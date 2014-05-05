@@ -34,7 +34,7 @@ VREQ = [3, 3, 3]
 # We have to do this here before we start pulling in nonexistent imports.
 if __name__ == "__main__":
     # Check Python version.
-    if VCUR[0] < VREQ[0] or VCUR[1] < VREQ[1] or VCUR[2] < VREQ[2]:
+    if VCUR[0] < VREQ[0] or VCUR[1] < VREQ[1] or (VCUR[1] == VREQ[1] and VCUR[2] < VREQ[2]):
         print("Driftwood 2D\nStarting up...")
         print("[0] FATAL: python >= {0}.{1}.{2} required, found python {3}.{4}.{5}".format(VREQ[0], VREQ[1], VREQ[2],
                                                                                            VCUR[0], VCUR[1], VCUR[2]))

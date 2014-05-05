@@ -234,7 +234,7 @@ class WindowManager:
         if self.__texture:
             self.__sdl_destroytexture(self.__texture)
         if self.__frame:
-            self.__sdl_destroytexture(self.__frame)
+            self.__sdl_destroytexture(self.__frame[0])
         self.__sdl_destroyrenderer(self.renderer)
         self.__sdl_destroywindow(self.window)
 
