@@ -61,7 +61,7 @@ class Tile:
         self.gid = gid
         self.localgid = None
         self.members = []
-        self.afps = 0
+        self.afps = 0.0
         self.pos = [
             self.seq % self.layer.tilemap.width,
             self.seq // self.layer.tilemap.width
@@ -95,7 +95,7 @@ class Tile:
 
             # Schedule animation.
             if self.afps:
-                self.layer.tilemap.area.driftwood.tick.register(self.__next_member, delay=(1000//self.afps))
+                self.layer.tilemap.area.driftwood.tick.register(self.__next_member, delay=(1/self.afps))
 
     def srcrect(self):
         """Return an (x, y, w, h) srcrect for the current graphic frame of the tile.
@@ -105,6 +105,6 @@ class Tile:
                 ((current_member * self.tileset.tilewidth) // self.tileset.imagewidth) * self.tileset.tileheight,
                 self.tileset.tilewidth, self.tileset.tileheight)
 
-    def __next_member(self, millis):
+    def __next_member(self, seconds_past):
         self.__cur_member = (self.__cur_member + 1) % len(self.members)
         self.layer.tilemap.area.changed = True

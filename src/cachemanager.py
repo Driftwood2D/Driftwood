@@ -24,8 +24,6 @@
 ## IN THE SOFTWARE.
 ## **********
 
-from sdl2 import SDL_GetTicks
-
 
 class CacheManager:
     """The Cache Manager
@@ -47,21 +45,20 @@ class CacheManager:
 
         self.__cache = {}
         self.__ticks = 0
+        self.__now = 0.0
 
         # Check if the cache should be enabled.
-        if self.driftwood.config["cache"]["enabled"] and self.driftwood.config["cache"]["ttl"] > 0:
+        if self.driftwood.config["cache"]["enabled"] and self.driftwood.config["cache"]["ttl"] > 0.0:
             self.__enabled = True
 
             # Register the tick callback.
-            self.driftwood.tick.register(self.clean, self.driftwood.config["cache"]["ttl"] * 1000)
+            self.driftwood.tick.register(self.clean, float(self.driftwood.config["cache"]["ttl"]))
 
         else:
             self.__enabled = False
 
     def __contains__(self, item):
-        if item in self.__cache:
-            return True
-        return False
+        return item in self.__cache
 
     def __getitem__(self, item):
         return self.download(item)
@@ -83,7 +80,7 @@ class CacheManager:
             return
 
         self.__cache[filename] = {}
-        self.__cache[filename]["timestamp"] = SDL_GetTicks()
+        self.__cache[filename]["timestamp"] = self.__now
         self.__cache[filename]["contents"] = contents
 
         self.driftwood.log.info("Cache", "uploaded", filename)
@@ -95,7 +92,7 @@ class CacheManager:
             filename: Filename of the file to download.
         """
         if filename in self.__cache:
-            self.__cache[filename]["timestamp"] = SDL_GetTicks()
+            self.__cache[filename]["timestamp"] = self.__now
             self.driftwood.log.info("Cache", "downloaded", filename)
             return self.__cache[filename]["contents"]
 
@@ -115,15 +112,19 @@ class CacheManager:
         self.__cache = {}
         self.driftwood.log.info("Cache", "flushed")
 
-    def clean(self, millis_past):
+    def tick(self, seconds_past):
+        self.__now += seconds_past
+
+        self.clean()
+
+    def clean(self):
         """Perform garbage collection on expired files.
         """
         expired = []
 
         # Collect expired filenames to be purged.
         for filename in self.__cache:
-            if SDL_GetTicks() / 1000 - \
-                    self.__cache[filename]["timestamp"] / 1000 >= self.driftwood.config["cache"]["ttl"]:
+            if self.__now - self.__cache[filename]["timestamp"] >= self.driftwood.config["cache"]["ttl"]:
                 expired.append(filename)
 
         # Clean expired files

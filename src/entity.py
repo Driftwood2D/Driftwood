@@ -118,7 +118,7 @@ class Entity:
 
         # Schedule animation.
         if self.afps:
-            self.manager.driftwood.tick.register(self.__next_member, delay=(1000//self.afps))
+            self.manager.driftwood.tick.register(self.__next_member, delay=(1/self.afps))
 
         if "properties" in self.__entity:
             self.properties = self.__entity["properties"]
@@ -162,7 +162,7 @@ class Entity:
             (y / self.manager.driftwood.area.tilemap.tileheight) + py
         )
 
-    def __next_member(self, millis):
+    def __next_member(self, seconds):
         self.__cur_member = (self.__cur_member + 1) % len(self.members)
         self.manager.driftwood.area.changed = True
 
@@ -238,12 +238,12 @@ class TileModeEntity(Entity):
         if self.walk_state == Entity.WALKING_WANT_CONT:
             self.walk_state = Entity.WALKING_WANT_STOP
 
-    def __process_walk(self, millis_past):
+    def __process_walk(self, seconds_past):
         if self.walk_state == Entity.NOT_WALKING:
             self.manager.driftwood.tick.unregister(self.__process_walk)
 
         elif self.walk_state == Entity.WALKING_WANT_CONT:
-            self.__inch_along(millis_past)
+            self.__inch_along(seconds_past)
             if self.__is_at_next_tile():
                 self.__walk_set_tile()
                 self.__arrive_at_tile()
@@ -251,7 +251,7 @@ class TileModeEntity(Entity):
                     self.__stand_still()
 
         elif self.walk_state == Entity.WALKING_WANT_STOP:
-            self.__inch_along(millis_past)
+            self.__inch_along(seconds_past)
             if self.__is_at_next_tile():
                 self.__walk_set_tile()
                 self.__arrive_at_tile()
@@ -346,11 +346,11 @@ class TileModeEntity(Entity):
         self._prev_xy = [self.x, self.y]
         self._partial_xy = [self.x, self.y]
 
-    def __inch_along(self, millis_past):
+    def __inch_along(self, seconds_past):
         self.manager.driftwood.area.changed = True
 
-        self._partial_xy[0] += self.walking[0] * self.speed * millis_past / 1000
-        self._partial_xy[1] += self.walking[1] * self.speed * millis_past / 1000
+        self._partial_xy[0] += self.walking[0] * self.speed * seconds_past
+        self._partial_xy[1] += self.walking[1] * self.speed * seconds_past
         self.x = int(self._partial_xy[0])
         self.y = int(self._partial_xy[1])
 

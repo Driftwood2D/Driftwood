@@ -86,6 +86,6 @@ class LogManager:
 
         # If the output is not suppressed, print it.
         if not suppress:
-            ticks = "[{0}] ".format(str(SDL_GetTicks()))
+            ticks = "[{0}] ".format(str(SDL_GetTicks() / 1000.0))
             print(ticks + ": ".join(chain))
             sys.stdout.flush()
