@@ -137,12 +137,13 @@ class Entity:
         if self.manager.collider:
             self.manager.collider(self, dsttile)
 
-    def _tile_at(self, layer, x, y, px=0, py=0):
+    def _tile_at(self, layer, x, y):
         """Retrieve a tile by layer and pixel coordinates.
         """
-        return self.manager.driftwood.area.tilemap.layers[layer].tile(
-            (x / self.manager.driftwood.area.tilemap.tilewidth) + px,
-            (y / self.manager.driftwood.area.tilemap.tileheight) + py
+        tilemap = self.manager.driftwood.area.tilemap
+        return tilemap.layers[layer].tile(
+            x / tilemap.tilewidth,
+            y / tilemap.tileheight
         )
 
     def __next_member(self, millis):
@@ -256,7 +257,6 @@ class TileModeEntity(Entity):
             # Arrive at the new tile
             if self.tile:
                 self.__call_on_tile()
-                self.__do_layermod()
 
             # If there is an exit, take it.
             # May be lazy exit, where we have no self.tile
@@ -378,23 +378,49 @@ class TileModeEntity(Entity):
             self.manager.driftwood.tick.unregister(self.__process_walk)
 
     def _do_exit(self):
-        """Perform an exit to another area.
+        """Perform an exit to another tile, possibly in another area.
         """
-        # Call the on_exit event if set.
-        if "on_exit" in self.manager.driftwood.area.tilemap.properties:
-            self.manager.driftwood.script.call(*self.manager.driftwood.area.tilemap.properties["on_exit"].split(':'))
+        driftwood = self.manager.driftwood
+        area, layer, x, y = self._next_area
+
+        area = None if area == '' else area
+        x = None if x == '' else int(x)
+        y = None if y == '' else int(y)
+
+        # Go down so many layers.
+        if layer.startswith('-'):
+            layer = self.layer - int(layer[1:])
+        # Go up so many layers.
+        if layer.startswith('+'):
+            layer = self.layer + int(layer[1:])
+        # Go to a specific layer.
+        else:
+            layer = None if layer == '' else int(layer)
+
+        if area:
+            # Call the on_exit event if set.
+            if "on_exit" in driftwood.area.tilemap.properties:
+                driftwood.script.call(*driftwood.area.tilemap.properties["on_exit"].split(':'))
 
         # Enter the next area.
-        if self.manager.driftwood.area.focus(self._next_area[0]):
-            self.layer = int(self._next_area[1])
-            self.x = int(self._next_area[2]) * self.manager.driftwood.area.tilemap.tilewidth
-            self.y = int(self._next_area[3]) * self.manager.driftwood.area.tilemap.tileheight
-            self.tile = self._tile_at(self.layer, self.x, self.y)
+        if not area or driftwood.area.focus(area):
+            tilemap = driftwood.area.tilemap
+
+            if layer:
+                self.layer = layer
+            if x:
+                self.x = x * tilemap.tilewidth
+            if y:
+                self.y = y * tilemap.tileheight
+
+            tile_layer = layer if layer else self.layer
+            tile_x = x if x else self.tile.pos[0]
+            tile_y = y if y else self.tile.pos[1]
+
+            self.tile = self._tile_at(tile_layer, tile_x * tilemap.tilewidth, tile_y * tilemap.tileheight)
+            self.__call_on_tile()
 
         self._next_area = None
-
-        self.__call_on_tile()
-
 
     def __call_on_tile(self):
         # Call the on_tile event if set.
@@ -406,35 +432,6 @@ class TileModeEntity(Entity):
         if "on_layer" in self.manager.driftwood.area.tilemap.layers[self.layer].properties:
             args = self.manager.driftwood.area.tilemap.layers[self.layer].properties["on_layer"].split(':')
             self.manager.driftwood.script.call(*args)
-
-    def __do_layermod(self):
-        # Layermod macro, change the layer.
-        if "layermod" in self.tile.properties:
-            did_teleport = False
-            xdiff, ydiff = 0, 0
-
-            layermod = self.tile.properties["layermod"]
-            # Go down so many layers.
-            if layermod.startswith('-'):
-                self.teleport(self.layer - int(layermod[1:]), None, None)
-                did_teleport = True
-
-            # Go up so many layers.
-            elif layermod.startswith('+'):
-                self.teleport(self.layer + int(layermod[1:]), None, None)
-                did_teleport = True
-
-            # Go to a specific layer.
-            else:
-                self.teleport(int(layermod), None, None)
-                did_teleport = True
-
-            self.__call_on_tile()
-
-            return True
-
-        return False
-
 
 # TODO: Finish pixel mode.
 class PixelModeEntity(Entity):
