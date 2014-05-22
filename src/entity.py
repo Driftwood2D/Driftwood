@@ -272,10 +272,10 @@ class TileModeEntity(Entity):
                     self.manager.kill(self.eid)
 
             if self.velocity != self.next_velocity:
-                if self.__can_walk(*self.next_velocity):
-                    self.__change_velocity(*self.next_velocity)
-                else:
+                if self.next_velocity == (0, 0) or not self.__can_walk(*self.next_velocity):
                     self.__change_velocity(0, 0)
+                else:
+                    self.__change_velocity(*self.next_velocity)
             elif not self.__can_walk(*self.velocity):
                 self.__change_velocity(0, 0)
 
@@ -338,24 +338,31 @@ class TileModeEntity(Entity):
             if dsttile and not self._next_area and "exit" in dsttile.exits:
                 self._next_area = dsttile.exits["exit"].split(',')
 
-            # Entity collision detection.
-            for ent in self.manager.entities:
-                # This is us.
-                if ent.eid == self.eid:
-                    continue
+            tilemap = self.manager.driftwood.area.tilemap
+            tilewidth = tilemap.tilewidth
+            tileheight = tilemap.tileheight
 
-                # Collision detection.
-                tilemap = self.manager.driftwood.area.tilemap
-                tilewidth = tilemap.tilewidth
-                tileheight = tilemap.tileheight
-                if (
-                    self.x + tilewidth < ent.x
-                    or self.x > ent.x + tilewidth
-                    or self.y + tileheight < ent.y
-                    or self.y > ent.y + tileheight
-                ):
-                    self.manager.collision(self, ent)
-                    return False
+            new_x = dsttile.pos[0] * tilewidth
+            new_y = dsttile.pos[1] * tileheight
+
+            # Entity collision detection.
+            if dsttile:
+                for ent in self.manager.entities:
+                    # This is us.
+                    if ent.eid == self.eid:
+                        continue
+
+                    # Collision detection.
+                    ent_x = ent.tile.pos[0] * tilewidth
+                    ent_y = ent.tile.pos[1] * tileheight
+                    if (
+                        new_x + tilewidth - 1 >= ent_x
+                        and new_y + tileheight - 1 >= ent_y
+                        and ent_x + tilewidth - 1 >= new_x
+                        and ent_y + tileheight - 1 >= new_y
+                    ):
+                        self.manager.collision(self, ent)
+                        return False
 
         return True
 

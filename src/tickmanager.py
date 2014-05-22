@@ -104,12 +104,12 @@ class TickManager:
                 millis_past = current_tick - reg["ticks"]
                 if reg["delay"]:
                     if millis_past >= reg["delay"]:
-                        reg["ticks"] = current_tick
-                        reg["callback"](millis_past)
-
                         # Unregister ticks set to only run once.
                         if reg["once"]:
                             self.unregister(reg["callback"])
+
+                        reg["ticks"] = current_tick
+                        reg["callback"](millis_past)
 
                 # Don't handle a delayed tick
                 else:
