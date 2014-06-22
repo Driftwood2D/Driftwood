@@ -75,8 +75,6 @@ class TickManager:
         self.__registry.append({"ticks": self.__latest_tick, "delay": delay,
                                 "callback": callback, "once": once})
 
-        self.driftwood.log.info("Tick", "registered", callback.__qualname__)
-
     def unregister(self, callback):
         """Unregister a tick callback.
 
@@ -86,8 +84,6 @@ class TickManager:
         for n, reg in enumerate(self.__registry):
             if reg["callback"] == callback:
                 del self.__registry[n]
-                self.driftwood.log.info("Tick", "unregistered",
-                                        callback.__qualname__)
 
     def tick(self):
         """Call all registered tick callbacks not currently delayed, and
