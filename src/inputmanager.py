@@ -24,7 +24,7 @@
 ## IN THE SOFTWARE.
 ## **********
 
-from sdl2 import SDL_GetTicks, SDL_GetKeyName
+from sdl2 import SDL_GetKeyName
 
 
 class InputManager:
@@ -52,6 +52,8 @@ class InputManager:
         self.__registry = {}
 
         self.__stack = []
+
+        self.__now = 0.0
 
         # Register the tick callback.
         self.driftwood.tick.register(self.tick)
@@ -121,7 +123,7 @@ class InputManager:
     def unhandle(self):
         self.__handler = None
 
-    def register(self, keysym, callback, throttle=0, delay=0):
+    def register(self, keysym, callback, throttle=0.0, delay=0.0):
         """Register an input callback.
 
         The callback function will receive a call every tick that the key is on top of the input stack. (the key which
@@ -131,17 +133,17 @@ class InputManager:
             keysym: SDLKey for the key which triggers the callback.
             callback: Function to be called on the registered keypress.  It should take a single integer parameter with
                 a value of InputManager.ONDOWN, ONREPEAT, or ONUP.
-            throttle: Number of milliseconds to wait between ONREPEAT calls when the key is held down.
-            delay: Number of milliseconds to wait after the key is pressed before making the first ONREPEAT call.
+            throttle: Number of seconds to wait between ONREPEAT calls when the key is held down.
+            delay: Number of seconds to wait after the key is pressed before making the first ONREPEAT call.
         """
-        if delay == 0:
+        if delay == 0.0:
             delay = throttle
 
         self.__registry[keysym] = {
             "callback": callback,
             "throttle": throttle,
             "delay": delay,
-            "last_called": SDL_GetTicks(),
+            "last_called": self.__now,
             "repeats": 0
         }
 
@@ -167,7 +169,7 @@ class InputManager:
 
         return False
 
-    def tick(self, millis_past):
+    def tick(self, seconds_past):
         """Tick callback.
 
         If there is a keypress on top of the stack and it maps to a callback in the registry, call it. Also pass the
@@ -175,7 +177,7 @@ class InputManager:
 
         If a second-callback delay is set, make sure to wait the proper amount of time before the second call.
         """
-        now = SDL_GetTicks()
+        self.__now += seconds_past
 
         if self.__stack:
             # The user's current (or latest, if multiple ongoing,) keydown.
@@ -192,9 +194,9 @@ class InputManager:
                 else:
                     waiting_until = top_callback["throttle"]
 
-                if now - top_callback["last_called"] >= waiting_until:
+                if self.__now - top_callback["last_called"] >= waiting_until:
                     # Update time last called.
-                    top_callback["last_called"] = now
+                    top_callback["last_called"] = self.__now
 
                     # Call the callback.
                     top_callback["callback"](InputManager.ONREPEAT)

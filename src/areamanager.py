@@ -141,7 +141,7 @@ class AreaManager:
         # Give our frame to WindowManager for positioning and display.
         self.driftwood.window.frame(self.__frame, True)
 
-    def tick(self, millis_past):
+    def tick(self, seconds_past):
         """Tick callback.
         """
         if self.changed:  # TODO: Only redraw portions that have changed.

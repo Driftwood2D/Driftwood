@@ -208,7 +208,7 @@ class WindowManager:
         # Mark the frame changed.
         self.__changed = WindowManager.CHANGED
 
-    def tick(self, millis_past):
+    def tick(self, seconds_past):
         """Tick callback which refreshes the renderer.
         """
         if self.__changed:
