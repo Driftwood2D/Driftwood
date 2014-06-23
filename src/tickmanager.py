@@ -28,7 +28,7 @@ import sys
 from sdl2 import SDL_Delay, SDL_GetTicks
 
 # Upper bound on latency we can handle from the OS when we expect to return from sleep, measured in seconds.
-WAKE_UP_DURATION = 5.0 / 1000.0
+WAKE_UP_LATENCY = 5.0 / 1000.0
 
 class TickManager:
     """The Tick Manager
@@ -56,106 +56,115 @@ class TickManager:
         #     once: Whether to only call once.
         self.__registry = []
 
-        self.__latest_tick = self.__get_time()
+        # During a tick, this is the time the tick started. In-between ticks, this is the last time a tick started.
+        self._most_recent_time = self._get_time()
 
         self.paused = False
-        self.paused_at = None
 
-    def register(self, callback, delay=0.0, once=False):
+    def register(self, function, delay=0.0, once=False, during_pause=False):
         """Register a tick callback, with an optional delay between calls.
 
         Args:
-            callback: The function to be called.
+            function: The function to be called.
             delay: (optional) Delay in seconds between calls.
-            once: Whether to only call once.
+            once: (optional) Whether to only call once.
+            during_pause: (optional) Whether this tick is also called when the game is paused.
         """
-        for reg in self.__registry:
-            if reg["callback"] == callback:
+        for callback in self.__registry:
+            if callback["function"] == callback:
                 self.unregister(callback)
 
-        self.__registry.append({"ticks": self.__latest_tick, "delay": delay,
-                                "callback": callback, "once": once})
+        self.__registry.append({
+            "most_recent": self._most_recent_time,
+            "delay": delay,
+            "function": function,
+            "once": once,
+            "during_pause": during_pause
+        })
 
-    def unregister(self, callback):
+    def unregister(self, function):
         """Unregister a tick callback.
 
         Args:
-            callback: The function to unregister.
+            function: The function to unregister.
         """
-        for n, reg in enumerate(self.__registry):
-            if reg["callback"] == callback:
+        for n, callback in enumerate(self.__registry):
+            if callback["function"] == function:
                 del self.__registry[n]
 
     def tick(self):
         """Call all registered tick callbacks not currently delayed, and regulate tps.
         """
         # Regulate ticks per second. Finer-grained busy wait.
-        while True:
-            now = self.__get_time()
-            tick_delta = now - self.__latest_tick
-            tick_duration = 1 / self.driftwood.config["tick"]["tps"]
-            delay_duration = tick_duration - tick_delta
-            if delay_duration <= 0.0:
-                break
+        while self._get_delay() > 0.0:
+            pass
 
-        current_tick = self.__get_time()
-        last_tick = self.__latest_tick
-        self.__latest_tick = current_tick
+        current_second = self._get_time()
+        last_time = self._most_recent_time
+        self._most_recent_time = current_second
 
-        # Only tick if not paused.
-        if not self.paused:
-            for reg in self.__registry:
-                # Handle a delayed tick.
-                seconds_past = current_tick - reg["ticks"]
-                if reg["delay"]:
-                    if seconds_past >= reg["delay"]:
-                        reg["ticks"] = current_tick
-                        reg["callback"](seconds_past)
-
-                        # Unregister ticks set to only run once.
-                        if reg["once"]:
-                            self.unregister(reg["callback"])
-
-                # Don't handle a delayed tick
-                else:
-                    reg["ticks"] = current_tick
-                    reg["callback"](seconds_past)
-
-                    # Unregister ticks set to only run once.
-                    if reg["once"]:
-                        self.unregister(reg["callback"])
-
-        # We're paused, only call ticks for InputManager and WindowManager.
-        else:
-            self.driftwood.input.tick(0)
-            self.driftwood.window.tick(0)
+        for callback in self.__registry:
+            self.__call_callback(callback, current_second, current_second - last_time)
 
         # Regulate ticks per second. Course-grained sleep by OS.
-        now = self.__get_time()
-        tick_delta = now - current_tick
-        tick_duration = 1 / self.driftwood.config["tick"]["tps"]
-        delay_duration = tick_duration - tick_delta
-        if delay_duration - WAKE_UP_DURATION > 0.0:
-            SDL_Delay(int((delay_duration - WAKE_UP_DURATION) * 1000.0))
-        #elif delay_duration < 0.0:
-        #    self.driftwood.log.info("Tick", "tick", "tick running behind by {} seconds".format(-delay_duration))
+        delay = self._get_delay()
+        if delay - WAKE_UP_LATENCY > 0.0:
+            # SDL_Delay delays for AT LEAST as long as we request. So, don't ask to sleep exactly the right amount of
+            # time. Ask for less.
+            SDL_Delay(int((delay - WAKE_UP_LATENCY) * 1000.0))
+        #elif delay < 0.0:
+        #    self.driftwood.log.info("Tick", "tick", "tick running behind by {} seconds".format(-delay))
+
+    def __call_callback(self, callback, current_second, seconds_past):
+        """Call a registered tick callback if it is time.  Update the callback's state for future ticks.
+
+        Args:
+            callback: A registered tick callback.
+            current_second: The time that the current system-wide tick started at.
+            last_time: The time that the previous system-wide tick started at.
+        """
+        # Only tick if not paused.
+        if self.paused and callback["during_pause"] == False:
+            # Ignore this tick's passage of time.
+            callback["most_recent"] += current_second - last_time
+        else:
+            execute = False
+            seconds_past = current_second - callback["most_recent"]
+
+            # Handle a delayed tick.
+            if callback["delay"]:
+                if seconds_past >= callback["delay"]:
+                    execute = True
+            # Handle an immediate tick.
+            else:
+                execute = True
+
+            if execute:
+                callback["most_recent"] = current_second
+                callback["function"](seconds_past)
+
+                # Unregister ticks set to only run once.
+                if callback["once"]:
+                    self.unregister(callback["function"])
 
     def toggle_pause(self):
-        """Toggle a pause in all registered ticks.
+        """Toggle a pause in most registered ticks.
 
-        During this time, no ticks will get called, and all timing related information is kept track of and is restored
-        upon unpause. Contrary to this, this, InputManager and WindowManager still receieve ticks during a pause, but
-        they are told that the number of seconds that have passed is None (not 0).
+        During this time, only ticks with during_pause set to true will get called.  All gameplay ticks *should* have
+        this set to false, while some UI ticks will have this set to true.
         """
-        if self.paused:
-            self.paused = False
-            paused_for = self.__get_time() - self.paused_at
-            for reg in self.__registry:
-                reg["ticks"] += paused_for
-            self.paused_at = None
-        else:
-            self.paused = True
-            self.paused_at = self.__get_time()
+        self.paused = not self.paused
 
-    def __get_time(self):
+    def _get_time(self):
+        """Returns the number of seconds since the program start.
+        """
         return float(SDL_GetTicks()) / 1000.0
+
+    def _get_delay(self):
+        """Return delay (in seconds) until the next scheduled game tick.
+        """
+        now = self._get_time()
+        time_delta = now - self._most_recent_time
+        tick_duration = 1 / self.driftwood.config["tick"]["tps"]
+        delay = tick_duration - time_delta
+        return delay

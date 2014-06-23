@@ -84,7 +84,7 @@ class WindowManager:
 
         self.__prepare()
 
-        self.driftwood.tick.register(self.tick)
+        self.driftwood.tick.register(self.tick, during_pause=True)
 
     def __prepare(self):
         """Prepare the window for use.
