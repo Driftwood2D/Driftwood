@@ -52,7 +52,7 @@ class CacheManager:
             self.__enabled = True
 
             # Register the tick callback.
-            self.driftwood.tick.register(self.clean, float(self.driftwood.config["cache"]["ttl"]))
+            self.driftwood.tick.register(self.tick, float(self.driftwood.config["cache"]["ttl"]))
 
         else:
             self.__enabled = False
