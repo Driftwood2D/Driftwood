@@ -127,8 +127,8 @@ class TickManager:
 
         # We're paused, only call ticks for InputManager and WindowManager.
         else:
-            self.driftwood.input.tick(None)
-            self.driftwood.window.tick(None)
+            self.driftwood.input.tick(0)
+            self.driftwood.window.tick(0)
 
         # Regulate ticks per second. Course-grained sleep by OS.
         now = self.__get_time()
