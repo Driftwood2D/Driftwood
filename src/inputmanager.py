@@ -56,7 +56,7 @@ class InputManager:
         self.__now = 0.0
 
         # Register the tick callback.
-        self.driftwood.tick.register(self.tick)
+        self.driftwood.tick.register(self.tick, during_pause=True)
 
     def __contains__(self, item):
         if item in self.__registry:
