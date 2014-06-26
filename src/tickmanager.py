@@ -71,8 +71,8 @@ class TickManager:
             during_pause: (optional) Whether this tick is also called when the game is paused.
         """
         for callback in self.__registry:
-            if callback["function"] == callback:
-                self.unregister(callback)
+            if callback["function"] == function:
+                self.unregister(function)
 
         self.__registry.append({
             "most_recent": self._most_recent_time,
