@@ -58,6 +58,7 @@ class TickManager:
 
         # During a tick, this is the time the tick started. In-between ticks, this is the last time a tick started.
         self._most_recent_time = self._get_time()
+        self.__last_time = self._most_recent_time
 
         self.paused = False
 
@@ -100,11 +101,11 @@ class TickManager:
             pass
 
         current_second = self._get_time()
-        last_time = self._most_recent_time
+        self.__last_time = self._most_recent_time
         self._most_recent_time = current_second
 
         for callback in self.__registry:
-            self.__call_callback(callback, current_second, current_second - last_time)
+            self.__call_callback(callback, current_second, current_second - self.__last_time)
 
         # Regulate ticks per second. Course-grained sleep by OS.
         delay = self._get_delay()
@@ -121,12 +122,12 @@ class TickManager:
         Args:
             callback: A registered tick callback.
             current_second: The time that the current system-wide tick started at.
-            last_time: The time that the previous system-wide tick started at.
+            seconds_past: ???
         """
         # Only tick if not paused.
         if self.paused and callback["during_pause"] == False:
             # Ignore this tick's passage of time.
-            callback["most_recent"] += current_second - last_time
+            callback["most_recent"] += current_second - self.__last_time
         else:
             execute = False
             seconds_past = current_second - callback["most_recent"]
