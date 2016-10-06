@@ -86,36 +86,7 @@ class WindowManager:
 
         self.__prepare()
 
-        self.driftwood.tick.register(self.tick, during_pause=True)
-
-    def __prepare(self):
-        """Prepare the window for use.
-
-        Create a new window and renderer with the configured settings.
-        """
-        SDL_Init(SDL_INIT_EVERYTHING)
-
-        if self.driftwood.config["window"]["fullscreen"]:
-            # Desktop's current width and height
-            physical_width = 0
-            physical_height = 0
-
-            # No video mode change
-            flags = SDL_WINDOW_FULLSCREEN_DESKTOP
-        else:
-            # 1-to-1 mapping between logical and physical pixels
-            physical_width = self.logical_width
-            physical_height = self.logical_height
-            flags = 0
-
-        flags |= SDL_WINDOW_ALLOW_HIGHDPI
-        self.window = SDL_CreateWindow(self.driftwood.config["window"]["title"].encode(), SDL_WINDOWPOS_CENTERED,
-                                       SDL_WINDOWPOS_CENTERED, physical_width, physical_height, flags)
-
-        self.renderer = SDL_CreateRenderer(self.window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC)
-
-        # Pixelated goodness, like a rebel.
-        SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, b"nearest")
+        self.driftwood.tick.register(self._tick, during_pause=True)
 
     def title(self, title):
         """Set the window title.
@@ -210,7 +181,12 @@ class WindowManager:
         # Mark the frame changed.
         self.__changed = WindowManager.CHANGED
 
-    def tick(self, seconds_past):
+    def refresh(self):
+        """Force the window to redraw.
+        """
+        self.__changed = WindowManager.CHANGED
+
+    def _tick(self, seconds_past):
         """Tick callback which refreshes the renderer.
         """
         if self.__changed:
@@ -225,10 +201,34 @@ class WindowManager:
 
             SDL_RenderPresent(self.renderer)
 
-    def refresh(self):
-        """Force the window to redraw.
+    def __prepare(self):
+        """Prepare the window for use.
+
+        Create a new window and renderer with the configured settings.
         """
-        self.__changed = WindowManager.CHANGED
+        SDL_Init(SDL_INIT_EVERYTHING)
+
+        if self.driftwood.config["window"]["fullscreen"]:
+            # Desktop's current width and height
+            physical_width = 0
+            physical_height = 0
+
+            # No video mode change
+            flags = SDL_WINDOW_FULLSCREEN_DESKTOP
+        else:
+            # 1-to-1 mapping between logical and physical pixels
+            physical_width = self.logical_width
+            physical_height = self.logical_height
+            flags = 0
+
+        flags |= SDL_WINDOW_ALLOW_HIGHDPI
+        self.window = SDL_CreateWindow(self.driftwood.config["window"]["title"].encode(), SDL_WINDOWPOS_CENTERED,
+                                       SDL_WINDOWPOS_CENTERED, physical_width, physical_height, flags)
+
+        self.renderer = SDL_CreateRenderer(self.window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC)
+
+        # Pixelated goodness, like a rebel.
+        SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, b"nearest")
 
     def __del__(self):
         """WindowManager class destructor.

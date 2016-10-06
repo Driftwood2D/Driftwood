@@ -59,24 +59,24 @@ class Layer:
 
         self.__prepare_layer()
 
-    def __prepare_layer(self):
-        # Set layer properties if present.
-        if "properties" in self.__layer:
-            self.properties = self.__layer["properties"]
+    def tile(self, x, y):
+        """Retrieve a tile from the layer by its coordinates.
 
-        # Iterate through the tile graphic IDs.
-        for seq, gid in enumerate(self.__layer["data"]):
-            # Does this tile actually exist?
-            if gid:
-                # Find which tileset the tile's graphic is in.
-                for ts in self.tilemap.tilesets:
-                    if gid in range(*ts.range):
-                        # Create the Tile instance for this tile.
-                        self.tiles.append(tile.Tile(self, seq, ts, gid))
+        Args:
+            x: x-coordinate
+            y: y-coordinate
 
-            # No tile, here create a dummy tile.
-            else:
-                self.tiles.append(tile.Tile(self, seq, None, None))
+        Returns: Tile instance or None if out of bounds.
+        """
+        if x < 0 or y < 0 or x >= self.tilemap.width or y >= self.tilemap.height:
+            return None
+
+        try:
+            t = self.tiles[int((y * self.tilemap.width) + x)]
+            return t
+
+        except IndexError:
+            return None
 
     def _process_objects(self, objdata):
         """Process and merge an object layer into the tile layer below.
@@ -119,21 +119,21 @@ class Layer:
             if obj["type"] == "entity":
                 pass
 
-    def tile(self, x, y):
-        """Retrieve a tile from the layer by its coordinates.
+    def __prepare_layer(self):
+        # Set layer properties if present.
+        if "properties" in self.__layer:
+            self.properties = self.__layer["properties"]
 
-        Args:
-            x: x-coordinate
-            y: y-coordinate
+        # Iterate through the tile graphic IDs.
+        for seq, gid in enumerate(self.__layer["data"]):
+            # Does this tile actually exist?
+            if gid:
+                # Find which tileset the tile's graphic is in.
+                for ts in self.tilemap.tilesets:
+                    if gid in range(*ts.range):
+                        # Create the Tile instance for this tile.
+                        self.tiles.append(tile.Tile(self, seq, ts, gid))
 
-        Returns: Tile instance or None if out of bounds.
-        """
-        if x < 0 or y < 0 or x >= self.tilemap.width or y >= self.tilemap.height:
-            return None
-
-        try:
-            t = self.tiles[int((y * self.tilemap.width) + x)]
-            return t
-
-        except IndexError:
-            return None
+            # No tile, here create a dummy tile.
+            else:
+                self.tiles.append(tile.Tile(self, seq, None, None))

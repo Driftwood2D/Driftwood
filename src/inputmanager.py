@@ -58,7 +58,7 @@ class InputManager:
         self.__now = 0.0
 
         # Register the tick callback.
-        self.driftwood.tick.register(self.tick, during_pause=True)
+        self.driftwood.tick.register(self._tick, during_pause=True)
 
     def __contains__(self, item):
         if item in self.__registry:
@@ -73,35 +73,6 @@ class InputManager:
 
     def __delitem__(self, item):
         self.unregister(item)
-
-    def _key_down(self, keysym):
-        """Push a keypress onto the input stack if not present.
-
-        Args:
-            keysym: SDLKey for the key which was pressed.
-        """
-        if not keysym in self.__stack:
-            self.__stack.insert(0, keysym)
-            if keysym in self.__registry:
-                self.__registry[keysym]["callback"](InputManager.ONDOWN)
-        else:
-            # SDL2 gives us key-repeat events so this is actually okay.
-            #self.driftwood.log.msg("WARNING", "InputManager", "key_down", "key already down", self.keyname(keysym))
-            pass
-
-    def _key_up(self, keysym):
-        """Remove a keypress from the input stack if present.
-
-        Args:
-            keysym: SDLKey for the key which was released.
-        """
-        if keysym in self.__stack:
-            self.__stack.remove(keysym)
-
-            # Set the key callback as not called yet.
-            if keysym in self.__registry:
-                self.__registry[keysym]["repeats"] = 0
-                self.__registry[keysym]["callback"](InputManager.ONUP)
 
     def keyname(self, keysym):
         """Return a string naming a keysym. The up arrow key returns "Up," etc.
@@ -187,7 +158,36 @@ class InputManager:
 
         return False
 
-    def tick(self, seconds_past):
+    def _key_down(self, keysym):
+        """Push a keypress onto the input stack if not present.
+
+        Args:
+            keysym: SDLKey for the key which was pressed.
+        """
+        if not keysym in self.__stack:
+            self.__stack.insert(0, keysym)
+            if keysym in self.__registry:
+                self.__registry[keysym]["callback"](InputManager.ONDOWN)
+        else:
+            # SDL2 gives us key-repeat events so this is actually okay.
+            #self.driftwood.log.msg("WARNING", "InputManager", "key_down", "key already down", self.keyname(keysym))
+            pass
+
+    def _key_up(self, keysym):
+        """Remove a keypress from the input stack if present.
+
+        Args:
+            keysym: SDLKey for the key which was released.
+        """
+        if keysym in self.__stack:
+            self.__stack.remove(keysym)
+
+            # Set the key callback as not called yet.
+            if keysym in self.__registry:
+                self.__registry[keysym]["repeats"] = 0
+                self.__registry[keysym]["callback"](InputManager.ONUP)
+
+    def _tick(self, seconds_past):
         """Tick callback.
 
         If there is a keypress on top of the stack and it maps to a callback in the registry, call it. Also pass the

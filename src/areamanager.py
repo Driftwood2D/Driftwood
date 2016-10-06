@@ -60,7 +60,7 @@ class AreaManager:
         self.__sdl_destroytexture = SDL_DestroyTexture
 
         # Register the tick callback.
-        self.driftwood.tick.register(self.tick)
+        self.driftwood.tick.register(self._tick)
 
     def focus(self, filename):
         """Load and make active a new area.
@@ -81,6 +81,13 @@ class AreaManager:
         else:
             self.driftwood.log.msg("ERROR", "Area", "no such area", filename)
             return False
+
+    def _tick(self, seconds_past):
+        """Tick callback.
+        """
+        if self.changed:  # TODO: Only redraw portions that have changed.
+            self.__build_frame()
+            self.changed = False
 
     def __prepare_frame(self):
         """Prepare the local frame.
@@ -142,13 +149,6 @@ class AreaManager:
 
         # Give our frame to WindowManager for positioning and display.
         self.driftwood.window.frame(self.__frame, True)
-
-    def tick(self, seconds_past):
-        """Tick callback.
-        """
-        if self.changed:  # TODO: Only redraw portions that have changed.
-            self.__build_frame()
-            self.changed = False
 
     def __del__(self):
         if self.__frame:

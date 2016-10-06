@@ -54,6 +54,54 @@ class ScriptManager:
         # Dictionary of module instances mapped by filename.
         self.__modules = {}
 
+    def call(self, filename, func, args=None):
+        """Call a function from a script, loading if not already loaded.
+
+        Args:
+            filename: Filename of the python script containing the function.
+            func: Name of the function to call.
+            args: Argument or list/tuple of arguments to pass if not None.
+        """
+        if not filename in self.__modules:
+            # Load the module if not loaded.
+            res = self.__load(filename)
+            if not res:
+                return
+
+        if filename in self.__modules and hasattr(self.__modules[filename], func):
+            try: # Try calling the function.
+                self.driftwood.log.info("Script", "called", filename, func + "()")
+                if args: # We have arguments.
+                    if type(args) in [list, tuple]:
+                        getattr(self.__modules[filename], func)(*args)
+                    else:
+                        getattr(self.__modules[filename], func)(args)
+                else: # We have no arguments.
+                    getattr(self.__modules[filename], func)()
+
+            except: # Failure
+                self.driftwood.log.msg("ERROR", "Script", "broken function", filename, func + "()")
+                traceback.print_exc(0, sys.stdout)
+                sys.stdout.flush()
+                return False
+
+        else:
+            self.driftwood.log.msg("ERROR", "Script", "no such function", filename, func + "()")
+
+    def module(self, filename):
+        """Return the module instance of a script, loading if not already loaded.
+
+        Args:
+            filename: Filename of the python script whose module instance should be returned.
+
+        Returns: Python module instance.
+        """
+        if not filename in self.__modules:
+            self.__load(filename)
+
+        if filename in self.__modules:
+            return self.__modules[filename]
+
     def __convert_path(self, filename):
         """Get around a documented zipimport flaw.
 
@@ -105,51 +153,3 @@ class ScriptManager:
         else:
             self.driftwood.log.msg("ERROR", "Script", "no such script", filename)
             return False
-
-    def call(self, filename, func, args=None):
-        """Call a function from a script, loading if not already loaded.
-
-        Args:
-            filename: Filename of the python script containing the function.
-            func: Name of the function to call.
-            args: Argument or list/tuple of arguments to pass if not None.
-        """
-        if not filename in self.__modules:
-            # Load the module if not loaded.
-            res = self.__load(filename)
-            if not res:
-                return
-
-        if filename in self.__modules and hasattr(self.__modules[filename], func):
-            try: # Try calling the function.
-                self.driftwood.log.info("Script", "called", filename, func + "()")
-                if args: # We have arguments.
-                    if type(args) in [list, tuple]:
-                        getattr(self.__modules[filename], func)(*args)
-                    else:
-                        getattr(self.__modules[filename], func)(args)
-                else: # We have no arguments.
-                    getattr(self.__modules[filename], func)()
-
-            except: # Failure
-                self.driftwood.log.msg("ERROR", "Script", "broken function", filename, func + "()")
-                traceback.print_exc(0, sys.stdout)
-                sys.stdout.flush()
-                return False
-
-        else:
-            self.driftwood.log.msg("ERROR", "Script", "no such function", filename, func + "()")
-
-    def module(self, filename):
-        """Return the module instance of a script, loading if not already loaded.
-
-        Args:
-            filename: Filename of the python script whose module instance should be returned.
-
-        Returns: Python module instance.
-        """
-        if not filename in self.__modules:
-            self.__load(filename)
-
-        if filename in self.__modules:
-            return self.__modules[filename]

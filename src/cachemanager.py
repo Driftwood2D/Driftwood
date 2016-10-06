@@ -54,7 +54,7 @@ class CacheManager:
             self.__enabled = True
 
             # Register the tick callback.
-            self.driftwood.tick.register(self.tick, float(self.driftwood.config["cache"]["ttl"]))
+            self.driftwood.tick.register(self._tick, float(self.driftwood.config["cache"]["ttl"]))
 
         else:
             self.__enabled = False
@@ -114,11 +114,6 @@ class CacheManager:
         self.__cache = {}
         self.driftwood.log.info("Cache", "flushed")
 
-    def tick(self, seconds_past):
-        self.__now += seconds_past
-
-        self.clean()
-
     def clean(self):
         """Perform garbage collection on expired files.
         """
@@ -135,3 +130,9 @@ class CacheManager:
                 self.purge(filename)
 
             self.driftwood.log.info("Cache", "cleaned", str(len(expired))+" file(s)")
+
+
+    def _tick(self, seconds_past):
+        self.__now += seconds_past
+
+        self.clean()
