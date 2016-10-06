@@ -36,6 +36,7 @@ class Entity:
         filename: Filename of the JSON entity descriptor.
         eid: The Entity ID number.
         mode: The movement mode of the entity.
+        stance: The current stance of the entity.
         walk_state: Whether we are moving or not and whether we want to stop ASAP.
         collision: Whether collision should be checked for.
         spritesheet: Spritesheet instance of the spritesheet which owns this entity's graphic.
@@ -71,6 +72,8 @@ class Entity:
         elif isinstance(self, PixelModeEntity):
             self.mode = "pixel"
 
+        self.stance = "init"
+        self.resting_stance = None
         self.walk_state = Entity.NOT_WALKING
         self.collision = None
         self.spritesheet = None
@@ -90,46 +93,104 @@ class Entity:
         self.__cur_member = 0
         self._prev_xy = [0, 0]
         self._next_area = None
+        self._next_stance = None
 
         self.__entity = {}
+        self.__init_stance = {}
 
     def srcrect(self):
         """Return an (x, y, w, h) srcrect for the current graphic frame of the entity.
         """
-        current_member = self.members[self.__cur_member]
+        if self.__cur_member < len(self.members):
+            current_member = self.members[self.__cur_member]
+        else:
+            # Guard against rare race condition.
+            current_member = self.members[0]
         return (((current_member * self.width) % self.spritesheet.imagewidth),
                 ((current_member * self.width) // self.spritesheet.imagewidth) * self.height,
                 self.width, self.height)
 
-    def _read(self, filename, eid):
+    def set_stance(self, stance):
+        """Set the current stance and return true if succeeded, false if failed.
+        """
+        if not stance in self.__entity:
+            # Fake!
+            return False
+
+        self.stance = stance
+
+        # Set the stance's variables, return to init defaults for variables not present.
+        if "collision" in self.__entity[stance]:
+            self.collision = self.__entity[stance]["collision"]
+        else:
+            self.collision = self.__init_stance["collision"]
+
+        if "image" in self.__entity[stance]:
+            self.spritesheet = self.manager.spritesheet(self.__entity[stance]["image"])
+            if not self.spritesheet:
+                self.manager.spritesheets.append(spritesheet.Spritesheet(self.manager, self.__entity[stance]["image"]))
+                self.spritesheet = self.manager.spritesheets[-1]
+        else:
+            self.spritesheet = self.manager.spritesheet(self.__init_stance["image"])
+
+        if "speed" in self.__entity[stance]:
+            self.speed = self.__entity[stance]["speed"]
+        else:
+            self.speed = self.__init_stance["speed"]
+
+        if "members" in self.__entity[stance]:
+            self.members = self.__entity[stance]["members"]
+        else:
+            self.members = self.__init_stance["members"]
+        self.__cur_member = 0
+
+        if "afps" in self.__entity[stance]:
+            self.afps = self.__entity[stance]["afps"]
+        else:
+            self.afps = self.__init_stance["afps"]
+
+        if "properties" in self.__entity[stance]:
+            self.properties = self.__entity[stance]["properties"]
+        else:
+            self.properties = self.__init_stance["properties"]
+
+        # Schedule animation.
+        if self.afps:
+            self.manager.driftwood.tick.register(self.__next_member, delay=(1 / self.afps))
+
+        self.manager.driftwood.area.changed = True
+
+    def _read(self, filename, data, eid):
         """Read the entity descriptor.
         """
         self.filename = filename
         self.eid = eid
 
-        self.__entity = self.manager.driftwood.resource.request_json(filename)
+        self.__entity = data
+        self.__init_stance = self.__entity["init"]
 
-        self.collision = self.__entity["collision"]
-        self.width = self.__entity["width"]
-        self.height = self.__entity["height"]
-        self.speed = self.__entity["speed"]
-        self.members = self.__entity["members"]
-        self.afps = self.__entity["afps"]
+        self.collision = self.__init_stance["collision"]
+        self.width = self.__init_stance["width"]
+        self.height = self.__init_stance["height"]
+        self.speed = self.__init_stance["speed"]
+        self.members = self.__init_stance["members"]
+        self.afps = self.__init_stance["afps"]
 
         # Schedule animation.
         if self.afps:
             self.manager.driftwood.tick.register(self.__next_member, delay=(1/self.afps))
 
-        if "properties" in self.__entity:
-            self.properties = self.__entity["properties"]
+        if "properties" in self.__init_stance:
+            self.properties = self.__init_stance["properties"]
 
-        ss = self.manager.spritesheet(self.__entity["image"])
+        if "resting_stance" in self.__init_stance:
+            self.resting_stance = self.__init_stance["resting_stance"]
+            self.set_stance(self.resting_stance)
 
-        if ss:
-            self.spritesheet = ss
+        self.spritesheet = self.manager.spritesheet(self.__init_stance["image"])
 
-        else:
-            self.manager.spritesheets.append(spritesheet.Spritesheet(self.manager, self.__entity["image"]))
+        if not self.spritesheet:
+            self.manager.spritesheets.append(spritesheet.Spritesheet(self.manager, self.__init_stance["image"]))
             self.spritesheet = self.manager.spritesheets[-1]
 
     def _do_exit(self):
@@ -212,7 +273,7 @@ class TileModeEntity(Entity):
 
         self.manager.driftwood.area.changed = True
 
-    def walk(self, x, y, dont_stop=False):
+    def walk(self, x, y, dont_stop=False, stance=None, end_stance=None):
         """Walk the entity by one tile to a new position relative to its current
            position.
 
@@ -221,14 +282,22 @@ class TileModeEntity(Entity):
             y: -1 for up, 1 for down, 0 for no y movement.
             dont_stop: Walk continuously, don't stop after one tile or pixel. Only stop when self.walk_state externally
                 set to Entity.WALKING_WANT_STOP.  Only has an effect if x or y is set.
+            stance: Set the stance we will assume when the walk occurs.
+            end_stance: Set the stance we will assume if we stop after this walk.
 
         Returns: True if succeeded, false if failed (due to collision or already
                  busy walking).
         """
+        self._next_stance = stance
+        self._end_stance = end_stance
+
         if x or y:  # We call walk with 0,0 when entering a new area.
             can_walk = self.walking is None and self.__can_walk(x, y)
             if can_walk:
-                    self.__schedule_walk(x, y, dont_stop)
+                self.__schedule_walk(x, y, dont_stop)
+            elif self.walking is None:
+                if self._end_stance:
+                    self.set_stance(self._end_stance)
             return can_walk
         else:
             self.__arrive_at_tile()
@@ -334,12 +403,13 @@ class TileModeEntity(Entity):
     def __schedule_walk(self, x, y, dont_stop):
         self.__reset_walk()
         self.walking = [x, y]
+        if self._next_stance and self.stance != self._next_stance:
+            self.set_stance(self._next_stance)
         if dont_stop:
             self.walk_state = Entity.WALKING_WANT_CONT
         else:
             self.walk_state = Entity.WALKING_WANT_STOP
         self.manager.driftwood.tick.register(self.__process_walk)
-        # TODO: Set up the walking animation.
 
     def __reset_walk(self):
         """Reset walking if our X,Y coordinates change."""
@@ -368,6 +438,7 @@ class TileModeEntity(Entity):
         if self.tile:
             self.__call_on_tile()
             self.__do_layermod()
+
         # May be lazy exit, where we have no self.tile
         self.__do_take_exit()
 
@@ -454,6 +525,11 @@ class TileModeEntity(Entity):
 
         self.walk_state = Entity.NOT_WALKING
         self.walking = None
+
+        if self._end_stance:
+            self.set_stance(self._end_stance)
+        elif self.resting_stance:
+            self.set_stance(self.resting_stance)
 
 
 # TODO: Finish pixel mode.

@@ -72,10 +72,10 @@ class EntityManager:
         """
         data = self.driftwood.resource.request_json(filename)
 
-        if data["mode"] == "tile":
+        if data["init"]["mode"] == "tile":
             self.entities.append(entity.TileModeEntity(self))
 
-        elif data["mode"] == "pixel":
+        elif data["init"]["mode"] == "pixel":
             self.entities.append(entity.PixelModeEntity(self))
 
         else:
@@ -85,7 +85,7 @@ class EntityManager:
         self.__last_eid += 1
         eid = self.__last_eid
 
-        self.entities[eid]._read(filename, eid)
+        self.entities[eid]._read(filename, data, eid)
 
         self.entities[eid].x = x
         self.entities[eid].y = y
@@ -108,8 +108,8 @@ class EntityManager:
                                                                                                             layer,
                                                                                                             x, y))
 
-        if "on_insert" in data:
-            args = data["on_insert"].split(':')
+        if "on_insert" in data["init"]:
+            args = data["init"]["on_insert"].split(':')
             self.driftwood.script.call(args[0], args[1], self.entities[eid])
 
         return self.entities[-1]
@@ -211,9 +211,9 @@ class EntityManager:
         player = self.driftwood.entity.player
         if keyevent == InputManager.ONDOWN:
             player._walk_stop()
-            player.walk(0, -1, dont_stop=True)
+            player.walk(0, -1, dont_stop=True, stance="walk_up", end_stance="face_up")
         elif keyevent == InputManager.ONREPEAT:
-            player.walk(0, -1, dont_stop=True)
+            player.walk(0, -1, dont_stop=True, stance="walk_up", end_stance="face_up")
         elif keyevent == InputManager.ONUP:
             player._walk_stop()
 
@@ -221,9 +221,9 @@ class EntityManager:
         player = self.driftwood.entity.player
         if keyevent == InputManager.ONDOWN:
             player._walk_stop()
-            player.walk(0, 1, dont_stop=True)
+            player.walk(0, 1, dont_stop=True, stance="walk_down", end_stance="face_down")
         elif keyevent == InputManager.ONREPEAT:
-            player.walk(0, 1, dont_stop=True)
+            player.walk(0, 1, dont_stop=True, stance="walk_down", end_stance="face_down")
         elif keyevent == InputManager.ONUP:
             player._walk_stop()
 
@@ -231,9 +231,9 @@ class EntityManager:
         player = self.driftwood.entity.player
         if keyevent == InputManager.ONDOWN:
             player._walk_stop()
-            player.walk(-1, 0, dont_stop=True)
+            player.walk(-1, 0, dont_stop=True, stance="walk_left", end_stance="face_left")
         if keyevent == InputManager.ONREPEAT:
-            player.walk(-1, 0, dont_stop=True)
+            player.walk(-1, 0, dont_stop=True, stance="walk_left", end_stance="face_left")
         elif keyevent == InputManager.ONUP:
             player._walk_stop()
 
@@ -241,8 +241,8 @@ class EntityManager:
         player = self.driftwood.entity.player
         if keyevent == InputManager.ONDOWN:
             player._walk_stop()
-            player.walk(1, 0, dont_stop=True)
+            player.walk(1, 0, dont_stop=True, stance="walk_right", end_stance="face_right")
         if keyevent == InputManager.ONREPEAT:
-            player.walk(1, 0, dont_stop=True)
+            player.walk(1, 0, dont_stop=True, stance="walk_right", end_stance="face_right")
         elif keyevent == InputManager.ONUP:
             player._walk_stop()
