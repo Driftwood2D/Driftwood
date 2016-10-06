@@ -9,6 +9,10 @@
             {
              "test":"lol"
             },
+         "propertytypes":
+            {
+             "test":"string"
+            },
          "type":"tilelayer",
          "visible":true,
          "width":10,
@@ -16,16 +20,23 @@
          "y":0
         }, 
         {
+         "draworder":"topdown",
          "height":10,
          "name":"Object Layer 1",
          "objects":[
                 {
                  "height":32,
+                 "id":1,
                  "name":"",
                  "properties":
                     {
                      "nowalk":""
                     },
+                 "propertytypes":
+                    {
+                     "nowalk":"string"
+                    },
+                 "rotation":0,
                  "type":"",
                  "visible":true,
                  "width":32,
@@ -34,11 +45,17 @@
                 }, 
                 {
                  "height":16,
+                 "id":2,
                  "name":"",
                  "properties":
                     {
                      "nowalk":""
                     },
+                 "propertytypes":
+                    {
+                     "nowalk":"string"
+                    },
+                 "rotation":0,
                  "type":"",
                  "visible":true,
                  "width":32,
@@ -47,11 +64,17 @@
                 }, 
                 {
                  "height":16,
+                 "id":3,
                  "name":"",
                  "properties":
                     {
                      "nowalk":""
                     },
+                 "propertytypes":
+                    {
+                     "nowalk":"string"
+                    },
+                 "rotation":0,
                  "type":"",
                  "visible":true,
                  "width":32,
@@ -60,11 +83,17 @@
                 }, 
                 {
                  "height":16,
+                 "id":4,
                  "name":"",
                  "properties":
                     {
                      "nowalk":""
                     },
+                 "propertytypes":
+                    {
+                     "nowalk":"string"
+                    },
+                 "rotation":0,
                  "type":"",
                  "visible":true,
                  "width":16,
@@ -73,11 +102,17 @@
                 }, 
                 {
                  "height":128,
+                 "id":5,
                  "name":"",
                  "properties":
                     {
                      "nowalk":""
                     },
+                 "propertytypes":
+                    {
+                     "nowalk":"string"
+                    },
+                 "rotation":0,
                  "type":"",
                  "visible":true,
                  "width":16,
@@ -86,11 +121,17 @@
                 }, 
                 {
                  "height":16,
+                 "id":6,
                  "name":"",
                  "properties":
                     {
                      "nowalk":""
                     },
+                 "propertytypes":
+                    {
+                     "nowalk":"string"
+                    },
+                 "rotation":0,
                  "type":"",
                  "visible":true,
                  "width":128,
@@ -98,12 +139,18 @@
                  "y":0
                 }, 
                 {
-                 "height":128,
+                 "height":96,
+                 "id":7,
                  "name":"",
                  "properties":
                     {
                      "nowalk":""
                     },
+                 "propertytypes":
+                    {
+                     "nowalk":"string"
+                    },
+                 "rotation":0,
                  "type":"",
                  "visible":true,
                  "width":32,
@@ -112,11 +159,17 @@
                 }, 
                 {
                  "height":16,
+                 "id":8,
                  "name":"",
                  "properties":
                     {
                      "nowalk":""
                     },
+                 "propertytypes":
+                    {
+                     "nowalk":"string"
+                    },
+                 "rotation":0,
                  "type":"",
                  "visible":true,
                  "width":144,
@@ -124,25 +177,37 @@
                  "y":144
                 }, 
                 {
-                 "height":16,
+                 "height":48,
+                 "id":9,
                  "name":"",
                  "properties":
                     {
-                     "exit:right":"testmap.json,0,0,8"
+                     "exit:right":"testmap.json,0,0,6+"
                     },
+                 "propertytypes":
+                    {
+                     "exit:right":"string"
+                    },
+                 "rotation":0,
                  "type":"",
                  "visible":true,
                  "width":16,
                  "x":144,
-                 "y":128
+                 "y":96
                 }, 
                 {
                  "height":16,
+                 "id":10,
                  "name":"",
                  "properties":
                     {
                      "exit:left":"testmap3.json,0,9,17"
                     },
+                 "propertytypes":
+                    {
+                     "exit:left":"string"
+                    },
+                 "rotation":0,
                  "type":"",
                  "visible":true,
                  "width":16,
@@ -157,7 +222,7 @@
          "y":0
         }, 
         {
-         "data":[69, 70, 71, 72, 70, 71, 72, 73, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 18, 19, 5, 0, 114, 115, 0, 0, 124, 0, 35, 36, 22, 0, 131, 132, 0, 0, 141, 0, 52, 53, 39, 0, 148, 149, 86, 89, 0, 0, 18, 19, 56, 0, 165, 166, 137, 140, 0, 0, 35, 36, 22, 0, 0, 0, 80, 81, 0, 0, 52, 53, 39, 0, 0, 0, 97, 98, 0, 0, 69, 70, 56, 0, 0, 0, 0, 0, 0, 0, 0, 0, 73, 86, 87, 88, 87, 88, 87, 88, 89, 1],
+         "data":[69, 70, 71, 72, 70, 71, 72, 73, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 18, 19, 5, 0, 114, 115, 0, 0, 124, 0, 35, 36, 22, 0, 131, 132, 0, 0, 141, 0, 52, 53, 39, 0, 148, 149, 86, 89, 0, 0, 18, 19, 56, 0, 165, 166, 137, 140, 0, 0, 69, 73, 22, 0, 0, 0, 80, 81, 0, 0, 0, 0, 39, 0, 0, 0, 97, 98, 0, 0, 0, 0, 56, 0, 0, 0, 0, 0, 0, 0, 0, 0, 73, 86, 87, 88, 87, 88, 87, 88, 89, 1],
          "height":10,
          "name":"Tile Layer 2",
          "opacity":1,
@@ -167,46 +232,55 @@
          "x":0,
          "y":0
         }],
+ "nextobjectid":11,
  "orientation":"orthogonal",
  "properties":
     {
      "title":"Test Map 2"
     },
+ "propertytypes":
+    {
+     "title":"string"
+    },
+ "renderorder":"right-down",
  "tileheight":16,
  "tilesets":[
         {
+         "columns":17,
          "firstgid":1,
          "image":"forest.png",
          "imageheight":304,
          "imagewidth":272,
          "margin":0,
          "name":"forest",
-         "properties":
-            {
-
-            },
          "spacing":0,
+         "tilecount":323,
          "tileheight":16,
          "tilewidth":16
         }, 
         {
+         "columns":7,
          "firstgid":324,
          "image":"objects.png",
          "imageheight":112,
          "imagewidth":112,
          "margin":0,
          "name":"objects",
-         "properties":
-            {
-
-            },
          "spacing":0,
+         "tilecount":49,
          "tileheight":16,
          "tileproperties":
             {
              "42":
                 {
                  "chest":"true"
+                }
+            },
+         "tilepropertytypes":
+            {
+             "42":
+                {
+                 "chest":"string"
                 }
             },
          "tilewidth":16

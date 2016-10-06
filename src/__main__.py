@@ -64,6 +64,7 @@ from inputmanager import InputManager
 from windowmanager import WindowManager
 from entitymanager import EntityManager
 from areamanager import AreaManager
+from audiomanager import AudioManager
 from scriptmanager import ScriptManager
 
 
@@ -92,6 +93,7 @@ class Driftwood:
             window: WindowManager instance.
             entity: EntityManager instance.
             area: AreaManager instance.
+            audio: AudioManager instance.
             script: ScriptManager instance.
 
             keycode: Contains the SDL keycodes.
@@ -109,6 +111,7 @@ class Driftwood:
         self.window = WindowManager(self)
         self.entity = EntityManager(self)
         self.area = AreaManager(self)
+        self.audio = AudioManager(self)
         self.script = ScriptManager(self)
 
         # SDL Keycodes.

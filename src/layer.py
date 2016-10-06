@@ -113,7 +113,36 @@ class Layer:
                     # Set exit if present.
                     for exittype in ["exit", "exit:up", "exit:down", "exit:left", "exit:right"]:
                         if exittype in self.tile(tx, ty).properties:
-                            self.tile(tx, ty).exits[exittype] = self.tile(tx, ty).properties[exittype]
+
+                            # First check for and handle wide exits.
+                            exit_coords = self.tile(tx, ty).properties[exittype].split(',')
+                            if exit_coords[2][-1] == '+' and exit_coords[3][-1] == '+': # Invalid wide exit.
+                                self.tilemap.area.driftwood.log.msg("ERROR", "Map", "cannot have multidirectional wide exits")
+
+                            # Check for and handle horizontal wide exit.
+                            elif exit_coords[2][-1] == '+':
+                                base_coord = int(exit_coords[2][:1]) # Chop off the plus sign.
+                                if tx // self.tilemap.tilewidth == base_coord: # This is the first position.
+                                    for wx in range(0, (obj["width"] // self.tilemap.tilewidth)): # Set exits.
+                                        final_coords = exit_coords
+                                        final_coords[2] = base_coord + wx
+                                        self.tile(tx+wx, ty).exits[exittype] = ','.join(final_coords)
+                                else: # This is not the first position, skip.
+                                    continue
+
+                            # Check for and handle vertical wide exit.
+                            elif exit_coords[3][-1] == '+':
+                                base_coord = int(exit_coords[3][:1])  # Chop off the plus sign.
+                                if ty == base_coord:  # This is the first position.
+                                    for wy in range(0, (obj["height"] // self.tilemap.tileheight)): # Set exits.
+                                        final_coords = exit_coords
+                                        final_coords[3] = str(base_coord + wy)
+                                        self.tile(tx, ty+wy).exits[exittype] = ','.join(final_coords)
+                                else:  # This is not the first position, skip.
+                                    continue
+
+                            else: # Just a regular exit.
+                                self.tile(tx, ty).exits[exittype] = self.tile(tx, ty).properties[exittype]
 
             # TODO: Handle entity spawns on object type "entity".
             if obj["type"] == "entity":
