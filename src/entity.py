@@ -37,6 +37,7 @@ class Entity:
         eid: The Entity ID number.
         mode: The movement mode of the entity.
         stance: The current stance of the entity.
+        resting_stance: The default stance to return to when not walking.
         walk_state: Whether we are moving or not and whether we want to stop ASAP.
         collision: Whether collision should be checked for.
         spritesheet: Spritesheet instance of the spritesheet which owns this entity's graphic.
@@ -112,6 +113,9 @@ class Entity:
 
     def set_stance(self, stance):
         """Set the current stance and return true if succeeded, false if failed.
+
+        Args:
+            stance: The name of the stance to set.
         """
         if not stance in self.__entity:
             # Fake!
@@ -224,6 +228,8 @@ class Entity:
         )
 
     def __next_member(self, seconds):
+        """Set to change the animation frame.
+        """
         self.__cur_member = (self.__cur_member + 1) % len(self.members)
         self.manager.driftwood.area.changed = True
 
@@ -293,9 +299,9 @@ class TileModeEntity(Entity):
 
         if x or y:  # We call walk with 0,0 when entering a new area.
             can_walk = self.walking is None and self.__can_walk(x, y)
-            if can_walk:
+            if can_walk: # Can we walk? If so schedule the walking.
                 self.__schedule_walk(x, y, dont_stop)
-            elif self.walking is None:
+            elif self.walking is None: # We can't and are not walking, but tried to. Face the entity.
                 if self._end_stance:
                     self.set_stance(self._end_stance)
             return can_walk
@@ -304,10 +310,12 @@ class TileModeEntity(Entity):
             return True
 
     def _walk_stop(self):
+        # Schedule us to stop walking.
         if self.walk_state == Entity.WALKING_WANT_CONT:
             self.walk_state = Entity.WALKING_WANT_STOP
 
     def __process_walk(self, seconds_past):
+        # Process the walking each tick.
         if self.walk_state == Entity.NOT_WALKING:
             self.manager.driftwood.tick.unregister(self.__process_walk)
 
@@ -327,6 +335,7 @@ class TileModeEntity(Entity):
                 self.__stand_still()
 
     def __can_walk(self, x, y):
+        # Check if we're allowed to walk this way.
         if x not in [-1, 0, 1]:
             x = 0
 
@@ -337,8 +346,7 @@ class TileModeEntity(Entity):
             return False # panic!
 
         # Perform collision detection.
-        if self.collision:
-            # Check if the destination tile is walkable.
+        if self.collision: # Check if the destination tile is walkable.
             dsttile = self.manager.driftwood.area.tilemap.layers[self.layer].tile(self.tile.pos[0] + x,
                                                                                   self.tile.pos[1] + y)
 
@@ -357,9 +365,7 @@ class TileModeEntity(Entity):
                             self._collide(dsttile)
                             return False
 
-                else:
-
-                    # Are we allowed to walk off the edge of the area to follow a lazy exit?
+                else: # Are we allowed to walk off the edge of the area to follow a lazy exit?
                     if "exit:up" in self.tile.exits and y == -1:
                         self._next_area = self.tile.exits["exit:up"].split(',')
 
@@ -417,6 +423,7 @@ class TileModeEntity(Entity):
         self._partial_xy = [self.x, self.y]
 
     def __inch_along(self, seconds_past):
+        # Set our incremental position for rendering as we move between tiles.
         self.manager.driftwood.area.changed = True
 
         self._partial_xy[0] += self.walking[0] * self.speed * seconds_past
@@ -427,7 +434,7 @@ class TileModeEntity(Entity):
     def __is_at_next_tile(self):
         """Check if we've reached or overreached our destination."""
         tilewidth = self.manager.driftwood.area.tilemap.tilewidth
-        tileheight = self.manager.driftwood.area.tilemap.tileheight
+        #tileheight = self.manager.driftwood.area.tilemap.tileheight
 
         return ((self.walking[0] == -1 and self.x <= self._prev_xy[0] - tilewidth)
                 or (self.walking[0] ==  1 and self.x >= self._prev_xy[0] + tilewidth)
@@ -435,6 +442,7 @@ class TileModeEntity(Entity):
                 or (self.walking[1] ==  1 and self.y >= self._prev_xy[1] + tilewidth))
 
     def __arrive_at_tile(self):
+        # Perform actions for when we arrive at another tile.
         if self.tile:
             self.__call_on_tile()
             self.__do_layermod()
@@ -443,6 +451,7 @@ class TileModeEntity(Entity):
         self.__do_take_exit()
 
     def __walk_set_tile(self):
+        # Set the current tile.
         tilewidth = self.manager.driftwood.area.tilemap.tilewidth
         tileheight = self.manager.driftwood.area.tilemap.tileheight
 
@@ -457,6 +466,7 @@ class TileModeEntity(Entity):
             self.manager.driftwood.script.call(*args)
 
     def __call_on_layer(self):
+        # Call the on_layer event if set.
         if "on_layer" in self.manager.driftwood.area.tilemap.layers[self.layer].properties:
             args = self.manager.driftwood.area.tilemap.layers[self.layer].properties["on_layer"].split(':')
             self.manager.driftwood.script.call(*args)
@@ -514,6 +524,7 @@ class TileModeEntity(Entity):
         return False
 
     def __stand_still(self):
+        # We are entirely finished walking.
         tilemap = self.manager.driftwood.area.tilemap
         tilewidth = tilemap.tilewidth
         tileheight = tilemap.tileheight
@@ -526,6 +537,7 @@ class TileModeEntity(Entity):
         self.walk_state = Entity.NOT_WALKING
         self.walking = None
 
+        # Set the entity's final stance.
         if self._end_stance:
             self.set_stance(self._end_stance)
         elif self.resting_stance:

@@ -102,12 +102,20 @@ class InputManager:
                 self.__registry[keysym]["callback"](InputManager.ONUP)
 
     def keyname(self, keysym):
-        """Return a string naming a keysym.  The up arrow key returns "Up," etc.
+        """Return a string naming a keysym. The up arrow key returns "Up," etc.
 
         Args:
             keysym: SDLKey which should be named
         """
         return SDL_GetKeyName(keysym).decode()
+
+    def keysym(self, keyname):
+        """Return a keysym for the named keybinding.
+
+        Args:
+            keyname: The name of the keybinding for which to return a keysym.
+        """
+        return getattr(self.driftwood.keycode, self.driftwood.config["input"]["keybindings"][keyname])
 
     def handler(self, callback):
         """Register the handler callback.
@@ -123,19 +131,27 @@ class InputManager:
     def unhandle(self):
         self.__handler = None
 
-    def register(self, keysym, callback, throttle=0.0, delay=0.0):
+    def register(self, keyid, callback, throttle=0.0, delay=0.0):
         """Register an input callback.
 
         The callback function will receive a call every tick that the key is on top of the input stack. (the key which
         was most recently pressed.)
 
         Args:
-            keysym: SDLKey for the key which triggers the callback.
+            keyid: SDLKey keysym or key name for the key which triggers the callback. (int or string)
             callback: Function to be called on the registered keypress.  It should take a single integer parameter with
                 a value of InputManager.ONDOWN, ONREPEAT, or ONUP.
             throttle: Number of seconds to wait between ONREPEAT calls when the key is held down.
             delay: Number of seconds to wait after the key is pressed before making the first ONREPEAT call.
         """
+        if type(keyid) == int:
+            keysym = keyid
+        elif type(keyid) == str:
+            keysym = self.keysym(keyid)
+        else:
+            self.driftwood.log.msg("WARNING", "InputManager", "register", "no such key", str(keyid))
+            return
+
         if delay == 0.0:
             delay = throttle
 

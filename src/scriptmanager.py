@@ -60,7 +60,7 @@ class ScriptManager:
         """
         cpath = list(os.path.split(filename))
         cpath[-1] = os.path.splitext(cpath[-1])[0]
-        return os.sep.join(cpath)[1:]
+        return os.sep.join(cpath)#[1:]
 
     def __load(self, filename):
         """Load a script.
