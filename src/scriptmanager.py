@@ -96,28 +96,32 @@ class ScriptManager:
             self.driftwood.log.msg("ERROR", "Script", "no such script", filename)
             return False
 
-    def call(self, filename, func, arg=None):
+    def call(self, filename, func, args=None):
         """Call a function from a script, loading if not already loaded.
 
         Args:
             filename: Filename of the python script containing the function.
             func: Name of the function to call.
-            arg: Pass this argument if not None.
+            args: Argument or list/tuple of arguments to pass if not None.
         """
         if not filename in self.__modules:
+            # Load the module if not loaded.
             res = self.__load(filename)
             if not res:
                 return
 
         if filename in self.__modules and hasattr(self.__modules[filename], func):
-            try:
+            try: # Try calling the function.
                 self.driftwood.log.info("Script", "called", filename, func + "()")
-                if arg:
-                    getattr(self.__modules[filename], func)(arg)
-                else:
+                if args: # We have arguments.
+                    if type(args) in [list, tuple]:
+                        getattr(self.__modules[filename], func)(*args)
+                    else:
+                        getattr(self.__modules[filename], func)(args)
+                else: # We have no arguments.
                     getattr(self.__modules[filename], func)()
 
-            except:
+            except: # Failure
                 self.driftwood.log.msg("ERROR", "Script", "broken function", filename, func + "()")
                 traceback.print_exc(0, sys.stdout)
                 sys.stdout.flush()

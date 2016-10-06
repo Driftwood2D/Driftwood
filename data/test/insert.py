@@ -3,7 +3,7 @@ def setup(ent):
                                                                 str(ent.x),
                                                                 str(ent.y),
                                                                 str(ent.layer)))
-    
-    Driftwood.script.call("libs/stdlib/player.py", "set_player", arg=ent)
+
+    Driftwood.script.call("libs/stdlib/player.py", "set_player", args=ent)
     Driftwood.script.call("libs/stdlib/player.py", "set_default_walk_keybinds")
 
