@@ -26,7 +26,7 @@
 # IN THE SOFTWARE.
 # **********
 
-import imp
+import importlib.machinery
 import signal
 import sys
 
@@ -43,9 +43,9 @@ if __name__ == "__main__":
         sys.exit(1)  # Fail.
 
     # Check for PySDL2.
-    try:
-        imp.find_module("sdl2")
-    except ImportError:
+    finder = importlib.machinery.PathFinder
+    sdl2_presence = finder.find_spec("sdl2")
+    if not sdl2_presence:
         print("Driftwood 2D\nStarting up...")
         print("[0] FATAL: PySDL2 required, module \"sdl2\" not found")
         sys.exit(1)  # Fail.

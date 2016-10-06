@@ -32,7 +32,7 @@ import sys
 
 
 VERSION = "Driftwood 2D PreAlpha-dev3"
-COPYRIGHT = "Copyright 2014 PariahSoft LLC"
+COPYRIGHT = "Copyright 2016 Michael D. Reiley and Paul Merrill"
 
 
 class ConfigManager:

@@ -26,7 +26,7 @@
 # IN THE SOFTWARE.
 # **********
 
-import imp
+import importlib.machinery, importlib.util
 import os
 import sys
 import traceback
@@ -77,7 +77,15 @@ class ScriptManager:
                 # This is a directory.
                 if os.path.isdir(importpath):
                     mname = os.path.splitext(os.path.split(filename)[-1])[0]
-                    self.__modules[filename] = imp.load_source(mname, os.path.join(importpath, filename))
+
+                    # Different import code recommended for different Python versions.
+                    if sys.version_info[1] < 5:
+                        self.__modules[filename] = importlib.machinery.SourceFileLoader(mname, os.path.join(importpath, filename)).load_module()
+                    else:
+                        spec = importlib.util.spec_from_file_location(mname, os.path.join(importpath, filename))
+                        module = importlib.util.module_from_spec(spec)
+                        spec.loader.exec_module(module)
+                        self.__modules[filename] = module
 
                 # This is hopefully a zip archive.
                 else:

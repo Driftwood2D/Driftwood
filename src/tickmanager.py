@@ -107,7 +107,7 @@ class TickManager:
         self._most_recent_time = current_second
 
         for callback in self.__registry:
-            self.__call_callback(callback, current_second, current_second - self.__last_time)
+            self.__call_callback(callback, current_second)
 
         # Regulate ticks per second. Course-grained sleep by OS.
         delay = self._get_delay()
@@ -118,13 +118,34 @@ class TickManager:
         #elif delay < 0.0:
         #    self.driftwood.log.info("Tick", "tick", "tick running behind by {} seconds".format(-delay))
 
-    def __call_callback(self, callback, current_second, seconds_past):
+    def toggle_pause(self):
+        """Toggle a pause in most registered ticks.
+
+        During this time, only ticks with during_pause set to true will get called.  All gameplay ticks *should* have
+        this set to false, while some UI ticks will have this set to true.
+        """
+        self.paused = not self.paused
+
+    def _get_time(self):
+        """Returns the number of seconds since the program start.
+        """
+        return float(SDL_GetTicks()) / 1000.0
+
+    def _get_delay(self):
+        """Return delay (in seconds) until the next scheduled game tick.
+        """
+        now = self._get_time()
+        time_delta = now - self._most_recent_time
+        tick_duration = 1 / self.driftwood.config["tick"]["tps"]
+        delay = tick_duration - time_delta
+        return delay
+
+    def __call_callback(self, callback, current_second):
         """Call a registered tick callback if it is time.  Update the callback's state for future ticks.
 
         Args:
             callback: A registered tick callback.
             current_second: The time that the current system-wide tick started at.
-            seconds_past: ???
         """
         # Only tick if not paused.
         if self.paused and callback["during_pause"] == False:
@@ -149,25 +170,3 @@ class TickManager:
                 # Unregister ticks set to only run once.
                 if callback["once"]:
                     self.unregister(callback["function"])
-
-    def toggle_pause(self):
-        """Toggle a pause in most registered ticks.
-
-        During this time, only ticks with during_pause set to true will get called.  All gameplay ticks *should* have
-        this set to false, while some UI ticks will have this set to true.
-        """
-        self.paused = not self.paused
-
-    def _get_time(self):
-        """Returns the number of seconds since the program start.
-        """
-        return float(SDL_GetTicks()) / 1000.0
-
-    def _get_delay(self):
-        """Return delay (in seconds) until the next scheduled game tick.
-        """
-        now = self._get_time()
-        time_delta = now - self._most_recent_time
-        tick_duration = 1 / self.driftwood.config["tick"]["tps"]
-        delay = tick_duration - time_delta
-        return delay
