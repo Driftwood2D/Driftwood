@@ -3,9 +3,9 @@ Driftwood 2D
 
 The Driftwood 2D Game Development Suite is a game engine and related set of tools designed for the purpose of allowing a novice to develop a fully featured tile-based 2D game. Driftwood 2D is currently undergoing heavy pre-alpha stage development.
 
-Copyright (c) 2014 PariahSoft LLC
-Copyright (c) 2016 Michael D. Reiley and Paul Merrill
-Released under the MIT license.
+* Copyright (c) 2014 PariahSoft LLC
+* Copyright (c) 2016 Michael D. Reiley and Paul Merrill
+* Released under the MIT license.
 
 Requirements
 ------------
