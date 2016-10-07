@@ -165,7 +165,8 @@ class AudioManager:
         if not self.__music:
             return False
 
-        Mix_HaltMusic()
+        if Mix_PlayingMusic():
+            Mix_HaltMusic()
         self.__music = None
         self.playing_music = False
 
@@ -187,5 +188,6 @@ class AudioManager:
             pass
 
     def __del__(self):
+        self.stop_music()
         self.__mix_quit()
         self.__mix_closeaudio()
