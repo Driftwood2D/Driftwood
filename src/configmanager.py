@@ -92,6 +92,9 @@ class ConfigManager:
         parser.add_argument("--tps", nargs=1, dest="tps", type=int, metavar="<hertz>", help="set ticks-per-second")
         parser.add_argument("--ttl", nargs=1, dest="ttl", type=int, metavar="<seconds>", help="set cache time-to-live")
         parser.add_argument("--zoom", nargs=1, dest="zoom", type=int, metavar="<multiplier>", help="set viewport zoom")
+        parser.add_argument("--maxfps", nargs=1, dest="maxfps", type=int, metavar="<fps>", help="set max fps")
+        parser.add_argument("--mvol", nargs=1, dest="mvol", type=int, metavar="<0-128>", help="set music volume")
+        parser.add_argument("--svol", nargs=1, dest="svol", type=int, metavar="<0-128>", help="set sfx volume")
 
         group1 = parser.add_mutually_exclusive_group()
         group1.add_argument("--window", default=None, action="store_false", dest="fullscreen",
@@ -154,6 +157,25 @@ class ConfigManager:
 
         if self.__cmdline_args.zoom:
             self.__config["window"]["zoom"] = self.__cmdline_args.zoom[0]
+
+        if self.__cmdline_args.maxfps:
+            self.__config["window"]["maxfps"] = self.__cmdline_args.maxfps[0]
+
+        if self.__cmdline_args.mvol:
+            if self.__cmdline_args.mvol[0] > 128:
+                self.__config["audio"]["music_volume"] = 128
+            elif self.__cmdline_args.mvol[0] < 0:
+                self.__config["audio"]["music_volume"] = 0
+            else:
+                self.__config["audio"]["music_volume"] = self.__cmdline_args.mvol[0]
+
+        if self.__cmdline_args.svol:
+            if self.__cmdline_args.svol[0] > 128:
+                self.__config["audio"]["sfx_volume"] = 128
+            elif self.__cmdline_args.svol[0] < 0:
+                self.__config["audio"]["sfx_volume"] = 0
+            else:
+                self.__config["audio"]["sfx_volume"] = self.__cmdline_args.svol[0]
 
         if self.__cmdline_args.fullscreen is not None:
             if self.__cmdline_args.fullscreen:
