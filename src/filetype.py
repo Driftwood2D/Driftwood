@@ -37,17 +37,29 @@ class AudioFile:
     """This class represents and abstracts a single OGG Vorbis audio file.
     """
 
-    def __init__(self, data):
+    def __init__(self, data, music=False):
         self.audio = None
+        self.__is_music = music
         self.__data = data
 
-        # Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 2, 4096)
+        # Save SDL's destructors for shutdown.
+        self.__free_music = Mix_FreeMusic
+        self.__free_chunk = Mix_FreeChunk
 
         self.__load(self.__data)
 
     def __load(self, data):
         if data:
-            self.audio = Mix_LoadMUS_RW(SDL_RWFromConstMem(data, len(data)), 1)
+            if self.__is_music:
+                self.audio = Mix_LoadMUS_RW(SDL_RWFromConstMem(data, len(data)), 1)
+            else:
+                self.audio = Mix_LoadWAV_RW(SDL_RWFromConstMem(data, len(data)), 1)
+
+    def __del__(self):
+        if self.__is_music:
+            self.__free_music(self.audio)
+        else:
+            self.__free_chunk(self.audio)
 
 
 class ImageFile:

@@ -316,10 +316,10 @@ class TileModeEntity(Entity):
         if self.walk_state == Entity.WALKING_WANT_CONT:
             self.walk_state = Entity.WALKING_WANT_STOP
 
-    def __process_walk(self, seconds_past):
+    def _process_walk(self, seconds_past):
         # Process the walking each tick.
         if self.walk_state == Entity.NOT_WALKING:
-            self.manager.driftwood.tick.unregister(self.__process_walk)
+            self.manager.driftwood.tick.unregister(self._process_walk)
 
         elif self.walk_state == Entity.WALKING_WANT_CONT:
             self.__inch_along(seconds_past)
@@ -417,7 +417,7 @@ class TileModeEntity(Entity):
             self.walk_state = Entity.WALKING_WANT_CONT
         else:
             self.walk_state = Entity.WALKING_WANT_STOP
-        self.manager.driftwood.tick.register(self.__process_walk)
+        self.manager.driftwood.tick.register(self._process_walk)
 
     def __reset_walk(self):
         """Reset walking if our X,Y coordinates change."""

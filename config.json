@@ -15,11 +15,19 @@
 			"right": "SDLK_RIGHT"
 		}
 	},
+	"audio": {
+	    "support": ["ogg"],
+	    "frequency": 22050,
+	    "chunksize": 4096,
+	    "music_volume": 128,
+	    "sfx_volume": 128
+	},
 	"log": {
 		"verbose": true,
 		"halt": true,
 		"suppress": [
-		    ["Tick", "", "TileModeEntity.__process_walk"]
+		    ["Tick", "", "TileModeEntity._process_walk"],
+		    ["Tick", "", "AudioManager._free_audio"]
 		]
 	},
 	"path": {

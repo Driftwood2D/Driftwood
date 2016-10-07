@@ -115,7 +115,7 @@ class ResourceManager:
         if data:
             return filetype.ImageFile(data, self.driftwood.window.renderer)
 
-    def request_audio(self, filename):
+    def request_audio(self, filename, music=False):
         data = self.request(filename, True)
         if data:
-            return filetype.AudioFile(data)
+            return filetype.AudioFile(data, music)
