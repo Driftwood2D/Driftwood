@@ -18,6 +18,37 @@ are attributed in the distributions of the below mentioned primary dependencies.
 * MIT/Expat License <http://www.opensource.org/licenses/mit-license.php>
 
 
+## Software
+
+### Python
+* Copyright 1991-1995 Stichting Mathematisch Centrum
+* Copyright 1995-2000 Corporation for National Research Initiatives
+* Copyright 2000 BeOpen.com
+* Copyright 2001-2016 Python Software Foundation
+* License: https://docs.python.org/2/license.html
+* URI: https://www.python.org/
+
+### SDL2
+* Copyrights: https://www.libsdl.org/credits.php
+* License: https://www.libsdl.org/license.php
+* URI: https://www.libsdl.org/index.php
+
+### SDL_Image
+* Copyright 1997-2016 Sam Lantinga
+* License: https://hg.libsdl.org/SDL_image/file/tip/COPYING.txt
+* URI: https://www.libsdl.org/projects/SDL_image/
+
+### SDL_Mixer
+* Copyright 1997-2016 Sam Lantinga
+* License: https://hg.libsdl.org/SDL_mixer/file/tip/COPYING.txt
+* URI: https://www.libsdl.org/projects/SDL_mixer/
+
+### PySDL2
+* Copyright 2012-2014 Marcus von Appen
+* License: https://pysdl2.readthedocs.io/en/rel_0_9_4/copying.html
+* URI: https://pysdl2.readthedocs.io/
+
+
 ## Sound Effects
 
 ### Blip_Select.oga
@@ -25,6 +56,15 @@ are attributed in the distributions of the below mentioned primary dependencies.
 * License: http://creativecommons.org/licenses/by/3.0/
 * Title: 100 plus game sound effects
 * URI: http://opengameart.org/content/100-plus-game-sound-effects-wavoggm4a
+
+
+## Music
+
+### A_Travellers_Tale.oga
+* Copyright 2011 MarkySpark
+* License: http://creativecommons.org/licenses/by-nc-sa/3.0/
+* Title: A Traveller's Tale
+* URI: http://www.newgrounds.com/audio/listen/455328
 
 
 ## Graphics
