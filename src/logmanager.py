@@ -52,6 +52,9 @@ class LogManager:
 
         Args:
             chain: A list of strings to be separated by colon-spaces and printed.
+
+        Returns:
+            True
         """
         self.__print(chain)
 
@@ -59,14 +62,21 @@ class LogManager:
         if self.driftwood.config["log"]["halt"]:
             self.driftwood.running = False
 
+        return True
+
     def info(self, *chain):
         """Log an info message if verbosity is enabled..
 
         Args:
             chain: A list of strings to be separated by colon-spaces and printed.
+
+        Returns:
+            True
         """
         if self.driftwood.config["log"]["verbose"]:
             self.__print(chain)
+
+        return True
 
     def __print(self, chain):
         """Format and print the string.

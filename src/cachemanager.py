@@ -77,9 +77,12 @@ class CacheManager:
         Args:
             filename: Filename of the file to upload.
             contents: Contents of the file to upload.
+
+        Returns:
+            True if succeeded, false if failed.
         """
         if not self.__enabled:
-            return
+            return False
 
         self.__cache[filename] = {}
         self.__cache[filename]["timestamp"] = self.__now
@@ -87,35 +90,55 @@ class CacheManager:
 
         self.driftwood.log.info("Cache", "uploaded", filename)
 
+        return True
+
     def download(self, filename):
         """Download a file from the cache if present, and update the timestamp.
 
         Args:
             filename: Filename of the file to download.
+
+        Returns:
+            File contents if succeeded, None if failed.
         """
         if filename in self.__cache:
             self.__cache[filename]["timestamp"] = self.__now
             self.driftwood.log.info("Cache", "downloaded", filename)
             return self.__cache[filename]["contents"]
 
+        return None
+
     def purge(self, filename):
         """Purge a file from the cache.
 
         Args:
             filename: Filename of the file to purge.
+
+        Returns:
+            True
         """
         if filename in self.__cache:
             del self.__cache[filename]
             self.driftwood.log.info("Cache", "purged", filename)
 
+        return True
+
     def flush(self):
         """Empty the cache.
+
+        Returns:
+            True
         """
         self.__cache = {}
         self.driftwood.log.info("Cache", "flushed")
 
+        return True
+
     def clean(self):
         """Perform garbage collection on expired files.
+
+        Returns:
+            True
         """
         expired = []
 
@@ -130,6 +153,8 @@ class CacheManager:
                 self.purge(filename)
 
             self.driftwood.log.info("Cache", "cleaned", str(len(expired))+" file(s)")
+
+        return True
 
 
     def _tick(self, seconds_past):

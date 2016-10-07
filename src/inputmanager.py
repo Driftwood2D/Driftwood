@@ -79,16 +79,28 @@ class InputManager:
 
         Args:
             keysym: SDLKey which should be named
+
+        Returns:
+            Keyname if succeeded, None if failed.
         """
-        return SDL_GetKeyName(keysym).decode()
+        try:
+            return SDL_GetKeyName(keysym).decode()
+        except:
+            return None
 
     def keysym(self, keyname):
         """Return a keysym for the named keybinding.
 
         Args:
             keyname: The name of the keybinding for which to return a keysym.
+
+        Returns:
+            Keysym if succeeded, None if failed.
         """
-        return getattr(self.driftwood.keycode, self.driftwood.config["input"]["keybindings"][keyname])
+        try:
+            return getattr(self.driftwood.keycode, self.driftwood.config["input"]["keybindings"][keyname])
+        except:
+            return None
 
     def handler(self, callback):
         """Register the handler callback.
@@ -98,11 +110,21 @@ class InputManager:
 
         Args:
             callback: Handler function to be called on any keypress.
+
+        Returns:
+            True
         """
         self.__handler = callback
+        return True
 
     def unhandle(self):
+        """Unregister the handler callback.
+
+        Returns:
+            True
+        """
         self.__handler = None
+        return True
 
     def register(self, keyid, callback, throttle=0.0, delay=0.0):
         """Register an input callback.
@@ -116,6 +138,9 @@ class InputManager:
                 a value of InputManager.ONDOWN, ONREPEAT, or ONUP.
             throttle: Number of seconds to wait between ONREPEAT calls when the key is held down.
             delay: Number of seconds to wait after the key is pressed before making the first ONREPEAT call.
+
+        Returns:
+            True if succeeded, False if failed.
         """
         if type(keyid) == int:
             keysym = keyid
@@ -123,7 +148,7 @@ class InputManager:
             keysym = self.keysym(keyid)
         else:
             self.driftwood.log.msg("WARNING", "InputManager", "register", "no such key", str(keyid))
-            return
+            return False
 
         if delay == 0.0:
             delay = throttle
@@ -136,16 +161,23 @@ class InputManager:
             "repeats": 0
         }
 
+        return True
+
     def unregister(self, keysym):
         """Unregister an input callback.
 
         Args:
             keysym: SDLKey for the key which triggers the callback.
+
+        Returns:
+            True if succeeded, False if failed.
         """
         if keysym in self.__registry:
             del self.__registry[keysym]
+            return True
         else:
             self.driftwood.log.msg("WARNING", "InputManager", "unregister", "key not registered", self.keyname(keysym))
+            return False
 
     def pressed(self, keysym):
         """Check if a key is currently being pressed.

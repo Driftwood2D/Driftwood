@@ -105,6 +105,9 @@ class PathManager:
         """Rebuild the vfs.
 
         Rebuild the virtual filesystem from the path list, and make sure the base module is at the top.
+
+        Returns:
+            True
         """
         basepath = self.driftwood.config["path"]["self"]
 
@@ -122,6 +125,8 @@ class PathManager:
 
         self.driftwood.log.info("Path", "rebuilt")
 
+        return True
+
     def prepend(self, pathnames):
         """Prepend pathnames to the path list.
 
@@ -130,9 +135,12 @@ class PathManager:
 
         Args:
             pathnames: List of pathnames to prepend.
+
+        Returns:
+            True if succeeded, False if failed.
         """
         if not pathnames:
-            return
+            return False
         pathnames = list(pathnames)
 
         for i in range(len(pathnames)):
@@ -151,6 +159,8 @@ class PathManager:
 
         self.rebuild()
 
+        return True
+
     def append(self, pathnames):
         """Append pathnames to the path list.
 
@@ -159,9 +169,12 @@ class PathManager:
 
         Args:
             pathnames: List of pathnames to append.
+
+        Returns:
+            True if succeeded, False if failed.
         """
         if not pathnames:
-            return
+            return False
         pathnames = list(pathnames)
 
         for i in range(len(pathnames)):
@@ -179,14 +192,19 @@ class PathManager:
 
         self.rebuild()
 
+        return True
+
     def remove(self, pathnames):
         """Remove pathnames from the path list if present.
 
         Args:
             pathnames: List of pathnames to remove.
+
+        Returns:
+            True if succeeded, False if failed.
         """
         if not pathnames:
-            return
+            return False
         pathnames = list(pathnames)
 
         for pn in pathnames:
@@ -201,6 +219,8 @@ class PathManager:
 
         self.rebuild()
 
+        return True
+
     def find(self, filename, pathname=None):
         """Find a filename's pathname.
 
@@ -212,10 +232,12 @@ class PathManager:
             pathname: (optional) Check only this pathname.
 
         Returns:
-            The pathname which owns the filename, if any.
+            The pathname which owns the filename, if any. Otherwise None.
         """
         if pathname:
             if filename in self.examine(pathname):
                 return pathname
         elif filename in self.__vfs:
             return self.__vfs[filename]
+        else:
+            return None

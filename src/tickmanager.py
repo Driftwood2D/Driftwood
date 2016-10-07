@@ -26,7 +26,8 @@
 # IN THE SOFTWARE.
 # **********
 
-import sys
+from inspect import signature
+from types import FunctionType, MethodType
 from sdl2 import SDL_Delay, SDL_GetTicks
 
 # Upper bound on latency we can handle from the OS when we expect to return from sleep, measured in seconds.
@@ -67,12 +68,21 @@ class TickManager:
     def register(self, function, delay=0.0, once=False, during_pause=False):
         """Register a tick callback, with an optional delay between calls.
 
+        Each tick callback must take either no arguments or one argument, for which seconds since its last call will be
+        passed.
+
         Args:
             function: The function to be called.
             delay: (optional) Delay in seconds between calls.
             once: (optional) Whether to only call once.
             during_pause: (optional) Whether this tick is also called when the game is paused.
+
+        Returns:
+            True if succeeded, False if failed.
         """
+        if not type(function) in [FunctionType, MethodType]:
+            print(str(type(function)))
+
         for callback in self.__registry:
             if callback["function"] == function:
                 self.unregister(function)
@@ -85,18 +95,29 @@ class TickManager:
             "during_pause": during_pause
         })
 
+        return True
+
     def unregister(self, function):
         """Unregister a tick callback.
 
         Args:
             function: The function to unregister.
+
+        Returns:
+            True if succeeded, False if failed.
         """
         for n, callback in enumerate(self.__registry):
             if callback["function"] == function:
                 del self.__registry[n]
+                return True
+
+        return False
 
     def tick(self):
         """Call all registered tick callbacks not currently delayed, and regulate tps.
+
+        Returns:
+            True
         """
         # Regulate ticks per second. Finer-grained busy wait.
         while self._get_delay() > 0.0:
@@ -118,13 +139,19 @@ class TickManager:
         #elif delay < 0.0:
         #    self.driftwood.log.info("Tick", "tick", "tick running behind by {} seconds".format(-delay))
 
+        return True
+
     def toggle_pause(self):
         """Toggle a pause in most registered ticks.
 
         During this time, only ticks with during_pause set to true will get called.  All gameplay ticks *should* have
         this set to false, while some UI ticks will have this set to true.
+
+        Returns:
+            True
         """
         self.paused = not self.paused
+        return True
 
     def _get_time(self):
         """Returns the number of seconds since the program start.
@@ -165,7 +192,10 @@ class TickManager:
 
             if execute:
                 callback["most_recent"] = current_second
-                callback["function"](seconds_past)
+                if len(signature(callback["function"]).parameters.keys()) == 0:
+                    callback["function"]()
+                else:
+                    callback["function"](seconds_past)
 
                 # Unregister ticks set to only run once.
                 if callback["once"]:

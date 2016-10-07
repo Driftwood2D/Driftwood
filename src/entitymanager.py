@@ -122,11 +122,13 @@ class EntityManager:
         Args:
             eid: The Entity ID of the entity to retrieve.
 
-        Returns: Entity class instance.
+        Returns: Entity class instance if succeeded, None if failed.
         """
         for ent in self.entities:
             if ent.eid == eid:
                 return ent
+
+        return None
 
     def layer(self, layer):
         """Retrieve a list of entities on a certain layer.
@@ -149,24 +151,36 @@ class EntityManager:
 
         Args:
             eid: The Entity ID of the entity to kill.
+
+        Returns:
+            True if succeeded, False if failed.
         """
         for ent in range(len(self.entities)):
             if self.entities[ent].eid == eid:
                 del self.entities[ent]
+                self.driftwood.area.changed = True
+                return True
 
-        self.driftwood.area.changed = True
+        return False
 
     def killall(self, filename):
         """Kill all entities by filename.
 
         Args:
             filename: Filename of the JSON entity descriptor whose insertions should be killed.
+
+        Returns:
+            True if succeeded, False if failed.
         """
+        deleted_any = False
+
         for ent in range(len(self.entities)):
             if self.entities[ent].filename == filename:
                 del self.entities[ent]
+                deleted_any = True
 
         self.driftwood.area.changed = True
+        return deleted_any
 
     def spritesheet(self, filename):
         """Retrieve a sprite sheet by its filename.
@@ -174,11 +188,13 @@ class EntityManager:
         Args:
             filename: Filename of the sprite sheet image.
 
-        Returns: Spritesheet class instance.
+        Returns: Spritesheet class instance if succeeded, False if failed.
         """
         for ss in self.spritesheets:
             if ss.filename == filename:
                 return ss
+
+        return False
 
     def collision(self, a, b):
         """Notify the collision callback, if set, that entity "a" has collided with entity or tile "b".
@@ -186,6 +202,11 @@ class EntityManager:
         Args:
             a: First colliding entity.
             b: Second colliding entity or tile.
+
+        Returns: True if succeeded, False if failed.
         """
         if self.collider:
             self.collider(a, b)
+            return True
+
+        return False

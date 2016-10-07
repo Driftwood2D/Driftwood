@@ -61,12 +61,15 @@ class ScriptManager:
             filename: Filename of the python script containing the function.
             func: Name of the function to call.
             args: Argument or list/tuple of arguments to pass if not None.
+
+        Returns:
+            True if succeeded, False if failed.
         """
         if not filename in self.__modules:
             # Load the module if not loaded.
             res = self.__load(filename)
             if not res:
-                return
+                return False
 
         if filename in self.__modules and hasattr(self.__modules[filename], func):
             try: # Try calling the function.
@@ -74,10 +77,13 @@ class ScriptManager:
                 if args: # We have arguments.
                     if type(args) in [list, tuple]:
                         getattr(self.__modules[filename], func)(*args)
+                        return True
                     else:
                         getattr(self.__modules[filename], func)(args)
+                        return True
                 else: # We have no arguments.
                     getattr(self.__modules[filename], func)()
+                    return True
 
             except: # Failure
                 self.driftwood.log.msg("ERROR", "Script", "broken function", filename, func + "()")
@@ -87,6 +93,7 @@ class ScriptManager:
 
         else:
             self.driftwood.log.msg("ERROR", "Script", "no such function", filename, func + "()")
+            return False
 
     def module(self, filename):
         """Return the module instance of a script, loading if not already loaded.
@@ -94,13 +101,15 @@ class ScriptManager:
         Args:
             filename: Filename of the python script whose module instance should be returned.
 
-        Returns: Python module instance.
+        Returns: Python module instance if succeeded, None if failed.
         """
         if not filename in self.__modules:
             self.__load(filename)
 
         if filename in self.__modules:
             return self.__modules[filename]
+        else:
+            return None
 
     def __convert_path(self, filename):
         """Get around a documented zipimport flaw.

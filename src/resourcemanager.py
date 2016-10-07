@@ -67,7 +67,7 @@ class ResourceManager:
             binary: Whether the file is a binary file, rather than a plaintext file.
 
         Returns:
-            Contents of the requested file, if present.
+            Contents of the requested file, if present. Otherwise None.
         """
         self.driftwood.log.info("Resource", "requested", filename)
 
@@ -99,23 +99,56 @@ class ResourceManager:
 
             except:
                 self.driftwood.log.msg("ERROR", "Resource", "could not read file", filename)
+                return None
 
         else:
             self.driftwood.log.msg("ERROR", "Resource", "no such file", filename)
+            return None
 
     def request_json(self, filename):
+        """Retrieve a dictionary of JSON data.
+
+        Args:
+            filename: The filename of the JSON file to load.
+
+        Returns:
+            Dictionary of JSON data if succeeded, None if failed.
+        """
         data = self.request(filename)
         if data:
             if type(data) == bytes:
                 data = data.decode()
             return json.loads(data)
+        else:
+            return None
 
     def request_image(self, filename):
+        """Retrieve an internal abstraction of an image file.
+
+        Args:
+            filename: The filename of the image file to load.
+
+        Returns:
+            Image filetype abstraction if succeeded, None if failed.
+        """
         data = self.request(filename, True)
         if data:
             return filetype.ImageFile(data, self.driftwood.window.renderer)
+        else:
+            return None
 
     def request_audio(self, filename, music=False):
+        """Retrieve an internal abstraction of an audio file.
+
+        Args:
+            filename: The filename of the audio file to load.
+            music: Whether to load the file as music.
+
+        Returns:
+            Audio filetype abstraction if succeeded, None if failed.
+        """
         data = self.request(filename, True)
         if data:
             return filetype.AudioFile(data, music)
+        else:
+            return None

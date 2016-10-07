@@ -35,13 +35,18 @@ class AudioManager:
 
         Attributes:
             driftwood: Base class instance.
+            playing_music: Whether we are currently playing music or not.
+            playing_sfx: Whether we are currently playing sfx or not.
     """
     def __init__(self, driftwood):
         self.driftwood = driftwood
 
+        self.playing_music = False
+        self.playing_sfx = False
+
         self.__music = None
         self.__sfx = {} # [file, channel]
-        self.__init_success = [0, 0]
+        self.__init_success = [False, False]
 
         # Save SDL's destructors for shutdown.
         self.__mix_quit = Mix_Quit
@@ -52,7 +57,7 @@ class AudioManager:
                          self.driftwood.config["audio"]["chunksize"]) == -1:
             self.driftwood.log.msg("ERROR", "Audio", "failed to initialize mixer output", str(Mix_GetError()))
         else:
-            self.__init_success[0] = 1
+            self.__init_success[0] = True
 
         # Attempt to initialize mixer support for selected audio formats.
         init_flags = 0
@@ -66,53 +71,118 @@ class AudioManager:
         if Mix_Init(init_flags)&init_flags != init_flags:
             self.driftwood.log.msg("ERROR", "Audio", "failed to initialize audio format support", str(Mix_GetError()))
         else:
-            self.__init_success[1] = 1
+            self.__init_success[1] = True
 
         # Register the cleanup function.
         self.driftwood.tick.register(self._cleanup, delay=0.01, during_pause=True)
 
-    def play_sfx(self, filename, volume=None, loops=0):
+    def play_sfx(self, filename, volume=None, loop=0):
+        """Load and play a sound effect from an audio file.
+
+        Args:
+            filename: Filename of the sound effect.
+            volume: Overrides the sfx_volume in the config for this sound effect. 1-128
+            loop: Number of times to loop the audio. 0 for none, -1 for infinite.
+
+        Returns:
+            True if succeeded, False if failed.
+        """
         # Give up if we didn't initialize properly.
-        if 0 in self.__init_success:
-            return
+        if False in self.__init_success:
+            return False
 
         # Load the sound effect.
         self.__sfx[filename] = [None, 0]
         self.__sfx[filename][0] = self.driftwood.resource.request_audio(filename, False)
         if not self.__sfx[filename][0]:
             self.driftwood.log.msg("ERROR", "Audio", "could not load sfx", filename)
-            return
+            return False
 
         # Set the volume.
-        if volume:
+        if volume is not None:
             Mix_VolumeChunk(self.__sfx[filename][0].audio, volume)
         else:
             Mix_VolumeChunk(self.__sfx[filename][0].audio, self.driftwood.config["audio"]["sfx_volume"])
 
         # Play the sound effect.
-        channel = Mix_PlayChannel(-1, self.__sfx[filename][0].audio, loops)
+        channel = Mix_PlayChannel(-1, self.__sfx[filename][0].audio, loop)
         if channel == -1:
-            self.driftwood.log.msg("ERROR", "Audio", "could not allocate sfx to channel", str(channel))
-            return
+            self.driftwood.log.msg("ERROR", "Audio", "could not play sfx on channel", str(channel))
+            return False
 
         self.__sfx[filename][1] = channel
+        self.playing_sfx = True
 
-    def load_music(self, filename):
-        pass
+        return True
 
-    def play_music(self, volume=None, loops=0):
-        pass
+    def play_music(self, filename, volume=None, loop=0):
+        """Load and play music from an audio file. Also stops and unloads any previously loaded music.
+
+        Args:
+            filename: Filename of the music.
+            volume: Overrides the music_volume in the config for this music. 1-128
+            loop: Number of times to loop the audio. 0 for none, -1 for infinite.
+
+        Returns:
+            True if succeeded, False if failed.
+        """
+        # Give up if we didn't initialize properly.
+        if 0 in self.__init_success:
+            return False
+
+        # Stop and unload any previously loaded music.
+        self.stop_music()
+
+        # Load the music.
+        self.__music = self.driftwood.resource.request_audio(filename, True)
+        if not self.__music:
+            self.driftwood.log.msg("ERROR", "Audio", "could not load music", filename)
+            return False
+
+        # Play the music.
+        if Mix_PlayingMusic():
+            self.stop_music()
+        if Mix_PlayMusic(self.__music.audio, loop) == -1:
+            self.driftwood.log.msg("ERROR", "Audio", "could not play music")
+            return
+
+        # Set the volume.
+        if volume is not None:
+            Mix_VolumeMusic(volume)
+        else:
+            Mix_VolumeMusic(self.driftwood.config["audio"]["music_volume"])
+
+        self.playing_music = True
+
+        return True
 
     def stop_music(self):
-        pass
+        """Stop and unload any currently loaded music.
+
+        Returns:
+            True if succeeded, False if failed.
+        """
+        if not self.__music:
+            return False
+
+        Mix_HaltMusic()
+        self.__music = None
+        self.playing_music = False
+
+        return True
 
     def _cleanup(self, seconds_past):
-        if not Mix_PlayingMusic():
+        # Tick callback to clean up files we're done with.
+        if self.__music and not Mix_PlayingMusic():
             self.__music = None
+            self.playing_music = False
         try:
-            for sfx in self.__sfx:
-                if not Mix_Playing(self.__sfx[sfx][1]):
-                    del self.__sfx[sfx]
+            if len(self.__sfx) == 0:
+                self.playing_sfx = False
+            else:
+                for sfx in self.__sfx:
+                    if not Mix_Playing(self.__sfx[sfx][1]):
+                        del self.__sfx[sfx]
         except (RuntimeError):
             pass
 

@@ -1,8 +1,12 @@
 def set_player(ent):
-	Driftwood.entity.player = ent
-	return True
+    """Set the entity "ent" as the player character.
+    """
+    Driftwood.entity.player = ent
+    return True
 
 def set_default_walk_keybinds():
+    """Setup the default walk keybinds.
+    """
     if not Driftwood.entity.player:
         return False
     

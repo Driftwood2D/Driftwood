@@ -249,6 +249,9 @@ class TileModeEntity(Entity):
             layer: New layer, or None to skip.
             x: New x-coordinate, or None to skip.
             y: New y-coordinate, or None to skip.
+
+        Returns:
+            True if succeeded, False if failed.
         """
         tilemap = self.manager.driftwood.area.tilemap
 
@@ -258,7 +261,7 @@ class TileModeEntity(Entity):
             (y is not None and y % tilemap.tileheight != 0)
         ):
             self.manager.driftwood.log.msg("ERROR", "Entity", "attempted teleport to non-tile position")
-            return
+            return False
 
         if layer is not None:
             self.layer = layer
@@ -280,6 +283,8 @@ class TileModeEntity(Entity):
             self.__call_on_layer()
 
         self.manager.driftwood.area.changed = True
+
+        return True
 
     def walk(self, x, y, dont_stop=False, stance=None, end_stance=None):
         """Walk the entity by one tile to a new position relative to its current

@@ -93,8 +93,12 @@ class WindowManager:
 
         Args:
             title: The new title to be set.
+
+        Returns:
+            True
         """
         SDL_SetWindowTitle(self.window, title.encode())
+        return True
 
     def frame(self, tex, zoom=False):
         """Copy an SDL_Texture or ImageFile frame onto the window, adjusting the viewport accordingly.
@@ -102,6 +106,9 @@ class WindowManager:
         Args:
             tex: SDL_Texture or filetype.ImageFile instance.
             zoom: Whether or not to zoom the texture.
+
+        Returns:
+            True
         """
         # Prevent this ImageFile (probably from a script) from losing scope and taking our texture with it.
         if isinstance(tex, filetype.ImageFile):
@@ -181,10 +188,16 @@ class WindowManager:
         # Mark the frame changed.
         self.__changed = WindowManager.CHANGED
 
+        return True
+
     def refresh(self):
         """Force the window to redraw.
+
+        Returns:
+            True
         """
         self.__changed = WindowManager.CHANGED
+        return True
 
     def _tick(self, seconds_past):
         """Tick callback which refreshes the renderer.
