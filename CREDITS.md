@@ -23,7 +23,7 @@ are attributed in the distributions of the below mentioned primary dependencies.
 ### Blip_Select.oga
 * Copyrignt 2014 Damaged Panda
 * License: http://creativecommons.org/licenses/by/3.0/
-* Title: Blip Select
+* Title: 100 plus game sound effects
 * URI: http://opengameart.org/content/100-plus-game-sound-effects-wavoggm4a
 
 
