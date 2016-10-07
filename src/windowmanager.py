@@ -86,7 +86,7 @@ class WindowManager:
 
         self.__prepare()
 
-        self.driftwood.tick.register(self._tick, during_pause=True)
+        self.driftwood.tick.register(self._tick, delay=1.0/self.driftwood.config["window"]["maxfps"], during_pause=True)
 
     def title(self, title):
         """Set the window title.

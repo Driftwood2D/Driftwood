@@ -29,6 +29,7 @@
 import importlib.machinery
 import signal
 import sys
+import time
 
 VCUR = sys.version_info
 VREQ = [3, 3, 3]
@@ -156,6 +157,7 @@ class Driftwood:
                         self.window.refresh()
 
                 # Process tick callbacks.
+                time.sleep(0.005) # Cap mainloop speed.
                 self.tick.tick()
 
             print("Shutting down...")

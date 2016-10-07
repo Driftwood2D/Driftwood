@@ -47,12 +47,14 @@ class AudioManager:
         self.__mix_quit = Mix_Quit
         self.__mix_closeaudio = Mix_CloseAudio
 
+        # Attempt to initialize mixer output.
         if Mix_OpenAudio(self.driftwood.config["audio"]["frequency"], MIX_DEFAULT_FORMAT, 2,
                          self.driftwood.config["audio"]["chunksize"]) == -1:
             self.driftwood.log.msg("ERROR", "Audio", "failed to initialize mixer output", str(Mix_GetError()))
         else:
             self.__init_success[0] = 1
 
+        # Attempt to initialize mixer support for selected audio formats.
         init_flags = 0
         if "ogg" in self.driftwood.config["audio"]["support"]:
             init_flags |= MIX_INIT_OGG
@@ -66,23 +68,28 @@ class AudioManager:
         else:
             self.__init_success[1] = 1
 
-        self.driftwood.tick.register(self._free_audio, during_pause=True)
+        # Register the cleanup function.
+        self.driftwood.tick.register(self._cleanup, delay=0.01, during_pause=True)
 
     def play_sfx(self, filename, volume=None, loops=0):
+        # Give up if we didn't initialize properly.
         if 0 in self.__init_success:
             return
 
+        # Load the sound effect.
         self.__sfx[filename] = [None, 0]
         self.__sfx[filename][0] = self.driftwood.resource.request_audio(filename, False)
         if not self.__sfx[filename][0]:
             self.driftwood.log.msg("ERROR", "Audio", "could not load sfx", filename)
             return
 
+        # Set the volume.
         if volume:
             Mix_VolumeChunk(self.__sfx[filename][0].audio, volume)
         else:
             Mix_VolumeChunk(self.__sfx[filename][0].audio, self.driftwood.config["audio"]["sfx_volume"])
 
+        # Play the sound effect.
         channel = Mix_PlayChannel(-1, self.__sfx[filename][0].audio, loops)
         if channel == -1:
             self.driftwood.log.msg("ERROR", "Audio", "could not allocate sfx to channel", str(channel))
@@ -99,7 +106,7 @@ class AudioManager:
     def stop_music(self):
         pass
 
-    def _free_audio(self, seconds_past):
+    def _cleanup(self, seconds_past):
         if not Mix_PlayingMusic():
             self.__music = None
         try:
