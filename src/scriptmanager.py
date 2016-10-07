@@ -54,13 +54,13 @@ class ScriptManager:
         # Dictionary of module instances mapped by filename.
         self.__modules = {}
 
-    def call(self, filename, func, args=None):
+    def call(self, filename, func, *args):
         """Call a function from a script, loading if not already loaded.
 
         Args:
             filename: Filename of the python script containing the function.
             func: Name of the function to call.
-            args: Argument or list/tuple of arguments to pass if not None.
+            args: Arguments to pass.
 
         Returns:
             True if succeeded, False if failed.
@@ -75,12 +75,8 @@ class ScriptManager:
             try: # Try calling the function.
                 self.driftwood.log.info("Script", "called", filename, func + "()")
                 if args: # We have arguments.
-                    if type(args) in [list, tuple]:
-                        getattr(self.__modules[filename], func)(*args)
-                        return True
-                    else:
-                        getattr(self.__modules[filename], func)(args)
-                        return True
+                    getattr(self.__modules[filename], func)(*args)
+                    return True
                 else: # We have no arguments.
                     getattr(self.__modules[filename], func)()
                     return True
