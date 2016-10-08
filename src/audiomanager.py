@@ -89,18 +89,18 @@ class AudioManager:
             loop: Number of times to loop the audio. 0 for none, -1 for infinite.
 
         Returns:
-            True if succeeded, False if failed.
+            Channel number if succeeded, None if failed.
         """
         # Give up if we didn't initialize properly.
         if False in self.__init_success:
-            return False
+            return None
 
         # Load the sound effect.
         self.__sfx[filename] = [None, 0]
         self.__sfx[filename][0] = self.driftwood.resource.request_audio(filename, False)
         if not self.__sfx[filename][0]:
             self.driftwood.log.msg("ERROR", "Audio", "could not load sfx", filename)
-            return False
+            return None
 
         # Set the volume.
         if volume is not None:
@@ -112,11 +112,59 @@ class AudioManager:
         channel = Mix_PlayChannel(-1, self.__sfx[filename][0].audio, loop)
         if channel == -1:
             self.driftwood.log.msg("ERROR", "Audio", "could not play sfx on channel", str(channel))
-            return False
+            return None
 
         self.__sfx[filename][1] = channel
         self.playing_sfx = True
 
+        return channel
+
+    def stop_sfx(self, channel):
+        """Stop a sound effect. Requires the sound effect's channel number from play_sfx()'s return code.
+
+        Args:
+            channel: Audio channel of the sound effect to stop.
+
+        Returns:
+            True if succeeded, false if failed.
+        """
+        for sfx in self.__sfx.keys():
+            if self.__sfx[sfx][1] == channel:
+                if Mix_Playing(self.__sfx[sfx][1]):
+                    Mix_HaltChannel(self.__sfx[sfx][1])
+                del self.__sfx[sfx]
+                return True
+        self.driftwood.log.msg("ERROR", "Audio", "cannot stop sfx on nonexistent channel", channel)
+        return False
+
+    def stop_sfx_by_filename(self, filename):
+        """Stop all currently playing instances of the named sound effect.
+
+        Args:
+            filename: Filename of the sound effect instances to stop.
+
+        Returns:
+            True if succeeded, false if failed.
+        """
+        if not filename in self.__sfx:
+            self.driftwood.log.msg("ERROR", "Audio", "cannot stop nonexistent instances of sfx", filename)
+            return False
+
+        if not Mix_Playing(self.__sfx[filename][1]):
+            return False
+        else:
+            Mix_HaltChannel(self.__sfx[filename][1])
+            del self.__sfx[filename]
+            return True
+
+    def stop_all_sfx(self):
+        """Stop all currently playing sound effects.
+
+        Returns:
+            True
+        """
+        for sfx in self.__sfx.keys():
+            self.stop_sfx(sfx)
         return True
 
     def play_music(self, filename, volume=None, loop=0):
@@ -182,7 +230,7 @@ class AudioManager:
             self.__music = None
             self.playing_music = False
         try:
-            if len(self.__sfx) == 0:
+            if not len(self.__sfx):
                 self.playing_sfx = False
             else:
                 for sfx in self.__sfx:
