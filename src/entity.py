@@ -244,7 +244,7 @@ class TileModeEntity(Entity):
     """This Entity subclass represents an Entity configured for movement in by-tile mode.
     """
 
-    def teleport(self, layer, x, y, area=None):
+    def teleport(self, layer, x, y, area=None, lazy=False):
         """Teleport the entity to a new tile position.
 
         This is also used to change layers or to move to a new area.
@@ -253,6 +253,7 @@ class TileModeEntity(Entity):
             layer: New layer, or None to skip.
             x: New x-coordinate, or None to skip.
             y: New y-coordinate, or None to skip.
+            area: The area to teleport to, if any.
 
         Returns:
             True if succeeded, False if failed.
@@ -363,6 +364,41 @@ class TileModeEntity(Entity):
                 self.__arrive_at_tile()
                 self.__stand_still()
 
+    def __prepare_exit_dest(self, exit_dest):
+        # Prepare coordinates for teleport().
+
+        # layer coordinate.
+        if not exit_dest[1]:  # Stays the same.
+            exit_dest[1] = None
+        elif exit_dest[1].startswith('+'):  # Increments upward.
+            exit_dest[1] = self.layer + int(exit_dest[1][1:])
+        elif exit_dest[1].startswith('-'):  # Increments downward.
+            exit_dest[1] = self.layer - int(exit_dest[1][1:])
+        else:  # Set to a specific coordinate.
+            exit_dest[1] = int(exit_dest[1])
+
+        # x coordinate.
+        if not exit_dest[2]:  # Stays the same.
+            exit_dest[2] = None
+        elif exit_dest[2].startswith('+'):  # Increments upward.
+            exit_dest[2] = self.tile.pos[0] + int(exit_dest[2][1:])
+        elif exit_dest[2].startswith('-'):  # Increments downward.
+            exit_dest[2] = self.tile.pos[0] - int(exit_dest[2][1:])
+        else:  # Set to a specific coordinate.
+            exit_dest[2] = int(exit_dest[2])
+
+        # y coordinate.
+        if not exit_dest[3]:  # Stays the same.
+            exit_dest[3] = None
+        elif exit_dest[3].startswith('+'):  # Increments upward.
+            exit_dest[3] = self.tile.pos[1] + int(exit_dest[3][1:])
+        elif exit_dest[3].startswith('-'):  # Increments downward.
+            exit_dest[3] = self.tile.pos[1] - int(exit_dest[3][1:])
+        else:  # Set to a specific coordinate.
+            exit_dest[3] = int(exit_dest[3])
+
+        return exit_dest
+
     def __can_walk(self, x, y):
         # Check if we're allowed to walk this way.
         if x not in [-1, 0, 1]:
@@ -381,11 +417,11 @@ class TileModeEntity(Entity):
 
             # Don't walk on nowalk tiles or off the edge of the map unless there's a lazy exit.
             if self.tile:
-                if dsttile:
+                if dsttile:  # Does a tile exist where we're going?
                     if dsttile.nowalk or dsttile.nowalk == "":
                         # Is the tile a player or npc specific nowalk?
                         if (dsttile.nowalk == "player" and self.manager.player.eid == self.eid
-                                or dsttile.nowalk == "npc" and self.manager.player.eid != self.eid):
+                            or dsttile.nowalk == "npc" and self.manager.player.eid != self.eid):
                             self._collide(dsttile)
                             return False
 
@@ -393,6 +429,37 @@ class TileModeEntity(Entity):
                         elif not dsttile.nowalk in ["player", "npc"]:
                             self._collide(dsttile)
                             return False
+
+                    # Prepare exit from the previous tile.
+                    for ex in self.tile.exits.keys():
+                        if (ex == "exit:up" and y == -1) or (ex == "exit:down" and y == 1) or (
+                                ex == "exit:left" and x == -1) or (ex == "exit:right" and x == 1):
+                            exit_dest = self.tile.exits[ex].split(',')
+                            if not exit_dest[0]:  # This area.
+                                # Prepare coordinates for teleport().
+                                exit_dest = self.__prepare_exit_dest(exit_dest)
+
+                                # Do the teleport.
+                                self.teleport(exit_dest[1], exit_dest[2], exit_dest[3])
+
+                            else:  # Another area.
+                                self._next_area = exit_dest
+
+                    # Prepare exit for this tile.
+                    for ex in dsttile.exits.keys():
+                        if ex == "exit":
+                            exit_dest = dsttile.exits[ex].split(',')
+                            if not exit_dest[0]:  # This area.
+                                # Prepare coordinates for teleport().
+                                exit_dest = self.__prepare_exit_dest(exit_dest)
+
+                                # Tell teleport() we got here by walking onto an exit.
+                                self._cw_teleport = True
+                                self.teleport(exit_dest[1], exit_dest[2], exit_dest[3])
+                                self._cw_teleport = False
+
+                            else:  # Another area.
+                                self._next_area = exit_dest
 
                 else:  # Are we allowed to walk off the edge of the area to follow a lazy exit?
                     if "exit:up" in self.tile.exits and y == -1:
@@ -410,49 +477,6 @@ class TileModeEntity(Entity):
                     else:
                         self._collide(dsttile)
                         return False
-
-            # Is there a regular exit on the destination tile?
-            if dsttile and not self._next_area and "exit" in dsttile.exits:
-                exit_dest = dsttile.exits["exit"].split(',')
-
-                if not exit_dest[0]:  # This area.
-                    # Prepare coordinates for teleport().
-
-                    # layer coordinate.
-                    if not exit_dest[1]:  # Stays the same.
-                        exit_dest[1] = None
-                    elif exit_dest[1].startswith('+'):  # Increments upward.
-                        exit_dest[1] = self.layer + int(exit_dest[1][1:])
-                    elif exit_dest[1].startswith('-'):  # Increments downward.
-                        exit_dest[1] = self.layer - int(exit_dest[1][1:])
-                    else:  # Set to a specific coordinate.
-                        exit_dest[1] = int(exit_dest[1])
-
-                    # x coordinate.
-                    if not exit_dest[2]:  # Stays the same.
-                        exit_dest[2] = None
-                    elif exit_dest[2].startswith('+'):  # Increments upward.
-                        exit_dest[2] = dsttile.pos[0] + int(exit_dest[2][1:])
-                    elif exit_dest[2].startswith('-'):  # Increments downward.
-                        exit_dest[2] = dsttile.pos[0] - int(exit_dest[2][1:])
-                    else:  # Set to a specific coordinate.
-                        exit_dest[2] = int(exit_dest[2])
-
-                    # y coordinate.
-                    if not exit_dest[3]:  # Stays the same.
-                        exit_dest[3] = None
-                    elif exit_dest[3].startswith('+'):  # Increments upward.
-                        exit_dest[3] = dsttile.pos[1] + int(exit_dest[3][1:])
-                    elif exit_dest[3].startswith('-'):  # Increments downward.
-                        exit_dest[3] = dsttile.pos[1] - int(exit_dest[3][1:])
-                    else:  # Set to a specific coordinate.
-                        exit_dest[3] = int(exit_dest[3])
-
-                    self._cw_teleport = True
-                    self.teleport(exit_dest[1], exit_dest[2], exit_dest[3])
-                    self._cw_teleport = False
-                else:  # Another area.
-                    self._next_area = exit_dest
 
             # Entity collision detection.
             for ent in self.manager.entities:
