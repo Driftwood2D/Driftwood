@@ -40,6 +40,7 @@ class Entity:
         mode: The movement mode of the entity.
         stance: The current stance of the entity.
         resting_stance: The default stance to return to when not walking.
+        facing: Which direction the entity is facing.
         walk_state: Whether we are moving or not and whether we want to stop ASAP.
         collision: Whether collision should be checked for.
         spritesheet: Spritesheet instance of the spritesheet which owns this entity's graphic.
@@ -77,6 +78,7 @@ class Entity:
 
         self.stance = "init"
         self.resting_stance = None
+        self.facing = "down"
         self.walk_state = Entity.NOT_WALKING
         self.collision = None
         self.spritesheet = None
@@ -100,6 +102,9 @@ class Entity:
         self._next_area = None
         self._next_tile = None
         self._next_stance = None
+
+        self._tilewidth = self.manager.driftwood.area.tilemap.tilewidth
+        self._tileheight = self.manager.driftwood.area.tilemap.tileheight
 
         self.__entity = {}
         self.__init_stance = {}
@@ -212,8 +217,8 @@ class Entity:
         # Enter the next area.
         if self.manager.driftwood.area.focus(self._next_area[0]):
             self.layer = int(self._next_area[1])
-            self.x = int(self._next_area[2]) * self.manager.driftwood.area.tilemap.tilewidth
-            self.y = int(self._next_area[3]) * self.manager.driftwood.area.tilemap.tileheight
+            self.x = int(self._next_area[2]) * self._tilewidth
+            self.y = int(self._next_area[3]) * self._tileheight
             self.tile = self._tile_at(self.layer, self.x, self.y)
 
         self._next_area = None
@@ -228,8 +233,8 @@ class Entity:
         """Retrieve a tile by layer and pixel coordinates.
         """
         return self.manager.driftwood.area.tilemap.layers[layer].tile(
-            (x / self.manager.driftwood.area.tilemap.tilewidth) + px,
-            (y / self.manager.driftwood.area.tilemap.tileheight) + py
+            (x / self._tilewidth) + px,
+            (y / self._tileheight) + py
         )
 
     def __next_member(self, seconds):
@@ -323,6 +328,9 @@ class TileModeEntity(Entity):
         Returns: True if succeeded, false if failed (due to collision or already
                  busy walking).
         """
+        if x and y:  # We can't move two directions at once!
+            return False
+
         self._next_stance = stance
         self._end_stance = end_stance
 
@@ -334,10 +342,69 @@ class TileModeEntity(Entity):
             elif self.walking is None:  # We can't and are not walking, but tried to. Face the entity.
                 if self._end_stance:
                     self.set_stance(self._end_stance)
+
+            # Set which direction the entity is facing.
+            if x == -1:
+                self.facing = "left"
+            elif x == 1:
+                self.facing = "right"
+            elif y == -1:
+                self.facing = "up"
+            elif y == 1:
+                self.facing = "down"
+
             return can_walk
+
         else:
             self.__arrive_at_tile()
             return True
+
+    def interact(self, direction=None):
+        """Interact with the entity and/or tile in the specified direction.
+
+        Args:
+            direction: One of ["left", "right", "up", "down", "under"], otherwise the direction this entity is
+                currently facing.
+
+        Returns: True if succeeded, False if failed.
+        """
+        if direction and not direction in ["left", "right", "up", "down", "under"]:  # Illegal facing.
+            return False
+        elif not direction:  # Default to the direction the entity is facing currently.
+            direction = self.facing
+
+        success = False
+
+        # Otherwise interact in the specified direction.
+        if direction == "under":  # This tile.
+            tile = self.tile
+        # Tiles in other directions.
+        elif direction == "left":
+            tile = self._tile_at(self.layer, self.x - self._tilewidth, self.y)
+        elif direction == "right":
+            tile = self._tile_at(self.layer, self.x + self._tilewidth, self.y)
+        elif direction == "up":
+            tile = self._tile_at(self.layer, self.x, self.y - self._tileheight)
+        elif direction == "down":
+            tile = self._tile_at(self.layer, self.x, self.y + self._tileheight)
+        else:  # What?
+            return False
+
+        # Check if this tile contains an interactable entity.
+        ent = self.manager.entity_at(tile.pos[0] * self._tilewidth, tile.pos[1] * self._tileheight)
+        if ent and "interact" in ent.properties:
+            # Interact with entity.
+            args = ent.properties["interact"].split(',')
+            self.manager.driftwood.script.call(*args)
+            success = True
+
+        # Check if this tile is interactable.
+        if "interact" in tile.properties:
+            args = tile.properties["interact"].split(',')
+            self.manager.driftwood.script.call(*args)
+            success = True
+
+        return success
 
     def _walk_stop(self):
         # Schedule us to stop walking.
@@ -485,9 +552,7 @@ class TileModeEntity(Entity):
                     continue
 
                 # Collision detection.
-                tilewidth = self.manager.driftwood.area.tilemap.tilewidth
-                tileheight = self.manager.driftwood.area.tilemap.tileheight
-                if (self.x + tilewidth * x == ent.x and self.y + tileheight * y == ent.y):
+                if (self.x + self._tilewidth * x == ent.x and self.y + self._tileheight * y == ent.y):
                     self.manager.collision(self, ent)
                     return False
 
@@ -520,13 +585,12 @@ class TileModeEntity(Entity):
 
     def __is_at_next_tile(self):
         """Check if we've reached or overreached our destination."""
-        tilewidth = self.manager.driftwood.area.tilemap.tilewidth
         # tileheight = self.manager.driftwood.area.tilemap.tileheight
 
-        return ((self.walking[0] == -1 and self.x <= self._prev_xy[0] - tilewidth)
-                or (self.walking[0] == 1 and self.x >= self._prev_xy[0] + tilewidth)
-                or (self.walking[1] == -1 and self.y <= self._prev_xy[1] - tilewidth)
-                or (self.walking[1] == 1 and self.y >= self._prev_xy[1] + tilewidth))
+        return ((self.walking[0] == -1 and self.x <= self._prev_xy[0] - self._tilewidth)
+                or (self.walking[0] == 1 and self.x >= self._prev_xy[0] + self._tilewidth)
+                or (self.walking[1] == -1 and self.y <= self._prev_xy[1] - self._tilewidth)
+                or (self.walking[1] == 1 and self.y >= self._prev_xy[1] + self._tilewidth))
 
     def __arrive_at_tile(self):
         # Perform actions for when we arrive at another tile.
@@ -553,23 +617,20 @@ class TileModeEntity(Entity):
 
     def __walk_set_tile(self):
         # Set the current tile.
-        tilewidth = self.manager.driftwood.area.tilemap.tilewidth
-        tileheight = self.manager.driftwood.area.tilemap.tileheight
-
-        self._prev_xy[0] = self._prev_xy[0] + (tilewidth * self.walking[0])
-        self._prev_xy[1] = self._prev_xy[1] + (tileheight * self.walking[1])
+        self._prev_xy[0] = self._prev_xy[0] + (self._tilewidth * self.walking[0])
+        self._prev_xy[1] = self._prev_xy[1] + (self._tileheight * self.walking[1])
         self.tile = self._tile_at(self.layer, self._prev_xy[0], self._prev_xy[1])
 
     def __call_on_tile(self):
         # Call the on_tile event if set.
         if "on_tile" in self.tile.properties:
-            args = self.tile.properties["on_tile"].split(':')
+            args = self.tile.properties["on_tile"].split(',')
             self.manager.driftwood.script.call(*args)
 
     def __call_on_layer(self):
         # Call the on_layer event if set.
         if "on_layer" in self.manager.driftwood.area.tilemap.layers[self.layer].properties:
-            args = self.manager.driftwood.area.tilemap.layers[self.layer].properties["on_layer"].split(':')
+            args = self.manager.driftwood.area.tilemap.layers[self.layer].properties["on_layer"].split(',')
             self.manager.driftwood.script.call(*args)
 
     def __do_layermod(self):

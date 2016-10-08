@@ -118,7 +118,7 @@ class EntityManager:
         return self.entities[-1]
 
     def entity(self, eid):
-        """Retrieve an entity by eid
+        """Retrieve an entity by eid.
 
         Args:
             eid: The Entity ID of the entity to retrieve.
@@ -130,6 +130,21 @@ class EntityManager:
                 return ent
 
         return None
+
+    def entity_at(self, x, y):
+        """Retrieve an entity by pixel coordinate.
+
+        Args:
+            x: The x coordinate of the tile.
+            y: The y coordinate of the tile.
+
+        Returns: Entity class instance if succeeded, None if failed.
+        """
+        for ent in self.entities:
+            if ent.x / self.driftwood.area.tilemap.tilewidth == x and \
+                                    ent.y / self.driftwood.area.tilemap.tilewidth == y:
+                return ent
+        return False
 
     def layer(self, layer):
         """Retrieve a list of entities on a certain layer.

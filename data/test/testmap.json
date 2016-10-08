@@ -222,10 +222,12 @@
                  "name":"",
                  "properties":
                     {
+                     "interact":"interact.py,play_blip",
                      "nowalk":""
                     },
                  "propertytypes":
                     {
+                     "interact":"string",
                      "nowalk":"string"
                     },
                  "rotation":0,

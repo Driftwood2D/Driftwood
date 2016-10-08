@@ -12,7 +12,8 @@
 			"up": "SDLK_UP",
 			"down": "SDLK_DOWN",
 			"left": "SDLK_LEFT",
-			"right": "SDLK_RIGHT"
+			"right": "SDLK_RIGHT",
+			"interact": "SDLK_SPACE"
 		}
 	},
 	"audio": {
