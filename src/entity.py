@@ -272,29 +272,28 @@ class TileModeEntity(Entity):
 
         # Decide what to do with the layer.
         if layer is not None:
-            self._temp_layer = layer
+            temp_layer = layer
         else:
-            self._temp_layer = self.layer
+            temp_layer = self.layer
 
         # Decide what to do with x.
         if x is not None: # We have an x.
-            self._temp_x = x * tilemap.tilewidth
+            temp_x = x * tilemap.tilewidth
         elif self._cw_teleport: # We walked here.
-            self._temp_x = self.x + tilemap.tilewidth * self._last_walk[0]
+            temp_x = self.x - self._last_walk[0] * tilemap.tilewidth
         else: # We scripted here.
-            self._temp_x = self.x
+            temp_x = self.x
 
         # Decide what to do with y.
         if y is not None: # We have a y.
-            self._temp_y = y * tilemap.tileheight
+            temp_y = y * tilemap.tileheight
         elif self._cw_teleport: # We walked here.
-            print(self._last_walk)
-            self._temp_y = self.y + tilemap.tileheight * self._last_walk[1]
+            temp_y = self.y - self._last_walk[1] * tilemap.tileheight
         else: # We scripted here.
-            self._temp_y = self.y
+            temp_y = self.y
 
         # Set the new tile.
-        self._next_tile = [self._temp_layer, self._temp_x, self._temp_y]
+        self._next_tile = [temp_layer, temp_x, temp_y]
 
         # Call the on_tile event if set.
         self.__call_on_tile()
@@ -416,12 +415,38 @@ class TileModeEntity(Entity):
                 exit_dest = dsttile.exits["exit"].split(',')
 
                 if not exit_dest[0]: # This area.
-                    # Change empty coords to None for teleport().
-                    for d in range(len(exit_dest)):
-                        if not len(exit_dest[d]):
-                            exit_dest[d] = None
-                        else:
-                            exit_dest[d] = int(exit_dest[d])
+                    # Prepare coordinates for teleport().
+
+                    # layer coordinate.
+                    if not exit_dest[1]: # Stays the same.
+                        exit_dest[1] = None
+                    elif exit_dest[1].startswith('+'): # Increments upward.
+                        exit_dest[1] = self.layer + int(exit_dest[1][1:])
+                    elif exit_dest[1].startswith('-'): # Increments downward.
+                        exit_dest[1] = self.layer - int(exit_dest[1][1:])
+                    else: # Set to a specific coordinate.
+                        exit_dest[1] = int(exit_dest[1])
+
+                    # x coordinate.
+                    if not exit_dest[2]: # Stays the same.
+                        exit_dest[2] = None
+                    elif exit_dest[2].startswith('+'): # Increments upward.
+                        exit_dest[2] = dsttile.pos[0] + int(exit_dest[2][1:])
+                    elif exit_dest[2].startswith('-'): # Increments downward.
+                        exit_dest[2] = dsttile.pos[0] - int(exit_dest[2][1:])
+                    else: # Set to a specific coordinate.
+                        exit_dest[2] = int(exit_dest[2])
+
+                    # y coordinate.
+                    if not exit_dest[3]: # Stays the same.
+                        exit_dest[3] = None
+                    elif exit_dest[3].startswith('+'): # Increments upward.
+                        exit_dest[3] = dsttile.pos[1] + int(exit_dest[3][1:])
+                    elif exit_dest[3].startswith('-'): # Increments downward.
+                        exit_dest[3] = dsttile.pos[1] - int(exit_dest[3][1:])
+                    else: # Set to a specific coordinate.
+                        exit_dest[3] = int(exit_dest[3])
+
                     self._cw_teleport = True
                     self.teleport(exit_dest[1], exit_dest[2], exit_dest[3])
                     self._cw_teleport = False
@@ -494,6 +519,7 @@ class TileModeEntity(Entity):
                 tilemap = self.manager.driftwood.area.tilemap
                 self.tile = self._tile_at(*self._next_tile)
 
+                # Realign ourselves to the correct position.
                 self.x = self.tile.pos[0] * tilemap.tilewidth
                 self.y = self.tile.pos[1] * tilemap.tileheight
                 self._partial_xy = [self.x, self.y]
