@@ -3,3 +3,16 @@ def setup(ent):
                                                                 str(ent.x),
                                                                 str(ent.y),
                                                                 str(ent.layer)))
+    
+    Driftwood.tick.register(move, delay=2.0, message=ent)
+
+def move(seconds_past, ent):
+    rand = Driftwood.random(1, 8)
+    if rand == 1:
+        ent.walk(0, -1, dont_stop=False, stance="walk_up", end_stance="face_up")
+    elif rand == 2:
+        ent.walk(0, 1, dont_stop=False, stance="walk_down", end_stance="face_down")
+    elif rand == 3:
+        ent.walk(-1, 0, dont_stop=False, stance="walk_left", end_stance="face_left")
+    elif rand == 4:
+        ent.walk(1, 0, dont_stop=False, stance="walk_right", end_stance="face_right")

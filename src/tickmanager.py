@@ -66,7 +66,7 @@ class TickManager:
 
         self.paused = False
 
-    def register(self, function, delay=0.0, once=False, during_pause=False):
+    def register(self, function, delay=0.0, once=False, during_pause=False, message=None):
         """Register a tick callback, with an optional delay between calls.
 
         Each tick callback must take either no arguments or one argument, for which seconds since its last call will be
@@ -77,6 +77,7 @@ class TickManager:
             delay: (optional) Delay in seconds between calls.
             once: (optional) Whether to only call once.
             during_pause: (optional) Whether this tick is also called when the game is paused.
+            message: (optional) A value to pass back to the callback as its second argument.
 
         Returns:
             True if succeeded, False if failed.
@@ -93,7 +94,8 @@ class TickManager:
             "delay": delay,
             "function": function,
             "once": once,
-            "during_pause": during_pause
+            "during_pause": during_pause,
+            "message": message
         })
 
         return True
@@ -195,6 +197,8 @@ class TickManager:
                 callback["most_recent"] = current_second
                 if len(signature(callback["function"]).parameters.keys()) == 0:
                     callback["function"]()
+                elif callback["message"]:
+                    callback["function"](seconds_past, callback["message"])
                 else:
                     callback["function"](seconds_past)
 
