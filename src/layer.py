@@ -116,11 +116,12 @@ class Layer:
 
                             # First check for and handle wide exits.
                             exit_coords = self.tile(tx, ty).properties[exittype].split(',')
-                            if exit_coords[2][-1] == '+' and exit_coords[3][-1] == '+': # Invalid wide exit.
+                            if (exit_coords[2] and exit_coords[2][-1] == '+') and\
+                                    (exit_coords[3] and exit_coords[3][-1] == '+'): # Invalid wide exit.
                                 self.tilemap.area.driftwood.log.msg("ERROR", "Map", "cannot have multidirectional wide exits")
 
                             # Check for and handle horizontal wide exit.
-                            elif exit_coords[2][-1] == '+':
+                            elif exit_coords[2] and exit_coords[2][-1] == '+':
                                 base_coord = int(exit_coords[2][:1]) # Chop off the plus sign.
                                 if tx // self.tilemap.tilewidth == base_coord: # This is the first position.
                                     for wx in range(0, (obj["width"] // self.tilemap.tilewidth)): # Set exits.
@@ -131,7 +132,7 @@ class Layer:
                                     continue
 
                             # Check for and handle vertical wide exit.
-                            elif exit_coords[3][-1] == '+':
+                            elif exit_coords[3] and exit_coords[3][-1] == '+':
                                 base_coord = int(exit_coords[3][:1])  # Chop off the plus sign.
                                 if ty == base_coord:  # This is the first position.
                                     for wy in range(0, (obj["height"] // self.tilemap.tileheight)): # Set exits.

@@ -92,10 +92,13 @@ class Entity:
         self.properties = {}
 
         self.walking = None
+        self._last_walk = None
+        self._cw_teleport = False
 
         self.__cur_member = 0
         self._prev_xy = [0, 0]
         self._next_area = None
+        self._next_tile = None
         self._next_stance = None
 
         self.__entity = {}
@@ -240,10 +243,10 @@ class Entity:
 class TileModeEntity(Entity):
     """This Entity subclass represents an Entity configured for movement in by-tile mode.
     """
-    def teleport(self, layer, x, y):
+    def teleport(self, layer, x, y, area=None):
         """Teleport the entity to a new tile position.
 
-        This is also used to change layers.
+        This is also used to change layers or to move to a new area.
 
         Args:
             layer: New layer, or None to skip.
@@ -255,25 +258,43 @@ class TileModeEntity(Entity):
         """
         tilemap = self.manager.driftwood.area.tilemap
 
+        if area:
+            self._next_area = [area, layer, x, y]
+            return True
+
         # Make sure this is a tile.
-        if ((layer < 0 or len(tilemap.layers) <= layer) or
-            (x is not None and x % tilemap.tilewidth != 0) or
-            (y is not None and y % tilemap.tileheight != 0)
+        if (((layer is not None) and (layer < 0 or len(tilemap.layers) <= layer)) or
+            (x is not None and x >= tilemap.width) or
+            (y is not None and y >= tilemap.height)
         ):
             self.manager.driftwood.log.msg("ERROR", "Entity", "attempted teleport to non-tile position")
             return False
 
+        # Decide what to do with the layer.
         if layer is not None:
-            self.layer = layer
+            self._temp_layer = layer
+        else:
+            self._temp_layer = self.layer
 
-        if x is not None:
-            self.x = x * tilemap.tilewidth
+        # Decide what to do with x.
+        if x is not None: # We have an x.
+            self._temp_x = x * tilemap.tilewidth
+        elif self._cw_teleport: # We walked here.
+            self._temp_x = self.x + tilemap.tilewidth * self._last_walk[0]
+        else: # We scripted here.
+            self._temp_x = self.x
 
-        if y is not None:
-            self.y = y * tilemap.tileheight
+        # Decide what to do with y.
+        if y is not None: # We have a y.
+            self._temp_y = y * tilemap.tileheight
+        elif self._cw_teleport: # We walked here.
+            print(self._last_walk)
+            self._temp_y = self.y + tilemap.tileheight * self._last_walk[1]
+        else: # We scripted here.
+            self._temp_y = self.y
 
         # Set the new tile.
-        self.tile = self._tile_at(self.layer, self.x, self.y)
+        self._next_tile = [self._temp_layer, self._temp_x, self._temp_y]
 
         # Call the on_tile event if set.
         self.__call_on_tile()
@@ -304,6 +325,7 @@ class TileModeEntity(Entity):
         self._next_stance = stance
         self._end_stance = end_stance
 
+        self._last_walk = [x, y]
         if x or y:  # We call walk with 0,0 when entering a new area.
             can_walk = self.walking is None and self.__can_walk(x, y)
             if can_walk: # Can we walk? If so schedule the walking.
@@ -349,7 +371,7 @@ class TileModeEntity(Entity):
         if y not in [-1, 0, 1]:
             y = 0
 
-        if not self.tile:
+        if not self.tile or self._next_tile:
             return False # panic!
 
         # Perform collision detection.
@@ -391,7 +413,20 @@ class TileModeEntity(Entity):
 
             # Is there a regular exit on the destination tile?
             if dsttile and not self._next_area and "exit" in dsttile.exits:
-                self._next_area = dsttile.exits["exit"].split(',')
+                exit_dest = dsttile.exits["exit"].split(',')
+
+                if not exit_dest[0]: # This area.
+                    # Change empty coords to None for teleport().
+                    for d in range(len(exit_dest)):
+                        if not len(exit_dest[d]):
+                            exit_dest[d] = None
+                        else:
+                            exit_dest[d] = int(exit_dest[d])
+                    self._cw_teleport = True
+                    self.teleport(exit_dest[1], exit_dest[2], exit_dest[3])
+                    self._cw_teleport = False
+                else: # Another area.
+                    self._next_area = exit_dest
 
             # Entity collision detection.
             for ent in self.manager.entities:
@@ -453,6 +488,19 @@ class TileModeEntity(Entity):
         if self.tile:
             self.__call_on_tile()
             self.__do_layermod()
+
+            # Handle teleports.
+            if self._next_tile:
+                tilemap = self.manager.driftwood.area.tilemap
+                self.tile = self._tile_at(*self._next_tile)
+
+                self.x = self.tile.pos[0] * tilemap.tilewidth
+                self.y = self.tile.pos[1] * tilemap.tileheight
+                self._partial_xy = [self.x, self.y]
+                self._prev_xy = [self.x, self.y]
+
+                self._next_tile = None
+                self._walk_stop()
 
         # May be lazy exit, where we have no self.tile
         self.__do_take_exit()
