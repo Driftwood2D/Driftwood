@@ -59,7 +59,7 @@ class ResourceManager:
     def __getitem__(self, item):
         return self.request(item)
 
-    def request(self, filename, binary = False):
+    def request(self, filename, binary=False):
         """Retrieve the contents of a file.
 
         Args:

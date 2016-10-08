@@ -157,7 +157,7 @@ class Driftwood:
                         self.window.refresh()
 
                 # Process tick callbacks.
-                time.sleep(0.005) # Cap mainloop speed.
+                time.sleep(0.005)  # Cap mainloop speed.
                 self.tick.tick()
 
             print("Shutting down...")
@@ -179,11 +179,15 @@ if __name__ == "__main__":
 
     # Make sure scripts have access to the base class.
     import builtins
+
     builtins.Driftwood = entry
+
 
     # Handle shutting down gracefully on INT and TERM signals.
     def sigint_handler(signum, frame):
         entry.running = False
+
+
     signal.signal(signal.SIGINT, sigint_handler)
     signal.signal(signal.SIGTERM, sigint_handler)
 

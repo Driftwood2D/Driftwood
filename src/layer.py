@@ -39,6 +39,7 @@ class Layer:
 
         tiles: The list of Tile class instances for each tile.
     """
+
     def __init__(self, tilemap, layerdata, zpos):
         """Layer class initializer.
 
@@ -93,7 +94,7 @@ class Layer:
         for obj in objdata["objects"]:
             # Is the object properly sized?
             if (obj["x"] % self.tilemap.tilewidth or obj["y"] % self.tilemap.tileheight or
-                    obj["width"] % self.tilemap.tilewidth or obj["height"] % self.tilemap.tileheight):
+                        obj["width"] % self.tilemap.tilewidth or obj["height"] % self.tilemap.tileheight):
                 self.tilemap.area.driftwood.log.msg("ERROR", "Map", "invalid object size or placement")
                 continue
 
@@ -116,33 +117,34 @@ class Layer:
 
                             # First check for and handle wide exits.
                             exit_coords = self.tile(tx, ty).properties[exittype].split(',')
-                            if (exit_coords[2] and exit_coords[2][-1] == '+') and\
-                                    (exit_coords[3] and exit_coords[3][-1] == '+'): # Invalid wide exit.
-                                self.tilemap.area.driftwood.log.msg("ERROR", "Map", "cannot have multidirectional wide exits")
+                            if (exit_coords[2] and exit_coords[2][-1] == '+') and \
+                                    (exit_coords[3] and exit_coords[3][-1] == '+'):  # Invalid wide exit.
+                                self.tilemap.area.driftwood.log.msg("ERROR", "Map",
+                                                                    "cannot have multidirectional wide exits")
 
                             # Check for and handle horizontal wide exit.
                             elif exit_coords[2] and exit_coords[2][-1] == '+':
-                                base_coord = int(exit_coords[2][:1]) # Chop off the plus sign.
-                                if tx // self.tilemap.tilewidth == base_coord: # This is the first position.
-                                    for wx in range(0, (obj["width"] // self.tilemap.tilewidth)): # Set exits.
+                                base_coord = int(exit_coords[2][:1])  # Chop off the plus sign.
+                                if tx // self.tilemap.tilewidth == base_coord:  # This is the first position.
+                                    for wx in range(0, (obj["width"] // self.tilemap.tilewidth)):  # Set exits.
                                         final_coords = exit_coords
                                         final_coords[2] = base_coord + wx
-                                        self.tile(tx+wx, ty).exits[exittype] = ','.join(final_coords)
-                                else: # This is not the first position, skip.
+                                        self.tile(tx + wx, ty).exits[exittype] = ','.join(final_coords)
+                                else:  # This is not the first position, skip.
                                     continue
 
                             # Check for and handle vertical wide exit.
                             elif exit_coords[3] and exit_coords[3][-1] == '+':
                                 base_coord = int(exit_coords[3][:1])  # Chop off the plus sign.
                                 if ty == base_coord:  # This is the first position.
-                                    for wy in range(0, (obj["height"] // self.tilemap.tileheight)): # Set exits.
+                                    for wy in range(0, (obj["height"] // self.tilemap.tileheight)):  # Set exits.
                                         final_coords = exit_coords
                                         final_coords[3] = str(base_coord + wy)
-                                        self.tile(tx, ty+wy).exits[exittype] = ','.join(final_coords)
+                                        self.tile(tx, ty + wy).exits[exittype] = ','.join(final_coords)
                                 else:  # This is not the first position, skip.
                                     continue
 
-                            else: # Just a regular exit.
+                            else:  # Just a regular exit.
                                 self.tile(tx, ty).exits[exittype] = self.tile(tx, ty).properties[exittype]
 
             # TODO: Handle entity spawns on object type "entity".

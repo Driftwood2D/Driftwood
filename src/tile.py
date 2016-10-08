@@ -47,6 +47,7 @@ class Tile:
         exits: A dictionary of exit types ("exit", "exit:up", "exit:down", "exit:left", "exit:right"], with those
             present mapped to a list containing the destination [area, layer, x, y].
     """
+
     def __init__(self, layer, seq, tileset, gid):
         """Tile class initializer.
 
@@ -97,7 +98,7 @@ class Tile:
 
             # Schedule animation.
             if self.afps:
-                self.layer.tilemap.area.driftwood.tick.register(self.__next_member, delay=(1/self.afps))
+                self.layer.tilemap.area.driftwood.tick.register(self.__next_member, delay=(1 / self.afps))
 
     def srcrect(self):
         """Return an (x, y, w, h) srcrect for the current graphic frame of the tile.

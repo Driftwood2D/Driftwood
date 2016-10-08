@@ -42,6 +42,7 @@ class Spritesheet:
         imagewidth: Width of the sprite sheet in pixels.
         imageheight: Height of the sprite sheet in pixels.
     """
+
     def __init__(self, entitymanager, filename):
         """Spritesheet class initializer.
 

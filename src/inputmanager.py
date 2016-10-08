@@ -202,7 +202,7 @@ class InputManager:
                 self.__registry[keysym]["callback"](InputManager.ONDOWN)
         else:
             # SDL2 gives us key-repeat events so this is actually okay.
-            #self.driftwood.log.msg("WARNING", "InputManager", "key_down", "key already down", self.keyname(keysym))
+            # self.driftwood.log.msg("WARNING", "InputManager", "key_down", "key already down", self.keyname(keysym))
             pass
 
     def _key_up(self, keysym):

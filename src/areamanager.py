@@ -41,6 +41,7 @@ class AreaManager:
         tilemap: Tilemap instance for the area's tilemap.
         changed: Whether the area should be rebuilt.
     """
+
     def __init__(self, driftwood):
         """AreaManager class initializer.
 
@@ -135,7 +136,6 @@ class AreaManager:
 
             # Draw each entity on the layer into its position.
             for entity in self.driftwood.entity.layer(l):
-
                 # Get the source and destination rectangles needed by SDL_RenderCopy.
                 srcrect.x, srcrect.y, srcrect.w, srcrect.h = entity.srcrect()
                 dstrect.x, dstrect.y, dstrect.w, dstrect.h = entity.x, entity.y, entity.width, entity.height

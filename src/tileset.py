@@ -49,6 +49,7 @@ class Tileset:
         properties: A dictionary containing the tileset properties.
         tileproperties: A dictionary containing mappings of tile GIDs to properties that apply to that GID.
     """
+
     def __init__(self, tilemap, tilesetdata):
         """Tileset class initializer.
 
@@ -93,7 +94,7 @@ class Tileset:
         self.height = self.imageheight // self.tileheight
         self.size = int(self.width * self.height)
         self.spacing = self.__tileset["spacing"]
-        self.range = [self.__tileset["firstgid"], self.__tileset["firstgid"]-1 + self.size]
+        self.range = [self.__tileset["firstgid"], self.__tileset["firstgid"] - 1 + self.size]
         if "properties" in self.__tileset:
             self.properties = self.__tileset["properties"]
         if "tileproperties" in self.__tileset:

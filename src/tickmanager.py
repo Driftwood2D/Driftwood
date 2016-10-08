@@ -33,6 +33,7 @@ from sdl2 import SDL_Delay, SDL_GetTicks
 # Upper bound on latency we can handle from the OS when we expect to return from sleep, measured in seconds.
 WAKE_UP_LATENCY = 5.0 / 1000.0
 
+
 class TickManager:
     """The Tick Manager
 
@@ -136,7 +137,7 @@ class TickManager:
             # SDL_Delay delays for AT LEAST as long as we request. So, don't ask to sleep exactly the right amount of
             # time. Ask for less.
             SDL_Delay(int((delay - WAKE_UP_LATENCY) * 1000.0))
-        #elif delay < 0.0:
+        # elif delay < 0.0:
         #    self.driftwood.log.info("Tick", "tick", "tick running behind by {} seconds".format(-delay))
 
         return True

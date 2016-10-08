@@ -152,10 +152,9 @@ class CacheManager:
             for filename in expired:
                 self.purge(filename)
 
-            self.driftwood.log.info("Cache", "cleaned", str(len(expired))+" file(s)")
+            self.driftwood.log.info("Cache", "cleaned", str(len(expired)) + " file(s)")
 
         return True
-
 
     def _tick(self, seconds_past):
         self.__now += seconds_past

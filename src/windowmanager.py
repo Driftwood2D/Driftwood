@@ -32,6 +32,7 @@ from sdl2 import *
 
 import filetype
 
+
 class WindowManager:
     """The Window Manager
 
@@ -86,7 +87,8 @@ class WindowManager:
 
         self.__prepare()
 
-        self.driftwood.tick.register(self._tick, delay=1.0/self.driftwood.config["window"]["maxfps"], during_pause=True)
+        self.driftwood.tick.register(self._tick, delay=1.0 / self.driftwood.config["window"]["maxfps"],
+                                     during_pause=True)
 
     def title(self, title):
         """Set the window title.
@@ -144,13 +146,13 @@ class WindowManager:
 
         # Area width is smaller than window width. Center by width on area.
         if tw < ww:
-            dstrect.x = int(ww/2 - tw/2)
+            dstrect.x = int(ww / 2 - tw / 2)
 
         # Area width is larger than window width. Center by width on player.
         if tw > ww:
             if self.driftwood.entity.player:
                 playermidx = self.driftwood.entity.player.x + (self.driftwood.entity.player.width / 2)
-                prepx = int(ww/2 - playermidx*2)
+                prepx = int(ww / 2 - playermidx * 2)
 
                 if prepx > 0:
                     dstrect.x = 0
@@ -160,17 +162,17 @@ class WindowManager:
                     dstrect.x = prepx
 
             else:
-                dstrect.y = int(wh/2 - th/2)
+                dstrect.y = int(wh / 2 - th / 2)
 
         # Area height is smaller than window height. Center by height on area.
         if th < wh:
-            dstrect.y = int(wh/2 - th/2)
+            dstrect.y = int(wh / 2 - th / 2)
 
         # Area height is larger than window height. Center by height on player.
         if th > wh:
             if self.driftwood.entity.player:
                 playermidy = self.driftwood.entity.player.y + (self.driftwood.entity.player.height / 2)
-                prepy = int(wh/2 - playermidy*2)
+                prepy = int(wh / 2 - playermidy * 2)
 
                 if prepy > 0:
                     dstrect.y = 0
@@ -180,7 +182,7 @@ class WindowManager:
                     dstrect.y = prepy
 
             else:
-                dstrect.y = int(wh/2 - th/2)
+                dstrect.y = int(wh / 2 - th / 2)
 
         # Adjust and copy the frame onto the window.
         self.__frame = [self.__texture, srcrect, dstrect]
@@ -204,12 +206,12 @@ class WindowManager:
         """
         if self.__changed:
             SDL_RenderSetLogicalSize(self.renderer,
-                self.logical_width, self.logical_height) # set
+                                     self.logical_width, self.logical_height)  # set
 
             SDL_RenderClear(self.renderer)
             SDL_RenderCopy(self.renderer, *self.__frame)
 
-            SDL_RenderSetLogicalSize(self.renderer, 0, 0) # reset
+            SDL_RenderSetLogicalSize(self.renderer, 0, 0)  # reset
             self.__changed -= 1
 
             SDL_RenderPresent(self.renderer)

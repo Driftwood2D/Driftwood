@@ -72,16 +72,16 @@ class ScriptManager:
                 return False
 
         if filename in self.__modules and hasattr(self.__modules[filename], func):
-            try: # Try calling the function.
+            try:  # Try calling the function.
                 self.driftwood.log.info("Script", "called", filename, func + "()")
-                if args: # We have arguments.
+                if args:  # We have arguments.
                     getattr(self.__modules[filename], func)(*args)
                     return True
-                else: # We have no arguments.
+                else:  # We have no arguments.
                     getattr(self.__modules[filename], func)()
                     return True
 
-            except: # Failure
+            except:  # Failure
                 self.driftwood.log.msg("ERROR", "Script", "broken function", filename, func + "()")
                 traceback.print_exc(0, sys.stdout)
                 sys.stdout.flush()
@@ -115,7 +115,7 @@ class ScriptManager:
         """
         cpath = list(os.path.split(filename))
         cpath[-1] = os.path.splitext(cpath[-1])[0]
-        return os.sep.join(cpath)#[1:]
+        return os.sep.join(cpath)  # [1:]
 
     def __load(self, filename):
         """Load a script.
@@ -133,7 +133,8 @@ class ScriptManager:
 
                     # Different import code recommended for different Python versions.
                     if sys.version_info[1] < 5:
-                        self.__modules[filename] = importlib.machinery.SourceFileLoader(mname, os.path.join(importpath, filename)).load_module()
+                        self.__modules[filename] = importlib.machinery.SourceFileLoader(mname, os.path.join(importpath,
+                                                                                                            filename)).load_module()
                     else:
                         spec = importlib.util.spec_from_file_location(mname, os.path.join(importpath, filename))
                         module = importlib.util.module_from_spec(spec)

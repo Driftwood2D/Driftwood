@@ -25,6 +25,9 @@
 # IN THE SOFTWARE.
 # **********
 
+# A big thank-you to Lazy Foo's SDL_Audio tutorial. It would've taken me a lot longer to build this without such clear
+# instruction. Link: <http://lazyfoo.net/SDL_tutorials/lesson11/>
+
 from sdl2.sdlmixer import *
 
 
@@ -38,6 +41,7 @@ class AudioManager:
             playing_music: Whether we are currently playing music or not.
             playing_sfx: Whether we are currently playing sfx or not.
     """
+
     def __init__(self, driftwood):
         self.driftwood = driftwood
 
@@ -45,7 +49,7 @@ class AudioManager:
         self.playing_sfx = False
 
         self.__music = None
-        self.__sfx = {} # [file, channel]
+        self.__sfx = {}  # [file, channel]
         self.__init_success = [False, False]
 
         # Save SDL's destructors for shutdown.
@@ -68,7 +72,7 @@ class AudioManager:
         if "flac" in self.driftwood.config["audio"]["support"]:
             init_flags |= MIX_INIT_FLAC
 
-        if Mix_Init(init_flags)&init_flags != init_flags:
+        if Mix_Init(init_flags) & init_flags != init_flags:
             self.driftwood.log.msg("ERROR", "Audio", "failed to initialize audio format support", str(Mix_GetError()))
         else:
             self.__init_success[1] = True

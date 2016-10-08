@@ -44,6 +44,7 @@ class EntityManager:
         entities: The list of Entity class instances for each entity.
         spritesheets: The list of Spritesheet class instances for each sprite sheet.
     """
+
     def __init__(self, driftwood):
         """EntityManager class initializer.
 
@@ -203,10 +204,9 @@ class EntityManager:
             a: First colliding entity.
             b: Second colliding entity or tile.
 
-        Returns: True if succeeded, False if failed.
+
         """
         if self.collider:
             self.collider(a, b)
-            return True
 
-        return False
+        return True
