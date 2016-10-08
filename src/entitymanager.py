@@ -141,10 +141,9 @@ class EntityManager:
         Returns: Entity class instance if succeeded, None if failed.
         """
         for ent in self.entities:
-            if ent.x / self.driftwood.area.tilemap.tilewidth == x and \
-                                    ent.y / self.driftwood.area.tilemap.tilewidth == y:
+            if ent.x == x and ent.y == y:
                 return ent
-        return False
+        return None
 
     def layer(self, layer):
         """Retrieve a list of entities on a certain layer.

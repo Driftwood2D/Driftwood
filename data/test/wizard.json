@@ -8,7 +8,7 @@
 		"height": 18,
 		"members": [7],
 		"afps": 0,
-		"properties": {"nerd": true},
+		"properties": {"nerd": true, "interact": "interact.py,play_blip"},
 		"on_insert": "wizard.py:setup",
 		"resting_stance": "init"
 	},
