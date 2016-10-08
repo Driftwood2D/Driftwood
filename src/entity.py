@@ -364,7 +364,7 @@ class TileModeEntity(Entity):
                 self.__arrive_at_tile()
                 self.__stand_still()
 
-    def __prepare_exit_dest(self, exit_dest):
+    def __prepare_exit_dest(self, exit_dest, tile):
         # Prepare coordinates for teleport().
 
         # layer coordinate.
@@ -381,9 +381,9 @@ class TileModeEntity(Entity):
         if not exit_dest[2]:  # Stays the same.
             exit_dest[2] = None
         elif exit_dest[2].startswith('+'):  # Increments upward.
-            exit_dest[2] = self.tile.pos[0] + int(exit_dest[2][1:])
+            exit_dest[2] = tile.pos[0] + int(exit_dest[2][1:])
         elif exit_dest[2].startswith('-'):  # Increments downward.
-            exit_dest[2] = self.tile.pos[0] - int(exit_dest[2][1:])
+            exit_dest[2] = tile.tile.pos[0] - int(exit_dest[2][1:])
         else:  # Set to a specific coordinate.
             exit_dest[2] = int(exit_dest[2])
 
@@ -391,9 +391,9 @@ class TileModeEntity(Entity):
         if not exit_dest[3]:  # Stays the same.
             exit_dest[3] = None
         elif exit_dest[3].startswith('+'):  # Increments upward.
-            exit_dest[3] = self.tile.pos[1] + int(exit_dest[3][1:])
+            exit_dest[3] = tile.pos[1] + int(exit_dest[3][1:])
         elif exit_dest[3].startswith('-'):  # Increments downward.
-            exit_dest[3] = self.tile.pos[1] - int(exit_dest[3][1:])
+            exit_dest[3] = tile.pos[1] - int(exit_dest[3][1:])
         else:  # Set to a specific coordinate.
             exit_dest[3] = int(exit_dest[3])
 
@@ -433,11 +433,11 @@ class TileModeEntity(Entity):
                     # Prepare exit from the previous tile.
                     for ex in self.tile.exits.keys():
                         if (ex == "exit:up" and y == -1) or (ex == "exit:down" and y == 1) or (
-                                ex == "exit:left" and x == -1) or (ex == "exit:right" and x == 1):
+                                        ex == "exit:left" and x == -1) or (ex == "exit:right" and x == 1):
                             exit_dest = self.tile.exits[ex].split(',')
                             if not exit_dest[0]:  # This area.
                                 # Prepare coordinates for teleport().
-                                exit_dest = self.__prepare_exit_dest(exit_dest)
+                                exit_dest = self.__prepare_exit_dest(exit_dest, self.tile)
 
                                 # Do the teleport.
                                 self.teleport(exit_dest[1], exit_dest[2], exit_dest[3])
@@ -451,12 +451,12 @@ class TileModeEntity(Entity):
                             exit_dest = dsttile.exits[ex].split(',')
                             if not exit_dest[0]:  # This area.
                                 # Prepare coordinates for teleport().
-                                exit_dest = self.__prepare_exit_dest(exit_dest)
+                                exit_dest = self.__prepare_exit_dest(exit_dest, dsttile)
 
                                 # Tell teleport() we got here by walking onto an exit.
-                                self._cw_teleport = True
+                                # self._cw_teleport = True
                                 self.teleport(exit_dest[1], exit_dest[2], exit_dest[3])
-                                self._cw_teleport = False
+                                # self._cw_teleport = False
 
                             else:  # Another area.
                                 self._next_area = exit_dest
