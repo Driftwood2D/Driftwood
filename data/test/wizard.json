@@ -3,13 +3,13 @@
 		"mode": "tile",
 		"collision": true,
 		"speed": 64,
-		"image": "player.png",
+		"image": "wizard.png",
 		"width": 16,
 		"height": 18,
 		"members": [7],
 		"afps": 0,
 		"properties": {"nerd": true},
-		"on_insert": "player.py:setup",
+		"on_insert": "wizard.py:setup",
 		"resting_stance": "init"
 	},
 	"walk_up": {

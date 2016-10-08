@@ -487,12 +487,7 @@ class TileModeEntity(Entity):
                 # Collision detection.
                 tilewidth = self.manager.driftwood.area.tilemap.tilewidth
                 tileheight = self.manager.driftwood.area.tilemap.tileheight
-                if (
-                                            self.x + tilewidth < ent.x
-                                or self.x > ent.x + tilewidth
-                            or self.y + tileheight < ent.y
-                        or self.y > ent.y + tileheight
-                ):
+                if (self.x + tilewidth * x == ent.x and self.y + tileheight * y == ent.y):
                     self.manager.collision(self, ent)
                     return False
 

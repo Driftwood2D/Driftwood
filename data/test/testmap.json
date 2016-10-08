@@ -241,11 +241,11 @@
                  "name":"",
                  "properties":
                     {
-                     "exit:down":",0,3,+1"
+                     "exit":",0,3,1"
                     },
                  "propertytypes":
                     {
-                     "exit:down":"string"
+                     "exit":"string"
                     },
                  "rotation":0,
                  "type":"",
