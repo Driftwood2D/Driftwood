@@ -261,7 +261,8 @@ class Entity:
         self.manager.driftwood.area.changed = True
 
     def __del__(self):
-        self.manager.driftwood.tick.unregister(self.__next_member)
+        if self.manager.driftwood.tick.registered(self.__next_member):
+            self.manager.driftwood.tick.unregister(self.__next_member)
 
 
 # TODO: When PixelModeEntity is done, move common logic into functions in the superclass.
@@ -390,6 +391,8 @@ class TileModeEntity(Entity):
         Returns: True if succeeded, False if failed.
         """
         if direction and not direction in ["left", "right", "up", "down", "under"]:  # Illegal facing.
+            self.manager.driftwood.log.msg("ERROR", "Entity", self.eid, "no such direction for interaction",
+                                           direction)
             return False
         elif not direction:  # Default to the direction the entity is facing currently.
             direction = self.facing

@@ -182,6 +182,7 @@ class EntityManager:
             self.driftwood.area.changed = True
             return True
 
+        self.driftwood.log.msg("WARNING", "Entity", "attempt to kill nonexistent entity", eid)
         return False
 
     def killall(self, filename):
@@ -209,6 +210,7 @@ class EntityManager:
 
         if to_kill:
             return True
+        self.driftwood.log.msg("WARNING", "Entity", "attempt to kill nonexistent entities", filename)
         return False
 
     def spritesheet(self, filename):

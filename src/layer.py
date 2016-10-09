@@ -77,6 +77,8 @@ class Layer:
             return t
 
         except IndexError:
+            self.tilemap.manager.driftwood.log.msg("WARNING", "Layer", self.zpos,
+                                                   "tried to lookup nonexistent tile at", "{0}x{1}".format(x, y))
             return None
 
     def _process_objects(self, objdata):

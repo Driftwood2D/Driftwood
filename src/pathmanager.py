@@ -140,6 +140,7 @@ class PathManager:
             True if succeeded, False if failed.
         """
         if not pathnames:
+            self.driftwood.log.msg("WARNING", "Path", "empty argument to prepend()")
             return False
         pathnames = list(pathnames)
 
@@ -174,6 +175,7 @@ class PathManager:
             True if succeeded, False if failed.
         """
         if not pathnames:
+            self.driftwood.log.msg("WARNING", "Path", "empty argument to append()")
             return False
         pathnames = list(pathnames)
 
@@ -204,6 +206,7 @@ class PathManager:
             True if succeeded, False if failed.
         """
         if not pathnames:
+            self.driftwood.log.msg("WARNING", "Path", "attempt to remove nonexistent pathnames", ', '.join(pathnames))
             return False
         pathnames = list(pathnames)
 

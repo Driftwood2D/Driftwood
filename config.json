@@ -27,8 +27,7 @@
 		"verbose": true,
 		"halt": true,
 		"suppress": [
-		    ["Tick", "", "TileModeEntity._process_walk"],
-		    ["Tick", "", "AudioManager._free_audio"]
+		    ["Tick"]
 		]
 	},
 	"path": {

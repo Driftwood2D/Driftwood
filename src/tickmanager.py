@@ -98,6 +98,7 @@ class TickManager:
             "message": message
         })
 
+        self.driftwood.log.info("Tick", "registered callback", function.__name__)
         return True
 
     def unregister(self, function):
@@ -112,6 +113,23 @@ class TickManager:
         for n, callback in enumerate(self.__registry):
             if callback["function"] == function:
                 del self.__registry[n]
+                self.driftwood.log.info("Tick", "unregistered callback", function.__name__)
+                return True
+
+        self.driftwood.log.msg("WARNING", "Tick", "attempt to unregister nonexistent callback", function.__name__)
+        return False
+
+    def registered(self, function):
+        """Check if a function is registered.
+
+        Args:
+            function: The function to unregister.
+
+        Returns:
+            True if registered, False otherwise.
+        """
+        for callback in self.__registry:
+            if callback == function:
                 return True
 
         return False
