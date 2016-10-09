@@ -85,10 +85,10 @@ class Entity:
             self.mode = "pixel"
 
         self.stance = "init"
-        self.resting_stance = None
+        self.resting_stance = ""
         self.facing = "down"
         self.walk_state = Entity.NOT_WALKING
-        self.collision = None
+        self.collision = []
         self.travel = False
         self.spritesheet = None
         self.layer = 0
@@ -102,15 +102,15 @@ class Entity:
         self.afps = 0
         self.properties = {}
 
-        self.walking = None
-        self._last_walk = None
+        self.walking = []
+        self._last_walk = []
         self._cw_teleport = False
 
         self.__cur_member = 0
         self._prev_xy = [0, 0]
-        self._next_area = None
-        self._next_tile = None
-        self._next_stance = None
+        self._next_area = []
+        self._next_tile = []
+        self._next_stance = ""
 
         self._tilewidth = self.manager.driftwood.area.tilemap.tilewidth
         self._tileheight = self.manager.driftwood.area.tilemap.tileheight
