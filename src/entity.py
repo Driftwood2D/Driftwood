@@ -195,6 +195,7 @@ class Entity:
         self.collision = self.__init_stance["collision"]
         if "all" in self.collision:
             self.collision = ["entity", "tile", "next", "prev", "here"]
+        self.travel = self.__init_stance["travel"]
         self.width = self.__init_stance["width"]
         self.height = self.__init_stance["height"]
         self.speed = self.__init_stance["speed"]
@@ -231,6 +232,11 @@ class Entity:
             self.x = int(self._next_area[2]) * self._tilewidth
             self.y = int(self._next_area[3]) * self._tileheight
             self.tile = self._tile_at(self.layer, self.x, self.y)
+
+        # Kill all entities except the player and entities with "travel" set to true.
+        for ent in self.manager.entities:
+            if not ent.travel:
+                self.manager.kill(ent.eid)
 
         self._next_area = None
 
@@ -350,8 +356,6 @@ class TileModeEntity(Entity):
             can_walk = self.walking is None and self.__can_walk(x, y)
             if can_walk:  # Can we walk? If so schedule the walking.
                 self.__schedule_walk(x, y, dont_stop)
-                if not self._next_tile:
-                    self._next_tile = [self.layer, self.x + self._tilewidth * x, self.y + self._tileheight * y]
             elif self.walking is None:  # We can't and are not walking, but tried to. Face the entity.
                 if self._end_stance:
                     self.set_stance(self._end_stance)
@@ -497,12 +501,11 @@ class TileModeEntity(Entity):
         # Don't walk on nowalk tiles or off the edge of the map unless there's a lazy exit.
         if self.tile:
             if dsttile:  # Does a tile exist where we're going?
-                if "tile" in self.collision: # We are colliding with tiles.
-                    print("tile")
+                if "tile" in self.collision:  # We are colliding with tiles.
                     if dsttile.nowalk or dsttile.nowalk == "":
                         # Is the tile a player or npc specific nowalk?
                         if (dsttile.nowalk == "player" and self.manager.player.eid == self.eid
-                                or dsttile.nowalk == "npc" and self.manager.player.eid != self.eid):
+                            or dsttile.nowalk == "npc" and self.manager.player.eid != self.eid):
                             self._collide(dsttile)
                             return False
 
@@ -569,23 +572,25 @@ class TileModeEntity(Entity):
                 # Collision detection.
                 if ent.layer == self.layer:  # Are we on the same layer?
                     # It's moving. What tile is it moving to?
-                    if ent._next_tile and ("next" in self.collision) and (
-                                    self.x + self._tilewidth * x == ent._next_tile[1] and
-                                self.y + self._tileheight * y ==
-                            ent._next_tile[2]):
+                    if ent.walking and ("next" in self.collision) and (
+                            self._prev_xy[0] + self._tilewidth * x ==
+                            ent._prev_xy[0] + self._tilewidth * ent.walking[0] and
+                            self._prev_xy[1] + self._tileheight * y ==
+                            ent._prev_xy[1] + self._tileheight * ent.walking[1]):
                         self.manager.collision(self, ent)
                         return False
 
                     # What tile is it moving from?
                     if ("prev" in self.collision) and (
-                                self.x + self._tilewidth * x == ent._prev_xy[0] and self.y + self._tileheight * y ==
-                        ent._prev_xy[1]):
+                            self.x + self._tilewidth * x == ent._prev_xy[0] and
+                            self.y + self._tileheight * y ==
+                            ent._prev_xy[1]):
                         self.manager.collision(self, ent)
                         return False
 
                     # Where is it standing still?
                     if ("here" in self.collision) and (
-                                self.x + self._tilewidth * x == ent.x and self.y + self._tileheight * y == ent.y):
+                            self.x + self._tilewidth * x == ent.x and self.y + self._tileheight * y == ent.y):
                         self.manager.collision(self, ent)
                         return False
 

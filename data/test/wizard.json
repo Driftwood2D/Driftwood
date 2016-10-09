@@ -2,6 +2,7 @@
 	"init": {
 		"mode": "tile",
 		"collision": ["all"],
+		"travel": false,
 		"speed": 16,
 		"image": "wizard.png",
 		"width": 16,

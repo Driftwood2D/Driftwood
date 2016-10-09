@@ -150,7 +150,8 @@ class AreaManager:
 
                 if tall_amount:  # It's taller than the tile. Figure out where to put the tall part.
                     tall_srcrect.x, tall_srcrect.y, tall_srcrect.w, tall_srcrect.h = entity.srcrect()
-                    tall_dstrect.x, tall_dstrect.y, tall_dstrect.w, tall_dstrect.h = entity.x, entity.y - tall_amount, entity.width, entity.height - (entity.height - tall_amount)
+                    tall_dstrect.x, tall_dstrect.y, tall_dstrect.w, tall_dstrect.h = entity.x, entity.y - tall_amount,\
+                    entity.width, entity.height - (entity.height - tall_amount)
                     tall_srcrect.h = tall_dstrect.h
                     tall_parts.append([entity.spritesheet.texture, tall_srcrect, tall_dstrect])
 

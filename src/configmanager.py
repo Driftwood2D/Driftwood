@@ -30,7 +30,7 @@ import argparse
 import json
 import sys
 
-VERSION = "Driftwood 2D Alpha 0.0.1"
+VERSION = "Driftwood 2D Alpha-0.0.1"
 COPYRIGHT = "Copyright 2016 Michael D. Reiley and Paul Merrill"
 
 
