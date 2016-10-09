@@ -1,7 +1,7 @@
 {
 	"init": {
 		"mode": "tile",
-		"collision": true,
+		"collision": ["all"],
 		"speed": 64,
 		"image": "player.png",
 		"width": 16,

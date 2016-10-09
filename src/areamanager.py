@@ -115,6 +115,8 @@ class AreaManager:
         srcrect = SDL_Rect()
         dstrect = SDL_Rect()
 
+        tall_parts = []
+
         # Start with the bottom layer and work up.
         for l in range(len(self.tilemap.layers)):
             # Draw each tile in the layer into its position.
@@ -134,15 +136,31 @@ class AreaManager:
                 SDL_RenderCopy(self.driftwood.window.renderer, tile.tileset.texture, srcrect,
                                dstrect)
 
+            # Do the tall entity parts from the previous layer here, after tiles.
+            for tall in tall_parts:
+                # Copy the tall parts of the entities from the last layer onto our frame.
+                SDL_RenderCopy(self.driftwood.window.renderer, *tall)
+            tall_parts = []
+
             # Draw each entity on the layer into its position.
             for entity in self.driftwood.entity.layer(l):
+                tall_srcrect = SDL_Rect()
+                tall_dstrect = SDL_Rect()
+                tall_amount = entity.height - self.tilemap.tileheight
+
+                if tall_amount:  # It's taller than the tile. Figure out where to put the tall part.
+                    tall_srcrect.x, tall_srcrect.y, tall_srcrect.w, tall_srcrect.h = entity.srcrect()
+                    tall_dstrect.x, tall_dstrect.y, tall_dstrect.w, tall_dstrect.h = entity.x, entity.y - tall_amount, entity.width, entity.height - (entity.height - tall_amount)
+                    tall_srcrect.h = tall_dstrect.h
+                    tall_parts.append([entity.spritesheet.texture, tall_srcrect, tall_dstrect])
+
                 # Get the source and destination rectangles needed by SDL_RenderCopy.
                 srcrect.x, srcrect.y, srcrect.w, srcrect.h = entity.srcrect()
-                dstrect.x, dstrect.y, dstrect.w, dstrect.h = entity.x, entity.y, entity.width, entity.height
+                dstrect.x, dstrect.y, dstrect.w, dstrect.h = entity.x, entity.y - tall_amount, entity.width, \
+                                                             entity.height
 
                 # Copy the entity onto our frame.
-                SDL_RenderCopy(self.driftwood.window.renderer, entity.spritesheet.texture, srcrect,
-                               dstrect)
+                SDL_RenderCopy(self.driftwood.window.renderer, entity.spritesheet.texture, srcrect, dstrect)
 
         # Tell SDL to switch rendering back to the window's frame.
         SDL_SetRenderTarget(self.driftwood.window.renderer, None)

@@ -42,7 +42,6 @@ class Entity:
         resting_stance: The default stance to return to when not walking.
         facing: Which direction the entity is facing.
         walk_state: Whether we are moving or not and whether we want to stop ASAP.
-        collision: Whether collision should be checked for.
         spritesheet: Spritesheet instance of the spritesheet which owns this entity's graphic.
         layer: The layer of the entity.
         x: The x-coordinate of the entity.
@@ -55,6 +54,14 @@ class Entity:
         afps: Animation frames-per-second.
         gpos: A four-member list containing an x,y,w,h source rectangle for the entity's graphic.
         properties: Any custom properties of the entity.
+        collision: List of flags describing how collision should be checked for. ["flag1", "flag2"] etc.
+            [] or None: No collision.
+            ["all"]: Enable all flags.
+            ["entity"]: Collide with other entities.
+            ["tile"]: Collide with unwalkable tiles.
+            ["next"]: Collide with the position another entity is moving to.
+            ["prev"]: Collide with the position another entity is moving from.
+            ["here"]: Collide with the position another entity is standing still on.
     """
 
     NOT_WALKING, WALKING_WANT_CONT, WALKING_WANT_STOP = range(3)
@@ -138,6 +145,8 @@ class Entity:
             self.collision = self.__entity[stance]["collision"]
         else:
             self.collision = self.__init_stance["collision"]
+        if "all" in self.collision:
+            self.collision = ["entity", "tile", "next", "prev", "here"]
 
         if "image" in self.__entity[stance]:
             self.spritesheet = self.manager.spritesheet(self.__entity[stance]["image"])
@@ -184,6 +193,8 @@ class Entity:
         self.__init_stance = self.__entity["init"]
 
         self.collision = self.__init_stance["collision"]
+        if "all" in self.collision:
+            self.collision = ["entity", "tile", "next", "prev", "here"]
         self.width = self.__init_stance["width"]
         self.height = self.__init_stance["height"]
         self.speed = self.__init_stance["speed"]
@@ -339,6 +350,8 @@ class TileModeEntity(Entity):
             can_walk = self.walking is None and self.__can_walk(x, y)
             if can_walk:  # Can we walk? If so schedule the walking.
                 self.__schedule_walk(x, y, dont_stop)
+                if not self._next_tile:
+                    self._next_tile = [self.layer, self.x + self._tilewidth * x, self.y + self._tileheight * y]
             elif self.walking is None:  # We can't and are not walking, but tried to. Face the entity.
                 if self._end_stance:
                     self.set_stance(self._end_stance)
@@ -478,17 +491,18 @@ class TileModeEntity(Entity):
             return False  # panic!
 
         # Perform collision detection.
-        if self.collision:  # Check if the destination tile is walkable.
-            dsttile = self.manager.driftwood.area.tilemap.layers[self.layer].tile(self.tile.pos[0] + x,
-                                                                                  self.tile.pos[1] + y)
+        dsttile = self.manager.driftwood.area.tilemap.layers[self.layer].tile(self.tile.pos[0] + x,
+                                                                              self.tile.pos[1] + y)
 
-            # Don't walk on nowalk tiles or off the edge of the map unless there's a lazy exit.
-            if self.tile:
-                if dsttile:  # Does a tile exist where we're going?
+        # Don't walk on nowalk tiles or off the edge of the map unless there's a lazy exit.
+        if self.tile:
+            if dsttile:  # Does a tile exist where we're going?
+                if "tile" in self.collision: # We are colliding with tiles.
+                    print("tile")
                     if dsttile.nowalk or dsttile.nowalk == "":
                         # Is the tile a player or npc specific nowalk?
                         if (dsttile.nowalk == "player" and self.manager.player.eid == self.eid
-                            or dsttile.nowalk == "npc" and self.manager.player.eid != self.eid):
+                                or dsttile.nowalk == "npc" and self.manager.player.eid != self.eid):
                             self._collide(dsttile)
                             return False
 
@@ -497,64 +511,83 @@ class TileModeEntity(Entity):
                             self._collide(dsttile)
                             return False
 
-                    # Prepare exit from the previous tile.
-                    for ex in self.tile.exits.keys():
-                        if (ex == "exit:up" and y == -1) or (ex == "exit:down" and y == 1) or (
-                                        ex == "exit:left" and x == -1) or (ex == "exit:right" and x == 1):
-                            exit_dest = self.tile.exits[ex].split(',')
-                            if not exit_dest[0]:  # This area.
-                                # Prepare coordinates for teleport().
-                                exit_dest = self.__prepare_exit_dest(exit_dest, self.tile)
+                # Prepare exit from the previous tile.
+                for ex in self.tile.exits.keys():
+                    if (ex == "exit:up" and y == -1) or (ex == "exit:down" and y == 1) or (
+                                    ex == "exit:left" and x == -1) or (ex == "exit:right" and x == 1):
+                        exit_dest = self.tile.exits[ex].split(',')
+                        if not exit_dest[0]:  # This area.
+                            # Prepare coordinates for teleport().
+                            exit_dest = self.__prepare_exit_dest(exit_dest, self.tile)
 
-                                # Do the teleport.
-                                self.teleport(exit_dest[1], exit_dest[2], exit_dest[3])
+                            # Do the teleport.
+                            self.teleport(exit_dest[1], exit_dest[2], exit_dest[3])
 
-                            else:  # Another area.
-                                self._next_area = exit_dest
+                        else:  # Another area.
+                            self._next_area = exit_dest
 
-                    # Prepare exit for this tile.
-                    for ex in dsttile.exits.keys():
-                        if ex == "exit":
-                            exit_dest = dsttile.exits[ex].split(',')
-                            if not exit_dest[0]:  # This area.
-                                # Prepare coordinates for teleport().
-                                exit_dest = self.__prepare_exit_dest(exit_dest, dsttile)
+                # Prepare exit for this tile.
+                for ex in dsttile.exits.keys():
+                    if ex == "exit":
+                        exit_dest = dsttile.exits[ex].split(',')
+                        if not exit_dest[0]:  # This area.
+                            # Prepare coordinates for teleport().
+                            exit_dest = self.__prepare_exit_dest(exit_dest, dsttile)
 
-                                # Tell teleport() we got here by walking onto an exit.
-                                # self._cw_teleport = True
-                                self.teleport(exit_dest[1], exit_dest[2], exit_dest[3])
-                                # self._cw_teleport = False
+                            # Tell teleport() we got here by walking onto an exit.
+                            # self._cw_teleport = True
+                            self.teleport(exit_dest[1], exit_dest[2], exit_dest[3])
+                            # self._cw_teleport = False
 
-                            else:  # Another area.
-                                self._next_area = exit_dest
+                        else:  # Another area.
+                            self._next_area = exit_dest
 
-                else:  # Are we allowed to walk off the edge of the area to follow a lazy exit?
-                    if "exit:up" in self.tile.exits and y == -1:
-                        self._next_area = self.tile.exits["exit:up"].split(',')
+            else:  # Are we allowed to walk off the edge of the area to follow a lazy exit?
+                if "exit:up" in self.tile.exits and y == -1:
+                    self._next_area = self.tile.exits["exit:up"].split(',')
 
-                    elif "exit:down" in self.tile.exits and y == 1:
-                        self._next_area = self.tile.exits["exit:down"].split(',')
+                elif "exit:down" in self.tile.exits and y == 1:
+                    self._next_area = self.tile.exits["exit:down"].split(',')
 
-                    elif "exit:left" in self.tile.exits and x == -1:
-                        self._next_area = self.tile.exits["exit:left"].split(',')
+                elif "exit:left" in self.tile.exits and x == -1:
+                    self._next_area = self.tile.exits["exit:left"].split(',')
 
-                    elif "exit:right" in self.tile.exits and x == 1:
-                        self._next_area = self.tile.exits["exit:right"].split(',')
+                elif "exit:right" in self.tile.exits and x == 1:
+                    self._next_area = self.tile.exits["exit:right"].split(',')
 
-                    else:
-                        self._collide(dsttile)
-                        return False
+                else:
+                    self._collide(dsttile)
+                    return False
 
-            # Entity collision detection.
+        # Entity collision detection.
+        if "entity" in self.collision:
             for ent in self.manager.entities:
                 # This is us.
                 if ent.eid == self.eid:
                     continue
 
                 # Collision detection.
-                if (self.x + self._tilewidth * x == ent.x and self.y + self._tileheight * y == ent.y):
-                    self.manager.collision(self, ent)
-                    return False
+                if ent.layer == self.layer:  # Are we on the same layer?
+                    # It's moving. What tile is it moving to?
+                    if ent._next_tile and ("next" in self.collision) and (
+                                    self.x + self._tilewidth * x == ent._next_tile[1] and
+                                self.y + self._tileheight * y ==
+                            ent._next_tile[2]):
+                        self.manager.collision(self, ent)
+                        return False
+
+                    # What tile is it moving from?
+                    if ("prev" in self.collision) and (
+                                self.x + self._tilewidth * x == ent._prev_xy[0] and self.y + self._tileheight * y ==
+                        ent._prev_xy[1]):
+                        self.manager.collision(self, ent)
+                        return False
+
+                    # Where is it standing still?
+                    if ("here" in self.collision) and (
+                                self.x + self._tilewidth * x == ent.x and self.y + self._tileheight * y == ent.y):
+                        self.manager.collision(self, ent)
+                        return False
 
         return True
 
