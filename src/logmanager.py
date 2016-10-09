@@ -86,6 +86,11 @@ class LogManager:
         """
         suppress = False
 
+        # Convert everything to strings.
+        for c in chain:
+            if type(c) is not str:
+                chain[c] = str(chain[c])
+
         # Check if the output should be suppressed.
         for supp in self.driftwood.config["log"]["suppress"]:
             if supp[0] == chain[0] and len(chain) >= len(supp):

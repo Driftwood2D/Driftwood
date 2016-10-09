@@ -61,6 +61,7 @@ class AudioManager:
                          self.driftwood.config["audio"]["chunksize"]) == -1:
             self.driftwood.log.msg("ERROR", "Audio", "failed to initialize mixer output", str(Mix_GetError()))
         else:
+            self.driftwood.log.info("Audio", "initialized mixer output")
             self.__init_success[0] = True
 
         # Attempt to initialize mixer support for selected audio formats.
@@ -75,6 +76,8 @@ class AudioManager:
         if Mix_Init(init_flags) & init_flags != init_flags:
             self.driftwood.log.msg("ERROR", "Audio", "failed to initialize audio format support", str(Mix_GetError()))
         else:
+            self.driftwood.log.info("Audio", "initialized mixer audio format support",
+                                    " ,".join(self.driftwood.config["audio"]["support"]))
             self.__init_success[1] = True
 
         # Register the cleanup function.
@@ -93,6 +96,7 @@ class AudioManager:
         """
         # Give up if we didn't initialize properly.
         if False in self.__init_success:
+            self.driftwood.log.msg("ERROR", "Audio", "cannot play sfx due to initialization failure", filename)
             return None
 
         # Load the sound effect.
@@ -180,6 +184,7 @@ class AudioManager:
         """
         # Give up if we didn't initialize properly.
         if 0 in self.__init_success:
+            self.driftwood.log.msg("ERROR", "Audio", "cannot play music due to initialization failure", filename)
             return False
 
         # Stop and unload any previously loaded music.

@@ -140,6 +140,7 @@ class Entity:
         """
         if not stance in self.__entity:
             # Fake!
+            self.manager.driftwood.log.msg("ERROR", "Entity", self.eid, "no such stance", stance)
             return False
 
         self.stance = stance
@@ -236,11 +237,6 @@ class Entity:
             self.x = int(self._next_area[2]) * self._tilewidth
             self.y = int(self._next_area[3]) * self._tileheight
             self.tile = self._tile_at(self.layer, self.x, self.y)
-
-        # Kill all entities except the player and entities with "travel" set to true.
-        for ent in self.manager.entities:
-            if not ent.travel:
-                self.manager.kill(ent.eid)
 
         self._next_area = None
 
@@ -353,6 +349,7 @@ class TileModeEntity(Entity):
                  busy walking).
         """
         if x and y:  # We can't move two directions at once!
+            self.manager.driftwood.log.msg("ERROR", "Entity", self.eid, "cannot move in two directions at once")
             return False
 
         self._next_stance = stance
@@ -512,7 +509,7 @@ class TileModeEntity(Entity):
                     if dsttile.nowalk or dsttile.nowalk == "":
                         # Is the tile a player or npc specific nowalk?
                         if (dsttile.nowalk == "player" and self.manager.player.eid == self.eid
-                            or dsttile.nowalk == "npc" and self.manager.player.eid != self.eid):
+                                or dsttile.nowalk == "npc" and self.manager.player.eid != self.eid):
                             self._collide(dsttile)
                             return False
 
@@ -524,7 +521,7 @@ class TileModeEntity(Entity):
                 # Prepare exit from the previous tile.
                 for ex in self.tile.exits.keys():
                     if (ex == "exit:up" and y == -1) or (ex == "exit:down" and y == 1) or (
-                                    ex == "exit:left" and x == -1) or (ex == "exit:right" and x == 1):
+                            ex == "exit:left" and x == -1) or (ex == "exit:right" and x == 1):
                         exit_dest = self.tile.exits[ex].split(',')
                         if not exit_dest[0]:  # This area.
                             # Prepare coordinates for teleport().
@@ -579,14 +576,13 @@ class TileModeEntity(Entity):
                 # Collision detection.
                 if self.manager.entities[eid].layer == self.layer:  # Are we on the same layer?
                     # It's moving. What tile is it moving to?
-<<<<<<< HEAD
-                    if ent.walking and ("next" in self.collision) and (
+                    if self.manager.entities[eid].walking and ("next" in self.collision) and (
                             self._prev_xy[0] + self._tilewidth * x ==
-                            ent._prev_xy[0] + self._tilewidth * ent.walking[0] and
+                            self.manager.entities[eid]._prev_xy[0] + self._tilewidth * self.manager.entities[eid].walking[0] and
                             self._prev_xy[1] + self._tileheight * y ==
-                            ent._prev_xy[1] + self._tileheight * ent.walking[1]):
-                        self.manager.collision(self, ent)
-=======
+                            self.manager.entities[eid]._prev_xy[1] + self._tileheight * self.manager.entities[eid].walking[1]):
+                        self.manager.collision(self, self.manager.entities[eid])
+
                     if self.manager.entities[eid].walking and ("next" in self.collision) and (
                             self._prev_xy[0] + self._tilewidth * x ==
                             self.manager.entities[eid]._prev_xy[0] + self._tilewidth *
@@ -594,33 +590,20 @@ class TileModeEntity(Entity):
                             self.manager.entities[eid]._prev_xy[1] + self._tileheight *
                             self.manager.entities[eid].walking[1]):
                         self.manager.collision(self, self.manager.entities[eid])
->>>>>>> Add entity on_kill trigger and area on_focus trigger, fix bugs in entity handling.
                         return False
 
                     # What tile is it moving from?
                     if ("prev" in self.collision) and (
-<<<<<<< HEAD
-                            self.x + self._tilewidth * x == ent._prev_xy[0] and
-                            self.y + self._tileheight * y ==
-                            ent._prev_xy[1]):
-                        self.manager.collision(self, ent)
-=======
                             self.x + self._tilewidth * x == self.manager.entities[eid]._prev_xy[0] and
                             self.y + self._tileheight * y == self.manager.entities[eid]._prev_xy[1]):
                         self.manager.collision(self, self.manager.entities[eid])
->>>>>>> Add entity on_kill trigger and area on_focus trigger, fix bugs in entity handling.
                         return False
 
                     # Where is it standing still?
                     if ("here" in self.collision) and (
-<<<<<<< HEAD
-                            self.x + self._tilewidth * x == ent.x and self.y + self._tileheight * y == ent.y):
-                        self.manager.collision(self, ent)
-=======
                             self.x + self._tilewidth * x == self.manager.entities[eid].x and
                             self.y + self._tileheight * y == self.manager.entities[eid].y):
                         self.manager.collision(self, self.manager.entities[eid])
->>>>>>> Add entity on_kill trigger and area on_focus trigger, fix bugs in entity handling.
                         return False
 
         return True
@@ -740,20 +723,20 @@ class TileModeEntity(Entity):
 
             # If we're the player, change the area.
             if self.manager.player.eid == self.eid:
-                self.__do_kill(self.eid)
+                self.__do_kill()
                 self._do_exit()
                 self.__call_on_tile()
                 self.__reset_walk()
 
             # Exits destroy other entities.
             else:
-                self.__do_kill(self.eid)
+                self.__do_kill()
 
             return True
 
         return False
 
-    def __do_kill(self, eid):
+    def __do_kill(self):
         # Kill all entities except the player and entities with "travel" set to true.
         to_kill = []
         for eid in self.manager.entities:
