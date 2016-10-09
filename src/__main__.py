@@ -26,7 +26,6 @@
 # IN THE SOFTWARE.
 # **********
 
-import importlib.machinery
 import random as random_module
 import signal
 import sys
@@ -44,16 +43,14 @@ if __name__ == "__main__":
                                                                                            VCUR[0], VCUR[1], VCUR[2]))
         sys.exit(1)  # Fail.
 
-    # Check for PySDL2.
-    finder = importlib.machinery.PathFinder
-    sdl2_presence = finder.find_spec("sdl2")
-    if not sdl2_presence:
+    # Try to import PySDL2.
+    try:
+        from sdl2 import *
+        import sdl2.ext as sdl2ext
+    except (ImportError):
         print("Driftwood 2D\nStarting up...")
         print("[0] FATAL: PySDL2 required, module \"sdl2\" not found")
         sys.exit(1)  # Fail.
-
-from sdl2 import *
-import sdl2.ext as sdl2ext
 
 from configmanager import ConfigManager
 from logmanager import LogManager
@@ -170,8 +167,9 @@ class Driftwood:
                         self.window.refresh()
 
                 # Process tick callbacks.
-                time.sleep(0.005)  # Cap mainloop speed.
-                self.tick.tick()
+                if self.running:
+                    self.tick.tick()
+                    time.sleep(0.005)  # Cap mainloop speed.
 
             print("Shutting down...")
             return 0
