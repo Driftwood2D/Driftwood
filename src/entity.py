@@ -358,10 +358,10 @@ class TileModeEntity(Entity):
 
         self._last_walk = [x, y]
         if x or y:  # We call walk with 0,0 when entering a new area.
-            can_walk = self.walking is None and self.__can_walk(x, y)
+            can_walk = not self.walking and self.__can_walk(x, y)
             if can_walk:  # Can we walk? If so schedule the walking.
                 self.__schedule_walk(x, y, dont_stop)
-            elif self.walking is None:  # We can't and are not walking, but tried to. Face the entity.
+            elif not self.walking:  # We can't and are not walking, but tried to. Face the entity.
                 if self._end_stance:
                     self.set_stance(self._end_stance)
 
@@ -761,7 +761,7 @@ class TileModeEntity(Entity):
             self.y = self.tile.pos[1] * tileheight
 
         self.walk_state = Entity.NOT_WALKING
-        self.walking = None
+        self.walking = []
 
         # Set the entity's final stance.
         if self._end_stance:
