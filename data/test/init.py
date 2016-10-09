@@ -17,6 +17,4 @@ def init_area(millis):
 
 	# Insert the player entity.
 	player = Driftwood.entity.insert("player.json", layer=0, x=16*1, y=16*2)
-	
-	# Insert the wizard!
-	wizard = Driftwood.entity.insert("wizard.json", layer=0, x=16*5, y=16*3)
+

@@ -56,9 +56,9 @@ class EntityManager:
         self.player = None
         self.collider = None
 
-        self.entities = []
+        self.entities = {}
 
-        self.spritesheets = []
+        self.spritesheets = {}
 
         self.__last_eid = -1
 
@@ -75,18 +75,17 @@ class EntityManager:
         """
         data = self.driftwood.resource.request_json(filename)
 
-        if data["init"]["mode"] == "tile":
-            self.entities.append(entity.TileModeEntity(self))
-
-        elif data["init"]["mode"] == "pixel":
-            self.entities.append(entity.PixelModeEntity(self))
-
-        else:
+        if data["init"]["mode"] not in ["tile", "pixel"]:
             self.driftwood.log.msg("ERROR", "Entity", "invalid mode", "\"{0}\"".format(data["mode"]))
             return None
 
         self.__last_eid += 1
         eid = self.__last_eid
+
+        if data["init"]["mode"] == "tile":
+            self.entities[eid] = entity.TileModeEntity(self)
+        elif data["init"]["mode"] == "pixel":
+            self.entities[eid] += entity.PixelModeEntity(self)
 
         self.entities[eid]._read(filename, data, eid)
 
@@ -111,11 +110,16 @@ class EntityManager:
                                                                                                             layer,
                                                                                                             x, y))
 
+        # Function to call when inserting the entity.
         if "on_insert" in data["init"]:
-            args = data["init"]["on_insert"].split(':')
+            args = data["init"]["on_insert"].split(',')
             self.driftwood.script.call(args[0], args[1], self.entities[eid])
 
-        return self.entities[-1]
+        # Function to call before killing the entity.
+        if "on_kill" in data["init"]:
+            self.entities[eid]._on_kill = data["init"]["on_kill"].split(',')
+
+        return self.entities[eid]
 
     def entity(self, eid):
         """Retrieve an entity by eid.
@@ -140,9 +144,9 @@ class EntityManager:
 
         Returns: Entity class instance if succeeded, None if failed.
         """
-        for ent in self.entities:
-            if ent.x == x and ent.y == y:
-                return ent
+        for eid in self.entities:
+            if self.entities[eid].x == x and self.entities[eid].y == y:
+                return self.entities[eid]
         return None
 
     def layer(self, layer):
@@ -155,9 +159,9 @@ class EntityManager:
         """
         ents = []
 
-        for ent in self.entities:
-            if ent.layer == layer:
-                ents.append(ent)
+        for eid in self.entities:
+            if self.entities[eid].layer == layer:
+                ents.append(self.entities[eid])
 
         return tuple(ents)
 
@@ -170,11 +174,13 @@ class EntityManager:
         Returns:
             True if succeeded, False if failed.
         """
-        for ent in range(len(self.entities)):
-            if self.entities[ent].eid == eid:
-                del self.entities[ent]
-                self.driftwood.area.changed = True
-                return True
+        if eid in self.entities:
+            if self.entities[eid]._on_kill: # Call a function before killing the entity.
+                self.driftwood.script.call(self.entities[eid]._on_kill[0], self.entities[eid]._on_kill[1],
+                                           self.entities[eid])
+            del self.entities[eid]
+            self.driftwood.area.changed = True
+            return True
 
         return False
 
@@ -187,15 +193,23 @@ class EntityManager:
         Returns:
             True if succeeded, False if failed.
         """
-        deleted_any = False
+        to_kill = []
 
-        for ent in range(len(self.entities)):
-            if self.entities[ent].filename == filename:
-                del self.entities[ent]
-                deleted_any = True
+        for eid in self.entities:
+            if self.entities[eid].filename == filename:
+                to_kill += eid
+
+        for eid in to_kill:
+            if self.entities[eid]._on_kill: # Call a function before killing the entity.
+                self.driftwood.script.call(self.entities[eid]._on_kill[0], self.entities[eid]._on_kill[1],
+                                           self.entities[eid])
+            del self.entities[eid]
 
         self.driftwood.area.changed = True
-        return deleted_any
+
+        if to_kill:
+            return True
+        return False
 
     def spritesheet(self, filename):
         """Retrieve a sprite sheet by its filename.
@@ -206,8 +220,8 @@ class EntityManager:
         Returns: Spritesheet class instance if succeeded, False if failed.
         """
         for ss in self.spritesheets:
-            if ss.filename == filename:
-                return ss
+            if self.spritesheets[ss].filename == filename:
+                return self.spritesheets[ss]
 
         return False
 

@@ -6,6 +6,9 @@ def setup(ent):
     
     Driftwood.tick.register(move, delay=2.0, message=ent)
 
+def kill(ent):
+    Driftwood.tick.unregister(move)
+
 def move(seconds_past, ent):
     rand = Driftwood.random(1, 8)
     if rand == 1:

@@ -10,7 +10,7 @@
 		"members": [7],
 		"afps": 0,
 		"properties": {"nerd": true},
-		"on_insert": "player.py:setup",
+		"on_insert": "player.py,setup",
 		"resting_stance": "init"
 	},
 	"walk_up": {

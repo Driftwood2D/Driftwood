@@ -40,6 +40,7 @@ class Entity:
         mode: The movement mode of the entity.
         stance: The current stance of the entity.
         resting_stance: The default stance to return to when not walking.
+        travel: Whether the entity is automatically destroyed when a new area is loaded.
         facing: Which direction the entity is facing.
         walk_state: Whether we are moving or not and whether we want to stop ASAP.
         spritesheet: Spritesheet instance of the spritesheet which owns this entity's graphic.
@@ -88,6 +89,7 @@ class Entity:
         self.facing = "down"
         self.walk_state = Entity.NOT_WALKING
         self.collision = None
+        self.travel = False
         self.spritesheet = None
         self.layer = 0
         self.x = 0
@@ -115,6 +117,8 @@ class Entity:
 
         self.__entity = {}
         self.__init_stance = {}
+
+        self._on_kill = None
 
     def srcrect(self):
         """Return an (x, y, w, h) srcrect for the current graphic frame of the entity.
@@ -151,10 +155,9 @@ class Entity:
         if "image" in self.__entity[stance]:
             self.spritesheet = self.manager.spritesheet(self.__entity[stance]["image"])
             if not self.spritesheet:
-                self.manager.spritesheets.append(spritesheet.Spritesheet(self.manager, self.__entity[stance]["image"]))
-                self.spritesheet = self.manager.spritesheets[-1]
-        else:
-            self.spritesheet = self.manager.spritesheet(self.__init_stance["image"])
+                self.manager.spritesheets[self.__init_stance["image"]] = \
+                    spritesheet.Spritesheet(self.manager, self.__init_stance["image"])
+                self.spritesheet = self.manager.spritesheets[self.__init_stance["image"]]
 
         if "speed" in self.__entity[stance]:
             self.speed = self.__entity[stance]["speed"]
@@ -216,8 +219,9 @@ class Entity:
         self.spritesheet = self.manager.spritesheet(self.__init_stance["image"])
 
         if not self.spritesheet:
-            self.manager.spritesheets.append(spritesheet.Spritesheet(self.manager, self.__init_stance["image"]))
-            self.spritesheet = self.manager.spritesheets[-1]
+            self.manager.spritesheets[self.__init_stance["image"]] =\
+                spritesheet.Spritesheet(self.manager, self.__init_stance["image"])
+            self.spritesheet = self.manager.spritesheets[self.__init_stance["image"]]
 
     def _do_exit(self):
         """Perform an exit to another area.
@@ -259,6 +263,9 @@ class Entity:
         """
         self.__cur_member = (self.__cur_member + 1) % len(self.members)
         self.manager.driftwood.area.changed = True
+
+    def __del__(self):
+        self.manager.driftwood.tick.unregister(self.__next_member)
 
 
 # TODO: When PixelModeEntity is done, move common logic into functions in the superclass.
@@ -564,34 +571,56 @@ class TileModeEntity(Entity):
 
         # Entity collision detection.
         if "entity" in self.collision:
-            for ent in self.manager.entities:
+            for eid in self.manager.entities:
                 # This is us.
-                if ent.eid == self.eid:
+                if eid == self.eid:
                     continue
 
                 # Collision detection.
-                if ent.layer == self.layer:  # Are we on the same layer?
+                if self.manager.entities[eid].layer == self.layer:  # Are we on the same layer?
                     # It's moving. What tile is it moving to?
+<<<<<<< HEAD
                     if ent.walking and ("next" in self.collision) and (
                             self._prev_xy[0] + self._tilewidth * x ==
                             ent._prev_xy[0] + self._tilewidth * ent.walking[0] and
                             self._prev_xy[1] + self._tileheight * y ==
                             ent._prev_xy[1] + self._tileheight * ent.walking[1]):
                         self.manager.collision(self, ent)
+=======
+                    if self.manager.entities[eid].walking and ("next" in self.collision) and (
+                            self._prev_xy[0] + self._tilewidth * x ==
+                            self.manager.entities[eid]._prev_xy[0] + self._tilewidth *
+                            self.manager.entities[eid].walking[0] and self._prev_xy[1] + self._tileheight * y ==
+                            self.manager.entities[eid]._prev_xy[1] + self._tileheight *
+                            self.manager.entities[eid].walking[1]):
+                        self.manager.collision(self, self.manager.entities[eid])
+>>>>>>> Add entity on_kill trigger and area on_focus trigger, fix bugs in entity handling.
                         return False
 
                     # What tile is it moving from?
                     if ("prev" in self.collision) and (
+<<<<<<< HEAD
                             self.x + self._tilewidth * x == ent._prev_xy[0] and
                             self.y + self._tileheight * y ==
                             ent._prev_xy[1]):
                         self.manager.collision(self, ent)
+=======
+                            self.x + self._tilewidth * x == self.manager.entities[eid]._prev_xy[0] and
+                            self.y + self._tileheight * y == self.manager.entities[eid]._prev_xy[1]):
+                        self.manager.collision(self, self.manager.entities[eid])
+>>>>>>> Add entity on_kill trigger and area on_focus trigger, fix bugs in entity handling.
                         return False
 
                     # Where is it standing still?
                     if ("here" in self.collision) and (
+<<<<<<< HEAD
                             self.x + self._tilewidth * x == ent.x and self.y + self._tileheight * y == ent.y):
                         self.manager.collision(self, ent)
+=======
+                            self.x + self._tilewidth * x == self.manager.entities[eid].x and
+                            self.y + self._tileheight * y == self.manager.entities[eid].y):
+                        self.manager.collision(self, self.manager.entities[eid])
+>>>>>>> Add entity on_kill trigger and area on_focus trigger, fix bugs in entity handling.
                         return False
 
         return True
@@ -711,17 +740,28 @@ class TileModeEntity(Entity):
 
             # If we're the player, change the area.
             if self.manager.player.eid == self.eid:
+                self.__do_kill(self.eid)
                 self._do_exit()
                 self.__call_on_tile()
                 self.__reset_walk()
 
             # Exits destroy other entities.
             else:
-                self.manager.kill(self.eid)
+                self.__do_kill(self.eid)
 
             return True
 
         return False
+
+    def __do_kill(self, eid):
+        # Kill all entities except the player and entities with "travel" set to true.
+        to_kill = []
+        for eid in self.manager.entities:
+            if not self.manager.entities[eid].travel:
+                to_kill.append(eid)
+
+        for eid in to_kill:
+            self.manager.kill(eid)
 
     def __stand_still(self):
         # We are entirely finished walking.
@@ -788,22 +828,22 @@ class PixelModeEntity(Entity):
             # TODO: Pixel mode tile collisions.
 
             # Entity collision detection.
-            for ent in self.manager.entities:
+            for eid in self.manager.entities:
                 # This is us.
-                if ent.eid == self.eid:
+                if eid == self.eid:
                     continue
 
                 # Collision detection, proof by contradiction.
                 if not (
-                                            self.x + x > ent.x + ent.width
+                                            self.x + x > self.manager.entities[eid].x + self.manager.entities[eid].width
 
-                                and self.x + self.width + x < ent.x
+                                and self.x + self.width + x < self.manager.entities[eid].x
 
-                            and self.y + y > ent.y + ent.height
+                            and self.y + y > self.manager.entities[eid].y + self.manager.entities[eid].height
 
-                        and self.y + self.height + y < ent.y
+                        and self.y + self.height + y < self.manager.entities[eid].y
                 ):
-                    self.manager.collision(self, ent)
+                    self.manager.collision(self, self.manager.entities[eid])
                     return False
 
         self.x += x

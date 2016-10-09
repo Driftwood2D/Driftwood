@@ -77,6 +77,12 @@ class AreaManager:
             self.__prepare_frame()
             self.__build_frame()
             self.driftwood.log.info("Area", "loaded", filename)
+
+            # If there is an on_focus function defined for this map, call it.
+            if "on_focus" in self.tilemap.properties:
+                args = self.tilemap.properties["on_focus"].split(',')
+                self.driftwood.script.call(*args)
+
             return True
 
         else:

@@ -10,7 +10,8 @@
 		"members": [7],
 		"afps": 0,
 		"properties": {"nerd": true, "interact": "interact.py,play_blip"},
-		"on_insert": "wizard.py:setup",
+		"on_insert": "wizard.py,setup",
+		"on_kill": "wizard.py,kill",
 		"resting_stance": "init"
 	},
 	"walk_up": {
