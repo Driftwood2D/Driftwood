@@ -613,7 +613,7 @@ class TileModeEntity(Entity):
                     if dsttile.nowalk or dsttile.nowalk == "":
                         # Is the tile a player or npc specific nowalk?
                         if (dsttile.nowalk == "player" and self.manager.player.eid == self.eid
-                            or dsttile.nowalk == "npc" and self.manager.player.eid != self.eid):
+                                or dsttile.nowalk == "npc" and self.manager.player.eid != self.eid):
                             self._collide(dsttile)
                             return False
 
