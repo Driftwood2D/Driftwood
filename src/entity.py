@@ -146,6 +146,8 @@ class Entity:
         self.stance = stance
 
         # Set the stance's variables, return to init defaults for variables not present.
+        # We have to do a validity check right here because we're setting the variables inside the checks.
+        # __validate_read() will probably be rewritten to handle this case.
         valid = True
 
         if "collision" in self.__entity[stance]:
@@ -215,13 +217,13 @@ class Entity:
 
         # Presence check.
         if (
-            not "init" in self.__entity or
-            not "collision" in self.__entity["init"] or
-            not "travel" in self.__entity["init"] or
-            not "width" in self.__entity["init"] or
-            not "height" in self.__entity["init"] or
-            not "speed" in self.__entity["init"] or
-            not "members" in self.__entity["init"]
+                                        not "init" in self.__entity or
+                                        not "collision" in self.__entity["init"] or
+                                    not "travel" in self.__entity["init"] or
+                                not "width" in self.__entity["init"] or
+                            not "height" in self.__entity["init"] or
+                        not "speed" in self.__entity["init"] or
+                    not "members" in self.__entity["init"]
         ):
             self.manager.driftwood.log.msg("ERROR", "Entity", self.eid, "initial stance missing required settings")
             return False
@@ -238,46 +240,14 @@ class Entity:
         self.members = self.__init_stance["members"]
 
         # Validation check.
-        valid = True
-
-        if "afps" in self.__init_stance and self.__init_stance["afps"] > 0:
-            if not type(self.__init_stance["afps"]) == int:
-                valid = False
-            # Schedule animation.
-            else:
-                self.afps = self.__init_stance["afps"]
-                self.manager.driftwood.tick.register(self.__next_member, delay=(1 / self.afps))
-
-        if "properties" in self.__init_stance:
-            if not type(self.__init_stance["properties"]) == dict:
-                valid = False
-            self.properties = self.__init_stance["properties"]
-
-        if "resting_stance" in self.__init_stance:
-            if not type(self.__init_stance["resting_stance"]) == str:
-                valid = False
-            self.resting_stance = self.__init_stance["resting_stance"]
-            self.set_stance(self.resting_stance)
-
-        if (
-                (not type(self.collision) == list) or
-                (not type(self.travel) == bool) or
-                (not type(self.width) == int) or self.width <= 0 or
-                (not type(self.height) == int) or self.height <= 0 or
-                (not type(self.speed) == int) or self.speed <= 0 or
-                (not type(self.members) == list)
-        ):
-            valid = False
-
-        if not valid:
-            self.manager.driftwood.log.msg("ERROR", "Entity", self.eid, "stance failed validation", "init")
+        if not self.__validate_read():
             return False
 
         # Setup spritesheet.
         self.spritesheet = self.manager.spritesheet(self.__init_stance["image"])
 
         if not self.spritesheet:
-            self.manager.spritesheets[self.__init_stance["image"]] =\
+            self.manager.spritesheets[self.__init_stance["image"]] = \
                 spritesheet.Spritesheet(self.manager, self.__init_stance["image"])
             self.spritesheet = self.manager.spritesheets[self.__init_stance["image"]]
 
@@ -316,6 +286,45 @@ class Entity:
         """
         self.__cur_member = (self.__cur_member + 1) % len(self.members)
         self.manager.driftwood.area.changed = True
+
+    def __validate_read(self):
+        # Validation check.
+        valid = True
+
+        if "afps" in self.__init_stance and self.__init_stance["afps"] > 0:
+            if not type(self.__init_stance["afps"]) == int:
+                valid = False
+            # Schedule animation.
+            else:
+                self.afps = self.__init_stance["afps"]
+                self.manager.driftwood.tick.register(self.__next_member, delay=(1 / self.afps))
+
+        if "properties" in self.__init_stance:
+            if not type(self.__init_stance["properties"]) == dict:
+                valid = False
+            self.properties = self.__init_stance["properties"]
+
+        if "resting_stance" in self.__init_stance:
+            if not type(self.__init_stance["resting_stance"]) == str:
+                valid = False
+            self.resting_stance = self.__init_stance["resting_stance"]
+            self.set_stance(self.resting_stance)
+
+        if (
+                                                (not type(self.collision) == list) or
+                                                (not type(self.travel) == bool) or
+                                            (not type(self.width) == int) or self.width <= 0 or
+                                    (not type(self.height) == int) or self.height <= 0 or
+                            (not type(self.speed) == int) or self.speed <= 0 or
+                    (not type(self.members) == list)
+        ):
+            valid = False
+
+        if not valid:
+            self.manager.driftwood.log.msg("ERROR", "Entity", self.eid, "stance failed validation", "init")
+            return False
+
+        return True
 
     def __del__(self):
         if self.manager.driftwood.tick.registered(self.__next_member):
@@ -604,7 +613,7 @@ class TileModeEntity(Entity):
                     if dsttile.nowalk or dsttile.nowalk == "":
                         # Is the tile a player or npc specific nowalk?
                         if (dsttile.nowalk == "player" and self.manager.player.eid == self.eid
-                                or dsttile.nowalk == "npc" and self.manager.player.eid != self.eid):
+                            or dsttile.nowalk == "npc" and self.manager.player.eid != self.eid):
                             self._collide(dsttile)
                             return False
 
@@ -616,7 +625,7 @@ class TileModeEntity(Entity):
                 # Prepare exit from the previous tile.
                 for ex in self.tile.exits.keys():
                     if (ex == "exit:up" and y == -1) or (ex == "exit:down" and y == 1) or (
-                            ex == "exit:left" and x == -1) or (ex == "exit:right" and x == 1):
+                                    ex == "exit:left" and x == -1) or (ex == "exit:right" and x == 1):
                         exit_dest = self.tile.exits[ex].split(',')
                         if not exit_dest[0]:  # This area.
                             # Prepare coordinates for teleport().
