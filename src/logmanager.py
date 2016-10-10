@@ -56,7 +56,7 @@ class LogManager:
         Returns:
             True
         """
-        self.__print(chain)
+        self.__print(list(chain))
 
         # Die on non-info (error or warning) messages.
         if self.driftwood.config["log"]["halt"]:
@@ -74,7 +74,7 @@ class LogManager:
             True
         """
         if self.driftwood.config["log"]["verbose"]:
-            self.__print(chain)
+            self.__print(list(chain))
 
         return True
 
@@ -87,8 +87,8 @@ class LogManager:
         suppress = False
 
         # Convert everything to strings.
-        for c in chain:
-            if type(c) is not str:
+        for c in range(len(chain)):
+            if type(chain[c]) != str:
                 chain[c] = str(chain[c])
 
         # Check if the output should be suppressed.

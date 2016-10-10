@@ -146,7 +146,11 @@ class Entity:
         self.stance = stance
 
         # Set the stance's variables, return to init defaults for variables not present.
+        valid = True
+
         if "collision" in self.__entity[stance]:
+            if not type(self.__entity[stance]["collision"]) == list:
+                valid = False
             self.collision = self.__entity[stance]["collision"]
         else:
             self.collision = self.__init_stance["collision"]
@@ -154,6 +158,8 @@ class Entity:
             self.collision = ["entity", "tile", "next", "prev", "here"]
 
         if "image" in self.__entity[stance]:
+            if not type(self.__entity[stance]["image"]) == str:
+                valid = False
             self.spritesheet = self.manager.spritesheet(self.__entity[stance]["image"])
             if not self.spritesheet:
                 self.manager.spritesheets[self.__init_stance["image"]] = \
@@ -161,25 +167,37 @@ class Entity:
                 self.spritesheet = self.manager.spritesheets[self.__init_stance["image"]]
 
         if "speed" in self.__entity[stance]:
+            if not type(self.__entity[stance]["speed"]) == int:
+                valid = False
             self.speed = self.__entity[stance]["speed"]
         else:
             self.speed = self.__init_stance["speed"]
 
         if "members" in self.__entity[stance]:
+            if not type(self.__entity[stance]["members"]) == list:
+                valid = False
             self.members = self.__entity[stance]["members"]
         else:
             self.members = self.__init_stance["members"]
         self.__cur_member = 0
 
         if "afps" in self.__entity[stance]:
+            if not type(self.__entity[stance]["afps"]) == int:
+                valid = False
             self.afps = self.__entity[stance]["afps"]
         else:
             self.afps = self.__init_stance["afps"]
 
         if "properties" in self.__entity[stance]:
+            if not type(self.__entity[stance]["properties"]) == dict:
+                valid = False
             self.properties = self.__entity[stance]["properties"]
         else:
             self.properties = self.__init_stance["properties"]
+
+        if not valid:
+            self.manager.driftwood.log.msg("ERROR", "Entity", self.eid, "stance failed validation", stance)
+            return False
 
         # Schedule animation.
         if self.afps:
@@ -194,6 +212,20 @@ class Entity:
         self.eid = eid
 
         self.__entity = data
+
+        # Presence check.
+        if (
+            not "init" in self.__entity or
+            not "collision" in self.__entity["init"] or
+            not "travel" in self.__entity["init"] or
+            not "width" in self.__entity["init"] or
+            not "height" in self.__entity["init"] or
+            not "speed" in self.__entity["init"] or
+            not "members" in self.__entity["init"]
+        ):
+            self.manager.driftwood.log.msg("ERROR", "Entity", self.eid, "initial stance missing required settings")
+            return False
+
         self.__init_stance = self.__entity["init"]
 
         self.collision = self.__init_stance["collision"]
@@ -204,19 +236,44 @@ class Entity:
         self.height = self.__init_stance["height"]
         self.speed = self.__init_stance["speed"]
         self.members = self.__init_stance["members"]
-        self.afps = self.__init_stance["afps"]
 
-        # Schedule animation.
-        if self.afps:
-            self.manager.driftwood.tick.register(self.__next_member, delay=(1 / self.afps))
+        # Validation check.
+        valid = True
+
+        if "afps" in self.__init_stance and self.__init_stance["afps"] > 0:
+            if not type(self.__init_stance["afps"]) == int:
+                valid = False
+            # Schedule animation.
+            else:
+                self.afps = self.__init_stance["afps"]
+                self.manager.driftwood.tick.register(self.__next_member, delay=(1 / self.afps))
 
         if "properties" in self.__init_stance:
+            if not type(self.__init_stance["properties"]) == dict:
+                valid = False
             self.properties = self.__init_stance["properties"]
 
         if "resting_stance" in self.__init_stance:
+            if not type(self.__init_stance["resting_stance"]) == str:
+                valid = False
             self.resting_stance = self.__init_stance["resting_stance"]
             self.set_stance(self.resting_stance)
 
+        if (
+                (not type(self.collision) == list) or
+                (not type(self.travel) == bool) or
+                (not type(self.width) == int) or self.width <= 0 or
+                (not type(self.height) == int) or self.height <= 0 or
+                (not type(self.speed) == int) or self.speed <= 0 or
+                (not type(self.members) == list)
+        ):
+            valid = False
+
+        if not valid:
+            self.manager.driftwood.log.msg("ERROR", "Entity", self.eid, "stance failed validation", "init")
+            return False
+
+        # Setup spritesheet.
         self.spritesheet = self.manager.spritesheet(self.__init_stance["image"])
 
         if not self.spritesheet:
