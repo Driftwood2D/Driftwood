@@ -490,6 +490,41 @@ class TileModeEntity(Entity):
 
         return exit_dest
 
+    def __detect_entity_collision(self, x, y):
+        # Detect if this entity will collide with another.
+        for eid in self.manager.entities:
+            # This is us.
+            if eid == self.eid:
+                continue
+            # Collision detection.
+            if self.manager.entities[eid].layer == self.layer:  # Are we on the same layer?
+                # It's moving. What tile is it moving to?
+                if self.manager.entities[eid].walking and ("next" in self.collision) and (
+                                    self._prev_xy[0] + self._tilewidth * x ==
+                                    self.manager.entities[eid]._prev_xy[0] + self._tilewidth *
+                                    self.manager.entities[eid].walking[0] and
+                                    self._prev_xy[1] + self._tileheight * y ==
+                                    self.manager.entities[eid]._prev_xy[1] + self._tileheight *
+                                    self.manager.entities[eid].walking[1]):
+                    self.manager.collision(self, self.manager.entities[eid])
+                    return False
+
+                # What tile is it moving from?
+                if ("prev" in self.collision) and (
+                                    self.x + self._tilewidth * x == self.manager.entities[eid]._prev_xy[0] and
+                                    self.y + self._tileheight * y == self.manager.entities[eid]._prev_xy[1]):
+                    self.manager.collision(self, self.manager.entities[eid])
+                    return False
+
+                # Where is it standing still?
+                if ("here" in self.collision) and (
+                                    self.x + self._tilewidth * x == self.manager.entities[eid].x and
+                                    self.y + self._tileheight * y == self.manager.entities[eid].y):
+                    self.manager.collision(self, self.manager.entities[eid])
+                    return False
+
+        return True
+
     def __can_walk(self, x, y):
         # Check if we're allowed to walk this way.
         if x not in [-1, 0, 1]:
@@ -571,43 +606,8 @@ class TileModeEntity(Entity):
 
         # Entity collision detection.
         if "entity" in self.collision:
-            for eid in self.manager.entities:
-                # This is us.
-                if eid == self.eid:
-                    continue
-
-                # Collision detection.
-                if self.manager.entities[eid].layer == self.layer:  # Are we on the same layer?
-                    # It's moving. What tile is it moving to?
-                    if self.manager.entities[eid].walking and ("next" in self.collision) and (
-                            self._prev_xy[0] + self._tilewidth * x ==
-                            self.manager.entities[eid]._prev_xy[0] + self._tilewidth * self.manager.entities[eid].walking[0] and
-                            self._prev_xy[1] + self._tileheight * y ==
-                            self.manager.entities[eid]._prev_xy[1] + self._tileheight * self.manager.entities[eid].walking[1]):
-                        self.manager.collision(self, self.manager.entities[eid])
-
-                    if self.manager.entities[eid].walking and ("next" in self.collision) and (
-                            self._prev_xy[0] + self._tilewidth * x ==
-                            self.manager.entities[eid]._prev_xy[0] + self._tilewidth *
-                            self.manager.entities[eid].walking[0] and self._prev_xy[1] + self._tileheight * y ==
-                            self.manager.entities[eid]._prev_xy[1] + self._tileheight *
-                            self.manager.entities[eid].walking[1]):
-                        self.manager.collision(self, self.manager.entities[eid])
-                        return False
-
-                    # What tile is it moving from?
-                    if ("prev" in self.collision) and (
-                            self.x + self._tilewidth * x == self.manager.entities[eid]._prev_xy[0] and
-                            self.y + self._tileheight * y == self.manager.entities[eid]._prev_xy[1]):
-                        self.manager.collision(self, self.manager.entities[eid])
-                        return False
-
-                    # Where is it standing still?
-                    if ("here" in self.collision) and (
-                            self.x + self._tilewidth * x == self.manager.entities[eid].x and
-                            self.y + self._tileheight * y == self.manager.entities[eid].y):
-                        self.manager.collision(self, self.manager.entities[eid])
-                        return False
+            if not self.__detect_entity_collision(x, y):
+                return False
 
         return True
 
