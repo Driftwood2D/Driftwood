@@ -217,7 +217,6 @@ class Entity:
 
         # Presence check.
         if (
-                                        not "init" in self.__entity or
                                         not "collision" in self.__entity["init"] or
                                     not "travel" in self.__entity["init"] or
                                 not "width" in self.__entity["init"] or

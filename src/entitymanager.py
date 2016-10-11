@@ -75,20 +75,31 @@ class EntityManager:
         """
         data = self.driftwood.resource.request_json(filename)
 
+        self.__last_eid += 1
+        eid = self.__last_eid
+
+        # Presence/Validation check for values required to load the entity.
+        if (
+            not "init" in data or not type(data["init"]) == dict or
+            not "mode" in data["init"] or not type(data["init"]["mode"]) == str
+        ):
+            self.driftwood.log.msg("ERROR", "Entity", eid, "entity failed validation")
+
+        # Make sure it's a movement mode we understand.
         if data["init"]["mode"] not in ["tile", "pixel"]:
             self.driftwood.log.msg("ERROR", "Entity", "invalid mode", "\"{0}\"".format(data["mode"]))
             return None
 
-        self.__last_eid += 1
-        eid = self.__last_eid
-
+        # Set movement mode.
         if data["init"]["mode"] == "tile":
             self.entities[eid] = entity.TileModeEntity(self)
         elif data["init"]["mode"] == "pixel":
             self.entities[eid] += entity.PixelModeEntity(self)
 
+        # Read the entity.
         self.entities[eid]._read(filename, data, eid)
 
+        # Set the initial position.
         self.entities[eid].x = x
         self.entities[eid].y = y
         self.entities[eid].layer = layer
@@ -99,14 +110,13 @@ class EntityManager:
                 x / self.driftwood.area.tilemap.tilewidth,
                 y / self.driftwood.area.tilemap.tileheight
             )
-
         else:
             self.driftwood.log.msg("ERROR", "Entity", "must start on a tile")
             return None
 
         self.driftwood.area.changed = True
 
-        self.driftwood.log.info("Entity", "inserted", "{0} entity on layer {1} at position {2}, {3}".format(filename,
+        self.driftwood.log.info("Entity", "inserted", "{0} on layer {1} at position {2}, {3}".format(filename,
                                                                                                             layer,
                                                                                                             x, y))
 

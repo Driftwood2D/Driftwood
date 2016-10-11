@@ -97,6 +97,8 @@ class Driftwood:
 
             keycode: Contains the SDL keycodes.
 
+            vars: A globally accessible dictionary for storing values until shutdown.
+
             running: Whether the mainloop should continue running. Set False to shut down the engine.
         """
         self.config = ConfigManager(self)
@@ -116,6 +118,10 @@ class Driftwood:
         # SDL Keycodes.
         self.keycode = keycode
 
+        # Space to store global temporary values that disappear on shutdown.
+        self.vars = {}
+
+        # Are we going to continue running?
         self.running = False
 
     def random(self, min, max):
@@ -130,7 +136,7 @@ class Driftwood:
         """
         return random_module.randint(min, max)
 
-    def run(self):
+    def _run(self):
         """Perform startup procedures and enter the mainloop.
         """
         # Only run if not already running.
@@ -203,4 +209,4 @@ if __name__ == "__main__":
     signal.signal(signal.SIGTERM, sigint_handler)
 
     # Run Driftwood and exit with its return code.
-    sys.exit(entry.run())
+    sys.exit(entry._run())
