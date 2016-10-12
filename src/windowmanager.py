@@ -68,6 +68,12 @@ class WindowManager:
         self.logical_width = self.driftwood.config["window"]["width"]
         self.logical_height = self.driftwood.config["window"]["height"]
 
+        # Offset at which to draw the viewport
+        self.offset = [0, 0]
+
+        # Whether to center on the player in large areas.
+        self.centering = True
+
         # A copy of the imagefile the texture to be framed belongs to, if any.
         self.__imagefile = None
 
@@ -149,7 +155,7 @@ class WindowManager:
             dstrect.x = int(ww / 2 - tw / 2)
 
         # Area width is larger than window width. Center by width on player.
-        if tw > ww:
+        if tw > ww and self.centering:
             if self.driftwood.entity.player:
                 playermidx = self.driftwood.entity.player.x + (self.driftwood.entity.player.width / 2)
                 prepx = int(ww / 2 - playermidx * 2)
@@ -169,7 +175,7 @@ class WindowManager:
             dstrect.y = int(wh / 2 - th / 2)
 
         # Area height is larger than window height. Center by height on player.
-        if th > wh:
+        if th > wh and self.centering:
             if self.driftwood.entity.player:
                 playermidy = self.driftwood.entity.player.y + (self.driftwood.entity.player.height / 2)
                 prepy = int(wh / 2 - playermidy * 2)
@@ -183,6 +189,10 @@ class WindowManager:
 
             else:
                 dstrect.y = int(wh / 2 - th / 2)
+
+        # Adjust the viewport offset.
+        dstrect.x += self.offset[0]
+        dstrect.y += self.offset[1]
 
         # Adjust and copy the frame onto the window.
         self.__frame = [self.__texture, srcrect, dstrect]
