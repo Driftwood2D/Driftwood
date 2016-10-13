@@ -54,15 +54,18 @@ class LogManager:
             chain: A list of strings to be separated by colon-spaces and printed.
 
         Returns:
-            True
+            True if message was printed, false otherwise.
         """
-        self.__print(list(chain))
+        if not self.__check_suppress(chain):
+            self.__print(list(chain))
+            # Die on non-info (error or warning) messages.
+            if self.driftwood.config["log"]["halt"]:
+                # Or not if we suppressed halting on this message.
+                if not self.__check_suppress(chain, True):
+                    self.driftwood.running = False
+            return True
 
-        # Die on non-info (error or warning) messages.
-        if self.driftwood.config["log"]["halt"]:
-            self.driftwood.running = False
-
-        return True
+        return False
 
     def info(self, *chain):
         """Log an info message if verbosity is enabled..
@@ -71,12 +74,14 @@ class LogManager:
             chain: A list of strings to be separated by colon-spaces and printed.
 
         Returns:
-            True
+            True if info was printed, false otherwise.
         """
-        if self.driftwood.config["log"]["verbose"]:
-            self.__print(list(chain))
+        if not self.__check_suppress(chain):
+            if self.driftwood.config["log"]["verbose"]:
+                self.__print(list(chain))
+                return True
 
-        return True
+        return False
 
     def __print(self, chain):
         """Format and print the string.
@@ -84,25 +89,27 @@ class LogManager:
         Args:
             chain: A list of strings to be separated by colon-spaces and printed.
         """
-        suppress = False
 
         # Convert everything to strings.
         for c in range(len(chain)):
             if type(chain[c]) != str:
                 chain[c] = str(chain[c])
 
-        # Check if the output should be suppressed.
-        for supp in self.driftwood.config["log"]["suppress"]:
+        # Print it.
+        ticks = "[{0}] ".format(str(SDL_GetTicks() / 1000.0))
+        print(ticks + ": ".join(chain))
+        sys.stdout.flush()
+
+    def __check_suppress(self, chain, halt=False):
+        "Checks whether or not the chain matches a suppression rule."
+        if halt:
+            check = self.driftwood.config["log"]["suppress_halt"]
+        else:
+            check = self.driftwood.config["log"]["suppress"]
+        for supp in check:
             if supp[0] == chain[0] and len(chain) >= len(supp):
                 for n, s in enumerate(supp):
                     if s == chain[n] or not s:
-                        suppress = True
-
+                        return True
                     else:
-                        suppress = False
-
-        # If the output is not suppressed, print it.
-        if not suppress:
-            ticks = "[{0}] ".format(str(SDL_GetTicks() / 1000.0))
-            print(ticks + ": ".join(chain))
-            sys.stdout.flush()
+                        return False

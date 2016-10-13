@@ -28,6 +28,9 @@
 		"halt": true,
 		"suppress": [
 		    ["Tick"]
+		],
+		"suppress_halt": [
+		    ["WARNING"]
 		]
 	},
 	"path": {
