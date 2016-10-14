@@ -255,6 +255,25 @@
                  "width":16,
                  "x":16,
                  "y":16
+                }, 
+                {
+                 "height":16,
+                 "id":20,
+                 "name":"",
+                 "properties":
+                    {
+                     "entity":"wizard.json,0,80,48"
+                    },
+                 "propertytypes":
+                    {
+                     "entity":"string"
+                    },
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":16,
+                 "x":80,
+                 "y":48
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -274,7 +293,7 @@
          "x":0,
          "y":0
         }],
- "nextobjectid":20,
+ "nextobjectid":21,
  "orientation":"orthogonal",
  "properties":
     {

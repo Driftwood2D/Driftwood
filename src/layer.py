@@ -149,9 +149,14 @@ class Layer:
                             else:  # Just a regular exit.
                                 self.tile(tx, ty).exits[exittype] = self.tile(tx, ty).properties[exittype]
 
-            # TODO: Handle entity spawns on object type "entity".
-            if obj["type"] == "entity":
-                pass
+                    # Handle entity auto-spawn triggers.
+                    if "entity" in self.tile(tx, ty).properties:
+                        args = self.tile(tx, ty).properties["entity"].split(",")
+                        args[1] = int(args[1])
+                        args[2] = int(args[2])
+                        args[3] = int(args[3])
+                        self.tilemap.area.driftwood.entity.insert(*args)
+
 
     def __prepare_layer(self):
         # Set layer properties if present.
