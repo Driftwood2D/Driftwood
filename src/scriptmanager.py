@@ -28,6 +28,7 @@
 
 import importlib.machinery, importlib.util
 import os
+import platform
 import sys
 import traceback
 import zipimport
@@ -145,6 +146,8 @@ class ScriptManager:
                 else:
                     importer = zipimport.zipimporter(importpath)
                     mpath = self.__convert_path(filename)
+                    if platform.system() == "Windows":  # Fix imports on Windows.
+                        mpath = mpath.replace('/', '\\')
                     self.__modules[filename] = importer.load_module(mpath)
 
                 self.driftwood.log.info("Script", "loaded", filename)
