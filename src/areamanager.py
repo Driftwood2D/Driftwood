@@ -173,10 +173,9 @@ class AreaManager:
                 # Copy the entity onto our frame.
                 SDL_RenderCopy(self.driftwood.window.renderer, entity.spritesheet.texture, srcrect, dstrect)
 
-        if tall_parts:  # We didn't have enough layers, tall parts still exist.
-            for tall in tall_parts:
-                # Copy the tall parts of the entities from the last layer onto our frame.
-                SDL_RenderCopy(self.driftwood.window.renderer, *tall)
+        for tall in tall_parts:  # We didn't have enough layers, tall parts still exist.
+            # Copy the tall parts of the entities from the last layer onto our frame.
+            SDL_RenderCopy(self.driftwood.window.renderer, *tall)
 
         # Tell SDL to switch rendering back to the window's frame.
         SDL_SetRenderTarget(self.driftwood.window.renderer, None)
