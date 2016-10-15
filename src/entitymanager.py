@@ -26,7 +26,9 @@
 # IN THE SOFTWARE.
 # **********
 
-from jsonschema import validate, ValidationError
+import jsonschema
+import sys
+import traceback
 
 import entity
 from inputmanager import InputManager
@@ -76,16 +78,18 @@ class EntityManager:
         Returns: New entity if succeeded, None if failed.
         """
         data = self.driftwood.resource.request_json(filename)
-        schema = self.driftwood.resource.request_json("validators/entity.json")
+        schema = self.driftwood.resource.request_json("schema/entity.json")
 
         self.__last_eid += 1
         eid = self.__last_eid
 
         # Attempt to validate against the schema.
         try:
-            validate(data, schema)
-        except (ValidationError):
+            jsonschema.validate(data, schema)
+        except (jsonschema.ValidationError):
             self.driftwood.log.msg("ERROR", "Entity", filename, "failed validation")
+            traceback.print_exc(1, sys.stdout)
+            sys.stdout.flush()
             return None
 
         # Set movement mode.

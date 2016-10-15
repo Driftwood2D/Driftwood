@@ -78,8 +78,7 @@ class ResourceManager:
         pathname = self.driftwood.path[filename]
         if pathname:
             try:
-                # This is a directory.
-                if os.path.isdir(pathname):
+                if os.path.isdir(pathname):  # This is a directory.
                     if binary:
                         f = open(os.path.join(pathname, filename), "rb")
                     else:
@@ -87,8 +86,7 @@ class ResourceManager:
                     contents = f.read()
                     f.close()
 
-                # This is hopefully a zip archive.
-                else:
+                else:  # This is hopefully a zip archive.
                     with zipfile.ZipFile(pathname, 'r') as zf:
                         contents = zf.read(filename)
 

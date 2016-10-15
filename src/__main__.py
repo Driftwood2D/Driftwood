@@ -52,6 +52,14 @@ if __name__ == "__main__":
         print("[0] FATAL: PySDL2 required, module \"sdl2\" not found")
         sys.exit(1)  # Fail.
 
+    # Try to import jsonschema.
+    try:
+        import jsonschema
+    except (ImportError):
+        print("Driftwood 2D\nStarting up...")
+        print("[0] FATAL: jsonschema required, module \"jsonschema\" not found")
+        sys.exit(1)  # Fail.
+
 from configmanager import ConfigManager
 from logmanager import LogManager
 from databasemanager import DatabaseManager

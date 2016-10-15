@@ -1,0 +1,156 @@
+{
+  "type": "object",
+  "properties": {
+    "database": {
+      "type": "object",
+      "properties": {
+        "root": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "cache": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "ttl": {
+          "type": "number",
+          "minimum": 0
+        }
+      }
+    },
+    "input": {
+      "type": "object",
+      "properties": {
+        "keybindings": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "audio": {
+      "type": "object",
+      "properties": {
+        "support": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "ogg",
+              "mp3",
+              "flac"
+            ]
+          }
+        },
+        "frequency": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "chunksize": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "music_volume": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 128
+        },
+        "sfx_volume": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 128
+        }
+      }
+    },
+    "log": {
+      "type": "object",
+      "properties": {
+        "verbose": {
+          "type": "boolean"
+        },
+        "halt": {
+          "type": "boolean"
+        },
+        "suppress": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "suppress_halt": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "path": {
+      "type": "object",
+      "properties": {
+        "self": {
+          "type": "string"
+        },
+        "root": {
+          "type": "string"
+        },
+        "path": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "tick": {
+      "type": "object",
+      "properties": {
+        "tps": {
+          "type": "number",
+          "minimum": 1
+        }
+      }
+    },
+    "window": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "width": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "fullscreen": {
+          "type": "boolean"
+        },
+        "zoom": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "maxfps": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    }
+  }
+}
+

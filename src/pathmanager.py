@@ -84,14 +84,12 @@ class PathManager:
         filelist = []
 
         try:
-            # This is a directory.
-            if os.path.isdir(pathname):
+            if os.path.isdir(pathname):  # This is a directory.
                 for root, dirs, files in os.walk(pathname):
                     for name in files:
                         filelist.append(name)
 
-            # This is hopefully a zip archive.
-            else:
+            else:  # This is hopefully a zip archive.
                 with zipfile.ZipFile(pathname, 'r') as zf:
                     for name in zf.namelist():
                         filelist.append(name)

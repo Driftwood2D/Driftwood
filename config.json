@@ -1,54 +1,54 @@
 {
-	"database": {
-		"root": "db/",
-		"name": "test.db"
-	},
-	"cache": {
-		"enabled": true,
-		"ttl": 300.0
-	},
-	"input": {
-		"keybindings": {
-			"up": "SDLK_UP",
-			"down": "SDLK_DOWN",
-			"left": "SDLK_LEFT",
-			"right": "SDLK_RIGHT",
-			"interact": "SDLK_SPACE"
-		}
-	},
-	"audio": {
-	    "support": ["ogg"],
-	    "frequency": 22050,
-	    "chunksize": 4096,
-	    "music_volume": 128,
-	    "sfx_volume": 128
-	},
-	"log": {
-		"verbose": true,
-		"halt": true,
-		"suppress": [
-		    ["Tick"]
-		],
-		"suppress_halt": [
-		    ["WARNING"]
-		]
-	},
-	"path": {
-		"self": "bin/driftwood",
-		"root": "data/",
-		"path": [
-			"test/"
-		]
-	},
-	"tick": {
-		"tps": 100.0
-	},
-	"window": {
-		"title": "Driftwood 2D",
-		"width": 640,
-		"height": 480,
-		"fullscreen": false,
-		"zoom": 2,
-		"maxfps": 60
-	}
+  "database": {
+    "root": "db/",
+    "name": "test.db"
+  },
+  "cache": {
+    "enabled": true,
+    "ttl": 300.0
+  },
+  "input": {
+    "keybindings": {
+      "up": "SDLK_UP",
+      "down": "SDLK_DOWN",
+      "left": "SDLK_LEFT",
+      "right": "SDLK_RIGHT",
+      "interact": "SDLK_SPACE"
+    }
+  },
+  "audio": {
+    "support": ["ogg"],
+    "frequency": 22050,
+    "chunksize": 4096,
+    "music_volume": 128,
+    "sfx_volume": 128
+  },
+  "log": {
+    "verbose": true,
+    "halt": true,
+    "suppress": [
+      ["Tick"]
+    ],
+    "suppress_halt": [
+      ["WARNING"]
+    ]
+  },
+  "path": {
+    "self": "bin/driftwood",
+    "root": "data/",
+    "path": [
+      "test/"
+    ]
+  },
+  "tick": {
+    "tps": 100.0
+  },
+  "window": {
+    "title": "Driftwood 2D",
+    "width": 640,
+    "height": 480,
+    "fullscreen": false,
+    "zoom": 2,
+    "maxfps": 60
+  }
 }

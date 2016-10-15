@@ -28,7 +28,11 @@
 
 import argparse
 import json
+import jsonschema
+import os
 import sys
+import traceback
+import zipfile
 
 VERSION = "Driftwood 2D Alpha-0.0.2"
 COPYRIGHT = "Copyright 2016 Michael D. Reiley and Paul Merrill"
@@ -121,10 +125,38 @@ class ConfigManager:
         """
         # Open the configuration file.
         try:
-            self.__config = json.load(open(self.__cmdline_args.config, 'r'))
+            with open(self.__cmdline_args.config, 'r') as config:
+                self.__config = json.load(config)
         except:
             print("Driftwood 2D\nStarting up...")
             print("[0] FATAL: Config: could not read config file")
+            sys.exit(1)  # Fail.
+
+        # Try to load the schema for validation.
+        try:
+            if os.path.isdir(self.__config["path"]["self"]):  # This is a directory.
+                with open(os.path.join(self.__config["path"]["self"], "schema/config.json")) as sch:
+                    schema = json.load(sch)
+
+            else:  # This is hopefully a zip archive.
+                with zipfile.ZipFile(self.__config["path"]["self"], 'r') as zf:
+                    sch = zf.read("schema/config.json")
+                    if type(sch) == bytes:
+                        sch = sch.decode()
+                    schema = json.loads(sch)
+        except:
+            print("Driftwood 2D\nStarting up...")
+            print("[0] FATAL: Config: could not load schema to validate config file")
+            sys.exit(1)  # Fail.
+
+        # Attempt to validate against the schema.
+        try:
+            jsonschema.validate(self.__config, schema)
+        except (jsonschema.ValidationError):
+            print("Driftwood 2D\nStarting up...")
+            print("[0] FATAL: Config: config file failed validation")
+            traceback.print_exc(1, sys.stdout)
+            sys.stdout.flush()
             sys.exit(1)  # Fail.
 
         # If --version was used, print the version string and exit.
