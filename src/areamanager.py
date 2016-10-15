@@ -81,6 +81,10 @@ class AreaManager:
             # If there is an on_focus function defined for this map, call it.
             if "on_focus" in self.tilemap.properties:
                 args = self.tilemap.properties["on_focus"].split(',')
+                if len(args) < 2:
+                    self.driftwood.log.msg("ERROR", "Map", "invalid on_focus event",
+                                           self.tilemap.properties["on_focus"])
+                    return True
                 self.driftwood.script.call(*args)
 
             return True

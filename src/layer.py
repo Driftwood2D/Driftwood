@@ -119,6 +119,11 @@ class Layer:
 
                             # First check for and handle wide exits.
                             exit_coords = self.tile(tx, ty).properties[exittype].split(',')
+                            if len(exit_coords) != 4:
+                                self.tilemap.area.driftwood.log.msg("ERROR", "Map", "invalid exit trigger",
+                                                                    self.tile(tx, ty).properties[exittype])
+                                continue
+
                             if (exit_coords[2] and exit_coords[2][-1] == '+') and \
                                     (exit_coords[3] and exit_coords[3][-1] == '+'):  # Invalid wide exit.
                                 self.tilemap.area.driftwood.log.msg("ERROR", "Map",
@@ -152,6 +157,10 @@ class Layer:
                     # Handle entity auto-spawn triggers.
                     if "entity" in self.tile(tx, ty).properties:
                         args = self.tile(tx, ty).properties["entity"].split(",")
+                        if len(args) != 4:
+                            self.tilemap.area.driftwood.log.msg("ERROR", "Map", "invalid entity trigger",
+                                                                self.tile(tx, ty).properties["entity"])
+                            return
                         args[1] = int(args[1])
                         args[2] = int(args[2])
                         args[3] = int(args[3])

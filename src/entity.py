@@ -219,7 +219,10 @@ class Entity:
         """
         # Call the on_exit event if set.
         if "on_exit" in self.manager.driftwood.area.tilemap.properties:
-            self.manager.driftwood.script.call(*self.manager.driftwood.area.tilemap.properties["on_exit"].split(':'))
+            args = self.manager.driftwood.area.tilemap.properties["on_exit"].split(',')
+            if len(args) < 2:
+                self.manager.driftwood.log.msg("ERROR", "Map", "invalid on_exit event", self.tile.properties["on_exit"])
+            self.manager.driftwood.script.call(*self.manager.driftwood.area.tilemap.properties["on_exit"].split(','))
 
         # Enter the next area.
         if self.manager.driftwood.area.focus(self._next_area[0]):
@@ -667,12 +670,18 @@ class TileModeEntity(Entity):
         # Call the on_tile event if set.
         if "on_tile" in self.tile.properties:
             args = self.tile.properties["on_tile"].split(',')
+            if len(args) < 2:
+                self.manager.driftwood.log.msg("ERROR", "Map", "invalid on_tile event", self.tile.properties["on_tile"])
+                return
             self.manager.driftwood.script.call(*args)
 
     def __call_on_layer(self):
         # Call the on_layer event if set.
         if "on_layer" in self.manager.driftwood.area.tilemap.layers[self.layer].properties:
             args = self.manager.driftwood.area.tilemap.layers[self.layer].properties["on_layer"].split(',')
+            if len(args) < 2:
+                self.manager.driftwood.log.msg("ERROR", "Map", "invalid on_layer event", self.layer)
+                return
             self.manager.driftwood.script.call(*args)
 
     def __do_take_exit(self):
