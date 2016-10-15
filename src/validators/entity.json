@@ -1,0 +1,132 @@
+{
+  "type": "object",
+  "properties": {
+    "init": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": [
+            "tile",
+            "pixel",
+            "rogue"
+          ]
+        },
+        "collision": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "all",
+              "entity",
+              "tile",
+              "next",
+              "prev",
+              "here"
+            ]
+          }
+        },
+        "travel": {
+          "type": "boolean"
+        },
+        "speed": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "image": {
+          "type": "string"
+        },
+        "width": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "members": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "afps": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "properties": {
+          "type": "object"
+        },
+        "on_insert": {
+          "type": "string",
+          "pattern": "^(|.+,.+)$"
+        },
+        "on_kill": {
+          "type": "string",
+          "pattern": "^(|.+,.+)$"
+        },
+        "resting_stance": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "mode",
+        "collision",
+        "travel",
+        "speed",
+        "image",
+        "width",
+        "height",
+        "members",
+        "afps",
+        "properties",
+        "on_insert",
+        "on_kill",
+        "resting_stance"
+      ]
+    }
+  },
+  "required": [
+    "init"
+  ],
+  "additionalProperties": {
+    "type": "object",
+    "properties": {
+      "collision": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": [
+            "entity",
+            "tile",
+            "next",
+            "prev",
+            "here"
+          ]
+        }
+      },
+      "image": {
+        "type": "string"
+      },
+      "speed": {
+        "type": "integer",
+        "minimum": 0
+      },
+      "members": {
+        "type": "array",
+        "items": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "afps": {
+        "type": "integer",
+        "minimum": 0
+      },
+      "properties": {
+        "type": "object"
+      }
+    }
+  }
+}

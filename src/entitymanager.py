@@ -26,6 +26,8 @@
 # IN THE SOFTWARE.
 # **********
 
+from jsonschema import validate, ValidationError
+
 import entity
 from inputmanager import InputManager
 
@@ -74,20 +76,16 @@ class EntityManager:
         Returns: New entity if succeeded, None if failed.
         """
         data = self.driftwood.resource.request_json(filename)
+        schema = self.driftwood.resource.request_json("validators/entity.json")
 
         self.__last_eid += 1
         eid = self.__last_eid
 
-        # Presence/Validation check for values required to load the entity.
-        if (
-            not "init" in data or not type(data["init"]) == dict or
-            not "mode" in data["init"] or not type(data["init"]["mode"]) == str
-        ):
-            self.driftwood.log.msg("ERROR", "Entity", eid, "entity failed validation")
-
-        # Make sure it's a movement mode we understand.
-        if data["init"]["mode"] not in ["tile", "pixel"]:
-            self.driftwood.log.msg("ERROR", "Entity", "invalid mode", "\"{0}\"".format(data["mode"]))
+        # Attempt to validate against the schema.
+        try:
+            validate(data, schema)
+        except (ValidationError):
+            self.driftwood.log.msg("ERROR", "Entity", filename, "failed validation")
             return None
 
         # Set movement mode.
@@ -111,7 +109,7 @@ class EntityManager:
                 y / self.driftwood.area.tilemap.tileheight
             )
         else:
-            self.driftwood.log.msg("ERROR", "Entity", "must start on a tile")
+            self.driftwood.log.msg("ERROR", "Entity", filename, "must start on a tile")
             return None
 
         self.driftwood.area.changed = True
@@ -121,12 +119,12 @@ class EntityManager:
                                                                                                             x, y))
 
         # Function to call when inserting the entity.
-        if "on_insert" in data["init"]:
+        if data["init"]["on_insert"]:
             args = data["init"]["on_insert"].split(',')
             self.driftwood.script.call(args[0], args[1], self.entities[eid])
 
         # Function to call before killing the entity.
-        if "on_kill" in data["init"]:
+        if data["init"]["on_kill"]:
             self.entities[eid]._on_kill = data["init"]["on_kill"].split(',')
 
         return self.entities[eid]

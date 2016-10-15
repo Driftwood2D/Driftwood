@@ -12,4 +12,5 @@ The Driftwood 2D Game Development Suite is a game engine and related set of tool
 * SDL2_image
 * SDL2_mixer
 * Python >= 3.3.3
-* PySDL2 (https://pypi.python.org/pypi/PySDL2/)
+* Python jsonschema (https://pypi.python.org/pypi/jsonschema)
+* Python PySDL2 (https://pypi.python.org/pypi/PySDL2/)
