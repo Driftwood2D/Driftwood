@@ -66,6 +66,20 @@ class EntityManager:
 
         self.__last_eid = -1
 
+    def __contains__(self, eid):
+        if self.entity(eid):
+            return True
+        return False
+
+    def __getitem__(self, eid):
+        return self.entity(eid)
+
+    def __delitem__(self, eid):
+        return self.kill(eid)
+
+    def __iter__(self):
+        return self.entities.items()
+
     def insert(self, filename, layer, x, y):
         """Insert an entity at a position in the area.
 
@@ -96,7 +110,7 @@ class EntityManager:
         if data["init"]["mode"] == "tile":
             self.entities[eid] = entity.TileModeEntity(self)
         elif data["init"]["mode"] == "pixel":
-            self.entities[eid] += entity.PixelModeEntity(self)
+            self.entities[eid] = entity.PixelModeEntity(self)
 
         # Read the entity.
         self.entities[eid]._read(filename, data, eid)
@@ -141,9 +155,8 @@ class EntityManager:
 
         Returns: Entity class instance if succeeded, None if failed.
         """
-        for ent in self.entities:
-            if ent.eid == eid:
-                return ent
+        if eid in self.entities:
+            return self.entities[eid]
 
         return None
 

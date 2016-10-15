@@ -29,6 +29,7 @@
 from ctypes import byref
 from ctypes import c_int
 from sdl2 import *
+from sdl2.sdlimage import *
 
 import filetype
 
@@ -232,6 +233,7 @@ class WindowManager:
         Create a new window and renderer with the configured settings.
         """
         SDL_Init(SDL_INIT_EVERYTHING)
+        IMG_Init(IMG_INIT_JPG | IMG_INIT_PNG)
 
         if self.driftwood.config["window"]["fullscreen"]:
             # Desktop's current width and height
@@ -265,4 +267,5 @@ class WindowManager:
         self.__sdl_destroyrenderer(self.renderer)
         self.__sdl_destroywindow(self.window)
 
+        IMG_Quit()
         SDL_Quit()

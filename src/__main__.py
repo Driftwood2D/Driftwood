@@ -60,6 +60,7 @@ if __name__ == "__main__":
         print("[0] FATAL: jsonschema required, module \"jsonschema\" not found")
         sys.exit(1)  # Fail.
 
+# Import manager classes.
 from configmanager import ConfigManager
 from logmanager import LogManager
 from databasemanager import DatabaseManager
