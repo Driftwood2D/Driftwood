@@ -67,6 +67,17 @@ class Tilemap:
         # This contains the JSON of the Tiled map.
         self.__tilemap = {}
 
+    def new_layer(self):
+        """Create a new virtual tile layer.
+
+        returns: Layer z position.
+        """
+        fakedata = {"data":[]}
+        for t in range(self.width * self.height):
+            fakedata["data"].append(0)
+        self.layers.append(layer.Layer(self, fakedata, len(self.layers)))
+        return self.layers[-1].zpos
+
     def _read(self, data):
         """Read and abstract a Tiled map.
 

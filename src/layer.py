@@ -72,11 +72,27 @@ class Layer:
         if x < 0 or y < 0 or x >= self.tilemap.width or y >= self.tilemap.height:
             return None
 
-        try:
-            t = self.tiles[int((y * self.tilemap.width) + x)]
-            return t
+        if int((y * self.tilemap.width) + x) < len(self.tiles):
+            return self.tiles[int((y * self.tilemap.width) + x)]
 
-        except IndexError:
+        else:
+            self.tilemap.manager.driftwood.log.msg("WARNING", "Layer", self.zpos,
+                                                   "tried to lookup nonexistent tile at", "{0}x{1}".format(x, y))
+            return None
+
+    def tile_index(self, x, y):
+        """Retrieve the index of a tile in the tiles list so you can modify it.
+
+        Args:
+            x: x-coordinate
+            y: y-coordinate
+
+        Returns: index of tile in tiles list if succeeded, None if failed.
+        """
+        if int((y * self.tilemap.width) + x) < len(self.tiles):
+            return int((y * self.tilemap.width) + x)
+
+        else:
             self.tilemap.manager.driftwood.log.msg("WARNING", "Layer", self.zpos,
                                                    "tried to lookup nonexistent tile at", "{0}x{1}".format(x, y))
             return None
