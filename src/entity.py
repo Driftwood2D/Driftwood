@@ -758,7 +758,7 @@ class PixelModeEntity(Entity):
 
         self.manager.driftwood.area.changed = True
 
-    def walk(self, x, y):
+    def walk(self, x, y, dont_stop=False, stance=None, end_stance=None):
         """Move the entity by one pixel to a new position relative to its current position.
 
         Args:
@@ -773,9 +773,22 @@ class PixelModeEntity(Entity):
         if not y or not y in [-1, 0, 1]:
             y = 0
 
-        # Perform collision detection.
-        if self.collision:
-            # TODO: Pixel mode tile collisions.
+            dsttile = None  # Figure out how to find the destination tile.
+
+            if self.tile:
+                if dsttile:  # Does a tile exist where we're going?
+                    if "tile" in self.collision:  # We are colliding with tiles.
+                        if dsttile.nowalk or dsttile.nowalk == "":
+                            # Is the tile a player or npc specific nowalk?
+                            if (dsttile.nowalk == "player" and self.manager.player.eid == self.eid
+                                or dsttile.nowalk == "npc" and self.manager.player.eid != self.eid):
+                                self._collide(dsttile)
+                                return False
+
+                            # Any other values are an unconditional nowalk.
+                            elif not dsttile.nowalk in ["player", "npc"]:
+                                self._collide(dsttile)
+                                return False
 
             # Entity collision detection.
             for eid in self.manager.entities:
@@ -787,11 +800,11 @@ class PixelModeEntity(Entity):
                 if not (
                                             self.x + x > self.manager.entities[eid].x + self.manager.entities[eid].width
 
-                                and self.x + self.width + x < self.manager.entities[eid].x
+                                or self.x + self.width + x < self.manager.entities[eid].x
 
-                            and self.y + y > self.manager.entities[eid].y + self.manager.entities[eid].height
+                            or self.y + y > self.manager.entities[eid].y + self.manager.entities[eid].height
 
-                        and self.y + self.height + y < self.manager.entities[eid].y
+                        or self.y + self.height + y < self.manager.entities[eid].y
                 ):
                     self.manager.collision(self, self.manager.entities[eid])
                     return False
@@ -803,6 +816,8 @@ class PixelModeEntity(Entity):
 
         return True
 
+    def _walk_stop(self):
+        pass
 
 # TODO: Implement turn mode.
 class TurnModeEntity(Entity):

@@ -253,6 +253,8 @@ class WindowManager:
                                        SDL_WINDOWPOS_CENTERED, physical_width, physical_height, flags)
 
         self.renderer = SDL_CreateRenderer(self.window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC)
+        if not self.renderer:  # We don't have hardware rendering on this machine.
+            self.renderer = SDL_CreateRenderer(self.window, -1, SDL_RENDERER_SOFTWARE)
 
         # Pixelated goodness, like a rebel.
         SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, b"nearest")
