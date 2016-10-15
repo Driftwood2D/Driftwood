@@ -9,6 +9,10 @@
             {
              "test":"lol"
             },
+         "propertytypes":
+            {
+             "test":"string"
+            },
          "type":"tilelayer",
          "visible":true,
          "width":10,
@@ -16,29 +20,42 @@
          "y":0
         }, 
         {
+         "draworder":"topdown",
          "height":20,
          "name":"Object Layer 1",
          "objects":[
                 {
-                 "height":224,
+                 "height":208,
+                 "id":1,
                  "name":"",
                  "properties":
                     {
                      "nowalk":""
                     },
+                 "propertytypes":
+                    {
+                     "nowalk":"string"
+                    },
+                 "rotation":0,
                  "type":"",
                  "visible":true,
                  "width":16,
                  "x":0,
-                 "y":64
+                 "y":80
                 }, 
                 {
                  "height":32,
+                 "id":2,
                  "name":"",
                  "properties":
                     {
                      "nowalk":""
                     },
+                 "propertytypes":
+                    {
+                     "nowalk":"string"
+                    },
+                 "rotation":0,
                  "type":"",
                  "visible":true,
                  "width":160,
@@ -47,11 +64,17 @@
                 }, 
                 {
                  "height":16,
+                 "id":3,
                  "name":"",
                  "properties":
                     {
                      "nowalk":""
                     },
+                 "propertytypes":
+                    {
+                     "nowalk":"string"
+                    },
+                 "rotation":0,
                  "type":"",
                  "visible":true,
                  "width":32,
@@ -60,11 +83,17 @@
                 }, 
                 {
                  "height":16,
+                 "id":4,
                  "name":"",
                  "properties":
                     {
                      "nowalk":""
                     },
+                 "propertytypes":
+                    {
+                     "nowalk":"string"
+                    },
+                 "rotation":0,
                  "type":"",
                  "visible":true,
                  "width":32,
@@ -73,11 +102,17 @@
                 }, 
                 {
                  "height":16,
+                 "id":5,
                  "name":"",
                  "properties":
                     {
                      "nowalk":""
                     },
+                 "propertytypes":
+                    {
+                     "nowalk":"string"
+                    },
+                 "rotation":0,
                  "type":"",
                  "visible":true,
                  "width":16,
@@ -86,11 +121,17 @@
                 }, 
                 {
                  "height":16,
+                 "id":6,
                  "name":"",
                  "properties":
                     {
                      "nowalk":""
                     },
+                 "propertytypes":
+                    {
+                     "nowalk":"string"
+                    },
+                 "rotation":0,
                  "type":"",
                  "visible":true,
                  "width":16,
@@ -99,11 +140,17 @@
                 }, 
                 {
                  "height":16,
+                 "id":7,
                  "name":"",
                  "properties":
                     {
                      "nowalk":""
                     },
+                 "propertytypes":
+                    {
+                     "nowalk":"string"
+                    },
+                 "rotation":0,
                  "type":"",
                  "visible":true,
                  "width":16,
@@ -112,11 +159,17 @@
                 }, 
                 {
                  "height":16,
+                 "id":8,
                  "name":"",
                  "properties":
                     {
                      "nowalk":""
                     },
+                 "propertytypes":
+                    {
+                     "nowalk":"string"
+                    },
+                 "rotation":0,
                  "type":"",
                  "visible":true,
                  "width":32,
@@ -125,11 +178,17 @@
                 }, 
                 {
                  "height":16,
+                 "id":9,
                  "name":"",
                  "properties":
                     {
                      "nowalk":""
                     },
+                 "propertytypes":
+                    {
+                     "nowalk":"string"
+                    },
+                 "rotation":0,
                  "type":"",
                  "visible":true,
                  "width":16,
@@ -138,11 +197,17 @@
                 }, 
                 {
                  "height":16,
+                 "id":10,
                  "name":"",
                  "properties":
                     {
                      "nowalk":""
                     },
+                 "propertytypes":
+                    {
+                     "nowalk":"string"
+                    },
+                 "rotation":0,
                  "type":"",
                  "visible":true,
                  "width":16,
@@ -151,11 +216,17 @@
                 }, 
                 {
                  "height":16,
+                 "id":11,
                  "name":"",
                  "properties":
                     {
                      "nowalk":""
                     },
+                 "propertytypes":
+                    {
+                     "nowalk":"string"
+                    },
+                 "rotation":0,
                  "type":"",
                  "visible":true,
                  "width":16,
@@ -164,11 +235,17 @@
                 }, 
                 {
                  "height":16,
+                 "id":12,
                  "name":"",
                  "properties":
                     {
                      "nowalk":""
                     },
+                 "propertytypes":
+                    {
+                     "nowalk":"string"
+                    },
+                 "rotation":0,
                  "type":"",
                  "visible":true,
                  "width":16,
@@ -177,11 +254,17 @@
                 }, 
                 {
                  "height":16,
+                 "id":13,
                  "name":"",
                  "properties":
                     {
                      "nowalk":""
                     },
+                 "propertytypes":
+                    {
+                     "nowalk":"string"
+                    },
+                 "rotation":0,
                  "type":"",
                  "visible":true,
                  "width":16,
@@ -190,11 +273,17 @@
                 }, 
                 {
                  "height":208,
+                 "id":14,
                  "name":"",
                  "properties":
                     {
                      "nowalk":""
                     },
+                 "propertytypes":
+                    {
+                     "nowalk":"string"
+                    },
+                 "rotation":0,
                  "type":"",
                  "visible":true,
                  "width":16,
@@ -203,11 +292,17 @@
                 }, 
                 {
                  "height":64,
+                 "id":15,
                  "name":"",
                  "properties":
                     {
                      "nowalk":""
                     },
+                 "propertytypes":
+                    {
+                     "nowalk":"string"
+                    },
+                 "rotation":0,
                  "type":"",
                  "visible":true,
                  "width":160,
@@ -216,16 +311,41 @@
                 }, 
                 {
                  "height":16,
+                 "id":16,
                  "name":"",
                  "properties":
                     {
                      "exit:right":"testmap2.json,0,0,1"
                     },
+                 "propertytypes":
+                    {
+                     "exit:right":"string"
+                    },
+                 "rotation":0,
                  "type":"",
                  "visible":true,
                  "width":16,
                  "x":144,
                  "y":272
+                }, 
+                {
+                 "height":16,
+                 "id":17,
+                 "name":"",
+                 "properties":
+                    {
+                     "exit:left":"testmap4.json,0,9,8"
+                    },
+                 "propertytypes":
+                    {
+                     "exit:left":"string"
+                    },
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":16,
+                 "x":0,
+                 "y":64
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -235,7 +355,7 @@
          "y":0
         }, 
         {
-         "data":[256, 257, 258, 257, 258, 257, 258, 257, 258, 259, 273, 274, 275, 274, 275, 274, 275, 274, 275, 276, 290, 291, 292, 291, 292, 291, 292, 291, 292, 293, 307, 308, 309, 308, 309, 308, 309, 308, 309, 310, 162, 0, 0, 0, 0, 0, 0, 0, 0, 1, 5, 0, 164, 0, 0, 0, 29, 0, 124, 18, 22, 0, 0, 0, 114, 115, 30, 0, 141, 35, 39, 0, 0, 0, 131, 132, 0, 0, 0, 52, 56, 0, 124, 0, 148, 149, 0, 0, 0, 18, 22, 0, 141, 0, 165, 166, 0, 0, 180, 35, 39, 0, 0, 0, 0, 0, 0, 0, 0, 52, 56, 0, 80, 81, 0, 146, 0, 0, 0, 18, 22, 0, 97, 98, 0, 0, 80, 81, 0, 35, 39, 0, 0, 0, 0, 0, 97, 98, 0, 52, 56, 0, 0, 0, 0, 0, 0, 0, 0, 18, 73, 196, 0, 0, 0, 128, 0, 0, 0, 69, 89, 0, 0, 0, 0, 0, 0, 0, 0, 110, 140, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 2, 3, 4, 2, 3, 4, 18, 19, 36, 53, 19, 36, 53, 19, 36, 53],
+         "data":[256, 257, 258, 257, 258, 257, 258, 257, 258, 259, 273, 274, 275, 274, 275, 274, 275, 274, 275, 276, 290, 291, 292, 291, 292, 291, 292, 291, 292, 293, 307, 308, 309, 308, 309, 308, 309, 308, 309, 310, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 5, 0, 164, 0, 0, 0, 29, 0, 124, 18, 22, 0, 0, 0, 114, 115, 30, 0, 141, 35, 39, 0, 0, 0, 131, 132, 0, 0, 0, 52, 56, 0, 124, 0, 148, 149, 0, 0, 0, 18, 22, 0, 141, 0, 165, 166, 0, 0, 180, 35, 39, 0, 0, 0, 0, 0, 0, 0, 0, 52, 56, 0, 80, 81, 0, 146, 0, 0, 0, 18, 22, 0, 97, 98, 0, 0, 80, 81, 0, 35, 39, 0, 0, 0, 0, 0, 97, 98, 0, 52, 56, 0, 0, 0, 0, 0, 0, 0, 0, 18, 73, 196, 0, 0, 0, 128, 0, 0, 0, 69, 89, 0, 0, 0, 0, 0, 0, 0, 0, 110, 140, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 2, 3, 4, 2, 3, 4, 18, 19, 36, 53, 19, 36, 53, 19, 36, 53],
          "height":20,
          "name":"Tile Layer 2",
          "opacity":1,
@@ -245,25 +365,29 @@
          "x":0,
          "y":0
         }],
+ "nextobjectid":18,
  "orientation":"orthogonal",
  "properties":
     {
      "title":"Test Map 3"
     },
+ "propertytypes":
+    {
+     "title":"string"
+    },
+ "renderorder":"right-down",
  "tileheight":16,
  "tilesets":[
         {
+         "columns":17,
          "firstgid":1,
          "image":"forest.png",
          "imageheight":304,
          "imagewidth":272,
          "margin":0,
          "name":"forest",
-         "properties":
-            {
-
-            },
          "spacing":0,
+         "tilecount":323,
          "tileheight":16,
          "tileproperties":
             {
@@ -273,26 +397,39 @@
                  "members":"29,58"
                 }
             },
+         "tilepropertytypes":
+            {
+             "29":
+                {
+                 "afps":"string",
+                 "members":"string"
+                }
+            },
          "tilewidth":16
         }, 
         {
+         "columns":7,
          "firstgid":324,
          "image":"objects.png",
          "imageheight":112,
          "imagewidth":112,
          "margin":0,
          "name":"objects",
-         "properties":
-            {
-
-            },
          "spacing":0,
+         "tilecount":49,
          "tileheight":16,
          "tileproperties":
             {
              "42":
                 {
                  "chest":"true"
+                }
+            },
+         "tilepropertytypes":
+            {
+             "42":
+                {
+                 "chest":"string"
                 }
             },
          "tilewidth":16
