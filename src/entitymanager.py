@@ -45,7 +45,7 @@ class EntityManager:
         player: The player entity.
         collider: The collision callback. The callback must take as arguments the two entities that collided.
 
-        entities: The list of Entity class instances for each entity.
+        entities: The list of Entity class instances for each entity. Stored by eid.
         spritesheets: The list of Spritesheet class instances for each sprite sheet.
     """
 

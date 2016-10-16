@@ -71,6 +71,7 @@ from resourcemanager import ResourceManager
 from inputmanager import InputManager
 from windowmanager import WindowManager
 from entitymanager import EntityManager
+from lightmanager import LightManager
 from areamanager import AreaManager
 from audiomanager import AudioManager
 from scriptmanager import ScriptManager
@@ -120,6 +121,7 @@ class Driftwood:
         self.input = InputManager(self)
         self.window = WindowManager(self)
         self.entity = EntityManager(self)
+        self.light = LightManager(self)
         self.area = AreaManager(self)
         self.audio = AudioManager(self)
         self.script = ScriptManager(self)

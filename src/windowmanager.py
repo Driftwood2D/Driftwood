@@ -237,11 +237,10 @@ class WindowManager:
 
         Create a new window and renderer with the configured settings.
         """
-        r = SDL_Init(SDL_INIT_EVERYTHING)
-        if not r:  # Couldn't init SDL.
+        if SDL_Init(SDL_INIT_EVERYTHING) < 0:  # Couldn't init SDL.
             self.driftwood.log.msg("Error", "Window", "SDL", SDL_GetError())
-        r = IMG_Init(IMG_INIT_JPG | IMG_INIT_PNG)
-        if not r:  # Couldn't init SDL_Image.
+        init_flags = IMG_INIT_JPG | IMG_INIT_PNG
+        if IMG_Init(init_flags) & init_flags != init_flags:  # Couldn't init SDL_Image.
             self.driftwood.log.msg("Error", "Window", "SDL", SDL_GetError())
 
         if self.driftwood.config["window"]["fullscreen"]:
