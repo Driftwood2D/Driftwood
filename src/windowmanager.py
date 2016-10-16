@@ -254,6 +254,7 @@ class WindowManager:
 
         self.renderer = SDL_CreateRenderer(self.window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC)
         if not self.renderer:  # We don't have hardware rendering on this machine.
+            self.driftwood.log.info("Window", "falling back to software renderer")
             self.renderer = SDL_CreateRenderer(self.window, -1, SDL_RENDERER_SOFTWARE)
 
         # Pixelated goodness, like a rebel.
