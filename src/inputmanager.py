@@ -36,6 +36,7 @@ class InputManager:
 
     Attributes:
         driftwood: Base class instance.
+        handler: Optional callback to a function that receives keypresses after we do.
     """
 
     ONDOWN, ONREPEAT, ONUP = range(3)
@@ -48,7 +49,7 @@ class InputManager:
         """
         self.driftwood = driftwood
 
-        self.__handler = None
+        self.handler = None
 
         # {keysym: {callback, throttle, delay, last_called, repeats}}
         self.__registry = {}
@@ -101,30 +102,6 @@ class InputManager:
             return getattr(self.driftwood.keycode, self.driftwood.config["input"]["keybindings"][keyname])
         except:
             return None
-
-    def handler(self, callback):
-        """Register the handler callback.
-
-        The handler callback function will receive a call every tick that a key is being pressed. The handler must take
-        one argument: the SDLKey for the key on top of the input stack. (the key which was most recently pressed.)
-
-        Args:
-            callback: Handler function to be called on any keypress.
-
-        Returns:
-            True
-        """
-        self.__handler = callback
-        return True
-
-    def unhandle(self):
-        """Unregister the handler callback.
-
-        Returns:
-            True
-        """
-        self.__handler = None
-        return True
 
     def register(self, keyid, callback, throttle=0.0, delay=0.0):
         """Register an input callback.
@@ -255,5 +232,5 @@ class InputManager:
                     top_callback["repeats"] += 1
 
             # Call the handler if set.
-            if self.__handler:
-                self.__handler(top_key)
+            if self.handler:
+                self.handler(top_key)
