@@ -40,6 +40,7 @@ class AreaManager:
         driftwood: Base class instance.
         tilemap: Tilemap instance for the area's tilemap.
         changed: Whether the area should be rebuilt.
+        offset: Offset at which to draw the area inside the viewport.
     """
 
     def __init__(self, driftwood):
@@ -53,6 +54,8 @@ class AreaManager:
         self.tilemap = tilemap.Tilemap(self)
 
         self.changed = False
+
+        self.offset = [0, 0]
 
         # The current rendered frame.
         self.__frame = None
@@ -141,7 +144,8 @@ class AreaManager:
                 # Get the source and destination rectangles needed by SDL_RenderCopy.
                 srcrect.x, srcrect.y, srcrect.w, srcrect.h = tile.srcrect()
                 dstrect.x, dstrect.y, dstrect.w, dstrect.h = tile.dstrect
-
+                dstrect.x += self.offset[0]
+                dstrect.y += self.offset[1]
                 # Copy the tile onto our frame.
                 SDL_RenderCopy(self.driftwood.window.renderer, tile.tileset.texture, srcrect,
                                dstrect)
@@ -162,6 +166,8 @@ class AreaManager:
                     tall_srcrect.x, tall_srcrect.y, tall_srcrect.w, tall_srcrect.h = entity.srcrect()
                     tall_dstrect.x, tall_dstrect.y, tall_dstrect.w, tall_dstrect.h = entity.x, entity.y - tall_amount,\
                     entity.width, entity.height - (entity.height - tall_amount)
+                    tall_dstrect.x += self.offset[0]
+                    tall_dstrect.y += self.offset[1]
                     tall_srcrect.h = tall_dstrect.h
                     tall_parts.append([entity.spritesheet.texture, tall_srcrect, tall_dstrect])
 
@@ -169,6 +175,8 @@ class AreaManager:
                 srcrect.x, srcrect.y, srcrect.w, srcrect.h = entity.srcrect()
                 dstrect.x, dstrect.y, dstrect.w, dstrect.h = entity.x, entity.y - tall_amount, entity.width, \
                                                              entity.height
+                dstrect.x += self.offset[0]
+                dstrect.y += self.offset[1]
 
                 # Copy the entity onto our frame.
                 SDL_RenderCopy(self.driftwood.window.renderer, entity.spritesheet.texture, srcrect, dstrect)

@@ -69,7 +69,7 @@ class WindowManager:
         self.logical_width = self.driftwood.config["window"]["width"]
         self.logical_height = self.driftwood.config["window"]["height"]
 
-        # Offset at which to draw the viewport
+        # Offset at which to draw the viewport on the window.
         self.offset = [0, 0]
 
         # Whether to center on the player in large areas.
@@ -203,13 +203,18 @@ class WindowManager:
 
         return True
 
-    def refresh(self):
+    def refresh(self, area=False):
         """Force the window to redraw.
+
+        Args:
+            area: Whether to mark the area changed as well.
 
         Returns:
             True
         """
         self.__changed = WindowManager.CHANGED
+        if area:
+            self.driftwood.area.changed = True
         return True
 
     def _tick(self, seconds_past):
