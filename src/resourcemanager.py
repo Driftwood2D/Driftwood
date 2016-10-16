@@ -131,7 +131,7 @@ class ResourceManager:
         """
         data = self.request(filename, True)
         if data:
-            return filetype.ImageFile(data, self.driftwood.window.renderer)
+            return filetype.ImageFile(self.driftwood, data, self.driftwood.window.renderer)
         else:
             return None
 
@@ -147,6 +147,6 @@ class ResourceManager:
         """
         data = self.request(filename, True)
         if data:
-            return filetype.AudioFile(data, music)
+            return filetype.AudioFile(self.driftwood, data, music)
         else:
             return None

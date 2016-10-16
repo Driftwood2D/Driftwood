@@ -37,7 +37,9 @@ class AudioFile:
     """This class represents and abstracts a single OGG Vorbis audio file.
     """
 
-    def __init__(self, data, music=False):
+    def __init__(self, driftwood, data, music=False):
+        self.driftwood = driftwood
+
         self.audio = None
         self.__is_music = music
         self.__data = data
@@ -55,6 +57,9 @@ class AudioFile:
             else:
                 self.audio = Mix_LoadWAV_RW(SDL_RWFromConstMem(data, len(data)), 1)
 
+            if not self.audio:
+                self.driftwood.log.msg("Error", "AudioFile", "SDL_Mixer", SDL_GetError())
+
     def __del__(self):
         if self.__is_music:
             self.__free_music(self.audio)
@@ -66,13 +71,11 @@ class ImageFile:
     """This class represents and abstracts a single image file.
     """
 
-    def __init__(self, data, renderer):
+    def __init__(self, driftwood, data, renderer):
+        """ImageFile class initializer.
         """
-        ImageFile class initializer.
+        self.driftwood = driftwood
 
-        @type  data: bytes
-        @param data: Image data from ResourceManager.
-        """
         self.texture = None
         self.__renderer = renderer
         self.__data = data
@@ -93,7 +96,13 @@ class ImageFile:
         """
         if data:
             img = IMG_Load_RW(SDL_RWFromConstMem(data, len(data)), 1)
+            if not img:
+                self.driftwood.log.msg("Error", "ImageFile", "SDL_Image", SDL_GetError())
+
             self.texture = SDL_CreateTextureFromSurface(self.__renderer, img)
+            if not self.texture:
+                self.driftwood.log.msg("Error", "ImageFile", "SDL_Image", SDL_GetError())
+
             SDL_FreeSurface(img)
 
     def __del__(self):

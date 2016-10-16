@@ -232,8 +232,12 @@ class WindowManager:
 
         Create a new window and renderer with the configured settings.
         """
-        SDL_Init(SDL_INIT_EVERYTHING)
-        IMG_Init(IMG_INIT_JPG | IMG_INIT_PNG)
+        r = SDL_Init(SDL_INIT_EVERYTHING)
+        if not r:  # Couldn't init SDL.
+            self.driftwood.log.msg("Error", "Window", "SDL", SDL_GetError())
+        r = IMG_Init(IMG_INIT_JPG | IMG_INIT_PNG)
+        if not r:  # Couldn't init SDL_Image.
+            self.driftwood.log.msg("Error", "Window", "SDL", SDL_GetError())
 
         if self.driftwood.config["window"]["fullscreen"]:
             # Desktop's current width and height
@@ -254,8 +258,10 @@ class WindowManager:
 
         self.renderer = SDL_CreateRenderer(self.window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC)
         if not self.renderer:  # We don't have hardware rendering on this machine.
-            self.driftwood.log.info("Window", "falling back to software renderer")
+            self.driftwood.log.info("SDL", "falling back to software renderer")
             self.renderer = SDL_CreateRenderer(self.window, -1, SDL_RENDERER_SOFTWARE)
+            if not self.renderer:  # Still no.
+                self.driftwood.log.msg("Error", "Window", "SDL", SDL_GetError())
 
         # Pixelated goodness, like a rebel.
         SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, b"nearest")
