@@ -105,7 +105,6 @@ class PathManager:
                 with zipfile.ZipFile(pathname, 'r') as zf:
                     for name in zf.namelist():
                         filelist.append(name)
-            print(filelist)
 
         except:
             self.driftwood.log.msg("ERROR", "Path", "could not examine pathname", pathname)
