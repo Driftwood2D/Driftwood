@@ -127,6 +127,8 @@ class AreaManager:
 
         srcrect = SDL_Rect()
         dstrect = SDL_Rect()
+        tall_srcrect = SDL_Rect()
+        tall_dstrect = SDL_Rect()
 
         tall_parts = []
 
@@ -156,10 +158,19 @@ class AreaManager:
                 SDL_RenderCopy(self.driftwood.window.renderer, *tall)
             tall_parts = []
 
+            # Draw the lights onto the layer.
+            for light in self.driftwood.light.layer(l):
+                srcrect.x, srcrect.y, srcrect.w, srcrect.h = 0, 0, light.lightmap.width, light.lightmap.height
+                dstrect.x, dstrect.y, dstrect.w, dstrect.h = light.x - light.w // 2, \
+                                                             light.y - light.h // 2, \
+                                                             light.w, light.h
+                dstrect.x += self.offset[0]
+                dstrect.y += self.offset[1]
+
+                SDL_RenderCopy(self.driftwood.window.renderer, light.lightmap.texture, srcrect, dstrect)
+
             # Draw each entity on the layer into its position.
             for entity in self.driftwood.entity.layer(l):
-                tall_srcrect = SDL_Rect()
-                tall_dstrect = SDL_Rect()
                 tall_amount = entity.height - self.tilemap.tileheight
 
                 if tall_amount:  # It's taller than the tile. Figure out where to put the tall part.

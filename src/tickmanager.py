@@ -129,7 +129,7 @@ class TickManager:
             True if registered, False otherwise.
         """
         for callback in self.__registry:
-            if callback == function:
+            if callback["function"] == function:
                 return True
 
         return False

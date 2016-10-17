@@ -33,7 +33,7 @@ class Light:
         Same as __init__ args.
     """
 
-    def __init__(self, manager, lid, lightmap, layer, x, y, w, h, intensity, color, soft, entity):
+    def __init__(self, manager, lid, lightmap, layer, x, y, w, h, color, blend=False, entity=None, layermod=0):
         """Light class initializer.
 
         Args:
@@ -46,10 +46,10 @@ class Light:
             y: y-coordinate in pixels.
             w: Width of the light.
             h: Height of the light.
-            intensity: Brightness of the light, in percentage.
-            color: Hexadeximal color value of the light.
-            soft: Whether to soften on zoom. Otherwise pixelates.
+            color: Hexadeximal color and alpha value of the light. "RRGGBBAA"
+            blend: Whether to blend light instead of adding it. Useful for dark lights.
             entity: If set, eid of entity to track the light to. Disabled if None.
+            layermod: Integer to add to the layer the light is drawn on when tracking an entity.
         """
         self.manager = manager
 
@@ -60,7 +60,21 @@ class Light:
         self.y = y
         self.w = w
         self.h = h
-        self.intensity = intensity
         self.color = color
-        self.soft = soft
+        self.blend = blend
         self.entity = entity
+
+        if entity is not None:
+            self.manager.driftwood.tick.register(self._track_entity, message=[entity, layermod])
+
+    def _track_entity(self, seconds_past, msg):
+        try:  # Avoid strange timing anomaly.
+            self.x = self.manager.driftwood.entity.entity(msg[0]).x +\
+                     self.manager.driftwood.entity.entity(msg[0]).width // 2
+            self.y = self.manager.driftwood.entity.entity(msg[0]).y +\
+                     self.manager.driftwood.entity.entity(msg[0]).height // 2
+            self.layer = self.manager.driftwood.entity.entity(msg[0]).layer + msg[1]
+        except (AttributeError):
+            self.manager.driftwood.tick.unregister(self._track_entity)
+
+        self.manager.driftwood.area.changed = True

@@ -41,7 +41,7 @@ def rumble(rate, intensity, duration):
         True
     """
     Driftwood.tick.register(__rumble_callback, delay=1.0/rate, message=intensity)
-    Driftwood.tick.register(__end_rumble, delay=duration)
+    Driftwood.tick.register(__end_rumble, delay=duration, once=True)
 
 def __rumble_callback(seconds_past, intensity):
     Driftwood.area.offset = [

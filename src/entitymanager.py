@@ -180,7 +180,7 @@ class EntityManager:
         Args:
             layer: Layer to find entities on.
 
-        Returns: Tuple of Entity class instances.
+        Returns: List of Entity class instances.
         """
         ents = []
 
@@ -188,7 +188,7 @@ class EntityManager:
             if self.entities[eid].layer == layer:
                 ents.append(self.entities[eid])
 
-        return tuple(ents)
+        return ents
 
     def kill(self, eid):
         """Kill an entity by eid.
