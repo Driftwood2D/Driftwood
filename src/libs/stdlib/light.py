@@ -41,7 +41,8 @@ def area(filename, color="FFFFFFFF", blend=False):
         color: Hexadeximal color and alpha value of the light. "RRGGBBAA"
         blend: Whether to blend light instead of adding it. Useful for dark lights.
 
-    Returns: New light if succeeded, None if failed.
+    Returns:
+        New light if succeeded, None if failed.
     """
     layer = len(Driftwood.area.tilemap.layers) - 1
     if not "stdlib_light_area_layer" in Driftwood.vars or not\
@@ -59,7 +60,7 @@ def area(filename, color="FFFFFFFF", blend=False):
                            areasize[0], areasize[1], color=color, blend=blend)
 
 def flicker(lid, rx, ry, ralpha, rate, duration=None):
-    """Convenience function to shake a light around randomly while changing its alpha.
+    """Shake a light around randomly while changing its alpha.
     Args:
         lid: Light ID of the light to shimmer.
         rx: Absolute value range for x offset.
@@ -68,7 +69,8 @@ def flicker(lid, rx, ry, ralpha, rate, duration=None):
         rate: Rate to update the light offset in hertz.
         duration: If set, how long in seconds before stopping.
 
-    Returns: True if succeeded, False if failed.
+    Returns:
+        True if succeeded, False if failed.
     """
     ox = Driftwood.light.light(lid).x
     oy = Driftwood.light.light(lid).y
@@ -94,7 +96,7 @@ def __flicker_callback(seconds_past, msg):
     Driftwood.area.changed = True
 
 def __end_flicker(seconds_past, message):
-    Driftwood.tick.unregister(FC)
+    Driftwood.tick.unregister(message)
     Driftwood.light.light(msg[0]).x = Driftwood.vars["stdlib_light_flicker_originals"+str(lid)][0]
     Driftwood.light.light(msg[0]).y = Driftwood.vars["stdlib_light_flicker_originals"+str(lid)][1]
     Driftwood.light.light(msg[0]).color = Driftwood.light.light(msg[0]).color[6:8] +\
