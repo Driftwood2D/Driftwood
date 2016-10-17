@@ -58,8 +58,38 @@ def area(filename, color="FFFFFFFF", blend=False):
                 Driftwood.area.tilemap.height * Driftwood.area.tilemap.tileheight]
     insertpos = [areasize[0] // 2, areasize[1] // 2]
 
-    Driftwood.light.insert(filename, layer, insertpos[0], insertpos[1],
-                           areasize[0], areasize[1], color=color, blend=blend)
+    return Driftwood.light.insert(filename, layer, insertpos[0], insertpos[1],
+                                  areasize[0], areasize[1], color=color, blend=blend)
+
+def color(lid, c):
+    """Change the color and alpha value for a light.
+
+    Args:
+        lid: Light ID of the light whose color and alpha to update.
+        c: New color and alpha value in hexadecimal. "RRGGBBAA"
+
+    returns:
+        True
+    """
+    Driftwood.light.light(lid).color = c
+    SDL_SetTextureColorMod(Driftwood.light.light(lid).lightmap.texture, int(c[0:2], 16), int(c[2:4], 16),
+                           int(c[4:6], 16))
+    alpha(lid, int(c[6:8], 16))
+    return True
+
+def alpha(lid, a):
+    """Change the alpha for a light.
+
+    Args:
+        lid: Light ID of the light whose alpha to update.
+        a: New alpha value, 0-255
+
+    returns:
+        True
+    """
+    Driftwood.light.light(lid).color = Driftwood.light.light(lid).color[6:8] + '%02X'%a
+    SDL_SetTextureAlphaMod(Driftwood.light.light(lid).lightmap.texture, a)
+    return True
 
 def flicker(lid, rx, ry, ralpha, rate, duration=None):
     """Shake a light around randomly while changing its alpha.
@@ -72,7 +102,7 @@ def flicker(lid, rx, ry, ralpha, rate, duration=None):
         duration: If set, how long in seconds before stopping.
 
     Returns:
-        True if succeeded, False if failed.
+        True
     """
     ox = Driftwood.light.light(lid).x
     oy = Driftwood.light.light(lid).y
@@ -82,6 +112,7 @@ def flicker(lid, rx, ry, ralpha, rate, duration=None):
     Driftwood.tick.register(FC, delay=1.0/rate, message=[lid, rx, ry, ralpha, FC])
     if duration:
         Driftwood.tick.register(__end_flicker, delay=duration, once=True, message=[lid, FC])
+    return True
 
 def __flicker_callback(seconds_past, msg):
     if not Driftwood.light.light(msg[0]):
