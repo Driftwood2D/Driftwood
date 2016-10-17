@@ -29,19 +29,20 @@
 
 import random
 
-def rumble(rate, intensity, duration):
+def rumble(rate, intensity, duration=None):
     """Rumble the viewport.
 
     Args:
         rate: Rate to update the viewport offset in hertz.
         intensity: Maximum viewport offset.
-        duration: Length of the rumble in seconds.
+        duration: If set, how long in seconds before stopping.
 
     Returns:
         True
     """
     Driftwood.tick.register(__rumble_callback, delay=1.0/rate, message=intensity)
-    Driftwood.tick.register(__end_rumble, delay=duration, once=True)
+    if duration:
+        Driftwood.tick.register(__end_rumble, delay=duration, once=True)
 
 def __rumble_callback(seconds_past, intensity):
     Driftwood.area.offset = [

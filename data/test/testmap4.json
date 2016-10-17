@@ -175,7 +175,7 @@
                  "rotation":0,
                  "type":"",
                  "visible":true,
-                 "width":112,
+                 "width":96,
                  "x":32,
                  "y":0
                 }, 
@@ -235,6 +235,44 @@
                  "width":48,
                  "x":96,
                  "y":80
+                }, 
+                {
+                 "height":16,
+                 "id":16,
+                 "name":"",
+                 "properties":
+                    {
+                     "nowalk":""
+                    },
+                 "propertytypes":
+                    {
+                     "nowalk":"string"
+                    },
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":16,
+                 "x":128,
+                 "y":0
+                }, 
+                {
+                 "height":16,
+                 "id":18,
+                 "name":"",
+                 "properties":
+                    {
+                     "exit":"house1.json,1,4,9"
+                    },
+                 "propertytypes":
+                    {
+                     "exit":"string"
+                    },
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":16,
+                 "x":80,
+                 "y":80
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -254,7 +292,7 @@
          "x":0,
          "y":0
         }],
- "nextobjectid":16,
+ "nextobjectid":20,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tileheight":16,

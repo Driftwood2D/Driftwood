@@ -27,6 +27,9 @@
 
 # Driftwood STDLib lighting functions.
 
+import copy
+from sdl2 import *
+
 def area(filename, color="FFFFFFFF", blend=False):
     """Convenience function to apply a lightmap over an entire area.
 
@@ -38,8 +41,7 @@ def area(filename, color="FFFFFFFF", blend=False):
         color: Hexadeximal color and alpha value of the light. "RRGGBBAA"
         blend: Whether to blend light instead of adding it. Useful for dark lights.
 
-    Returns:
-        Returns: New light if succeeded, None if failed.
+    Returns: New light if succeeded, None if failed.
     """
     layer = len(Driftwood.area.tilemap.layers) - 1
     if not "stdlib_light_area_layer" in Driftwood.vars or not\
@@ -55,3 +57,48 @@ def area(filename, color="FFFFFFFF", blend=False):
 
     Driftwood.light.insert(filename, layer, insertpos[0], insertpos[1],
                            areasize[0], areasize[1], color=color, blend=blend)
+
+def flicker(lid, rx, ry, ralpha, rate, duration=None):
+    """Convenience function to shake a light around randomly while changing its alpha.
+    Args:
+        lid: Light ID of the light to shimmer.
+        rx: Absolute value range for x offset.
+        ry: Absolute value range for y offset.
+        ralpha: Absolute value range for alpha offset.
+        rate: Rate to update the light offset in hertz.
+        duration: If set, how long in seconds before stopping.
+
+    Returns: True if succeeded, False if failed.
+    """
+    ox = Driftwood.light.light(lid).x
+    oy = Driftwood.light.light(lid).y
+    oalpha = int(Driftwood.light.light(lid).color[6:], 16)
+    Driftwood.vars["stdlib_light_flicker_originals"+str(lid)] = [ox, oy, oalpha]
+    FC = Driftwood.script.module("libs/stdlib/helper.py").copy_function(__flicker_callback)
+    Driftwood.tick.register(FC, delay=1.0/rate, message=[lid, rx, ry, ralpha, FC])
+    if duration:
+        Driftwood.tick.register(__end_flicker, delay=duration, once=True, message=FC)
+
+def __flicker_callback(seconds_past, msg):
+    if not Driftwood.light.light(msg[0]):
+        Driftwood.tick.unregister(msg[4])
+        return
+    fval = copy.deepcopy(Driftwood.vars["stdlib_light_flicker_originals"+str(msg[0])])
+    fval[0] += Driftwood.random(msg[1] * -1, msg[1])
+    fval[1] += Driftwood.random(msg[2] * -1, msg[2])
+    fval[2] += Driftwood.random(msg[3] * -1, msg[3])
+    Driftwood.light.light(msg[0]).x = fval[0]
+    Driftwood.light.light(msg[0]).y = fval[1]
+    Driftwood.light.light(msg[0]).color = Driftwood.light.light(msg[0]).color[6:8] + '%02X'%fval[2]
+    SDL_SetTextureAlphaMod(Driftwood.light.light(msg[0]).lightmap.texture, fval[2])
+    Driftwood.area.changed = True
+
+def __end_flicker(seconds_past, message):
+    Driftwood.tick.unregister(FC)
+    Driftwood.light.light(msg[0]).x = Driftwood.vars["stdlib_light_flicker_originals"+str(lid)][0]
+    Driftwood.light.light(msg[0]).y = Driftwood.vars["stdlib_light_flicker_originals"+str(lid)][1]
+    Driftwood.light.light(msg[0]).color = Driftwood.light.light(msg[0]).color[6:8] +\
+                                          '%02X'%Driftwood.vars["stdlib_light_flicker_originals"+str(lid)][2]
+    SDL_SetTextureAlphaMod(Driftwood.light.light(msg[0]).lightmap.texture,
+                           Driftwood.vars["stdlib_light_flicker_originals"+str(lid)][2])
+    Driftwood.area.changed = True

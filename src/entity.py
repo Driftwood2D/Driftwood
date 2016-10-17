@@ -707,8 +707,6 @@ class TileModeEntity(Entity):
         # Kill all lights and all entities except the player and entities with "travel" set to true.
         to_kill = []
 
-        self.manager.driftwood.light.reset()
-
         for eid in self.manager.entities:
             if not self.manager.entities[eid].travel:
                 to_kill.append(eid)

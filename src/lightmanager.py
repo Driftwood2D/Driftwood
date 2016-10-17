@@ -287,4 +287,5 @@ class LightManager:
         self.lights = {}
         self.area_lighting = None
         self.driftwood.area.changed = True
+        self.driftwood.log.info("Light", "reset")
         return True

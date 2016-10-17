@@ -90,6 +90,7 @@ class Tilemap:
             self.layers = []
         if self.tilesets:
             self.tilesets = []
+        self.area.driftwood.light.reset()
 
         # Load the JSON data.
         self.__tilemap = data
@@ -101,10 +102,12 @@ class Tilemap:
         self.tileheight = self.__tilemap["tileheight"]
         if "properties" in self.__tilemap:
             self.properties = self.__tilemap["properties"]
+        else:
+            self.properties = {}
 
         # Call the on_enter event if set.
         if "on_enter" in self.properties:
-            self.area.driftwood.script.call(*self.properties["on_enter"].split(':'))
+            self.area.driftwood.script.call(*self.properties["on_enter"].split(','))
 
         # Set the window title.
         if "title" in self.properties:

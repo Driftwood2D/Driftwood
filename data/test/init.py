@@ -23,6 +23,7 @@ def init_area(millis):
 
     # Prepare earthquake.
     Driftwood.tick.register(rumble, delay=10.0)
+    Driftwood.vars["init_rumble_tick_callback"] = rumble
 
 def rumble():
     Driftwood.script.call("libs/stdlib/viewport.py", "rumble", 15, 3, 5)
