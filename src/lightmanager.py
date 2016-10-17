@@ -26,9 +26,6 @@
 # **********
 
 from sdl2 import *
-import jsonschema
-import sys
-import traceback
 
 import filetype
 import light
