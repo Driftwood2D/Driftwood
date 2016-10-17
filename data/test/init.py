@@ -28,4 +28,4 @@ def init_area(millis):
     Driftwood.light.insert("lightmap.png", 1, 64, 60, 56, 56, "22FF66DD")
 
 def rumble():
-    Driftwood.script.call("libs/stdlib/gfx.py", "rumble", 15, 3, 5)
+    Driftwood.script.call("libs/stdlib/viewport.py", "rumble", 15, 3, 5)

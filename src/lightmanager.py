@@ -43,7 +43,6 @@ class LightManager:
         driftwood: Base class instance.
 
         lights: The list of Light class instances for each light. Stored by lid.
-        area_lighting: Whole-area lighting effects. {intensity, color}
     """
 
     def __init__(self, driftwood):
@@ -55,8 +54,6 @@ class LightManager:
         self.driftwood = driftwood
 
         self.lights = {}
-
-        self.area_lighting = None
 
         self.__last_lid = -1
 
@@ -135,26 +132,6 @@ class LightManager:
         self.driftwood.area.changed = True
 
         return self.lights[lid]
-
-    def area(self, color, blend=False):
-        """Set the area lighting.
-
-        Args:
-            color: Hexadeximal color and alpha value of the light. "RRGGBBAA"
-            blend: Whether to blend light instead of adding it. Useful for dark lights.
-
-        Returns:
-            True if succeeded, False if invalid.
-        """
-        try:
-            int(color, 16)
-        except (ValueError):
-            self.driftwood.log.msg("ERROR", "Light", "invalid color", color)
-            return False
-
-        self.area_lighting = [color, blend]
-        self.driftwood.area.changed = True
-        return True
 
     def light(self, lid):
         """Retrieve a light by lid.

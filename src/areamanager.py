@@ -51,6 +51,8 @@ class AreaManager:
         """
         self.driftwood = driftwood
 
+        self.filename = ""
+
         self.tilemap = tilemap.Tilemap(self)
 
         self.changed = False
@@ -76,6 +78,7 @@ class AreaManager:
             True if succeeded, False if failed.
         """
         if filename in self.driftwood.resource:
+            self.filename = filename
             self.tilemap._read(self.driftwood.resource.request_json(filename))  # This should only be called from here.
             self.__prepare_frame()
             self.__build_frame()

@@ -1,6 +1,6 @@
 ####################################
 # Driftwood 2D Game Dev. Suite     #
-# libs/stdlib/gfx.py               #
+# libs/stdlib/viewport.py          #
 # Copyright 2016 Michael D. Reiley #
 # & Paul Merrill                   #
 ####################################
@@ -25,7 +25,7 @@
 # IN THE SOFTWARE.
 # **********
 
-# Driftwood STDLib GFX functions.
+# Driftwood STDLib viewport functions.
 
 import random
 
