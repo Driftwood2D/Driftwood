@@ -171,9 +171,23 @@ class AreaManager:
                 if r < 0:
                     self.driftwood.log.msg("Error", "Area", "SDL", SDL_GetError())
 
+            tall_parts = []
+
             # Draw each entity on the layer into its position.
             for entity in self.driftwood.entity.layer(l):
                 tall_amount = entity.height - self.tilemap.tileheight
+
+                # Get the source and destination rectangles needed by SDL_RenderCopy.
+                srcrect.x, srcrect.y, srcrect.w, srcrect.h = entity.srcrect()
+                dstrect.x, dstrect.y, dstrect.w, dstrect.h = entity.x, entity.y - tall_amount, entity.width, \
+                                                             entity.height
+                dstrect.x += self.offset[0]
+                dstrect.y += self.offset[1]
+
+                # Copy the entity onto our frame.
+                r = SDL_RenderCopy(self.driftwood.window.renderer, entity.spritesheet.texture, srcrect, dstrect)
+                if r < 0:
+                    self.driftwood.log.msg("Error", "Area", "SDL", SDL_GetError())
 
                 tall_srcrect = SDL_Rect()
                 tall_dstrect = SDL_Rect()
@@ -185,22 +199,11 @@ class AreaManager:
                     tall_dstrect.x += self.offset[0]
                     tall_dstrect.y += self.offset[1]
                     tall_srcrect.h = tall_dstrect.h
+                    tall_parts.append([entity.spritesheet.texture, tall_srcrect, tall_dstrect])
 
-                    # Draw the tall bits here.
-                    r = SDL_RenderCopy(self.driftwood.window.renderer, entity.spritesheet.texture, tall_srcrect,
-                                       tall_dstrect)
-                    if r < 0:
-                        self.driftwood.log.msg("Error", "Area", "SDL", SDL_GetError())
-
-                # Get the source and destination rectangles needed by SDL_RenderCopy.
-                srcrect.x, srcrect.y, srcrect.w, srcrect.h = entity.srcrect()
-                dstrect.x, dstrect.y, dstrect.w, dstrect.h = entity.x, entity.y - tall_amount, entity.width, \
-                                                             entity.height
-                dstrect.x += self.offset[0]
-                dstrect.y += self.offset[1]
-
-                # Copy the entity onto our frame.
-                r = SDL_RenderCopy(self.driftwood.window.renderer, entity.spritesheet.texture, srcrect, dstrect)
+            for tall in tall_parts:
+                # Draw the tall bits here.
+                r = SDL_RenderCopy(self.driftwood.window.renderer, *tall)
                 if r < 0:
                     self.driftwood.log.msg("Error", "Area", "SDL", SDL_GetError())
 

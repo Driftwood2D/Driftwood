@@ -26,7 +26,6 @@
 # IN THE SOFTWARE.
 # **********
 
-import random as random_module
 import signal
 import sys
 import time
@@ -134,18 +133,6 @@ class Driftwood:
 
         # Are we going to continue running?
         self.running = False
-
-    def random(self, min, max):
-        """Retrieve a random integer within min and max bounds.
-
-        Args:
-            min: Minimum
-            max: Maximum
-
-        Returns:
-            Random integer.
-        """
-        return random_module.randint(min, max)
 
     def _run(self):
         """Perform startup procedures and enter the mainloop.

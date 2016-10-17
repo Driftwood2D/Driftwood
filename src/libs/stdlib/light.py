@@ -28,6 +28,8 @@
 # Driftwood STDLib lighting functions.
 
 import copy
+import random
+
 from sdl2 import *
 
 def area(filename, color="FFFFFFFF", blend=False):
@@ -86,9 +88,9 @@ def __flicker_callback(seconds_past, msg):
         Driftwood.tick.unregister(msg[4])
         return
     fval = copy.deepcopy(Driftwood.vars["stdlib_light_flicker_originals"+str(msg[0])])
-    fval[0] += Driftwood.random(msg[1] * -1, msg[1])
-    fval[1] += Driftwood.random(msg[2] * -1, msg[2])
-    fval[2] += Driftwood.random(msg[3] * -1, msg[3])
+    fval[0] += random.randint(msg[1] * -1, msg[1])
+    fval[1] += random.randint(msg[2] * -1, msg[2])
+    fval[2] += random.randint(msg[3] * -1, msg[3])
     Driftwood.light.light(msg[0]).x = fval[0]
     Driftwood.light.light(msg[0]).y = fval[1]
     Driftwood.light.light(msg[0]).color = Driftwood.light.light(msg[0]).color[6:8] + '%02X'%fval[2]

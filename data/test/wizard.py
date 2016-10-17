@@ -1,3 +1,5 @@
+import random
+
 def setup(ent):
     print("New entity \"wizard\" with EID {0} at {1},{2},{3} ".format(str(ent.eid),
                                                                 str(ent.x),
@@ -12,7 +14,7 @@ def kill(ent):
     Driftwood.tick.unregister(move)
 
 def move(seconds_past, ent):
-    rand = Driftwood.random(1, 8)
+    rand = random.randint(1, 8)
     if rand == 1:
         ent.walk(0, -1, dont_stop=False, stance="walk_up", end_stance="face_up")
     elif rand == 2:
