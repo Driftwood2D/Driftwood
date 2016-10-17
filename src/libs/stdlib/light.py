@@ -41,11 +41,12 @@ def area(filename, color="FFFFFFFF", blend=False):
     Returns:
         Returns: New light if succeeded, None if failed.
     """
-    layer = len(Driftwood.area.tilemap.layers)
+    layer = len(Driftwood.area.tilemap.layers) - 1
     if not "stdlib_light_area_layer" in Driftwood.vars or not\
             Driftwood.vars["stdlib_light_area_layer"][0] == Driftwood.area.filename or not \
             Driftwood.vars["stdlib_light_area_layer"][1] == layer:
         Driftwood.area.tilemap.new_layer()
+        layer = len(Driftwood.area.tilemap.layers) - 1
         Driftwood.vars["stdlib_light_area_layer"] = [Driftwood.area.filename, layer]
 
     areasize = [Driftwood.area.tilemap.width * Driftwood.area.tilemap.tilewidth,

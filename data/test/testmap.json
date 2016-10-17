@@ -297,10 +297,12 @@
  "orientation":"orthogonal",
  "properties":
     {
+     "on_focus":"focus_testmap.py,setup",
      "title":"Test Map"
     },
  "propertytypes":
     {
+     "on_focus":"string",
      "title":"string"
     },
  "renderorder":"right-down",

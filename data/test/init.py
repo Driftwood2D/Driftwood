@@ -24,8 +24,5 @@ def init_area(millis):
     # Prepare earthquake.
     Driftwood.tick.register(rumble, delay=10.0, once=True)
 
-    # Insert light.
-    Driftwood.light.insert("lightmap.png", 1, 64, 60, 56, 56, "22FF66DD")
-
 def rumble():
     Driftwood.script.call("libs/stdlib/viewport.py", "rumble", 15, 3, 5)
