@@ -1,2 +1,2 @@
 @ECHO OFF
-python src config.windows.json
+python src --self src --root data --path test
