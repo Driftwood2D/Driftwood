@@ -34,7 +34,7 @@ import sys
 import traceback
 import zipfile
 
-VERSION = "Driftwood 2D Alpha-0.0.2"
+VERSION = "Driftwood 2D Alpha-0.0.3"
 COPYRIGHT = "Copyright 2016 Michael D. Reiley and Paul Merrill"
 
 

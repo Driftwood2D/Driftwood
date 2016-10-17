@@ -22,7 +22,7 @@ def init_area(millis):
     player = Driftwood.entity.insert("player.json", layer=1, x=16*1, y=16*2)
 
     # Prepare earthquake.
-    Driftwood.tick.register(rumble, delay=10.0, once=True)
+    Driftwood.tick.register(rumble, delay=10.0)
 
 def rumble():
     Driftwood.script.call("libs/stdlib/viewport.py", "rumble", 15, 3, 5)
