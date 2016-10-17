@@ -159,7 +159,7 @@ class WindowManager:
         if tw > ww and self.centering:
             if self.driftwood.entity.player:
                 playermidx = self.driftwood.entity.player.x + (self.driftwood.entity.player.width / 2)
-                prepx = int(ww / 2 - playermidx * 2)
+                prepx = int(ww / 2 - playermidx * self.driftwood.config["window"]["zoom"])
 
                 if prepx > 0:
                     dstrect.x = 0
@@ -169,7 +169,7 @@ class WindowManager:
                     dstrect.x = prepx
 
             else:
-                dstrect.y = int(wh / 2 - th / 2)
+                dstrect.x = int(ww / 2 - tw / 2)
 
         # Area height is smaller than window height. Center by height on area.
         if th < wh:
@@ -179,7 +179,7 @@ class WindowManager:
         if th > wh and self.centering:
             if self.driftwood.entity.player:
                 playermidy = self.driftwood.entity.player.y + (self.driftwood.entity.player.height / 2)
-                prepy = int(wh / 2 - playermidy * 2)
+                prepy = int(wh / 2 - playermidy * self.driftwood.config["window"]["zoom"])
 
                 if prepy > 0:
                     dstrect.y = 0

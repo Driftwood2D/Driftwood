@@ -45,10 +45,10 @@
   },
   "window": {
     "title": "Driftwood 2D",
-    "width": 640,
+    "width": 480,
     "height": 480,
     "fullscreen": false,
-    "zoom": 2,
+    "zoom": 4,
     "maxfps": 60
   }
 }
