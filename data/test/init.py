@@ -19,7 +19,7 @@ def init_area(millis):
     Driftwood.audio.play_music("A_Travellers_Tale.oga", loop=-1)
 
     # Insert the player entity.
-    player = Driftwood.entity.insert("player.json", layer=0, x=16*1, y=16*2)
+    player = Driftwood.entity.insert("player.json", layer=1, x=16*1, y=16*2)
 
     # Prepare earthquake.
     Driftwood.tick.register(rumble, delay=10.0, once=True)

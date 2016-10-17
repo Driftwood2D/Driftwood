@@ -188,7 +188,8 @@ class EntityManager:
             if self.entities[eid].layer == layer:
                 ents.append(self.entities[eid])
 
-        return ents
+        # Put them in order of eid so they don't switch around if we iterate them.
+        return sorted(ents, key=lambda by_eid: by_eid.eid)
 
     def kill(self, eid):
         """Kill an entity by eid.

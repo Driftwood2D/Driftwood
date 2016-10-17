@@ -136,8 +136,6 @@ class AreaManager:
         srcrect = SDL_Rect()
         dstrect = SDL_Rect()
 
-        tall_parts = []
-
         # Start with the bottom layer and work up.
         for l in range(len(self.tilemap.layers)):
             # Draw each tile in the layer into its position.
@@ -159,14 +157,6 @@ class AreaManager:
                                    dstrect)
                 if r < 0:
                     self.driftwood.log.msg("Error", "Area", "SDL", SDL_GetError())
-
-            # Do the tall entity parts from the previous layer here, after tiles.
-            for tall in tall_parts:
-                # Copy the tall parts of the entities from the last layer onto our frame.
-                r = SDL_RenderCopy(self.driftwood.window.renderer, *tall)
-                if r < 0:
-                    self.driftwood.log.msg("Error", "Area", "SDL", SDL_GetError())
-            tall_parts = []
 
             # Draw the lights onto the layer.
             for light in self.driftwood.light.layer(l):
@@ -195,7 +185,12 @@ class AreaManager:
                     tall_dstrect.x += self.offset[0]
                     tall_dstrect.y += self.offset[1]
                     tall_srcrect.h = tall_dstrect.h
-                    tall_parts.append([entity.spritesheet.texture, tall_srcrect, tall_dstrect])
+
+                    # Draw the tall bits here.
+                    r = SDL_RenderCopy(self.driftwood.window.renderer, entity.spritesheet.texture, tall_srcrect,
+                                       tall_dstrect)
+                    if r < 0:
+                        self.driftwood.log.msg("Error", "Area", "SDL", SDL_GetError())
 
                 # Get the source and destination rectangles needed by SDL_RenderCopy.
                 srcrect.x, srcrect.y, srcrect.w, srcrect.h = entity.srcrect()
@@ -208,13 +203,6 @@ class AreaManager:
                 r = SDL_RenderCopy(self.driftwood.window.renderer, entity.spritesheet.texture, srcrect, dstrect)
                 if r < 0:
                     self.driftwood.log.msg("Error", "Area", "SDL", SDL_GetError())
-
-
-        for tall in tall_parts:  # We didn't have enough layers, tall parts still exist.
-            # Copy the tall parts of the entities from the last layer onto our frame.
-            r = SDL_RenderCopy(self.driftwood.window.renderer, *tall)
-            if r < 0:
-                self.driftwood.log.msg("Error", "Area", "SDL", SDL_GetError())
 
         # Tell SDL to switch rendering back to the window's frame.
         r = SDL_SetRenderTarget(self.driftwood.window.renderer, None)
