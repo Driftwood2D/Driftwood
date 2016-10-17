@@ -27,6 +27,7 @@
 # **********
 
 import os
+import platform
 import zipfile
 
 
@@ -83,16 +84,28 @@ class PathManager:
         """
         filelist = []
 
+        # Make sure we don't end in a slash.
+        if pathname.endswith('/'):
+            pathname = pathname[:-1]
+
         try:
             if os.path.isdir(pathname):  # This is a directory.
                 for root, dirs, files in os.walk(pathname):
                     for name in files:
-                        filelist.append(name)
+                        if platform.system() == "Windows":  # Fix paths on Windows.
+                            filelist.append(os.path.join(root, name))
+                        else:
+                            filelist.append(name)
+                for file in range(len(filelist)):
+                    if platform.system() == "Windows":  # Fix paths on Windows.
+                        filelist[file] = filelist[file].replace('\\', '/')
+                        filelist[file] = filelist[file].replace(pathname + '/', '')
 
             else:  # This is hopefully a zip archive.
                 with zipfile.ZipFile(pathname, 'r') as zf:
                     for name in zf.namelist():
                         filelist.append(name)
+            print(filelist)
 
         except:
             self.driftwood.log.msg("ERROR", "Path", "could not examine pathname", pathname)
