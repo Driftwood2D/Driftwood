@@ -135,8 +135,6 @@ class AreaManager:
 
         srcrect = SDL_Rect()
         dstrect = SDL_Rect()
-        tall_srcrect = SDL_Rect()
-        tall_dstrect = SDL_Rect()
 
         tall_parts = []
 
@@ -187,6 +185,9 @@ class AreaManager:
             for entity in self.driftwood.entity.layer(l):
                 tall_amount = entity.height - self.tilemap.tileheight
 
+                tall_srcrect = SDL_Rect()
+                tall_dstrect = SDL_Rect()
+
                 if tall_amount:  # It's taller than the tile. Figure out where to put the tall part.
                     tall_srcrect.x, tall_srcrect.y, tall_srcrect.w, tall_srcrect.h = entity.srcrect()
                     tall_dstrect.x, tall_dstrect.y, tall_dstrect.w, tall_dstrect.h = entity.x, entity.y - tall_amount,\
@@ -207,6 +208,7 @@ class AreaManager:
                 r = SDL_RenderCopy(self.driftwood.window.renderer, entity.spritesheet.texture, srcrect, dstrect)
                 if r < 0:
                     self.driftwood.log.msg("Error", "Area", "SDL", SDL_GetError())
+
 
         for tall in tall_parts:  # We didn't have enough layers, tall parts still exist.
             # Copy the tall parts of the entities from the last layer onto our frame.
