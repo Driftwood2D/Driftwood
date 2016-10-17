@@ -90,6 +90,7 @@ class ConfigManager:
         parser.add_argument("config", nargs='?', type=str, default="config.json", help="config file to use")
         parser.add_argument("--path", nargs=1, dest="path", type=str, metavar="<name,...>", help="set path")
         parser.add_argument("--root", nargs=1, dest="root", type=str, metavar="<root>", help="set path root")
+        parser.add_argument("--self", nargs=1, dest="myself", type=str, metavar="<self>", help="set path to self")
         parser.add_argument("--db", nargs=1, dest="db", type=str, metavar="<database>", help="set database to use")
         parser.add_argument("--size", nargs=1, dest="size", type=str, metavar="<WxH>", help="set window dimensions")
         parser.add_argument("--tps", nargs=1, dest="tps", type=int, metavar="<hertz>", help="set ticks-per-second")
@@ -134,6 +135,8 @@ class ConfigManager:
 
         # Try to load the schema for validation.
         try:
+            if self.__cmdline_args.myself:
+                self.__config["path"]["self"] = self.__cmdline_args.myself[0]
             if os.path.isdir(self.__config["path"]["self"]):  # This is a directory.
                 with open(os.path.join(self.__config["path"]["self"], "schema/config.json")) as sch:
                     schema = json.load(sch)
