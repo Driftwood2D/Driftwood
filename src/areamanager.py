@@ -62,9 +62,12 @@ class AreaManager:
         # The current rendered frame.
         self.__frame = None
 
+        self.refocused = False
+
         # We need to save SDL's destructors because their continued existence is undefined during shutdown.
         self.__sdl_destroytexture = SDL_DestroyTexture
 
+    def register(self):
         # Register the tick callback.
         self.driftwood.tick.register(self._tick)
 
@@ -80,9 +83,9 @@ class AreaManager:
         if filename in self.driftwood.resource:
             self.filename = filename
             self.tilemap._read(self.driftwood.resource.request_json(filename))  # This should only be called from here.
-            self.__prepare_frame()
-            self.__build_frame()
             self.driftwood.log.info("Area", "loaded", filename)
+
+            self.refocused = True
 
             # If there is an on_focus function defined for this map, call it.
             if "on_focus" in self.tilemap.properties:
@@ -103,6 +106,9 @@ class AreaManager:
         """Tick callback.
         """
         if self.changed:  # TODO: Only redraw portions that have changed.
+            if self.refocused:
+                self.__prepare_frame()
+                self.refocused = False
             self.__build_frame()
             self.changed = False
 

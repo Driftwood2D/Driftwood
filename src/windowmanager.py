@@ -220,7 +220,7 @@ class WindowManager:
     def _tick(self, seconds_past):
         """Tick callback which refreshes the renderer.
         """
-        if self.__changed:
+        if self.__changed and self.__frame:
             SDL_RenderSetLogicalSize(self.renderer,
                                      self.logical_width, self.logical_height)  # set
 
