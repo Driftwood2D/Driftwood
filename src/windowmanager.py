@@ -94,6 +94,7 @@ class WindowManager:
 
         self.__prepare()
 
+    def register(self):
         self.driftwood.tick.register(self._tick, delay=1.0 / self.driftwood.config["window"]["maxfps"],
                                      during_pause=True)
 
@@ -220,7 +221,7 @@ class WindowManager:
     def _tick(self, seconds_past):
         """Tick callback which refreshes the renderer.
         """
-        if self.__changed and self.__frame:
+        if self.__changed:
             SDL_RenderSetLogicalSize(self.renderer,
                                      self.logical_width, self.logical_height)  # set
 

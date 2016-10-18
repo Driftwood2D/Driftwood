@@ -125,6 +125,7 @@ class Driftwood:
         self.audio = AudioManager(self)
         self.script = ScriptManager(self)
         self.area.register()
+        self.window.register()
 
         # SDL Keycodes.
         self.keycode = keycode
