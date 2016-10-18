@@ -75,6 +75,12 @@ are attributed in the distributions of the below mentioned primary dependencies.
 * Title: Twelve 16x18 RPG sprites, plus base
 * URI: http://opengameart.org/content/twelve-16x18-rpg-sprites-plus-base
 
+### wizard.png
+* Copyright 2010 Antifarea
+* License: http://creativecommons.org/licenses/by/3.0/
+* Title: Twelve 16x18 RPG sprites, plus base
+* URI: http://opengameart.org/content/twelve-16x18-rpg-sprites-plus-base
+
 ### forest.png
 * Copyright 2010 Blarumyrran
 * License: http://creativecommons.org/licenses/by-sa/3.0/
@@ -86,3 +92,15 @@ are attributed in the distributions of the below mentioned primary dependencies.
 * License: http://creativecommons.org/licenses/by/3.0/
 * Title: Objects for 16x16 tilesets
 * URI: http://opengameart.org/content/objects-for-16x16-tilesets
+
+### indoors.png
+* Copyright 2011 Redshrike
+* License: http://creativecommons.org/licenses/by/3.0/
+* Title: 16x16 indoor rpg tileset: the baseline
+* URI: http://opengameart.org/content/16x16-indoor-rpg-tileset-the-baseline
+
+### indoors_2.png
+* Copyright 2011 Redshrike
+* License: http://creativecommons.org/licenses/by/3.0/
+* Title: RPG Indoor Tileset: Expansion 1
+* URI: http://opengameart.org/content/rpg-indoor-tileset-expansion-1

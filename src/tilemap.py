@@ -70,7 +70,8 @@ class Tilemap:
     def new_layer(self):
         """Create a new virtual tile layer.
 
-        returns: Layer z position.
+        Returns:
+            Layer z position.
         """
         fakedata = {"data":[0] * (self.width * self.height)}
         self.layers.append(layer.Layer(self, fakedata, len(self.layers)))
