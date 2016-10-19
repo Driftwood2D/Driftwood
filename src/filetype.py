@@ -76,12 +76,14 @@ class ImageFile:
         """
         self.driftwood = driftwood
 
+        self.surface = None
         self.texture = None
         self.__renderer = renderer
         self.__data = data
 
         # We need to save SDL's destructors because their continued existence is undefined during shutdown.
         self.__sdl_destroytexture = SDL_DestroyTexture
+        self.__sdl_freesurface = SDL_FreeSurface
 
         self.__load(self.__data)
 
@@ -95,16 +97,16 @@ class ImageFile:
         Load the image data with SDL_Image.
         """
         if data:
-            img = IMG_Load_RW(SDL_RWFromConstMem(data, len(data)), 1)
-            if not img:
+            self.surface = IMG_Load_RW(SDL_RWFromConstMem(data, len(data)), 1)
+            if not self.surface:
                 self.driftwood.log.msg("Error", "ImageFile", "SDL_Image", SDL_GetError())
 
-            self.texture = SDL_CreateTextureFromSurface(self.__renderer, img)
+            self.texture = SDL_CreateTextureFromSurface(self.__renderer, surface)
             if not self.texture:
                 self.driftwood.log.msg("Error", "ImageFile", "SDL_Image", SDL_GetError())
 
-            SDL_FreeSurface(img)
-
     def __del__(self):
+        if self.surface:
+            self.__sdl_freesurface(self.surface)
         if self.texture:
             self.__sdl_destroytexture(self.texture)
