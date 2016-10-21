@@ -101,7 +101,7 @@ class ImageFile:
             if not self.surface:
                 self.driftwood.log.msg("Error", "ImageFile", "SDL_Image", SDL_GetError())
 
-            self.texture = SDL_CreateTextureFromSurface(self.__renderer, surface)
+            self.texture = SDL_CreateTextureFromSurface(self.__renderer, self.surface)
             if not self.texture:
                 self.driftwood.log.msg("Error", "ImageFile", "SDL_Image", SDL_GetError())
 

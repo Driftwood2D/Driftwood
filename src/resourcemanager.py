@@ -50,6 +50,7 @@ class ResourceManager:
             driftwood: Base class instance.
         """
         self.driftwood = driftwood
+        self.__injections = {}
 
     def __contains__(self, item):
         if self.driftwood.path[item]:
@@ -70,6 +71,10 @@ class ResourceManager:
             Contents of the requested file, if present. Otherwise None.
         """
         self.driftwood.log.info("Resource", "requested", filename)
+
+        # If the filename is in our injections list, return the injected data.
+        if filename in self.__injections:
+            return self.__injections[filename]
 
         # If the file is already cached, return the cached version.
         if filename in self.driftwood.cache:
@@ -103,6 +108,38 @@ class ResourceManager:
             self.driftwood.log.msg("ERROR", "Resource", "no such file", filename)
             return None
 
+    def inject(self, filename, data):
+        """Inject data to be retrieved later by a fake filename.
+
+        This is checked before path or cache, so if you overwrite an existing filename you won't have access to it
+        anymore!
+
+        Args:
+            filename: The fake filename by which to retrieve the stored data.
+            data: The data to inject.
+
+        Returns:
+            True
+        """
+        self.__injections[filename] = data
+        self.driftwood.log.info("Resource", "injected", filename)
+        return True
+
+    def uninject(self, filename):
+        """Delete injected data.
+
+        Args:
+            filename: Fake filename to uninject.
+
+        Returns:
+            True if succeeded, False if failed.
+        """
+        if filename in self.__injections:
+            del self.__injections[filename]
+            return True
+        self.driftwood.log.msg("ERROR", "Resource", "could not uninject", filename)
+        return False
+
     def request_json(self, filename):
         """Retrieve a dictionary of JSON data.
 
@@ -117,8 +154,7 @@ class ResourceManager:
             if type(data) == bytes:
                 data = data.decode()
             return json.loads(data)
-        else:
-            return None
+        return None
 
     def request_image(self, filename):
         """Retrieve an internal abstraction of an image file.
@@ -132,8 +168,7 @@ class ResourceManager:
         data = self.request(filename, True)
         if data:
             return filetype.ImageFile(self.driftwood, data, self.driftwood.window.renderer)
-        else:
-            return None
+        return None
 
     def request_audio(self, filename, music=False):
         """Retrieve an internal abstraction of an audio file.
@@ -148,5 +183,4 @@ class ResourceManager:
         data = self.request(filename, True)
         if data:
             return filetype.AudioFile(self.driftwood, data, music)
-        else:
-            return None
+        return None

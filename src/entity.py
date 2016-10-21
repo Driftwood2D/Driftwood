@@ -67,16 +67,16 @@ class Entity:
 
     NOT_WALKING, WALKING_WANT_CONT, WALKING_WANT_STOP = range(3)
 
-    def __init__(self, entitymanager):
+    def __init__(self, manager):
         """Entity class initializer.
 
         Args:
             manager: Link back to the parent EntityManager instance.
         """
-        self.manager = entitymanager
+        self.manager = manager
 
         self.filename = ""
-        self.eid = 0
+        self.eid = -1
 
         if isinstance(self, TileModeEntity):
             self.mode = "tile"

@@ -29,5 +29,10 @@
 
 class Widget():
 
-    def __init__(self):
-        pass
+    def __init__(self, manager):
+        self.manager = manager
+        self.wid = -1
+
+        self.active = False
+        self.focus = False
+        self.type = None # "container", "text", etc...

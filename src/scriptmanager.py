@@ -84,7 +84,7 @@ class ScriptManager:
 
             except:  # Failure
                 self.driftwood.log.msg("ERROR", "Script", "broken function", filename, func + "()")
-                traceback.print_exc(0, sys.stdout)
+                traceback.print_exc(file=sys.stdout)
                 sys.stdout.flush()
                 return False
 

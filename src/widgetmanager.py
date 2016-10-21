@@ -55,7 +55,16 @@ class WidgetManager:
     def text(self):
         pass
 
-    def insert(self):
+    def activate(self):
+        pass
+
+    def deactivate(self):
+        pass
+
+    def kill(self):
+        pass
+
+    def widget(self):
         pass
 
     def __prepare(self):
