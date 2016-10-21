@@ -31,6 +31,7 @@ from ctypes import c_int
 from sdl2 import *
 from sdl2.sdlimage import *
 from sdl2.sdlmixer import *
+from sdl2.sdlttf import *
 
 
 class AudioFile:
@@ -51,6 +52,8 @@ class AudioFile:
         self.__load(self.__data)
 
     def __load(self, data):
+        """Load the audio data with SDL_Mixer.
+        """
         if data:
             if self.__is_music:
                 self.audio = Mix_LoadMUS_RW(SDL_RWFromConstMem(data, len(data)), 1)
@@ -65,6 +68,36 @@ class AudioFile:
             self.__free_music(self.audio)
         else:
             self.__free_chunk(self.audio)
+
+
+class FontFile:
+    """This class represents and abstracts a single font file.
+    """
+    def __init__(self, driftwood, data, ptsize):
+        """FontFile class initializer.
+        """
+        self.driftwood = driftwood
+
+        self.font = None
+        self.ptsize = ptsize
+        self.__data = data
+
+        # We need to save SDL's destructors because their continued existence is undefined during shutdown.
+        self.__closefont = TTF_CloseFont
+
+        self.__load(self.__data)
+
+    def __load(self, data):
+        """Load the font data with SDL_TTF.
+        """
+        if data:
+            self.font = TTF_OpenFontRW(SDL_RWFromConstMem(data, len(data)), 0, self.ptsize)
+            if not self.font:
+                self.driftwood.log.msg("Error", "FontFile", "SDL_TTF", TTF_GetError())
+
+    def __del__(self):
+        if self.font:
+            TTF_CloseFont(self.font)
 
 
 class ImageFile:
@@ -82,8 +115,8 @@ class ImageFile:
         self.__data = data
 
         # We need to save SDL's destructors because their continued existence is undefined during shutdown.
-        self.__sdl_destroytexture = SDL_DestroyTexture
-        self.__sdl_freesurface = SDL_FreeSurface
+        self.__destroytexture = SDL_DestroyTexture
+        self.__freesurface = SDL_FreeSurface
 
         self.__load(self.__data)
 
@@ -93,20 +126,19 @@ class ImageFile:
         self.width, self.height = tw.value, th.value
 
     def __load(self, data):
-        """
-        Load the image data with SDL_Image.
+        """Load the image data with SDL_Image.
         """
         if data:
             self.surface = IMG_Load_RW(SDL_RWFromConstMem(data, len(data)), 1)
             if not self.surface:
-                self.driftwood.log.msg("Error", "ImageFile", "SDL_Image", SDL_GetError())
+                self.driftwood.log.msg("Error", "ImageFile", "SDL_Image", IMG_GetError())
 
             self.texture = SDL_CreateTextureFromSurface(self.__renderer, self.surface)
             if not self.texture:
-                self.driftwood.log.msg("Error", "ImageFile", "SDL_Image", SDL_GetError())
+                self.driftwood.log.msg("Error", "ImageFile", "SDL_Image", IMG_GetError())
 
     def __del__(self):
         if self.surface:
-            self.__sdl_freesurface(self.surface)
+            self.__freesurface(self.surface)
         if self.texture:
-            self.__sdl_destroytexture(self.texture)
+            self.__destroytexture(self.texture)

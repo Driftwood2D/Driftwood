@@ -36,6 +36,7 @@ class WidgetManager:
         self.driftwood = driftwood
 
         self.widgets = {}
+        self.focus = None
 
         self.__spritefactory = None
         self.__uifactory = None
@@ -43,11 +44,37 @@ class WidgetManager:
 
         self.__prepare()
 
-    def focus(self):
-        pass
+    def __contains__(self, wid):
+        if self.widget(wid):
+            return True
+        return False
+
+    def __getitem__(self, wid):
+        return self.widget(wid)
+
+    def __delitem__(self, wid):
+        return self.kill(wid)
+
+    def __iter__(self):
+        return self.widgets.items()
+
+    def focus(self, wid):
+        if not wid in self.widgets:
+            self.driftwood.log.msg("Error", "Widget", "Cannot focus nonexistent widget", wid)
+            return False
+        if self.focus is not None:
+            self.widgets[self.focus].focus = False
+        self.widgets[wid].focus = True
+        self.focus = wid
+        return True
 
     def release(self):
-        pass
+        if self.focus is None:
+            self.driftwood.log.msg("Error", "Widget", "Cannot release if no widget focused")
+            return False
+        self.widgets[self.focus].focus = False
+        self.focus = None
+        return True
 
     def container(self):
         pass
@@ -55,19 +82,24 @@ class WidgetManager:
     def text(self):
         pass
 
-    def activate(self):
+    def activate(self, wid):
         pass
 
-    def deactivate(self):
+    def deactivate(self, wid):
         pass
 
-    def kill(self):
+    def kill(self, wid):
         pass
 
-    def widget(self):
+    def widget(self, wid):
         pass
 
     def __prepare(self):
+        if TTF_Init() < 0:
+            self.driftwood.log.msg("Error", "Widget", "SDL_TTF", TTF_GetError())
         self.__spritefactory = SpriteFactory(sprite_type=TEXTURE)
         self.__uifactory = UIFactory(self.__spritefactory)
         self.__uiprocessor = UIProcessor()
+
+    def __del__(self):
+        TTF_Quit()
