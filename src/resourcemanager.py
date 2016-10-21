@@ -156,20 +156,6 @@ class ResourceManager:
             return json.loads(data)
         return None
 
-    def request_image(self, filename):
-        """Retrieve an internal abstraction of an image file.
-
-        Args:
-            filename: The filename of the image file to load.
-
-        Returns:
-            Image filetype abstraction if succeeded, None if failed.
-        """
-        data = self.request(filename, True)
-        if data:
-            return filetype.ImageFile(self.driftwood, data, self.driftwood.window.renderer)
-        return None
-
     def request_audio(self, filename, music=False):
         """Retrieve an internal abstraction of an audio file.
 
@@ -183,4 +169,33 @@ class ResourceManager:
         data = self.request(filename, True)
         if data:
             return filetype.AudioFile(self.driftwood, data, music)
+        return None
+
+    def request_font(self, filename, ptsize):
+        """Retrieve an internal abstraction of a font file.
+
+        Args:
+            filename: The filename of the font file to load.
+            ptsize: The point size to load the font in.
+
+        Returns:
+            Font filetype abstraction if succeeded, None if failed.
+        """
+        data = self.request(filename, True)
+        if data:
+            return filetype.FontFile(self.driftwood, data, ptsize)
+        return None
+
+    def request_image(self, filename):
+        """Retrieve an internal abstraction of an image file.
+
+        Args:
+            filename: The filename of the image file to load.
+
+        Returns:
+            Image filetype abstraction if succeeded, None if failed.
+        """
+        data = self.request(filename, True)
+        if data:
+            return filetype.ImageFile(self.driftwood, data, self.driftwood.window.renderer)
         return None

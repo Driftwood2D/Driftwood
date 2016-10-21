@@ -36,7 +36,9 @@ class WidgetManager:
         self.driftwood = driftwood
 
         self.widgets = {}
-        self.focus = None
+        self.selected = None
+
+        self.__last_wid = -1
 
         self.__spritefactory = None
         self.__uifactory = None
@@ -58,22 +60,37 @@ class WidgetManager:
     def __iter__(self):
         return self.widgets.items()
 
-    def focus(self, wid):
+    def select(self, wid):
+        """Select the specified widget.
+        
+        An example is selecting a button in a menu or selecting a text input box, out of the other widgets on screen.
+        
+        Args:
+             wid: Widget ID of the widget to select.
+
+        Returns:
+            True if succeeded, False if failed.
+        """
         if not wid in self.widgets:
-            self.driftwood.log.msg("Error", "Widget", "Cannot focus nonexistent widget", wid)
+            self.driftwood.log.msg("WARNING", "Widget", "Cannot select nonexistent widget", wid)
             return False
-        if self.focus is not None:
-            self.widgets[self.focus].focus = False
-        self.widgets[wid].focus = True
-        self.focus = wid
+        if self.selected is not None:
+            self.widgets[self.selected].selected = False
+        self.widgets[wid].selected = True
+        self.selected = wid
         return True
 
     def release(self):
-        if self.focus is None:
-            self.driftwood.log.msg("Error", "Widget", "Cannot release if no widget focused")
+        """Release the currently selected widget so that no widgets are selected.
+
+        Returns:
+            True if succeeded, False if failed.
+        """
+        if self.selected is None:
+            self.driftwood.log.msg("WARNING", "Widget", "Cannot release if no widget selected")
             return False
-        self.widgets[self.focus].focus = False
-        self.focus = None
+        self.widgets[self.selected].selected = False
+        self.selected = None
         return True
 
     def container(self):
@@ -96,7 +113,7 @@ class WidgetManager:
 
     def __prepare(self):
         if TTF_Init() < 0:
-            self.driftwood.log.msg("Error", "Widget", "SDL_TTF", TTF_GetError())
+            self.driftwood.log.msg("ERROR", "Widget", "SDL_TTF", TTF_GetError())
         self.__spritefactory = SpriteFactory(sprite_type=TEXTURE)
         self.__uifactory = UIFactory(self.__spritefactory)
         self.__uiprocessor = UIProcessor()

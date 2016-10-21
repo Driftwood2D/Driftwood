@@ -61,7 +61,7 @@ class AudioFile:
                 self.audio = Mix_LoadWAV_RW(SDL_RWFromConstMem(data, len(data)), 1)
 
             if not self.audio:
-                self.driftwood.log.msg("Error", "AudioFile", "SDL_Mixer", SDL_GetError())
+                self.driftwood.log.msg("ERROR", "AudioFile", "SDL_Mixer", SDL_GetError())
 
     def __del__(self):
         if self.__is_music:
@@ -93,7 +93,7 @@ class FontFile:
         if data:
             self.font = TTF_OpenFontRW(SDL_RWFromConstMem(data, len(data)), 0, self.ptsize)
             if not self.font:
-                self.driftwood.log.msg("Error", "FontFile", "SDL_TTF", TTF_GetError())
+                self.driftwood.log.msg("ERROR", "FontFile", "SDL_TTF", TTF_GetError())
 
     def __del__(self):
         if self.font:
@@ -131,11 +131,11 @@ class ImageFile:
         if data:
             self.surface = IMG_Load_RW(SDL_RWFromConstMem(data, len(data)), 1)
             if not self.surface:
-                self.driftwood.log.msg("Error", "ImageFile", "SDL_Image", IMG_GetError())
+                self.driftwood.log.msg("ERROR", "ImageFile", "SDL_Image", IMG_GetError())
 
             self.texture = SDL_CreateTextureFromSurface(self.__renderer, self.surface)
             if not self.texture:
-                self.driftwood.log.msg("Error", "ImageFile", "SDL_Image", IMG_GetError())
+                self.driftwood.log.msg("ERROR", "ImageFile", "SDL_Image", IMG_GetError())
 
     def __del__(self):
         if self.surface:

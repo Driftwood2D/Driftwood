@@ -126,7 +126,7 @@ class AreaManager:
                                          self.tilemap.height * self.tilemap.tileheight)
 
         if type(self.__frame) == int and self.__frame < 0:
-            self.driftwood.log.msg("Error", "Area", "SDL", SDL_GetError())
+            self.driftwood.log.msg("ERROR", "Area", "SDL", SDL_GetError())
 
     def __build_frame(self):
         """Build the frame and pass to WindowManager.
@@ -137,7 +137,7 @@ class AreaManager:
         # Tell SDL to render to our frame instead of the window's frame.
         r = SDL_SetRenderTarget(self.driftwood.window.renderer, self.__frame)
         if r < 0:
-            self.driftwood.log.msg("Error", "Area", "SDL", SDL_GetError())
+            self.driftwood.log.msg("ERROR", "Area", "SDL", SDL_GetError())
 
         srcrect = SDL_Rect()
         dstrect = SDL_Rect()
@@ -162,7 +162,7 @@ class AreaManager:
                 r = SDL_RenderCopy(self.driftwood.window.renderer, tile.tileset.texture, srcrect,
                                    dstrect)
                 if r < 0:
-                    self.driftwood.log.msg("Error", "Area", "SDL", SDL_GetError())
+                    self.driftwood.log.msg("ERROR", "Area", "SDL", SDL_GetError())
 
             # Draw the lights onto the layer.
             for light in self.driftwood.light.layer(l):
@@ -175,7 +175,7 @@ class AreaManager:
 
                 r = SDL_RenderCopy(self.driftwood.window.renderer, light.lightmap.texture, srcrect, dstrect)
                 if r < 0:
-                    self.driftwood.log.msg("Error", "Area", "SDL", SDL_GetError())
+                    self.driftwood.log.msg("ERROR", "Area", "SDL", SDL_GetError())
 
             tall_parts = []
 
@@ -193,7 +193,7 @@ class AreaManager:
                 # Copy the entity onto our frame.
                 r = SDL_RenderCopy(self.driftwood.window.renderer, entity.spritesheet.texture, srcrect, dstrect)
                 if r < 0:
-                    self.driftwood.log.msg("Error", "Area", "SDL", SDL_GetError())
+                    self.driftwood.log.msg("ERROR", "Area", "SDL", SDL_GetError())
 
                 tall_srcrect = SDL_Rect()
                 tall_dstrect = SDL_Rect()
@@ -211,12 +211,12 @@ class AreaManager:
                 # Draw the tall bits here.
                 r = SDL_RenderCopy(self.driftwood.window.renderer, *tall)
                 if r < 0:
-                    self.driftwood.log.msg("Error", "Area", "SDL", SDL_GetError())
+                    self.driftwood.log.msg("ERROR", "Area", "SDL", SDL_GetError())
 
         # Tell SDL to switch rendering back to the window's frame.
         r = SDL_SetRenderTarget(self.driftwood.window.renderer, None)
         if r < 0:
-            self.driftwood.log.msg("Error", "Area", "SDL", SDL_GetError())
+            self.driftwood.log.msg("ERROR", "Area", "SDL", SDL_GetError())
 
         # Give our frame to WindowManager for positioning and display.
         self.driftwood.window.frame(self.__frame, True)
