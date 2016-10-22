@@ -205,6 +205,7 @@ class Entity:
         self.height = self.__init_stance["height"]
         self.speed = self.__init_stance["speed"]
         self.members = self.__init_stance["members"]
+        self.properties = self.__init_stance["properties"]
 
         # Setup spritesheet.
         self.spritesheet = self.manager.spritesheet(self.__init_stance["image"])

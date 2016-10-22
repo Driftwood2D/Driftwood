@@ -4,7 +4,6 @@ def init():
     # Load the area.
     Driftwood.area.focus("testmap.json")
 
-    Driftwood.audio.play_sfx("Blip_Select.oga")
     Driftwood.audio.play_music("A_Travellers_Tale.oga", loop=-1)
 
     # Insert the player entity.

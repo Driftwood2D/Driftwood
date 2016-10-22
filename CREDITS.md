@@ -104,3 +104,12 @@ are attributed in the distributions of the below mentioned primary dependencies.
 * License: http://creativecommons.org/licenses/by/3.0/
 * Title: RPG Indoor Tileset: Expansion 1
 * URI: http://opengameart.org/content/rpg-indoor-tileset-expansion-1
+
+
+## Fonts
+
+### pf_arma_five.ttf
+* Copyright n/a (Public Domain) by Yusuke Kamiyamane
+* License: http://p.yusukekamiyamane.com/fonts/
+* Title: Arma Five Fonts
+* URI: http://p.yusukekamiyamane.com/fonts/
