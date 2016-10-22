@@ -39,25 +39,33 @@ class Widget():
         self.focus = False
         self.type = t
         self.image = None
+        self.texture = None
         self.x = 0
         self.y = 0
+        self.realx = None
+        self.realy = None
         self.width = 0
         self.height = 0
         self.font = None
         self.text = ""
+        self.textwidth = None
+        self.textheight = None
         self.ptsize = 0
         self.container = None
         self.contains = []
 
+        self.__destroytexture = SDL_DestroyTexture
+
     def srcrect(self):
         if self.image:
             return (0, 0, self.image.width, self.image.height)
+        elif self.texture:
+            return (0, 0, self.textwidth, self.textheight)
         return None
 
     def dstrect(self):
-        if self.container is not None:
-            return (self.x + self.manager.widgets[self.container].x,
-                    self.y + self.manager.widgets[self.container].y,
-                    self.width, self.height)
-        else:
-            return(self.x, self.y, self.width, self.height)
+        return (self.realx, self.realy, self.width, self.height)
+
+    def __del__(self):
+        if self.texture:
+            self.__destroytexture(self.texture)

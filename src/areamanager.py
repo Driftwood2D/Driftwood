@@ -215,16 +215,26 @@ class AreaManager:
 
             for widget in sorted(self.driftwood.widget.widgets.keys()):
                 # Draw the widgets.
-                if self.driftwood.widget.widgets[widget] and self.driftwood.widget.widgets[widget].image and \
-                        self.driftwood.widget.widgets[widget].active and \
+                if self.driftwood.widget.widgets[widget].active and \
                         self.driftwood.widget.widgets[widget].srcrect():  # It's visible, draw it.
-                    srcrect.x, srcrect.y, srcrect.w, srcrect.h = self.driftwood.widget.widgets[widget].srcrect()
-                    dstrect.x, dstrect.y, dstrect.w, dstrect.h = self.driftwood.widget.widgets[widget].dstrect()
-                    r = SDL_RenderCopy(self.driftwood.window.renderer,
-                                       self.driftwood.widget.widgets[widget].image.texture,
-                                       srcrect, dstrect)
-                    if r < 0:
-                        self.driftwood.log.msg("ERROR", "Area", "SDL", SDL_GetError())
+                    if (not self.driftwood.widget.widgets[widget].container) or \
+                            self.driftwood.widget.widgets[widget].container.active:  # But ignore inactive containers.
+                        srcrect.x, srcrect.y, srcrect.w, srcrect.h = self.driftwood.widget.widgets[widget].srcrect()
+                        dstrect.x, dstrect.y, dstrect.w, dstrect.h = self.driftwood.widget.widgets[widget].dstrect()
+                        if self.driftwood.widget.widgets[widget].type == "container" and \
+                                self.driftwood.widget.widgets[widget].image:  # Draw a container image.
+                            r = SDL_RenderCopy(self.driftwood.window.renderer,
+                                               self.driftwood.widget.widgets[widget].image.texture,
+                                               srcrect, dstrect)
+                            if r < 0:
+                                self.driftwood.log.msg("ERROR", "Area", "SDL", SDL_GetError())
+                        elif self.driftwood.widget.widgets[widget].type == "text" and \
+                                self.driftwood.widget.widgets[widget].texture:  # Draw some text.
+                            r = SDL_RenderCopy(self.driftwood.window.renderer,
+                                               self.driftwood.widget.widgets[widget].texture,
+                                               srcrect, dstrect)
+                            if r < 0:
+                                self.driftwood.log.msg("ERROR", "Area", "SDL", SDL_GetError())
 
         # Tell SDL to switch rendering back to the window's frame.
         r = SDL_SetRenderTarget(self.driftwood.window.renderer, None)

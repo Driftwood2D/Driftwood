@@ -26,8 +26,7 @@
 # IN THE SOFTWARE.
 # **********
 
-from ctypes import byref
-from ctypes import c_int
+from ctypes import byref, c_int
 from sdl2 import *
 from sdl2.sdlimage import *
 from sdl2.sdlmixer import *

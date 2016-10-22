@@ -26,6 +26,9 @@
 # IN THE SOFTWARE.
 # **********
 
+from ctypes import byref, c_int
+
+from sdl2 import *
 from sdl2.ext import *
 from sdl2.sdlttf import *
 
@@ -111,30 +114,112 @@ class WidgetManager:
             active: Whether to make the widget active right away.
 
         Returns:
-            Widget ID of the new container widget.
+            Widget ID of the new container widget if succeeded, None if failed.
         """
+        # Set the variables.
         self.__last_wid += 1
         self.widgets[self.__last_wid] = widget.Widget(self, "container")
         self.widgets[self.__last_wid].wid = self.__last_wid
         self.widgets[self.__last_wid].x = x
         self.widgets[self.__last_wid].y = y
+        self.widgets[self.__last_wid].realx = x
+        self.widgets[self.__last_wid].realy = y
         self.widgets[self.__last_wid].width = width
         self.widgets[self.__last_wid].height = height
 
         if container is not None:
-            self.widgets[self.__last_wid].container = container
-            self.widgets[container].contains.append(self.__last_wid)
+            if self.widgets[container].type == "container":  # It has a container.
+                self.widgets[self.__last_wid].container = container
+                self.widgets[container].contains.append(self.__last_wid)
+                if self.widgets[container].realx and self.widgets[container].realy:  # Set the adjusted x and y.
+                    self.widgets[self.__last_wid].realx += self.widgets[container].realx
+                    self.widgets[self.__last_wid].realy += self.widgets[container].realy
 
-        if imagefile:
+            else:  # Fake container.
+                self.driftwood.log.msg("WARNING", "Widget", "not a container", container)
+                return None
+
+        if imagefile:  # It has a background.
             self.widgets[self.__last_wid].image = self.driftwood.resource.request_image(imagefile)
 
-        if active:
+        if active:  # Do we activate it to be drawn/used?
             self.activate(self.__last_wid)
 
         return self.__last_wid
 
-    def text(self):
-        pass
+    def text(self, contents, font, ptsize, container=None, x=0, y=0, width=-1, height=-1, color="000000FF", active=True):
+        """Create a new container widget.
+
+            A text widget puts text on the screen. It cannot have a background image, but can have a color.
+
+            Args:
+                contents: The contents of the text.
+                font: The font to render the text with.
+                ptsize: The point size of the text.
+                container: If set, the wid of the parent container.
+                x: The x position of the text on the window.
+                y: The y position of the text on the window.
+                width: The width of the text. If -1 don't alter it.
+                height: The height of the container. If -1 don't alter it.
+                color: The color and alpha to draw the text in.
+                active: Whether to make the widget active right away.
+
+            Returns:
+                Widget ID of the new text widget.
+        """
+        # Set the variables.
+        self.__last_wid += 1
+        self.widgets[self.__last_wid] = widget.Widget(self, "text")
+        self.widgets[self.__last_wid].wid = self.__last_wid
+        self.widgets[self.__last_wid].contents = contents
+        self.widgets[self.__last_wid].ptsize = ptsize
+        self.widgets[self.__last_wid].x = x
+        self.widgets[self.__last_wid].y = y
+        self.widgets[self.__last_wid].realx = x
+        self.widgets[self.__last_wid].realy = y
+        self.widgets[self.__last_wid].width = width
+        self.widgets[self.__last_wid].height = height
+
+        if container is not None and self.widgets[container].type == "container":  # It has a container.
+            self.widgets[self.__last_wid].container = container
+            self.widgets[container].contains.append(self.__last_wid)
+            if self.widgets[container].realx and self.widgets[container].realy:  # Set the adjusted x and y.
+                self.widgets[self.__last_wid].realx += self.widgets[container].realx
+                self.widgets[self.__last_wid].realy += self.widgets[container].realy
+
+        self.widgets[self.__last_wid].font = self.driftwood.resource.request_font(font, ptsize)
+        if not self.widgets[self.__last_wid].font:
+            return None
+
+        # Get text width and height.
+        tw, th = c_int(), c_int()
+        TTF_SizeText(self.widgets[self.__last_wid].font.font, contents.encode(), byref(tw), byref(th))
+        self.widgets[self.__last_wid].textwidth, self.widgets[self.__last_wid].textheight = tw.value, th.value
+
+        # Set width and height if not overridden.
+        if width == -1:
+            self.widgets[self.__last_wid].width = tw.value
+        if height == -1:
+            self.widgets[self.__last_wid].height = th.value
+
+        # Render.
+        color_temp = SDL_Color()
+        color_temp.r, color_temp.g, color_temp.b, color_temp.a = int(color[0:2], 16), int(color[2:4], 16), \
+                                                                 int(color[4:6], 16), int(color[6:8], 16)
+        surface_temp = TTF_RenderUTF8_Solid(self.widgets[self.__last_wid].font.font, contents.encode(), color_temp)
+
+        # Convert to a texture we can use internally.
+        if surface_temp:
+            self.widgets[self.__last_wid].texture = SDL_CreateTextureFromSurface(self.driftwood.window.renderer,
+                                                                                 surface_temp)
+            SDL_FreeSurface(surface_temp)
+            if not self.widgets[self.__last_wid].texture:
+                self.driftwood.log.msg("ERROR", "Widget", "SDL", SDL_GetError())
+        else:
+            self.driftwood.log.msg("ERROR", "Widget", "TTF", TTF_GetError())
+
+        if active:  # Do we activate it to be drawn/used?
+            self.activate(self.__last_wid)
 
     def activate(self, wid):
         if wid in self.widgets:
