@@ -213,6 +213,19 @@ class AreaManager:
                 if r < 0:
                     self.driftwood.log.msg("ERROR", "Area", "SDL", SDL_GetError())
 
+            for widget in sorted(self.driftwood.widget.widgets.keys()):
+                # Draw the widgets.
+                if self.driftwood.widget.widgets[widget] and self.driftwood.widget.widgets[widget].image and \
+                        self.driftwood.widget.widgets[widget].active and \
+                        self.driftwood.widget.widgets[widget].srcrect():
+                    srcrect.x, srcrect.y, srcrect.w, srcrect.h = self.driftwood.widget.widgets[widget].srcrect()
+                    dstrect.x, dstrect.y, dstrect.w, dstrect.h = self.driftwood.widget.widgets[widget].dstrect()
+                    r = SDL_RenderCopy(self.driftwood.window.renderer,
+                                       self.driftwood.widget.widgets[widget].image.texture,
+                                       srcrect, dstrect)
+                    if r < 0:
+                        self.driftwood.log.msg("ERROR", "Area", "SDL", SDL_GetError())
+
         # Tell SDL to switch rendering back to the window's frame.
         r = SDL_SetRenderTarget(self.driftwood.window.renderer, None)
         if r < 0:

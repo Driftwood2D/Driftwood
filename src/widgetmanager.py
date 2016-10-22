@@ -29,6 +29,8 @@
 from sdl2.ext import *
 from sdl2.sdlttf import *
 
+import widget
+
 
 class WidgetManager:
 
@@ -93,17 +95,38 @@ class WidgetManager:
         self.selected = None
         return True
 
-    def container(self):
-        pass
+    def container(self, imagefile=None, container=None, x=0, y=0, width=0, height=0):
+        self.__last_wid += 1
+        self.widgets[self.__last_wid] = widget.Widget(self, "container")
+        self.widgets[self.__last_wid].wid = self.__last_wid
+        self.widgets[self.__last_wid].x = x
+        self.widgets[self.__last_wid].y = y
+        self.widgets[self.__last_wid].width = width
+        self.widgets[self.__last_wid].height = height
+
+        if container:
+            self.widgets[self.__last_wid].container = container
+            self.widgets[container].append(self.__last_wid)
+
+        if imagefile:
+            self.widgets[self.__last_wid].image = self.driftwood.resource.request_image(imagefile)
+
+        return self.__last_wid
 
     def text(self):
         pass
 
     def activate(self, wid):
-        pass
+        if wid in self.widgets:
+            self.widgets[wid].active = True
+            return True
+        return False
 
     def deactivate(self, wid):
-        pass
+        if wid in self.widgets:
+            self.widgets[wid].active = False
+            return True
+        return False
 
     def kill(self, wid):
         pass
@@ -111,10 +134,14 @@ class WidgetManager:
     def widget(self, wid):
         pass
 
+    def reset(self):
+        self.widgets = {}
+        self.selected = None
+
     def __prepare(self):
         if TTF_Init() < 0:
             self.driftwood.log.msg("ERROR", "Widget", "SDL_TTF", TTF_GetError())
-        self.__spritefactory = SpriteFactory(sprite_type=TEXTURE)
+        self.__spritefactory = SpriteFactory(sprite_type=TEXTURE, renderer=self.driftwood.window.renderer)
         self.__uifactory = UIFactory(self.__spritefactory)
         self.__uiprocessor = UIProcessor()
 

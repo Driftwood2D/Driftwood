@@ -714,6 +714,8 @@ class TileModeEntity(Entity):
         for eid in to_kill:
             self.manager.kill(eid)
 
+        self.manager.driftwood.widget.reset()
+
     def __stand_still(self):
         # We are entirely finished walking.
         tilemap = self.manager.driftwood.area.tilemap

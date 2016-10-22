@@ -26,13 +26,38 @@
 # IN THE SOFTWARE.
 # **********
 
+from sdl2 import *
+
 
 class Widget():
 
-    def __init__(self, manager):
+    def __init__(self, manager, t):
         self.manager = manager
         self.wid = -1
 
         self.active = False
         self.focus = False
-        self.type = None # "container", "text", etc...
+        self.type = t
+        self.image = None
+        self.x = 0
+        self.y = 0
+        self.width = 0
+        self.height = 0
+        self.font = None
+        self.text = ""
+        self.ptsize = 0
+        self.container = None
+        self.contains = []
+
+    def srcrect(self):
+        if self.image:
+            return (0, 0, self.image.width, self.image.height)
+        return None
+
+    def dstrect(self):
+        if self.container:
+            return (self.x + self.manager.widgets[self.container].x,
+                    self.y + self.manager.widgets[self.container].y,
+                    self.width, self.height)
+        else:
+            return(self.x, self.y, self.width, self.height)
