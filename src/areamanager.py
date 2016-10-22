@@ -217,7 +217,7 @@ class AreaManager:
                 # Draw the widgets.
                 if self.driftwood.widget.widgets[widget] and self.driftwood.widget.widgets[widget].image and \
                         self.driftwood.widget.widgets[widget].active and \
-                        self.driftwood.widget.widgets[widget].srcrect():
+                        self.driftwood.widget.widgets[widget].srcrect():  # It's visible, draw it.
                     srcrect.x, srcrect.y, srcrect.w, srcrect.h = self.driftwood.widget.widgets[widget].srcrect()
                     dstrect.x, dstrect.y, dstrect.w, dstrect.h = self.driftwood.widget.widgets[widget].dstrect()
                     r = SDL_RenderCopy(self.driftwood.window.renderer,

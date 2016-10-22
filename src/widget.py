@@ -55,7 +55,7 @@ class Widget():
         return None
 
     def dstrect(self):
-        if self.container:
+        if self.container is not None:
             return (self.x + self.manager.widgets[self.container].x,
                     self.y + self.manager.widgets[self.container].y,
                     self.width, self.height)

@@ -95,7 +95,24 @@ class WidgetManager:
         self.selected = None
         return True
 
-    def container(self, imagefile=None, container=None, x=0, y=0, width=0, height=0):
+    def container(self, imagefile=None, container=None, x=0, y=0, width=0, height=0, active=True):
+        """Create a new container widget.
+
+        A container widget can have a background image, and other widgets can be contained by it. Widgets in a container
+        are drawn together and the container's x and y positions are added to the widget's x and y positions.
+
+        Args:
+            imagefile: If set, ilename of the image file to use as a background.
+            container: If set, the wid of the parent container.
+            x: The x position of the container on the window.
+            y: The y position of the container on the window.
+            width: The width of the container.
+            height: The height of the container.
+            active: Whether to make the widget active right away.
+
+        Returns:
+            Widget ID of the new container widget.
+        """
         self.__last_wid += 1
         self.widgets[self.__last_wid] = widget.Widget(self, "container")
         self.widgets[self.__last_wid].wid = self.__last_wid
@@ -104,12 +121,15 @@ class WidgetManager:
         self.widgets[self.__last_wid].width = width
         self.widgets[self.__last_wid].height = height
 
-        if container:
+        if container is not None:
             self.widgets[self.__last_wid].container = container
-            self.widgets[container].append(self.__last_wid)
+            self.widgets[container].contains.append(self.__last_wid)
 
         if imagefile:
             self.widgets[self.__last_wid].image = self.driftwood.resource.request_image(imagefile)
+
+        if active:
+            self.activate(self.__last_wid)
 
         return self.__last_wid
 
@@ -119,24 +139,36 @@ class WidgetManager:
     def activate(self, wid):
         if wid in self.widgets:
             self.widgets[wid].active = True
+            self.driftwood.area.changed = True
             return True
+        self.driftwood.log.msg("WARNING", "Widget", "attempt to activate nonexistent widget", wid)
         return False
 
     def deactivate(self, wid):
         if wid in self.widgets:
             self.widgets[wid].active = False
+            self.driftwood.area.changed = False
             return True
+        self.driftwood.log.msg("WARNING", "Widget", "attempt to deactivate nonexistent widget", wid)
         return False
 
     def kill(self, wid):
-        pass
+        if wid in self.widgets:
+            del self.widgets[wid]
+            self.driftwood.area.changed = True
+            return True
+        self.driftwood.log.msg("WARNING", "Widget", "attempt to kill nonexistent widget", wid)
+        return False
 
     def widget(self, wid):
-        pass
+        if wid in self.widgets:
+            return self.widgets[wid]
+        return None
 
     def reset(self):
         self.widgets = {}
         self.selected = None
+        return True
 
     def __prepare(self):
         if TTF_Init() < 0:
