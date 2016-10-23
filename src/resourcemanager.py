@@ -52,15 +52,7 @@ class ResourceManager:
         self.driftwood = driftwood
         self.__injections = {}
 
-    def __contains__(self, item):
-        if self.driftwood.path[item]:
-            return True
-        return False
-
-    def __getitem__(self, item):
-        return self.request(item)
-
-    def request(self, filename, binary=False):
+    def _request(self, filename, binary=False):
         """Retrieve the contents of a file.
 
         Args:
@@ -75,10 +67,6 @@ class ResourceManager:
         # If the filename is in our injections list, return the injected data.
         if filename in self.__injections:
             return self.__injections[filename]
-
-        # If the file is already cached, return the cached version.
-        if filename in self.driftwood.cache:
-            return self.driftwood.cache[filename]
 
         pathname = self.driftwood.path[filename]
         if pathname:
@@ -111,8 +99,8 @@ class ResourceManager:
     def inject(self, filename, data):
         """Inject data to be retrieved later by a fake filename.
 
-        This is checked before path or cache, so if you overwrite an existing filename you won't have access to it
-        anymore!
+        This is checked before the filesystem and invalidates the cache, so if you overwrite an existing filename you
+        won't have access to it anymore!
 
         Args:
             filename: The fake filename by which to retrieve the stored data.
@@ -122,6 +110,8 @@ class ResourceManager:
             True
         """
         self.__injections[filename] = data
+        if filename in self.driftwood.cache:
+            del self.driftwood.cache[filename]
         self.driftwood.log.info("Resource", "injected", filename)
         return True
 
@@ -135,6 +125,8 @@ class ResourceManager:
             True if succeeded, False if failed.
         """
         if filename in self.__injections:
+            if filename in self.driftwood.cache:
+                del self.driftwood.cache[filename]
             del self.__injections[filename]
             return True
         self.driftwood.log.msg("ERROR", "Resource", "could not uninject", filename)
@@ -149,12 +141,18 @@ class ResourceManager:
         Returns:
             Dictionary of JSON data if succeeded, None if failed.
         """
-        data = self.request(filename)
+        if filename in self.driftwood.cache:
+            return self.driftwood.cache[filename]
+        data = self._request(filename)
         if data:
             if type(data) == bytes:
                 data = data.decode()
-            return json.loads(data)
-        return None
+            obj = json.loads(data)
+            self.driftwood.cache.upload(filename, obj)
+            return obj
+        else:
+            self.driftwood.cache.upload(filename, None)
+            return None
 
     def request_audio(self, filename, music=False):
         """Retrieve an internal abstraction of an audio file.
@@ -166,10 +164,16 @@ class ResourceManager:
         Returns:
             Audio filetype abstraction if succeeded, None if failed.
         """
-        data = self.request(filename, True)
+        if filename in self.driftwood.cache:
+            return self.driftwood.cache[filename]
+        data = self._request(filename, True)
         if data:
-            return filetype.AudioFile(self.driftwood, data, music)
-        return None
+            obj = filetype.AudioFile(self.driftwood, data, music)
+            self.driftwood.cache.upload(filename, obj)
+            return obj
+        else:
+            self.driftwood.cache.upload(filename, None)
+            return None
 
     def request_font(self, filename, ptsize):
         """Retrieve an internal abstraction of a font file.
@@ -181,10 +185,17 @@ class ResourceManager:
         Returns:
             Font filetype abstraction if succeeded, None if failed.
         """
-        data = self.request(filename, True)
+        cache_name = filename + ":" + ptsize
+        if cache_name in self.driftwood.cache:
+            return self.driftwood.cache[cache_name]
+        data = self._request(filename, True)
         if data:
-            return filetype.FontFile(self.driftwood, data, ptsize)
-        return None
+            obj = filetype.FontFile(self.driftwood, data, ptsize)
+            self.driftwood.cache.upload(cache_name, obj)
+            return obj
+        else:
+            self.driftwood.cache.upload(cache_name, None)
+            return None
 
     def request_image(self, filename):
         """Retrieve an internal abstraction of an image file.
@@ -195,7 +206,13 @@ class ResourceManager:
         Returns:
             Image filetype abstraction if succeeded, None if failed.
         """
-        data = self.request(filename, True)
+        if filename in self.driftwood.cache:
+            return self.driftwood.cache[filename]
+        data = self._request(filename, True)
         if data:
-            return filetype.ImageFile(self.driftwood, data, self.driftwood.window.renderer)
-        return None
+            obj = filetype.ImageFile(self.driftwood, data, self.driftwood.window.renderer)
+            self.driftwood.cache.upload(filename, obj)
+            return obj
+        else:
+            self.driftwood.cache.upload(filename, None)
+            return None

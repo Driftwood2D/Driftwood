@@ -80,9 +80,10 @@ class AreaManager:
         Returns:
             True if succeeded, False if failed.
         """
-        if filename in self.driftwood.resource:
+        map_json = self.driftwood.resource.request_json(filename)
+        if map_json:
             self.filename = filename
-            self.tilemap._read(self.driftwood.resource.request_json(filename))  # This should only be called from here.
+            self.tilemap._read(map_json)  # This should only be called from here.
             self.driftwood.log.info("Area", "loaded", filename)
 
             self.refocused = True
