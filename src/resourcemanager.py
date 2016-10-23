@@ -52,50 +52,6 @@ class ResourceManager:
         self.driftwood = driftwood
         self.__injections = {}
 
-    def _request(self, filename, binary=False):
-        """Retrieve the contents of a file.
-
-        Args:
-            filename: Filename of the file to read.
-            binary: Whether the file is a binary file, rather than a plaintext file.
-
-        Returns:
-            Contents of the requested file, if present. Otherwise None.
-        """
-        self.driftwood.log.info("Resource", "requested", filename)
-
-        # If the filename is in our injections list, return the injected data.
-        if filename in self.__injections:
-            return self.__injections[filename]
-
-        pathname = self.driftwood.path[filename]
-        if pathname:
-            try:
-                if os.path.isdir(pathname):  # This is a directory.
-                    if binary:
-                        f = open(os.path.join(pathname, filename), "rb")
-                    else:
-                        f = open(os.path.join(pathname, filename))
-                    contents = f.read()
-                    f.close()
-
-                else:  # This is hopefully a zip archive.
-                    with zipfile.ZipFile(pathname, 'r') as zf:
-                        contents = zf.read(filename)
-
-                # Upload the file to the cache.
-                self.driftwood.cache.upload(filename, contents)
-
-                return contents
-
-            except:
-                self.driftwood.log.msg("ERROR", "Resource", "could not read file", filename)
-                return None
-
-        else:
-            self.driftwood.log.msg("ERROR", "Resource", "no such file", filename)
-            return None
-
     def inject(self, filename, data):
         """Inject data to be retrieved later by a fake filename.
 
@@ -185,7 +141,7 @@ class ResourceManager:
         Returns:
             Font filetype abstraction if succeeded, None if failed.
         """
-        cache_name = filename + ":" + ptsize
+        cache_name = filename + ":" + str(ptsize)
         if cache_name in self.driftwood.cache:
             return self.driftwood.cache[cache_name]
         data = self._request(filename, True)
@@ -215,4 +171,50 @@ class ResourceManager:
             return obj
         else:
             self.driftwood.cache.upload(filename, None)
+            return None
+
+    def _request(self, filename, binary=False, cache=False):
+        """Retrieve the contents of a file.
+
+        Args:
+            filename: Filename of the file to read.
+            binary: Whether the file is a binary file, rather than a plaintext file.
+            cache: Whether to upload the data to the cache inside this function.
+
+        Returns:
+            Contents of the requested file, if present. Otherwise None.
+        """
+        self.driftwood.log.info("Resource", "requested", filename)
+
+        # If the filename is in our injections list, return the injected data.
+        if filename in self.__injections:
+            return self.__injections[filename]
+
+        pathname = self.driftwood.path[filename]
+        if pathname:
+            try:
+                if os.path.isdir(pathname):  # This is a directory.
+                    if binary:
+                        f = open(os.path.join(pathname, filename), "rb")
+                    else:
+                        f = open(os.path.join(pathname, filename))
+                    contents = f.read()
+                    f.close()
+
+                else:  # This is hopefully a zip archive.
+                    with zipfile.ZipFile(pathname, 'r') as zf:
+                        contents = zf.read(filename)
+
+                # Upload the file to the cache.
+                if cache:
+                    self.driftwood.cache.upload(filename, contents)
+
+                return contents
+
+            except:
+                self.driftwood.log.msg("ERROR", "Resource", "could not read file", filename)
+                return None
+
+        else:
+            self.driftwood.log.msg("ERROR", "Resource", "no such file", filename)
             return None
