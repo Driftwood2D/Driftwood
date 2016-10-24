@@ -265,6 +265,25 @@
                  "width":16,
                  "x":144,
                  "y":0
+                }, 
+                {
+                 "height":16,
+                 "id":18,
+                 "name":"",
+                 "properties":
+                    {
+                     "on_tile":"blue2.py,activate_pearl"
+                    },
+                 "propertytypes":
+                    {
+                     "on_tile":"string"
+                    },
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":128,
+                 "x":16,
+                 "y":112
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -284,7 +303,7 @@
          "x":0,
          "y":0
         }],
- "nextobjectid":18,
+ "nextobjectid":20,
  "orientation":"orthogonal",
  "properties":
     {

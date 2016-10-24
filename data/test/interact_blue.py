@@ -18,4 +18,5 @@ def get_pearl():
         Driftwood.area.tilemap.layers[1].tiles[35].gid = 0
         Driftwood.area.tilemap.layers[1].tiles[35].members = []
         Driftwood.database.put("got_blue_pearl", "true")
-   
+        if "blue_pearl_light" in Driftwood.vars and Driftwood.vars["blue_pearl_light"]:
+            Driftwood.light.kill(Driftwood.vars["blue_pearl_light"])
