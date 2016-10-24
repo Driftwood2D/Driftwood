@@ -103,11 +103,14 @@ class Tile:
     def srcrect(self):
         """Return an (x, y, w, h) srcrect for the current graphic frame of the tile.
         """
-        current_member = self.members[self.__cur_member]
-        return (((current_member * self.tileset.tilewidth) % self.tileset.imagewidth),
-                ((current_member * self.tileset.tilewidth) // self.tileset.imagewidth) * self.tileset.tileheight,
-                self.tileset.tilewidth, self.tileset.tileheight)
+        if self.members:
+            current_member = self.members[self.__cur_member]
+            return (((current_member * self.tileset.tilewidth) % self.tileset.imagewidth),
+                    ((current_member * self.tileset.tilewidth) // self.tileset.imagewidth) * self.tileset.tileheight,
+                    self.tileset.tilewidth, self.tileset.tileheight)
+        return (0,0,0,0)
 
     def __next_member(self, seconds_past):
-        self.__cur_member = (self.__cur_member + 1) % len(self.members)
-        self.layer.tilemap.area.changed = True
+        if self.members:
+            self.__cur_member = (self.__cur_member + 1) % len(self.members)
+            self.layer.tilemap.area.changed = True

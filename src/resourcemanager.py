@@ -153,11 +153,12 @@ class ResourceManager:
             self.driftwood.cache.upload(cache_name, None)
             return None
 
-    def request_image(self, filename):
+    def request_image(self, filename, cache=True):
         """Retrieve an internal abstraction of an image file.
 
         Args:
             filename: The filename of the image file to load.
+            cache: Whether to cache the file.
 
         Returns:
             Image filetype abstraction if succeeded, None if failed.
@@ -167,7 +168,8 @@ class ResourceManager:
         data = self._request(filename, True)
         if data:
             obj = filetype.ImageFile(self.driftwood, data, self.driftwood.window.renderer)
-            self.driftwood.cache.upload(filename, obj)
+            if cache:
+                self.driftwood.cache.upload(filename, obj)
             return obj
         else:
             self.driftwood.cache.upload(filename, None)

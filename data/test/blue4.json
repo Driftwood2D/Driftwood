@@ -139,10 +139,12 @@
                  "name":"",
                  "properties":
                     {
+                     "exit":"blue5.json,2,4,8",
                      "interact":"interact_blue.py,open_door2"
                     },
                  "propertytypes":
                     {
+                     "exit":"string",
                      "interact":"string"
                     },
                  "rotation":0,

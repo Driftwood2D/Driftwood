@@ -1,7 +1,7 @@
 { "height":10,
  "layers":[
         {
-         "data":[91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91],
+         "data":[42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 3, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42],
          "height":10,
          "name":"Tile Layer 0",
          "opacity":1,
@@ -12,7 +12,7 @@
          "y":0
         }, 
         {
-         "data":[51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 52, 53, 52, 53, 51, 51, 51, 51, 51, 61, 11, 11, 11, 11, 64, 51, 51, 51, 51, 71, 72, 41, 21, 73, 74, 54, 51, 51, 61, 41, 11, 21, 21, 21, 11, 64, 51, 51, 71, 21, 82, 11, 41, 41, 11, 74, 54, 61, 11, 21, 11, 73, 41, 41, 73, 21, 64, 71, 83, 73, 41, 21, 11, 72, 11, 21, 74, 81, 11, 83, 11, 11, 11, 11, 11, 83, 11],
+         "data":[24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 0, 0, 0, 0, 0, 0, 0, 0, 24, 24, 0, 0, 0, 47, 55, 49, 0, 0, 24, 24, 0, 0, 0, 35, 85, 36, 0, 0, 24, 24, 0, 0, 0, 48, 45, 46, 0, 0, 24, 24, 0, 0, 0, 0, 0, 0, 0, 0, 24, 24, 0, 0, 0, 0, 0, 0, 0, 0, 24, 24, 0, 0, 0, 0, 0, 0, 0, 0, 24, 24, 0, 0, 0, 0, 0, 0, 0, 0, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24],
          "height":10,
          "name":"Tile Layer 1",
          "opacity":1,
@@ -23,7 +23,7 @@
          "y":0
         }, 
         {
-         "data":[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 33, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 32, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 34, 0, 0, 0, 0, 32, 34, 0, 0, 34, 0, 0, 0, 0, 0, 0, 0, 0, 34],
+         "data":[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 27, 0, 0, 0, 0, 0],
          "height":10,
          "name":"Tile Layer 2",
          "opacity":1,
@@ -44,21 +44,21 @@
                  "name":"",
                  "properties":
                     {
-                     "exit:down":"blue1.json,1,1+,0"
+                     "nowalk":""
                     },
                  "propertytypes":
                     {
-                     "exit:down":"string"
+                     "nowalk":"string"
                     },
                  "rotation":0,
                  "type":"",
                  "visible":true,
-                 "width":128,
-                 "x":16,
-                 "y":144
+                 "width":160,
+                 "x":0,
+                 "y":0
                 }, 
                 {
-                 "height":16,
+                 "height":144,
                  "id":2,
                  "name":"",
                  "properties":
@@ -73,11 +73,11 @@
                  "type":"",
                  "visible":true,
                  "width":16,
-                 "x":16,
-                 "y":128
+                 "x":0,
+                 "y":16
                 }, 
                 {
-                 "height":16,
+                 "height":144,
                  "id":3,
                  "name":"",
                  "properties":
@@ -92,8 +92,8 @@
                  "type":"",
                  "visible":true,
                  "width":16,
-                 "x":0,
-                 "y":144
+                 "x":144,
+                 "y":16
                 }, 
                 {
                  "height":16,
@@ -110,9 +110,9 @@
                  "rotation":0,
                  "type":"",
                  "visible":true,
-                 "width":16,
-                 "x":112,
-                 "y":128
+                 "width":48,
+                 "x":16,
+                 "y":144
                 }, 
                 {
                  "height":16,
@@ -129,12 +129,69 @@
                  "rotation":0,
                  "type":"",
                  "visible":true,
-                 "width":16,
-                 "x":144,
+                 "width":64,
+                 "x":80,
                  "y":144
                 }, 
                 {
-                 "height":144,
+                 "height":16,
+                 "id":6,
+                 "name":"",
+                 "properties":
+                    {
+                     "nowalk":""
+                    },
+                 "propertytypes":
+                    {
+                     "nowalk":"string"
+                    },
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":16,
+                 "x":64,
+                 "y":32
+                }, 
+                {
+                 "height":16,
+                 "id":7,
+                 "name":"",
+                 "properties":
+                    {
+                     "nowalk":""
+                    },
+                 "propertytypes":
+                    {
+                     "nowalk":"string"
+                    },
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":16,
+                 "x":96,
+                 "y":32
+                }, 
+                {
+                 "height":16,
+                 "id":8,
+                 "name":"",
+                 "properties":
+                    {
+                     "nowalk":""
+                    },
+                 "propertytypes":
+                    {
+                     "nowalk":"string"
+                    },
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":16,
+                 "x":96,
+                 "y":64
+                }, 
+                {
+                 "height":16,
                  "id":9,
                  "name":"",
                  "properties":
@@ -149,122 +206,48 @@
                  "type":"",
                  "visible":true,
                  "width":16,
-                 "x":0,
-                 "y":0
+                 "x":64,
+                 "y":64
                 }, 
                 {
-                 "height":96,
+                 "height":16,
                  "id":10,
                  "name":"",
                  "properties":
                     {
+                     "interact":"interact_blue.py,get_pearl",
                      "nowalk":""
                     },
                  "propertytypes":
                     {
+                     "interact":"string",
                      "nowalk":"string"
                     },
                  "rotation":0,
                  "type":"",
                  "visible":true,
                  "width":16,
-                 "x":16,
-                 "y":0
+                 "x":80,
+                 "y":48
                 }, 
                 {
-                 "height":64,
-                 "id":11,
-                 "name":"",
-                 "properties":
-                    {
-                     "nowalk":""
-                    },
-                 "propertytypes":
-                    {
-                     "nowalk":"string"
-                    },
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":16,
-                 "x":32,
-                 "y":0
-                }, 
-                {
-                 "height":48,
+                 "height":16,
                  "id":12,
                  "name":"",
                  "properties":
                     {
-                     "nowalk":""
+                     "exit":"blue4.json,2,2,1"
                     },
                  "propertytypes":
                     {
-                     "nowalk":"string"
-                    },
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":64,
-                 "x":48,
-                 "y":0
-                }, 
-                {
-                 "height":64,
-                 "id":13,
-                 "name":"",
-                 "properties":
-                    {
-                     "nowalk":""
-                    },
-                 "propertytypes":
-                    {
-                     "nowalk":"string"
+                     "exit":"string"
                     },
                  "rotation":0,
                  "type":"",
                  "visible":true,
                  "width":16,
-                 "x":112,
-                 "y":0
-                }, 
-                {
-                 "height":96,
-                 "id":14,
-                 "name":"",
-                 "properties":
-                    {
-                     "nowalk":""
-                    },
-                 "propertytypes":
-                    {
-                     "nowalk":"string"
-                    },
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":16,
-                 "x":128,
-                 "y":0
-                }, 
-                {
-                 "height":144,
-                 "id":15,
-                 "name":"",
-                 "properties":
-                    {
-                     "nowalk":""
-                    },
-                 "propertytypes":
-                    {
-                     "nowalk":"string"
-                    },
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":16,
-                 "x":144,
-                 "y":0
+                 "x":64,
+                 "y":144
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -272,29 +255,16 @@
          "width":10,
          "x":0,
          "y":0
-        }, 
-        {
-         "data":[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-         "height":10,
-         "name":"Tile Layer 3",
-         "opacity":1,
-         "type":"tilelayer",
-         "visible":true,
-         "width":10,
-         "x":0,
-         "y":0
         }],
- "nextobjectid":18,
+ "nextobjectid":13,
  "orientation":"orthogonal",
  "properties":
     {
-     "on_enter":"blue2.py,lights",
-     "title":"Blue World 2"
+     "on_focus":"blue5.py,enter"
     },
  "propertytypes":
     {
-     "on_enter":"string",
-     "title":"string"
+     "on_focus":"string"
     },
  "renderorder":"right-down",
  "tileheight":16,
@@ -306,26 +276,10 @@
          "imageheight":160,
          "imagewidth":160,
          "margin":0,
-         "name":"tilesheet",
+         "name":"sei_tilesheet",
          "spacing":0,
          "tilecount":100,
          "tileheight":16,
-         "tileproperties":
-            {
-             "90":
-                {
-                 "afps":14,
-                 "members":"90,91,92,93,94,95,96,97"
-                }
-            },
-         "tilepropertytypes":
-            {
-             "90":
-                {
-                 "afps":"int",
-                 "members":"string"
-                }
-            },
          "tilewidth":16
         }],
  "tilewidth":16,
