@@ -4,3 +4,4 @@ __pycache__
 db/
 bin/
 todo
+data/test/seis
