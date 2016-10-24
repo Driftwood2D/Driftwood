@@ -10,8 +10,14 @@ def init():
     player = Driftwood.entity.insert("player.json", layer=1, x=16*4, y=16*8)
 
     # Prepare earthquake.
-    Driftwood.tick.register(rumble, delay=10.0)
-    Driftwood.vars["init_rumble_tick_callback"] = rumble
+    if not "got_blue_pearl" in Driftwood.database:
+        Driftwood.tick.register(rumble, delay=10.0)
+        Driftwood.vars["end_rumble"] = end_rumble
+    else:
+        Driftwood.vars["end_rumble"] = Driftwood.script.call("libs/stdlib/viewport.py", "rumble", 12, 3, None)
 
 def rumble():
     Driftwood.script.call("libs/stdlib/viewport.py", "rumble", 15, 3, 5)
+
+def end_rumble():
+    Driftwood.tick.unregister(rumble)

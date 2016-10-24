@@ -231,10 +231,12 @@
  "orientation":"orthogonal",
  "properties":
     {
+     "on_focus":"blue1.py,check_for_rumble",
      "title":"Blue World 1"
     },
  "propertytypes":
     {
+     "on_focus":"string",
      "title":"string"
     },
  "renderorder":"right-down",

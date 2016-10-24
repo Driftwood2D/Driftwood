@@ -64,33 +64,31 @@ class ScriptManager:
             args: Arguments to pass.
 
         Returns:
-            True if succeeded, False if failed.
+            Function return code if succeeded, None if failed.
         """
         if not filename in self.__modules:
             # Load the module if not loaded.
             res = self.__load(filename)
             if not res:
-                return False
+                return None
 
         if filename in self.__modules and hasattr(self.__modules[filename], func):
             try:  # Try calling the function.
                 self.driftwood.log.info("Script", "called", filename, func + "()")
                 if args:  # We have arguments.
-                    getattr(self.__modules[filename], func)(*args)
-                    return True
+                    return getattr(self.__modules[filename], func)(*args)
                 else:  # We have no arguments.
-                    getattr(self.__modules[filename], func)()
-                    return True
+                    return getattr(self.__modules[filename], func)()
 
             except:  # Failure
                 self.driftwood.log.msg("ERROR", "Script", "broken function", filename, func + "()")
                 traceback.print_exc(file=sys.stdout)
                 sys.stdout.flush()
-                return False
+                return None
 
         else:
             self.driftwood.log.msg("ERROR", "Script", "no such function", filename, func + "()")
-            return False
+            return None
 
     def module(self, filename):
         """Return the module instance of a script, loading if not already loaded.
