@@ -271,11 +271,13 @@
  "orientation":"orthogonal",
  "properties":
     {
-     "on_focus":"blue5.py,enter"
+     "on_focus":"blue5.py,enter",
+     "title":"Blue World 5"
     },
  "propertytypes":
     {
-     "on_focus":"string"
+     "on_focus":"string",
+     "title":"string"
     },
  "renderorder":"right-down",
  "tileheight":16,

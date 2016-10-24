@@ -307,6 +307,14 @@
         }],
  "nextobjectid":22,
  "orientation":"orthogonal",
+ "properties":
+    {
+     "title":"Blue World 3"
+    },
+ "propertytypes":
+    {
+     "title":"string"
+    },
  "renderorder":"right-down",
  "tileheight":16,
  "tilesets":[

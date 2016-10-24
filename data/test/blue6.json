@@ -87,11 +87,13 @@
  "orientation":"orthogonal",
  "properties":
     {
-     "on_focus":"blue6.py,light"
+     "on_focus":"blue6.py,light",
+     "title":"Blue World 6"
     },
  "propertytypes":
     {
-     "on_focus":"string"
+     "on_focus":"string",
+     "title":"string"
     },
  "renderorder":"right-down",
  "tileheight":16,

@@ -9,8 +9,9 @@ def lights():
     
     else:
         if "end_rumble" in Driftwood.vars and Driftwood.vars["end_rumble"]:
-            Driftwood.vars["end_rumble"]()
-        Driftwood.vars["end_rumble"] = Driftwood.script.call("libs/stdlib/viewport.py", "rumble", 30, 2, None)
+            Driftwood.script.call("libs/stdlib/viewport.py", "end_rumble")
+        Driftwood.vars["end_rumble"] = "true"
+        Driftwood.script.call("libs/stdlib/viewport.py", "rumble", 30, 2, None)
         Driftwood.light.reset()
         a = Driftwood.light.insert("lightmap_circle1.png", 2, 80, 56, 160, 160, "FFFFFFFF", blend=False)
         c = Driftwood.light.insert("lightmap_circle1.png", 3, 80, 56, 100, 100, "8888FFFF", blend=False)

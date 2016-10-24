@@ -12,9 +12,9 @@ def init():
     # Prepare earthquake.
     if not "got_blue_pearl" in Driftwood.database:
         Driftwood.tick.register(rumble, delay=10.0)
-        Driftwood.vars["end_rumble"] = end_rumble
     else:
-        Driftwood.vars["end_rumble"] = Driftwood.script.call("libs/stdlib/viewport.py", "rumble", 12, 3, None)
+        Driftwood.script.call("libs/stdlib/viewport.py", "rumble", 12, 3, None)
+    Driftwood.vars["end_rumble"] = "true"
 
 def rumble():
     Driftwood.script.call("libs/stdlib/viewport.py", "rumble", 15, 3, 5)

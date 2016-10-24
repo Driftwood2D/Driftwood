@@ -182,6 +182,14 @@
         }],
  "nextobjectid":13,
  "orientation":"orthogonal",
+ "properties":
+    {
+     "title":"Blue World 4"
+    },
+ "propertytypes":
+    {
+     "title":"string"
+    },
  "renderorder":"right-down",
  "tileheight":16,
  "tilesets":[
