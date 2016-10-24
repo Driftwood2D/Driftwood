@@ -148,7 +148,6 @@ class Layer:
                             # Check for and handle horizontal wide exit.
                             elif exit_coords[2] and exit_coords[2][-1] == '+':
                                 base_coord = int(exit_coords[2][:1])  # Chop off the plus sign.
-                                print(tx % self.tilemap.width)
                                 if tx % self.tilemap.width == base_coord:  # This is the first position.
                                     for wx in range(0, (obj["width"] // self.tilemap.tilewidth)):  # Set exits.
                                         final_coords = exit_coords

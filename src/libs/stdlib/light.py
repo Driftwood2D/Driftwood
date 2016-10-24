@@ -122,6 +122,10 @@ def __flicker_callback(seconds_past, msg):
     fval[0] += random.randint(msg[1] * -1, msg[1])
     fval[1] += random.randint(msg[2] * -1, msg[2])
     fval[2] += random.randint(msg[3] * -1, msg[3])
+    if fval[2] > 255:
+        fval[2] = 255
+    if fval[2] < 0:
+        fval[2] = 0
     Driftwood.light.light(msg[0]).x = fval[0]
     Driftwood.light.light(msg[0]).y = fval[1]
     Driftwood.light.light(msg[0]).color = Driftwood.light.light(msg[0]).color[6:8] + '%02X'%fval[2]
