@@ -123,7 +123,8 @@ class Layer:
                     ty = obj["y"] // self.tilemap.tileheight + y
 
                     # Insert the object properties.
-                    self.tile(tx, ty).properties.update(obj["properties"])
+                    if "properties" in obj:
+                        self.tile(tx, ty).properties.update(obj["properties"])
 
                     # Set nowalk if present.
                     if "nowalk" in self.tile(tx, ty).properties:
