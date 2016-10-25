@@ -20,9 +20,6 @@ def lights():
         Driftwood.script.call("libs/stdlib/light.py", "flicker", b.lid, 0, 0, 40, 8)
         Driftwood.script.call("libs/stdlib/light.py", "flicker", a.lid, 0, 0, 120, 6)
 
-def reset_lights():
-    Driftwood.light.reset()
-
 def activate_pearl():
     if "got_blue_pearl" in Driftwood.database and not "blue_pearl_active" in Driftwood.database:
         Driftwood.database["blue_pearl_active"] = "true"
