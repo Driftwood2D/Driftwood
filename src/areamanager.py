@@ -103,6 +103,16 @@ class AreaManager:
             self.driftwood.log.msg("ERROR", "Area", "no such area", filename)
             return False
 
+    def blur(self):
+        # If there is an on_blur function defined for this map, call it.
+        if "on_blur" in self.tilemap.properties:
+            args = self.tilemap.properties["on_blur"].split(',')
+            if len(args) < 2:
+                self.driftwood.log.msg("ERROR", "Map", "invalid on_blur event",
+                                       self.tilemap.properties["on_blur"])
+                return
+            self.driftwood.script.call(*args)
+
     def _tick(self, seconds_past):
         """Tick callback.
         """

@@ -225,6 +225,9 @@ class Entity:
                 self.manager.driftwood.log.msg("ERROR", "Map", "invalid on_exit event", self.tile.properties["on_exit"])
             self.manager.driftwood.script.call(*args)
 
+        # Leave the current area
+        self.manager.driftwood.area.blur()
+
         # Enter the next area.
         if self.manager.driftwood.area.focus(self._next_area[0]):
             self.layer = int(self._next_area[1])
