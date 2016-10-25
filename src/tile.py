@@ -114,3 +114,11 @@ class Tile:
         if self.members:
             self.__cur_member = (self.__cur_member + 1) % len(self.members)
             self.layer.tilemap.area.changed = True
+
+    def unregister(self):
+        driftwood = self.layer.tilemap.area.driftwood
+        if driftwood.tick.registered(self.__next_member):
+            driftwood.tick.unregister(self.__next_member)
+
+    def __del__(self):
+        self.unregister()

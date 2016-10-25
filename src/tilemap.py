@@ -88,6 +88,8 @@ class Tilemap:
         """
         # Reset variables left over from the last map.
         if self.layers:
+            for l in self.layers:
+                l.clear()
             self.layers = []
         if self.tilesets:
             self.tilesets = []

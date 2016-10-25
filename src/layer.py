@@ -60,6 +60,10 @@ class Layer:
 
         self.__prepare_layer()
 
+    def clear(self):
+        for tile in self.tiles:
+            tile.unregister()
+
     def tile(self, x, y):
         """Retrieve a tile from the layer by its coordinates.
 
