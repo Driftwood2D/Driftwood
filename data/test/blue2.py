@@ -21,7 +21,6 @@ def lights():
         Driftwood.script.call("libs/stdlib/light.py", "flicker", a.lid, 0, 0, 120, 6)
 
 def reset_lights():
-    Driftwood.script.call("libs/stdlib/light.py", "reset_flickers")
     Driftwood.light.reset()
 
 def activate_pearl():
