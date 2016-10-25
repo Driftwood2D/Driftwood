@@ -107,11 +107,22 @@ def flicker(lid, rx, ry, ralpha, rate, duration=None):
     ox = Driftwood.light.light(lid).x
     oy = Driftwood.light.light(lid).y
     oalpha = int(Driftwood.light.light(lid).color[6:], 16)
-    Driftwood.vars["stdlib_light_flicker_originals"+str(lid)] = [ox, oy, oalpha]
+
     FC = Driftwood.script.module("libs/stdlib/helper.py").copy_function(__flicker_callback)
+    FC.active = True
+    FC.lid = lid
+
+    if "stdlib_light_flickers" not in Driftwood.vars:
+        Driftwood.vars["stdlib_light_flickers"] = set()
+    Driftwood.vars["stdlib_light_flickers"].add(FC)
+
+    Driftwood.vars["stdlib_light_flicker_originals"+str(lid)] = [ox, oy, oalpha]
+
     Driftwood.tick.register(FC, delay=1.0/rate, message=[lid, rx, ry, ralpha, FC])
+
     if duration:
-        Driftwood.tick.register(__end_flicker, delay=duration, once=True, message=[lid, FC])
+        Driftwood.tick.register(__end_flicker, delay=duration, once=True, message=FC)
+
     return True
 
 def __flicker_callback(seconds_past, msg):
@@ -133,11 +144,25 @@ def __flicker_callback(seconds_past, msg):
     Driftwood.area.changed = True
 
 def __end_flicker(seconds_past, msg):
-    Driftwood.tick.unregister(msg[1])
-    Driftwood.light.light(msg[0]).x = Driftwood.vars["stdlib_light_flicker_originals"+str(msg[0])][0]
-    Driftwood.light.light(msg[0]).y = Driftwood.vars["stdlib_light_flicker_originals"+str(msg[0])][1]
-    Driftwood.light.light(msg[0]).color = Driftwood.light.light(msg[0]).color[6:8] +\
-                                          '%02X'%Driftwood.vars["stdlib_light_flicker_originals"+str(msg[0])][2]
-    SDL_SetTextureAlphaMod(Driftwood.light.light(msg[0]).lightmap.texture,
-                           Driftwood.vars["stdlib_light_flicker_originals"+str(msg[0])][2])
-    Driftwood.area.changed = True
+    FC = msg
+    lid = FC.lid
+
+    if FC.active:
+        FC.active = False
+        Driftwood.tick.unregister(FC)
+        Driftwood.vars["stdlib_light_flickers"].discard(FC)
+
+        Driftwood.light.light(lid).x = Driftwood.vars["stdlib_light_flicker_originals"+str(lid)][0]
+        Driftwood.light.light(lid).y = Driftwood.vars["stdlib_light_flicker_originals"+str(lid)][1]
+        Driftwood.light.light(lid).color = Driftwood.light.light(lid).color[6:8] +\
+                                              '%02X'%Driftwood.vars["stdlib_light_flicker_originals"+str(lid)][2]
+        SDL_SetTextureAlphaMod(Driftwood.light.light(lid).lightmap.texture,
+                               Driftwood.vars["stdlib_light_flicker_originals"+str(lid)][2])
+        Driftwood.area.changed = True
+
+def reset_flickers():
+    if "stdlib_light_flickers" in Driftwood.vars:
+        FCs = Driftwood.vars["stdlib_light_flickers"]
+        while len(FCs) > 0:
+            FC = FCs.pop()
+            __end_flicker(None, FC)

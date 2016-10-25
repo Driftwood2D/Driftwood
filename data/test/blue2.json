@@ -308,6 +308,7 @@
  "properties":
     {
      "on_enter":"blue2.py,lights",
+     "on_blur":"blue2.py,reset_lights",
      "title":"Blue World 2"
     },
  "propertytypes":

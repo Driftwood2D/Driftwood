@@ -6,7 +6,7 @@ def lights():
         Driftwood.script.call("libs/stdlib/light.py", "flicker", a.lid, 0, 0, 64, 16)
         Driftwood.script.call("libs/stdlib/light.py", "flicker", b.lid, 0, 0, 64, 16)
         Driftwood.script.call("libs/stdlib/light.py", "flicker", c.lid, 0, 0, 64, 16)
-    
+
     else:
         if "end_rumble" in Driftwood.vars and Driftwood.vars["end_rumble"]:
             Driftwood.script.call("libs/stdlib/viewport.py", "end_rumble")
@@ -19,6 +19,10 @@ def lights():
         b = Driftwood.light.insert("lightmap_circle1.png", 3, 80, 56, 128, 100, "4444FFEE", blend=True)
         Driftwood.script.call("libs/stdlib/light.py", "flicker", b.lid, 0, 0, 40, 8)
         Driftwood.script.call("libs/stdlib/light.py", "flicker", a.lid, 0, 0, 120, 6)
+
+def reset_lights():
+    Driftwood.script.call("libs/stdlib/light.py", "reset_flickers")
+    Driftwood.light.reset()
 
 def activate_pearl():
     if "got_blue_pearl" in Driftwood.database and not "blue_pearl_active" in Driftwood.database:
