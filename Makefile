@@ -11,9 +11,8 @@ bin:
 bin/driftwood: bin $(shell test -f bin/driftwood && find src/ -newer bin/driftwood)
 	echo '#!/usr/bin/env python3' > bin/driftwood
 	cd src && python3 -m compileall -b .
-	cd src && zip -q -r driftwood.pyz *.pyc `find . -mindepth 1 -type d ! -name __pycache__`
+	cd src && zip -q driftwood.pyz `find . ! -name __pycache__ ! -name '*.py'`
 	cat src/driftwood.pyz >> bin/driftwood
-	rm src/driftwood.pyz
 	chmod +x bin/driftwood
 
 clean:
