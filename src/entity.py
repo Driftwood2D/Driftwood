@@ -411,6 +411,10 @@ class TileModeEntity(Entity):
         else:  # What?
             return False
 
+        # We could be facing the edge of the area.
+        if not tile:
+            return False
+
         # Check if this tile contains an interactable entity.
         ent = self.manager.entity_at(tile.pos[0] * self._tilewidth, tile.pos[1] * self._tileheight)
         if ent and "interact" in ent.properties:
