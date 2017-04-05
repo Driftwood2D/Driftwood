@@ -24,7 +24,7 @@ are attributed in the distributions of the below mentioned primary dependencies.
 * Copyright 1991-1995 Stichting Mathematisch Centrum
 * Copyright 1995-2000 Corporation for National Research Initiatives
 * Copyright 2000 BeOpen.com
-* Copyright 2001-2016 Python Software Foundation
+* Copyright 2001-2017 Python Software Foundation
 * License: https://docs.python.org/2/license.html
 * URI: https://www.python.org/
 
@@ -34,18 +34,23 @@ are attributed in the distributions of the below mentioned primary dependencies.
 * URI: https://www.libsdl.org/index.php
 
 ### SDL_Image
-* Copyright 1997-2016 Sam Lantinga
+* Copyright 1997-2017 Sam Lantinga
 * License: https://hg.libsdl.org/SDL_image/file/tip/COPYING.txt
 * URI: https://www.libsdl.org/projects/SDL_image/
 
 ### SDL_Mixer
-* Copyright 1997-2016 Sam Lantinga
+* Copyright 1997-2017 Sam Lantinga
 * License: https://hg.libsdl.org/SDL_mixer/file/tip/COPYING.txt
 * URI: https://www.libsdl.org/projects/SDL_mixer/
 
+### jsonschema
+* Copyright 2013 Julian Berman
+* License: https://raw.githubusercontent.com/Julian/jsonschema/master/COPYING
+* URI: https://pypi.python.org/pypi/jsonschema
+
 ### PySDL2
 * Copyright 2012-2014 Marcus von Appen
-* License: https://pysdl2.readthedocs.io/en/rel_0_9_4/copying.html
+* License: https://pysdl2.readthedocs.io/en/rel_0_9_5/copying.html
 * URI: https://pysdl2.readthedocs.io/
 
 
