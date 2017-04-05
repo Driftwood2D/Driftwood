@@ -68,7 +68,7 @@ class LogManager:
         return False
 
     def info(self, *chain):
-        """Log an info message if verbosity is enabled..
+        """Log an info message if verbosity is enabled.
 
         Args:
             chain: A list of strings to be separated by colon-spaces and printed.

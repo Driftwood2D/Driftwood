@@ -147,7 +147,8 @@ class WidgetManager:
 
         return self.__last_wid
 
-    def text(self, contents, font, ptsize, container=None, x=0, y=0, width=-1, height=-1, color="000000FF", active=True):
+    def text(self, contents, font, ptsize, container=None, x=0, y=0, width=-1, height=-1, color="000000FF",
+             active=True):
         """Create a new container widget.
 
             A text widget puts text on the screen. It cannot have a background image, but can have a color.

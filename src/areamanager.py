@@ -211,8 +211,8 @@ class AreaManager:
 
                 if tall_amount:  # It's taller than the tile. Figure out where to put the tall part.
                     tall_srcrect.x, tall_srcrect.y, tall_srcrect.w, tall_srcrect.h = entity.srcrect()
-                    tall_dstrect.x, tall_dstrect.y, tall_dstrect.w, tall_dstrect.h = entity.x, entity.y - tall_amount,\
-                    entity.width, entity.height - (entity.height - tall_amount)
+                    tall_dstrect.x, tall_dstrect.y, tall_dstrect.w, tall_dstrect.h = \
+                        entity.x, entity.y - tall_amount, entity.width, entity.height - (entity.height - tall_amount)
                     tall_dstrect.x += self.offset[0]
                     tall_dstrect.y += self.offset[1]
                     tall_srcrect.h = tall_dstrect.h
@@ -228,8 +228,9 @@ class AreaManager:
         for widget in sorted(self.driftwood.widget.widgets.keys()):
             if self.driftwood.widget.widgets[widget].active and \
                     self.driftwood.widget.widgets[widget].srcrect():  # It's visible, draw it.
+                # But ignore inactive containers.
                 if (not self.driftwood.widget.widgets[widget].container) or \
-                        self.driftwood.widget.widgets[self.driftwood.widget.widgets[widget].container].active:  # But ignore inactive containers.
+                        self.driftwood.widget.widgets[self.driftwood.widget.widgets[widget].container].active:
                     srcrect.x, srcrect.y, srcrect.w, srcrect.h = self.driftwood.widget.widgets[widget].srcrect()
                     dstrect.x, dstrect.y, dstrect.w, dstrect.h = self.driftwood.widget.widgets[widget].dstrect()
                     if self.driftwood.widget.widgets[widget].type == "container" and \

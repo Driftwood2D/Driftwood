@@ -38,7 +38,7 @@ class ScriptManager:
     """The Script Manager
 
     This class handles loading scripts and calling their functions. It defines its own method for retrieving the
-    script file (independant of ResourceManager) and internally caches it forever.
+    script file (independent of ResourceManager) and internally caches it forever.
 
     Attributes:
         driftwood: Base class instance.
@@ -132,13 +132,14 @@ class ScriptManager:
 
                     # Different import code recommended for different Python versions.
                     if sys.version_info[1] < 5:
-                        self.__modules[filename] = importlib.machinery.SourceFileLoader(mname, os.path.join(importpath,
-                                                                                                            filename)).load_module()
+                        self.__modules[filename] = \
+                            importlib.machinery.SourceFileLoader(mname, os.path.join(importpath,
+                                                                                     filename)).load_module()
                     else:
                         spec = importlib.util.spec_from_file_location(mname, os.path.join(importpath, filename))
-                        module = importlib.util.module_from_spec(spec)
-                        spec.loader.exec_module(module)
-                        self.__modules[filename] = module
+                        mod = importlib.util.module_from_spec(spec)
+                        spec.loader.exec_module(mod)
+                        self.__modules[filename] = mod
 
                 # This is hopefully a zip archive.
                 else:

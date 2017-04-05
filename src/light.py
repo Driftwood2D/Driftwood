@@ -74,7 +74,7 @@ class Light:
             self.y = self.manager.driftwood.entity.entity(msg[0]).y +\
                      self.manager.driftwood.entity.entity(msg[0]).height // 2
             self.layer = self.manager.driftwood.entity.entity(msg[0]).layer + msg[1]
-        except (AttributeError):
+        except AttributeError:
             self.manager.driftwood.tick.unregister(self._track_entity)
 
         self.manager.driftwood.area.changed = True
