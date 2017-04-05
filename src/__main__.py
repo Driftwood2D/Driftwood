@@ -92,9 +92,8 @@ class Driftwood:
         Attributes:
             config: ConfigManager instance.
             log: LogManager instance.
-            database: DatabaseManager instance.
-            filetype: Shortcut to filetype module.
             tick: TickManager instance.
+            database: DatabaseManager instance.
             path: PathManager instance.
             cache: CacheManager instance.
             resource: ResourceManager instance.
@@ -114,8 +113,8 @@ class Driftwood:
         """
         self.config = ConfigManager(self)
         self.log = LogManager(self)
-        self.database = DatabaseManager(self)
         self.tick = TickManager(self)
+        self.database = DatabaseManager(self)
         self.path = PathManager(self)
         self.cache = CacheManager(self)
         self.resource = ResourceManager(self)

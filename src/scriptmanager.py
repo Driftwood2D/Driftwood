@@ -122,7 +122,7 @@ class ScriptManager:
         Args:
             filename: Filename of the python script to load.
         """
-        importpath = self.driftwood.path.find(filename)
+        importpath = self.driftwood.path._find_script(filename)
 
         if importpath:
             try:

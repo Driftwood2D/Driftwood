@@ -26,22 +26,21 @@
 # IN THE SOFTWARE.
 # **********
 
+import json
 import os
 import sys
-
-from libs import scaffydb
+import zlib
 
 
 class DatabaseManager:
     """The Database Manager
 
-    Manages a wrapper around ScaffyDB for storing persistent values.
+    Stores and retrieves named objects through a zlib-compressed JSON file.
+    Any object type supported by JSON may be stored.
 
     Attributes:
         driftwood: Base class instance.
         filename: Filename of the database.
-
-    Note: The database only accepts string keys and values.
     """
 
     def __init__(self, driftwood):
@@ -55,19 +54,24 @@ class DatabaseManager:
         self.filename = os.path.join(self.driftwood.config["database"]["root"],
                                      self.driftwood.config["database"]["name"])
 
+        # Has the database changed in memory?
+        self.__changed = False
+
         # Make sure the database directory is accessible.
         if not self.__test_db_dir():
             sys.exit(1)  # Fail.
 
-        self.__scaffydb = scaffydb.ScaffyDB(self.filename)
+        self.__database = self.__load()
 
         # Make sure the database is accessible.
-        if not self.__scaffydb:
+        if not type(self.__database) == dict:
             self.driftwood.log.msg("FATAL", "Database", "cannot open database", self.filename)
             sys.exit(1)  # Fail.
 
+        self.driftwood.tick.register(self._tick, during_pause=True)
+
     def __contains__(self, item):
-        if "DB:" + item in self.driftwood.cache or self.__scaffydb.getpos(item)[0] >= 0:
+        if item in self.__database:
             return True
         return False
 
@@ -80,81 +84,64 @@ class DatabaseManager:
     def __delitem__(self, item):
         self.remove(item)
 
-    def hash(self, string):
-        """Hash a string.
-
-        Perform a hashing function on a string. This is used to hash the keys in the database file.
-
-        Args:
-            string: The string to hash.
-
-        Returns: A 64-bit integer hash.
-        """
-        return self.__scaffydb.hash(string)
-
     def get(self, key):
-        """Get a value by key.
+        """Get an object by key (name).
 
-        Retrieve a value from the database by its key.
+        Retrieve an object from the database by its key.
 
         Args:
-            key: The key whose value to retrieve.
+            key: The key whose object to retrieve.
 
-        Returns: String value of the key if succeeded, None if failed.
+        Returns: Python object if succeeded, None if failed.
         """
-        value = self.driftwood.cache.download("DB:" + key)  # Check if the value is cached.
+        if key in self.__database:
+            self.driftwood.log.info("Database", "get", "\"{0}\"".format(key))
+            return self.__database[key]
 
-        if not value:
-            value = self.__scaffydb.get(key)
-
-        if not value:
+        else:
             self.driftwood.log.msg("ERROR", "Database", "no such key", "\"{0}\"".format(key))
             return None
 
-        self.driftwood.cache.upload("DB:" + key, value)  # Cache the value.
-        self.driftwood.log.info("Database", "get", "\"{0}\"".format(key))
-        return value
+    def put(self, key, obj):
+        """Put an object by key (name).
 
-    def put(self, key, value):
-        """Put a value by key.
-
-        Create or update a key with a new value.
+        Create or update a key with a new object.
 
         Args:
             key: The key to create or update.
-            value: The value to store.
+            obj: The object to store.
 
         Returns: True if succeeded, False if failed.
         """
-        ret = self.__scaffydb.put(key, value)
-
-        if not ret:
-            self.driftwood.log.msg("ERROR", "Database", "could not assign value to key", "\"{0}\"".format(key))
+        # Test if object is JSON serializable.
+        try:
+            ret = json.dumps(obj)
+        except TypeError:
+            self.driftwood.log.msg("ERROR", "Database", "bad object type for key", "\"{0}\"".format(key))
             return False
 
-        self.driftwood.cache.upload("DB:" + key, value)  # Cache the value.
+        self.__database[key] = obj
+        self.__changed = True
         self.driftwood.log.info("Database", "put", "\"{0}\"".format(key))
         return True
 
     def remove(self, key):
         """Remove a key.
 
-        Removes a key and its value from the database.
+        Removes a key and its object from the database.
 
         Args:
             key: The key to remove.
 
         Returns: True if succeeded, False if failed.
         """
-        ret = self.__scaffydb.remove(key)
-
-        if not ret:
+        if key in self.__database:
+            self.driftwood.log.info("Database", "remove", "\"{0}\"".format(key))
+            self.__changed = True
+            return key
+        else:
             self.driftwood.log.msg("ERROR", "Database", "no such key", "\"{0}\"".format(key))
             return False
-
-        self.driftwood.cache.purge("DB:" + key)  # Remove the value from the cache.
-        self.driftwood.log.info("Database", "remove", "\"{0}\"".format(key))
-        return True
 
     def __test_db_dir(self):
         """Test if we can create or open the database directory.
@@ -170,10 +157,49 @@ class DatabaseManager:
             return False
 
         try:
-            # Try openning the dir
-            files = os.listdir(db_dir_path)
+            # Try opening the directory
+            os.listdir(db_dir_path)
         except:
             self.driftwood.log.msg("FATAL", "Database", "cannot open database directory", db_dir_path)
             return False
 
         return True
+
+    def __test_db_open(self):
+        """Test if we can create or open the database file.
+        """
+        try:
+            with open(self.filename, "ab+") as test:
+                return True
+        except:
+            return False
+
+    def __load(self):
+        """Load the database file from disk.
+        """
+        if not self.__test_db_open():
+            return None
+
+        try:
+            with open(self.filename, 'rb') as dbfile:
+                dbcontents = dbfile.read()
+                if len(dbcontents):
+                    return json.loads(zlib.decompress(dbcontents).decode())
+                else:
+                    return {}
+        except:
+            return None
+
+    def _tick(self, seconds_past):
+        """Tick callback.
+        
+        If there have been any changes to the database in memory, write them to disk.
+        """
+        if self.__changed:
+            try:
+                with open(self.filename, 'wb') as dbfile:
+                    dbfile.write(zlib.compress(json.dumps(self.__database).encode()))
+            except:
+                self.driftwood.log.msg("FATAL", "Database", "cannot write database to disk", self.filename)
+                sys.exit(1)
+            self.__changed = False

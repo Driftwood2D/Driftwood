@@ -253,3 +253,13 @@ class PathManager:
             return self.__vfs[filename]
         else:
             return None
+
+    def _find_script(self, filename):
+        """Dumb hack to look for a compiled script if the uncompiled script cannot be found.
+        """
+        ret = self.find(filename)
+        if not ret:
+            ret = self.find(filename+'c')
+        if not ret:
+            return None
+        return ret
