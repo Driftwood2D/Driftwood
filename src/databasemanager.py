@@ -136,9 +136,10 @@ class DatabaseManager:
         Returns: True if succeeded, False if failed.
         """
         if key in self.__database:
+            del self.__database[key]
             self.driftwood.log.info("Database", "remove", "\"{0}\"".format(key))
             self.__changed = True
-            return key
+            return True
         else:
             self.driftwood.log.msg("ERROR", "Database", "no such key", "\"{0}\"".format(key))
             return False
