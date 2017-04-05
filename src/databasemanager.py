@@ -78,8 +78,8 @@ class DatabaseManager:
     def __getitem__(self, item):
         return self.get(item)
 
-    def __setitem__(self, item, value):
-        self.put(item, value)
+    def __setitem__(self, item, obj):
+        self.put(item, obj)
 
     def __delitem__(self, item):
         self.remove(item)
