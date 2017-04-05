@@ -255,11 +255,15 @@ class PathManager:
             return None
 
     def _find_script(self, filename):
-        """Dumb hack to look for a compiled script if the uncompiled script cannot be found.
+        """Slightly less dumb hack to look for a compiled script if the uncompiled script cannot be found.
         """
         ret = self.find(filename)
         if not ret:
-            ret = self.find(filename+'c')
+            if filename.endswith('.py'):
+                filename = filename[:-2] + 'pyc'
+            elif filename.endswith('.pyc'):
+                filename = filename[:-3] + 'py'
+            ret = self.find(filename)
         if not ret:
             return None
         return ret
