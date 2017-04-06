@@ -33,15 +33,20 @@ are attributed in the distributions of the below mentioned primary dependencies.
 * License: https://www.libsdl.org/license.php
 * URI: https://www.libsdl.org/index.php
 
-### SDL_Image
+### SDL_image
 * Copyright 1997-2017 Sam Lantinga
 * License: https://hg.libsdl.org/SDL_image/file/tip/COPYING.txt
 * URI: https://www.libsdl.org/projects/SDL_image/
 
-### SDL_Mixer
+### SDL_mixer
 * Copyright 1997-2017 Sam Lantinga
 * License: https://hg.libsdl.org/SDL_mixer/file/tip/COPYING.txt
 * URI: https://www.libsdl.org/projects/SDL_mixer/
+
+### SDL_ttf
+* Copyright 1997-2017 Sam Lantinga
+* License: https://hg.libsdl.org/SDL_ttf/file/tip/COPYING.txt
+* URI: https://www.libsdl.org/projects/SDL_ttf/
 
 ### jsonschema
 * Copyright 2013 Julian Berman
