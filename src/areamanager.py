@@ -64,9 +64,6 @@ class AreaManager:
 
         self.refocused = False
 
-        # We need to save SDL's destructors because their continued existence is undefined during shutdown.
-        self.__sdl_destroytexture = SDL_DestroyTexture
-
     def register(self):
         # Register the tick callback.
         self.driftwood.tick.register(self._tick)
@@ -128,8 +125,8 @@ class AreaManager:
 
         Prepare self.__frame as a new SDL_Texture in the size of the area.
         """
-        if self.__frame:
-            SDL_DestroyTexture(self.__frame)
+        #if self.__frame:
+        #    SDL_DestroyTexture(self.__frame) # TODO: Find out why this causes __build_frame to fail.
 
         self.__frame = SDL_CreateTexture(self.driftwood.window.renderer,
                                          SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET,
@@ -256,6 +253,7 @@ class AreaManager:
         # Give our frame to WindowManager for positioning and display.
         self.driftwood.window.frame(self.__frame, True)
 
-    def __del__(self):
+    def _terminate(self):
         if self.__frame:
-            self.__sdl_destroytexture(self.__frame)
+            SDL_DestroyTexture(self.__frame)
+        self.__frame = None

@@ -46,7 +46,7 @@ if __name__ == "__main__":
     try:
         from sdl2 import *
         import sdl2.ext as sdl2ext
-    except (ImportError):
+    except ImportError:
         print("Driftwood 2D\nStarting up...")
         print("[0] FATAL: PySDL2 required, module \"sdl2\" not found")
         sys.exit(1)  # Fail.
@@ -54,7 +54,7 @@ if __name__ == "__main__":
     # Try to import jsonschema.
     try:
         import jsonschema
-    except (ImportError):
+    except ImportError:
         print("Driftwood 2D\nStarting up...")
         print("[0] FATAL: jsonschema required, module \"jsonschema\" not found")
         sys.exit(1)  # Fail.
@@ -62,8 +62,8 @@ if __name__ == "__main__":
 # Import manager classes.
 from configmanager import ConfigManager
 from logmanager import LogManager
-from databasemanager import DatabaseManager
 from tickmanager import TickManager
+from databasemanager import DatabaseManager
 from pathmanager import PathManager
 from cachemanager import CacheManager
 from resourcemanager import ResourceManager
@@ -180,9 +180,12 @@ class Driftwood:
                     time.sleep(0.005)  # Cap mainloop speed.
 
             print("Shutting down...")
+            self._terminate()
             return 0
 
     def __handle_pause(self, keyevent):
+        """Check if we are shutting down, otherwise just pause.
+        """
         if keyevent == InputManager.ONDOWN:
             # Shift+Escape shuts down the engine.
             if self.input.pressed(self.keycode.SDLK_LSHIFT) or self.input.pressed(self.keycode.SDLK_RSHIFT):
@@ -191,6 +194,17 @@ class Driftwood:
             else:
                 self.tick.toggle_pause()
 
+    def _terminate(self):
+        """Cleanup before shutdown.
+        """
+        self.audio._terminate()
+        self.widget._terminate()
+        self.light._terminate()
+        self.entity._terminate()
+        self.area._terminate()
+        self.database._terminate()
+        self.window._terminate()
+
 
 if __name__ == "__main__":
     # Set up the entry point.
@@ -198,15 +212,13 @@ if __name__ == "__main__":
 
     # Make sure scripts have access to the base class.
     import builtins
-
     builtins.Driftwood = entry
-
 
     # Handle shutting down gracefully on INT and TERM signals.
     def sigint_handler(signum, frame):
         entry.running = False
 
-
+    # Set up interrupt handlers
     signal.signal(signal.SIGINT, sigint_handler)
     signal.signal(signal.SIGTERM, sigint_handler)
 

@@ -26,6 +26,8 @@
 # IN THE SOFTWARE.
 # **********
 
+from sdl2 import *
+
 
 class Tileset:
     """This class abstracts a tileset.
@@ -100,3 +102,13 @@ class Tileset:
         if "tileproperties" in self.__tileset:
             for key in self.__tileset["tileproperties"].keys():
                 self.tileproperties[int(key)] = self.__tileset["tileproperties"][key]
+
+    def _terminate(self):
+        """Cleanup before deletion.
+        """
+        if self.image:
+            self.image._terminate()
+            self.image = None
+        if self.texture:
+            SDL_DestroyTexture(self.texture)
+            self.texture = None

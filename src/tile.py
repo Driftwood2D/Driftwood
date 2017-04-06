@@ -120,5 +120,7 @@ class Tile:
         if driftwood.tick.registered(self.__next_member):
             driftwood.tick.unregister(self.__next_member)
 
-    def __del__(self):
+    def _terminate(self):
+        """Cleanup before deletion.
+        """
         self.unregister()

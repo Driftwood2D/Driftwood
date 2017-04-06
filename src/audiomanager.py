@@ -52,10 +52,6 @@ class AudioManager:
         self.__sfx = {}  # key: channel; [filename, file]
         self.__init_success = [False, False]
 
-        # Save SDL's destructors for shutdown.
-        self.__mix_quit = Mix_Quit
-        self.__mix_closeaudio = Mix_CloseAudio
-
         # Attempt to initialize mixer output.
         if Mix_OpenAudio(self.driftwood.config["audio"]["frequency"], MIX_DEFAULT_FORMAT, 2,
                          self.driftwood.config["audio"]["chunksize"]) == -1:
@@ -201,6 +197,7 @@ class AudioManager:
             if Mix_Playing(channel):
                 if not fade:  # Stop channel.
                     Mix_HaltChannel(channel)
+                    self.__sfx[channel][1]._terminate()
                     del self.__sfx[channel]
                 else:  # Fade out channel.
                     Mix_FadeOutChannel(channel, fade*1000)
@@ -227,6 +224,7 @@ class AudioManager:
                 else:
                     if not fade:  # Stop sfx.
                         Mix_HaltChannel(sfx)
+                        self.__sfx[sfx][1]._terminate()
                         del self.__sfx[sfx]
                     else:
                         Mix_FadeOutChannel(sfx, fade*1000)
@@ -244,6 +242,7 @@ class AudioManager:
         """
         for sfx in self.__sfx:
             self.stop_sfx(sfx)
+        self.__sfx = {}
         return True
 
     def play_music(self, filename, volume=None, loop=0, fade=0.0):
@@ -320,7 +319,7 @@ class AudioManager:
                 # Set the volume.
                 Mix_VolumeMusic(volume)
                 return volume
-            else: # Get the volume.
+            else:  # Get the volume.
                 return Mix_VolumeMusic(-1)
 
         self.driftwood.log.msg("WARNING", "cannot adjust volume for nonexistent music")
@@ -341,6 +340,7 @@ class AudioManager:
         if Mix_PlayingMusic():
             if not fade:  # Stop the music.
                 Mix_HaltMusic()
+                self.__music._terminate()
                 self.__music = None
                 self.playing_music = False
             else:  # Fade out the music.
@@ -352,6 +352,7 @@ class AudioManager:
     def _cleanup(self, seconds_past):
         # Tick callback to clean up files we're done with.
         if self.__music and not Mix_PlayingMusic():
+            self.__music._terminate()
             self.__music = None
             self.playing_music = False
         try:
@@ -360,11 +361,15 @@ class AudioManager:
             else:
                 for sfx in self.__sfx:
                     if not Mix_Playing(sfx):
+                        self.__sfx[sfx][1]._terminate()
                         del self.__sfx[sfx]
-        except (RuntimeError):
+        except RuntimeError:
             pass
 
-    def __del__(self):
+    def _terminate(self):
+        """Prepare for shutdown.
+        """
         self.stop_music()
-        self.__mix_quit()
-        self.__mix_closeaudio()
+        self.stop_all_sfx()
+        Mix_Quit()
+        Mix_CloseAudio()

@@ -87,11 +87,6 @@ class WindowManager:
         # Whether the frame has been changed since last display.
         self.__changed = WindowManager.NOTCHANGED
 
-        # We need to save SDL's destructors because their continued existence is undefined during shutdown.
-        self.__sdl_destroytexture = SDL_DestroyTexture
-        self.__sdl_destroyrenderer = SDL_DestroyRenderer
-        self.__sdl_destroywindow = SDL_DestroyWindow
-
         self.__prepare()
 
     def register(self):
@@ -122,11 +117,17 @@ class WindowManager:
         """
         # Prevent this ImageFile (probably from a script) from losing scope and taking our texture with it.
         if isinstance(tex, filetype.ImageFile):
+            if self.__imagefile and tex is not self.__imagefile:
+                self.__imagefile._terminate()
             self.__imagefile = tex
+            if self.__texture and self.__imagefile.texture is not self.__texture:
+                SDL_DestroyTexture(self.__texture)
             self.__texture = self.__imagefile.texture
 
         # It's just an ordinary texture, probably passed from the engine code.
         else:
+            if self.__texture and self.__texture is not tex:
+                SDL_DestroyTexture(self.__texture)
             self.__texture = tex
 
         # Get texture width and height.
@@ -271,15 +272,19 @@ class WindowManager:
         # Pixelated goodness, like a rebel.
         SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, b"nearest")
 
-    def __del__(self):
-        """WindowManager class destructor.
+    def _terminate(self):
+        """Cleanup before deletion.
         """
         if self.__texture:
-            self.__sdl_destroytexture(self.__texture)
+            SDL_DestroyTexture(self.__texture)
+            self.__texture = None
         if self.__frame:
-            self.__sdl_destroytexture(self.__frame[0])
-        self.__sdl_destroyrenderer(self.renderer)
-        self.__sdl_destroywindow(self.window)
+            SDL_DestroyTexture(self.__frame[0])
+            self.__frame = None
+        SDL_DestroyRenderer(self.renderer)
+        self.renderer = None
+        SDL_DestroyWindow(self.window)
+        self.window = None
 
         IMG_Quit()
         SDL_Quit()

@@ -66,6 +66,9 @@ class Widget():
     def dstrect(self):
         return (self.realx, self.realy, self.width, self.height)
 
-    def __del__(self):
+    def _terminate(self):
+        """Cleanup before deletion.
+        """
         if self.texture:
             self.__destroytexture(self.texture)
+            self.texture = None

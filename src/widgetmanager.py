@@ -263,5 +263,10 @@ class WidgetManager:
         self.__uifactory = UIFactory(self.__spritefactory)
         self.__uiprocessor = UIProcessor()
 
-    def __del__(self):
+    def _terminate(self):
+        """Cleanup before deletion.
+        """
+        for widget in self.widgets:
+            self.widgets[widget]._terminate()
+        self.widgets = {}
         TTF_Quit()

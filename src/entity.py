@@ -257,9 +257,14 @@ class Entity:
         self.__cur_member = (self.__cur_member + 1) % len(self.members)
         self.manager.driftwood.area.changed = True
 
-    def __del__(self):
+    def _terminate(self):
+        """Cleanup before deletion.
+        """
         if self.manager.driftwood.tick.registered(self.__next_member):
             self.manager.driftwood.tick.unregister(self.__next_member)
+        if self.spritesheet:
+            self.spritesheet._terminate()
+            self.spritesheet = None
 
 
 # TODO: When PixelModeEntity is done, move common logic into functions in the superclass.

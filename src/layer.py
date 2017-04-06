@@ -206,3 +206,10 @@ class Layer:
             # No tile, here create a dummy tile.
             else:
                 self.tiles.append(tile.Tile(self, seq, None, None))
+
+    def _terminate(self):
+        """Cleanup before deletion.
+        """
+        for tile in self.tiles:
+            tile._terminate()
+        self.tiles = []

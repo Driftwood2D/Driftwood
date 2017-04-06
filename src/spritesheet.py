@@ -68,3 +68,13 @@ class Spritesheet:
         tw, th = c_int(), c_int()
         SDL_QueryTexture(self.texture, None, None, byref(tw), byref(th))
         self.imagewidth, self.imageheight = tw.value, th.value
+
+    def _terminate(self):
+        """Cleanup before deletion.
+        """
+        if self.image:
+            self.image._terminate()
+            self.image = None
+        if self.texture:
+            SDL_DestroyTexture(self.texture)
+            self.texture = None

@@ -93,7 +93,7 @@ class LightManager:
 
         try:
             int(color, 16)
-        except (ValueError):
+        except ValueError:
             self.driftwood.log.msg("ERROR", "Light", "invalid color", color)
             return None
 
@@ -197,7 +197,7 @@ class LightManager:
         """
         try:
             int(color, 16)
-        except (ValueError):
+        except ValueError:
             self.driftwood.log.msg("ERROR", "Light", "invalid color", color)
             return False
 
@@ -241,6 +241,7 @@ class LightManager:
             True if succeeded, False if failed.
         """
         if lid in self.lights:
+            self.lights[lid]._terminate()
             del self.lights[lid]
             self.driftwood.area.changed = True
             return True
@@ -270,6 +271,7 @@ class LightManager:
                     to_kill += lid
 
         for lid in to_kill:
+            self.lights[lid]._terminate()
             del self.lights[lid]
 
         self.driftwood.area.changed = True
@@ -284,8 +286,17 @@ class LightManager:
 
         Returns: True
         """
+        for light in self.lights:
+            self.lights[light]._terminate()
         self.lights = {}
         self.area_lighting = None
         self.driftwood.area.changed = True
         self.driftwood.log.info("Light", "reset")
         return True
+
+    def _terminate(self):
+        """Cleanup before deletion.
+        """
+        for light in self.lights:
+            self.lights[light]._terminate()
+        self.lights = {}

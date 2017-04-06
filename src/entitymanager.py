@@ -204,6 +204,7 @@ class EntityManager:
             if self.entities[eid]._on_kill: # Call a function before killing the entity.
                 self.driftwood.script.call(self.entities[eid]._on_kill[0], self.entities[eid]._on_kill[1],
                                            self.entities[eid])
+            self.entities[eid]._terminate()
             del self.entities[eid]
             self.driftwood.area.changed = True
             return True
@@ -230,6 +231,7 @@ class EntityManager:
             if self.entities[eid]._on_kill: # Call a function before killing the entity.
                 self.driftwood.script.call(self.entities[eid]._on_kill[0], self.entities[eid]._on_kill[1],
                                            self.entities[eid])
+            self.entities[eid]._terminate()
             del self.entities[eid]
 
         self.driftwood.area.changed = True
@@ -266,3 +268,13 @@ class EntityManager:
             self.collider(a, b)
 
         return True
+
+    def _terminate(self):
+        """Cleanup before deletion.
+        """
+        for entity in self.entities:
+            self.entities[entity]._terminate()
+        self.entities = {}
+        for spritesheet in self.spritesheets:
+            self.spritesheets[spritesheet]._terminate()
+        self.spritesheets = {}

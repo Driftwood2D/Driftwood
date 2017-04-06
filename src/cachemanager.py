@@ -51,13 +51,13 @@ class CacheManager:
 
         # Check if the cache should be enabled.
         if self.driftwood.config["cache"]["enabled"] and self.driftwood.config["cache"]["ttl"] > 0.0:
-            self.__enabled = True
+            self.enabled = True
 
             # Register the tick callback.
             self.driftwood.tick.register(self._tick, delay=float(self.driftwood.config["cache"]["ttl"]))
 
         else:
-            self.__enabled = False
+            self.enabled = False
 
     def __contains__(self, item):
         return item in self.__cache
@@ -81,8 +81,12 @@ class CacheManager:
         Returns:
             True if succeeded, false if failed.
         """
-        if not self.__enabled:
+        if not self.enabled:
             return False
+
+        # If a previous version existed, clean it up properly.
+        if filename in self.__cache:
+            self.purge(filename)
 
         self.__cache[filename] = {}
         self.__cache[filename]["timestamp"] = self.__now
@@ -113,11 +117,15 @@ class CacheManager:
 
         Args:
             filename: Filename of the file to purge.
+            terminate: Whether to terminate the file.
 
         Returns:
             True
         """
         if filename in self.__cache:
+            # If this file has a _terminate() function, be sure to call it first.
+            if getattr(self.__cache[filename]["contents"], "_terminate", None) and terminate:
+                self.__cache[filename]["contents"]._terminate()
             del self.__cache[filename]
             self.driftwood.log.info("Cache", "purged", filename)
 
@@ -155,6 +163,12 @@ class CacheManager:
             self.driftwood.log.info("Cache", "cleaned", str(len(expired)) + " file(s)")
 
         return True
+
+    def _reverse_purge(self, inst):
+        for items in self.__cache:
+            if self.__cache[items]["contents"] is inst:
+                del self.__cache[items]
+                break
 
     def _tick(self, seconds_past):
         self.__now += seconds_past

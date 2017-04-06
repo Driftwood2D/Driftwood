@@ -204,3 +204,9 @@ class DatabaseManager:
                 self.driftwood.log.msg("FATAL", "Database", "cannot write database to disk", self.filename)
                 sys.exit(1)
             self.__changed = False
+
+    def _terminate(self):
+        """Cleanup before deletion.
+        """
+        # Make sure we write to disk.
+        self._tick(None)

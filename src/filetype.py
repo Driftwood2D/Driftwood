@@ -44,10 +44,6 @@ class AudioFile:
         self.__is_music = music
         self.__data = data
 
-        # Save SDL's destructors for shutdown.
-        self.__free_music = Mix_FreeMusic
-        self.__free_chunk = Mix_FreeChunk
-
         self.__load(self.__data)
 
     def __load(self, data):
@@ -62,11 +58,22 @@ class AudioFile:
             if not self.audio:
                 self.driftwood.log.msg("ERROR", "AudioFile", "SDL_Mixer", SDL_GetError())
 
-    def __del__(self):
+    def _terminate(self):
+        """Cleanup before deletion.
+        """
         if self.__is_music:
-            self.__free_music(self.audio)
+            Mix_FreeMusic(self.audio)
+            self.audio = None
         else:
-            self.__free_chunk(self.audio)
+            Mix_FreeChunk(self.audio)
+            self.audio = None
+        if self.driftwood.cache.enabled:
+            self.driftwood.cache._reverse_purge(self)
+
+    def __del__(self):
+        """Best effort to cleanup properly if deleted by a script.
+        """
+        self._terminate()
 
 
 class FontFile:
@@ -81,9 +88,6 @@ class FontFile:
         self.ptsize = ptsize
         self.__data = data
 
-        # We need to save SDL's destructors because their continued existence is undefined during shutdown.
-        self.__closefont = TTF_CloseFont
-
         self.__load(self.__data)
 
     def __load(self, data):
@@ -94,9 +98,17 @@ class FontFile:
             if not self.font:
                 self.driftwood.log.msg("ERROR", "FontFile", "SDL_TTF", TTF_GetError())
 
-    def __del__(self):
+    def _terminate(self):
         if self.font:
             TTF_CloseFont(self.font)
+            self.font = None
+        if self.driftwood.cache.enabled:
+            self.driftwood.cache._reverse_purge(self)
+
+    def __del__(self):
+        """Best effort to cleanup properly if deleted by a script.
+        """
+        self._terminate()
 
 
 class ImageFile:
@@ -112,10 +124,6 @@ class ImageFile:
         self.texture = None
         self.__renderer = renderer
         self.__data = data
-
-        # We need to save SDL's destructors because their continued existence is undefined during shutdown.
-        self.__destroytexture = SDL_DestroyTexture
-        self.__freesurface = SDL_FreeSurface
 
         self.__load(self.__data)
 
@@ -136,8 +144,17 @@ class ImageFile:
             if not self.texture:
                 self.driftwood.log.msg("ERROR", "ImageFile", "SDL_Image", IMG_GetError())
 
-    def __del__(self):
+    def _terminate(self):
         if self.surface:
-            self.__freesurface(self.surface)
+            SDL_FreeSurface(self.surface)
+            self.surface = None
         if self.texture:
-            self.__destroytexture(self.texture)
+            SDL_DestroyTexture(self.texture)
+            self.texture = None
+        if self.driftwood.cache.enabled:
+            self.driftwood.cache._reverse_purge(self)
+
+    def __del__(self):
+        """Best effort to cleanup properly if deleted by a script.
+        """
+        self._terminate()

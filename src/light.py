@@ -78,3 +78,7 @@ class Light:
             self.manager.driftwood.tick.unregister(self._track_entity)
 
         self.manager.driftwood.area.changed = True
+
+    def _terminate(self):
+        if self.lightmap:
+            self.lightmap._terminate()
