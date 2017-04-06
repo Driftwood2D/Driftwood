@@ -254,7 +254,7 @@ class PathManager:
         else:
             return None
 
-    def _find_script(self, filename):
+    def find_script(self, filename):
         """Slightly less dumb hack to look for a compiled script if the uncompiled script cannot be found.
         """
         ret = self.find(filename)
