@@ -136,7 +136,7 @@ class AreaManager:
         if type(self.__frame) == int and self.__frame < 0:
             self.driftwood.log.msg("ERROR", "Area", "SDL", SDL_GetError())
 
-    def __build_frame(self):
+    def __build_frame(self):  # TODO: Merge into FrameManager
         """Build the frame and pass to WindowManager.
 
         For every tile and entity in each layer, copy its graphic onto the frame, then give the frame to WindowManager
@@ -250,8 +250,8 @@ class AreaManager:
         if r < 0:
             self.driftwood.log.msg("ERROR", "Area", "SDL", SDL_GetError())
 
-        # Give our frame to WindowManager for positioning and display.
-        self.driftwood.window.frame(self.__frame, True)
+        # Give our frame to FrameManager for positioning and display.
+        self.driftwood.frame.frame(self.__frame, True)
 
     def _terminate(self):
         if self.__frame:

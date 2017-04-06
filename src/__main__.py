@@ -69,6 +69,7 @@ from cachemanager import CacheManager
 from resourcemanager import ResourceManager
 from inputmanager import InputManager
 from windowmanager import WindowManager
+from framemanager import FrameManager
 from entitymanager import EntityManager
 from lightmanager import LightManager
 from areamanager import AreaManager
@@ -99,6 +100,7 @@ class Driftwood:
             resource: ResourceManager instance.
             input: InputManager instance.
             window: WindowManager instance.
+            frame: FrameManager instance.
             entity: EntityManager instance.
             area: AreaManager instance.
             audio: AudioManager instance.
@@ -120,6 +122,7 @@ class Driftwood:
         self.resource = ResourceManager(self)
         self.input = InputManager(self)
         self.window = WindowManager(self)
+        self.frame = FrameManager(self)
         self.entity = EntityManager(self)
         self.light = LightManager(self)
         self.area = AreaManager(self)

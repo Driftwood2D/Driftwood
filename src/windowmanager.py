@@ -26,12 +26,8 @@
 # IN THE SOFTWARE.
 # **********
 
-from ctypes import byref
-from ctypes import c_int
 from sdl2 import *
 from sdl2.sdlimage import *
-
-import filetype
 
 
 class WindowManager:
@@ -47,9 +43,6 @@ class WindowManager:
         logical_height: The window's height in pixels.
     """
 
-    # Mac OS X 10.9 with SDL 2.0.1 does double buffering and needs a second rendering of the same image on still frames.
-    NOTCHANGED, BACKBUFFER_NEEDS_UPDATE, CHANGED = range(3)
-
     def __init__(self, driftwood):
         """WindowManager class initializer.
 
@@ -60,32 +53,14 @@ class WindowManager:
         """
         self.driftwood = driftwood
 
-        # The SDL Window and Renderer.
-        self.window = None
-        self.renderer = None
-
         # The resolution that the game wants to pretend it is running at.
         # (See physical_width in __prepare() for comparison.)
         self.logical_width = self.driftwood.config["window"]["width"]
         self.logical_height = self.driftwood.config["window"]["height"]
 
-        # Offset at which to draw the viewport on the window.
-        self.offset = [0, 0]
-
-        # Whether to center on the player in large areas.
-        self.centering = True
-
-        # A copy of the imagefile the texture to be framed belongs to, if any.
-        self.__imagefile = None
-
-        # A copy of the texture to be framed.
-        self.__texture = None
-
-        # The current frame.
-        self.__frame = None
-
-        # Whether the frame has been changed since last display.
-        self.__changed = WindowManager.NOTCHANGED
+        # The SDL Window and Renderer.
+        self.window = None
+        self.renderer = None
 
         self.__prepare()
 
@@ -105,106 +80,6 @@ class WindowManager:
         SDL_SetWindowTitle(self.window, title.encode())
         return True
 
-    def frame(self, tex, zoom=False):
-        """Copy an SDL_Texture or ImageFile frame onto the window, adjusting the viewport accordingly.
-
-        Args:
-            tex: SDL_Texture or filetype.ImageFile instance.
-            zoom: Whether or not to zoom the texture.
-
-        Returns:
-            True
-        """
-        # Prevent this ImageFile (probably from a script) from losing scope and taking our texture with it.
-        if isinstance(tex, filetype.ImageFile):
-            if self.__imagefile and tex is not self.__imagefile:
-                self.__imagefile._terminate()
-            self.__imagefile = tex
-            if self.__texture and self.__imagefile.texture is not self.__texture:
-                SDL_DestroyTexture(self.__texture)
-            self.__texture = self.__imagefile.texture
-
-        # It's just an ordinary texture, probably passed from the engine code.
-        else:
-            if self.__texture and self.__texture is not tex:
-                SDL_DestroyTexture(self.__texture)
-            self.__texture = tex
-
-        # Get texture width and height.
-        tw, th = c_int(), c_int()
-        SDL_QueryTexture(self.__texture, None, None, byref(tw), byref(th))
-        tw, th = tw.value, th.value
-
-        # Zoom the texture.
-        if zoom:
-            tw *= self.driftwood.config["window"]["zoom"]
-            th *= self.driftwood.config["window"]["zoom"]
-
-        # Both the dstrect and the window size are measured in logical
-        # coordinates at this stage.  The transformation to physical
-        # coordinates happens below in tick().
-
-        # Set up viewport calculation variables.
-        srcrect, dstrect = SDL_Rect(), SDL_Rect()
-        srcrect.x, srcrect.y, srcrect.w, srcrect.h = 0, 0, tw, th
-        dstrect.x, dstrect.y, dstrect.w, dstrect.h = 0, 0, tw, th
-
-        # Get logical window width and height.
-        ww = self.logical_width
-        wh = self.logical_height
-
-        # Area width is smaller than window width. Center by width on area.
-        if tw < ww:
-            dstrect.x = int(ww / 2 - tw / 2)
-
-        # Area width is larger than window width. Center by width on player.
-        if tw > ww and self.centering:
-            if self.driftwood.entity.player:
-                playermidx = self.driftwood.entity.player.x + (self.driftwood.entity.player.width / 2)
-                prepx = int(ww / 2 - playermidx * self.driftwood.config["window"]["zoom"])
-
-                if prepx > 0:
-                    dstrect.x = 0
-                elif prepx < ww - tw:
-                    dstrect.x = ww - tw
-                else:
-                    dstrect.x = prepx
-
-            else:
-                dstrect.x = int(ww / 2 - tw / 2)
-
-        # Area height is smaller than window height. Center by height on area.
-        if th < wh:
-            dstrect.y = int(wh / 2 - th / 2)
-
-        # Area height is larger than window height. Center by height on player.
-        if th > wh and self.centering:
-            if self.driftwood.entity.player:
-                playermidy = self.driftwood.entity.player.y + (self.driftwood.entity.player.height / 2)
-                prepy = int(wh / 2 - playermidy * self.driftwood.config["window"]["zoom"])
-
-                if prepy > 0:
-                    dstrect.y = 0
-                elif prepy < wh - th:
-                    dstrect.y = wh - th
-                else:
-                    dstrect.y = prepy
-
-            else:
-                dstrect.y = int(wh / 2 - th / 2)
-
-        # Adjust the viewport offset.
-        dstrect.x += self.offset[0]
-        dstrect.y += self.offset[1]
-
-        # Adjust and copy the frame onto the window.
-        self.__frame = [self.__texture, srcrect, dstrect]
-
-        # Mark the frame changed.
-        self.__changed = WindowManager.CHANGED
-
-        return True
-
     def refresh(self, area=False):
         """Force the window to redraw.
 
@@ -214,7 +89,7 @@ class WindowManager:
         Returns:
             True
         """
-        self.__changed = WindowManager.CHANGED
+        self.driftwood.frame.changed = self.driftwood.frame.STATE_CHANGED
         if area:
             self.driftwood.area.changed = True
         return True
@@ -222,15 +97,15 @@ class WindowManager:
     def _tick(self, seconds_past):
         """Tick callback which refreshes the renderer.
         """
-        if self.__changed:
+        if self.driftwood.frame.changed:
             SDL_RenderSetLogicalSize(self.renderer,
                                      self.logical_width, self.logical_height)  # set
 
             SDL_RenderClear(self.renderer)
-            SDL_RenderCopy(self.renderer, *self.__frame)
+            SDL_RenderCopy(self.renderer, *self.driftwood.frame._frame)
 
             SDL_RenderSetLogicalSize(self.renderer, 0, 0)  # reset
-            self.__changed -= 1
+            self.driftwood.frame.changed -= 1
 
             SDL_RenderPresent(self.renderer)
 
@@ -275,12 +150,6 @@ class WindowManager:
     def _terminate(self):
         """Cleanup before deletion.
         """
-        if self.__texture:
-            SDL_DestroyTexture(self.__texture)
-            self.__texture = None
-        if self.__frame:
-            SDL_DestroyTexture(self.__frame[0])
-            self.__frame = None
         SDL_DestroyRenderer(self.renderer)
         self.renderer = None
         SDL_DestroyWindow(self.window)
