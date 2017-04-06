@@ -30,6 +30,7 @@ Current features include:
 * SDL2
 * SDL2_image
 * SDL2_mixer
+* SDL2_ttf
 * Python >= 3.3.3
 * Python jsonschema (https://pypi.python.org/pypi/jsonschema)
 * Python PySDL2 (https://pypi.python.org/pypi/PySDL2/)
