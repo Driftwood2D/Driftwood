@@ -21,7 +21,8 @@ Current features include:
 * Lightmaps
 * Rudimentary database for saving data between plays
 * Fully scriptable in Python 3
-...and growing!
+
+...and more on the way!
 
 
 ## Requirements
