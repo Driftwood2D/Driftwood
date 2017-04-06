@@ -48,8 +48,10 @@ class TickManager:
 
         Args:
             driftwood: Base class instance.
+            count: Number of ticks since engine start.
         """
         self.driftwood = driftwood
+        self.count = 0
 
         # A list of dicts representing tick callbacks.
         #
@@ -143,6 +145,8 @@ class TickManager:
         # Regulate ticks per second. Finer-grained busy wait.
         while self._get_delay() > 0.0:
             pass
+
+        self.count += 1
 
         current_second = self._get_time()
         self.__last_time = self._most_recent_time
