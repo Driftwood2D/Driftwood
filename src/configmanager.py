@@ -2,7 +2,7 @@
 # Driftwood 2D Game Dev. Suite     #
 # configmanager.py                 #
 # Copyright 2014 PariahSoft LLC    #
-# Copyright 2016 Michael D. Reiley #
+# Copyright 2017 Michael D. Reiley #
 # & Paul Merrill                   #
 ####################################
 
@@ -35,7 +35,7 @@ import traceback
 import zipfile
 
 VERSION = "Driftwood 2D Alpha-0.0.3"
-COPYRIGHT = "Copyright 2016 Michael D. Reiley and Paul Merrill"
+COPYRIGHT = "Copyright 2016-2017 Michael D. Reiley and Paul Merrill"
 
 
 class ConfigManager:

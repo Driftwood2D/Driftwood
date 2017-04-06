@@ -2,7 +2,7 @@
 # Driftwood 2D Game Dev. Suite     #
 # entity.py                        #
 # Copyright 2014 PariahSoft LLC    #
-# Copyright 2016 Michael D. Reiley #
+# Copyright 2017 Michael D. Reiley #
 # & Paul Merrill                   #
 ####################################
 

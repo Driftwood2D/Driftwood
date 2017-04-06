@@ -1,7 +1,7 @@
 ####################################
 # Driftwood 2D Game Dev. Suite     #
 # audiomanager.py                  #
-# Copyright 2016 Michael D. Reiley #
+# Copyright 2017 Michael D. Reiley #
 # & Paul Merrill                   #
 ####################################
 
