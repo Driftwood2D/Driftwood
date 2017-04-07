@@ -185,7 +185,7 @@ if __name__ == "__main__":
         print("{0}: error: filename and option required".format(os.path.basename(__file__)))
         sys.exit(0)
 
-    # Initialize ScaffyDB
+    # Initialize JZdb
     db = JZdb(args.filename)
     if not db or db.fail:
         if not args.quiet:
