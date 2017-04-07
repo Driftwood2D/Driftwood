@@ -2,7 +2,7 @@
 #################################
 # JSON//zlib Database Editor    #
 # dbedit.py                     #
-# Copyright 2014 PariahSoft LLC #
+# Copyright 2017 Michael Reiley #
 #################################
 
 # **********
