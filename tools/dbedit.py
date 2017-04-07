@@ -200,7 +200,8 @@ if __name__ == "__main__":
 
     # --dump
     if args.dump:
-        print(db.database)
+        for key in db.database.keys():
+            print(key+' := '+db.database[key])
 
     # --get
     if args.get:
