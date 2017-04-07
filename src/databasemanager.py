@@ -115,8 +115,8 @@ class DatabaseManager:
         """
         # Test if object is JSON serializable.
         try:
-            ret = json.dumps(obj)
-        except TypeError:
+            ret = json.loads(obj)
+        except json.JSONDecodeError:
             self.driftwood.log.msg("ERROR", "Database", "bad object type for key", "\"{0}\"".format(key))
             return False
 

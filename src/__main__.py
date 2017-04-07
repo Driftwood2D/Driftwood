@@ -206,6 +206,7 @@ class Driftwood:
         self.entity._terminate()
         self.area._terminate()
         self.database._terminate()
+        self.frame._terminate()
         self.window._terminate()
 
 
