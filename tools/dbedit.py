@@ -57,17 +57,18 @@ class JZdb:
         """
 
         self.filename = filename
+        self.fail = False
 
         # Make sure the database is accessible.
         if not self.__test_db_open():
-            self = None
+            self.fail = True
             return
 
         self.database = self.__load()
 
         # Make sure the database is real.
         if not type(self.database) == dict:
-            self = None
+            self.fail = True
             return
 
     def get(self, key):
@@ -186,7 +187,7 @@ if __name__ == "__main__":
 
     # Initialize ScaffyDB
     db = JZdb(args.filename)
-    if not db:
+    if not db or db.fail:
         if not args.quiet:
             print("FAILURE :: OPEN :: {0}".format(args.filename))
 
