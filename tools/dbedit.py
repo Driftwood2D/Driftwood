@@ -59,15 +59,10 @@ class JZdb:
         self.filename = filename
         self.fail = False
 
-        # Make sure the database is accessible.
-        if not self.__test_db_open():
-            self.fail = True
-            return
-
         self.database = self.__load()
 
-        # Make sure the database is real.
-        if not type(self.database) == dict:
+        # Make sure the database is accessible and real.
+        if self.database is None:
             self.fail = True
             return
 
@@ -164,7 +159,8 @@ if __name__ == "__main__":
     group.add_argument("--list", action="store_true", dest="list", help="list key names")
     group.add_argument("--dump", action="store_true", dest="dump", help="dump json data")
     group.add_argument("--get", nargs=1, dest="get", type=str, metavar="<key>", help="get json object by key")
-    group.add_argument("--put", nargs=2, dest="put", type=str, metavar=("<key>", "<object>"), help="put json object by key")
+    group.add_argument("--put", nargs=2, dest="put", type=str, metavar=("<key>", "<object>"),
+                       help="put json object by key")
     group.add_argument("--remove", nargs=1, dest="remove", type=str, metavar="<key>", help="remove key")
 
     parser.add_argument("--quiet", action="store_true", dest="quiet", help="do not print failure messages")

@@ -64,7 +64,7 @@ class DatabaseManager:
         self.__database = self.__load()
 
         # Make sure the database is accessible.
-        if not type(self.__database) == dict:
+        if self.__database is None:
             self.driftwood.log.msg("FATAL", "Database", "cannot open database", self.filename)
             sys.exit(1)  # Fail.
 
