@@ -39,7 +39,7 @@ COPYRIGHT = "Copyright 2017 Michael D. Reiley"
 class JZdb:
     """JSON//zlib Database Editor
 
-    A simple on-disk flat file database for storing string key/object pairs, using JSON and zlib.
+    A simple on-disk flat file database for storing key/object pairs, using JSON and zlib.
 
     JZdb:
         zlib[json] (simple!)
