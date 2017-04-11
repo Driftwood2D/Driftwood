@@ -272,6 +272,8 @@ class WidgetManager:
         if active:  # Do we activate it to be drawn/used?
             self.activate(new_widget.wid)
 
+        return new_widget.wid
+
     def activate(self, wid):
         if wid in self.widgets:
             self.widgets[wid].active = True
