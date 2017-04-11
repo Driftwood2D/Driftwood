@@ -7,4 +7,4 @@ def setup():
         Driftwood.script.call("libs/stdlib/viewport.py", "rumble", 10, 3, None)
 
     Driftwood.widget.text("Test Text", "pf_arma_five.ttf", 20, container=None,
-                          x=20, y=20, width=-1, height=-1, color="0000FFFF", active=True)
+                          x=-1, y=-1, width=-1, height=-1, color="0000FFFF", active=True)
