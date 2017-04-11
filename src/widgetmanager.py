@@ -98,7 +98,7 @@ class WidgetManager:
         self.selected = None
         return True
 
-    def container(self, imagefile=None, container=None, x=0, y=0, width=0, height=0, active=True):
+    def container(self, imagefile=None, container_wid=None, x=0, y=0, width=0, height=0, active=True):
         """Create a new container widget.
 
         A container widget can have a background image, and other widgets can be contained by it. Widgets in a container
@@ -106,7 +106,7 @@ class WidgetManager:
 
         Args:
             imagefile: If set, ilename of the image file to use as a background.
-            container: If set, the wid of the parent container.
+            container_wid: If set, the wid of the parent container.
             x: The x position of the container on the window.
             y: The y position of the container on the window.
             width: The width of the container.
@@ -116,63 +116,63 @@ class WidgetManager:
         Returns:
             Widget ID of the new container widget if succeeded, None if failed.
         """
-        # Set the variables.
         self.__last_wid += 1
-        self.widgets[self.__last_wid] = widget.Widget(self, "container")
-        self.widgets[self.__last_wid].wid = self.__last_wid
-        self.widgets[self.__last_wid].x = x
-        self.widgets[self.__last_wid].y = y
-        self.widgets[self.__last_wid].realx = x
-        self.widgets[self.__last_wid].realy = y
-        self.widgets[self.__last_wid].width = width
-        self.widgets[self.__last_wid].height = height
+
+        new_widget = widget.Widget(self, "container")
+        self.widgets[self.__last_wid] = new_widget
+
+        # Set the variables.
+        new_widget.wid = self.__last_wid
+        new_widget.x = x
+        new_widget.y = y
+        new_widget.realx = x
+        new_widget.realy = y
+        new_widget.width = width
+        new_widget.height = height
 
         # Center if not in a container.
-        if container is None:
+        if container_wid is None:
+            window_logical_width = self.driftwood.window.logical_width
+            window_logical_height = self.driftwood.window.logical_height
+            window_zoom = self.driftwood.config["window"]["zoom"]
             if x == -1:
-                self.widgets[self.__last_wid].x = \
-                    (self.driftwood.window.logical_width // self.driftwood.config["window"]["zoom"]) // 2 - \
-                    self.widgets[self.__last_wid].width // 2
-                self.widgets[self.__last_wid].realx = self.widgets[self.__last_wid].x
+                new_widget.x = (window_logical_width // window_zoom - new_widget.width) // 2
+                new_widget.realx = new_widget.x
             if y == -1:
-                self.widgets[self.__last_wid].y = \
-                    (self.driftwood.window.logical_height // self.driftwood.config["window"]["zoom"]) // 2 - \
-                    self.widgets[self.__last_wid].height // 2
-                self.widgets[self.__last_wid].realy = self.widgets[self.__last_wid].y
+                new_widget.y = (window_logical_height // window_zoom - new_widget.height) // 2
+                new_widget.realy = new_widget.y
 
+        # It has a container.
+        elif self.widgets[container_wid].type == "container":
+            container = self.widgets[container_wid]
+            new_widget.container = container_wid
+            container.contains.append(new_widget.wid)
+            if container.realx and container.realy:  # Set the adjusted x and y.
+                # Either center or place in a defined position.
+                if x == -1:
+                    new_widget.realx = container.realx + (container.width - new_widget.width) // 2
+                else:
+                    new_widget.realx += container.realx
+
+                if y == -1:
+                    new_widget.realy = container.realy + (container.height - new_widget.height) // 2
+                else:
+                    new_widget.realy += container.realy
+
+        # Fake container.
         else:
-            if self.widgets[container].type == "container":  # It has a container.
-                self.widgets[self.__last_wid].container = container
-                self.widgets[container].contains.append(self.__last_wid)
-                if self.widgets[container].realx and self.widgets[container].realy:  # Set the adjusted x and y.
-                    # Either center or place in a defined position.
-                    if x == -1:
-                        self.widgets[self.__last_wid].realx = self.widgets[container].realx + \
-                                                              self.widgets[container].width // 2 - \
-                                                              self.widgets[self.__last_wid].width // 2
-                    else:
-                        self.widgets[self.__last_wid].realx += self.widgets[container].realx
-
-                    if y == -1:
-                        self.widgets[self.__last_wid].realy = self.widgets[container].realy + \
-                                                              self.widgets[container].height // 2 - \
-                                                              self.widgets[self.__last_wid].height // 2
-                    else:
-                        self.widgets[self.__last_wid].realy += self.widgets[container].realy
-
-            else:  # Fake container.
-                self.driftwood.log.msg("ERROR", "Widget", "container", "not a container", container)
-                return None
+            self.driftwood.log.msg("ERROR", "Widget", "container", "not a container", container_wid)
+            return None
 
         if imagefile:  # It has a background.
-            self.widgets[self.__last_wid].image = self.driftwood.resource.request_image(imagefile)
+            new_widget.image = self.driftwood.resource.request_image(imagefile)
 
         if active:  # Do we activate it to be drawn/used?
-            self.activate(self.__last_wid)
+            self.activate(new_widget.wid)
 
-        return self.__last_wid
+        return new_widget.wid
 
-    def text(self, contents, font, ptsize, container=None, x=0, y=0, width=-1, height=-1, color="000000FF",
+    def text(self, contents, font, ptsize, container_wid=None, x=0, y=0, width=-1, height=-1, color="000000FF",
              active=True):
         """Create a new text widget.
 
@@ -182,7 +182,7 @@ class WidgetManager:
                 contents: The contents of the text.
                 font: The font to render the text with.
                 ptsize: The point size of the text.
-                container: If set, the wid of the parent container.
+                container_wid: If set, the wid of the parent container.
                 x: The x position of the text on the window. Center if -1.
                 y: The y position of the text on the window. Center if -1.
                 width: The width of the text. If -1 don't alter it.
@@ -193,85 +193,86 @@ class WidgetManager:
             Returns:
                 Widget ID of the new text widget.
         """
-        # Set the variables.
         self.__last_wid += 1
-        self.widgets[self.__last_wid] = widget.Widget(self, "text")
-        self.widgets[self.__last_wid].wid = self.__last_wid
-        self.widgets[self.__last_wid].contents = contents
-        self.widgets[self.__last_wid].ptsize = ptsize
-        self.widgets[self.__last_wid].x = x
-        self.widgets[self.__last_wid].y = y
-        self.widgets[self.__last_wid].realx = x
-        self.widgets[self.__last_wid].realy = y
-        self.widgets[self.__last_wid].width = width
-        self.widgets[self.__last_wid].height = height
 
-        self.widgets[self.__last_wid].font = self.driftwood.resource.request_font(font, ptsize)
-        if not self.widgets[self.__last_wid].font:
+        new_widget = widget.Widget(self, "text")
+        self.widgets[self.__last_wid] = new_widget
+
+        # Set the variables.
+        new_widget.wid = self.__last_wid
+        new_widget.contents = contents
+        new_widget.ptsize = ptsize
+        new_widget.x = x
+        new_widget.y = y
+        new_widget.realx = x
+        new_widget.realy = y
+        new_widget.width = width
+        new_widget.height = height
+
+        new_widget.font = self.driftwood.resource.request_font(font, ptsize)
+        if not new_widget.font:
             return None
 
         # Get text width and height.
         tw, th = c_int(), c_int()
-        TTF_SizeText(self.widgets[self.__last_wid].font.font, contents.encode(), byref(tw), byref(th))
-        self.widgets[self.__last_wid].textwidth, self.widgets[self.__last_wid].textheight = tw.value, th.value
+        TTF_SizeText(new_widget.font.font, contents.encode(), byref(tw), byref(th))
+        new_widget.textwidth, new_widget.textheight = tw.value, th.value
 
         # Set width and height if not overridden.
         if width == -1:
-            self.widgets[self.__last_wid].width = tw.value
+            new_widget.width = tw.value
         if height == -1:
-            self.widgets[self.__last_wid].height = th.value
+            new_widget.height = th.value
 
         # Center if not in a container.
-        if container is None:
+        if container_wid is None:
+            window_logical_width = self.driftwood.window.logical_width
+            window_logical_height = self.driftwood.window.logical_height
+            window_zoom = self.driftwood.config["window"]["zoom"]
             if x == -1:
-                self.widgets[self.__last_wid].x = \
-                    (self.driftwood.window.logical_width // self.driftwood.config["window"]["zoom"]) // 2 - \
-                    self.widgets[self.__last_wid].width // 2
-                self.widgets[self.__last_wid].realx = self.widgets[self.__last_wid].x
+                new_widget.x = (window_logical_width // window_zoom - new_widget.width) // 2
+                new_widget.realx = new_widget.x
             if y == -1:
-                self.widgets[self.__last_wid].y = \
-                    (self.driftwood.window.logical_height // self.driftwood.config["window"]["zoom"]) // 2 - \
-                    self.widgets[self.__last_wid].height // 2
-                self.widgets[self.__last_wid].realy = self.widgets[self.__last_wid].y
+                new_widget.y = (window_logical_height // window_zoom - new_widget.height) // 2
+                new_widget.realy = new_widget.y
 
         # Are we inside a container?
-        elif self.widgets[container].type == "container":
-            self.widgets[self.__last_wid].container = container
-            self.widgets[container].contains.append(self.__last_wid)
-            if self.widgets[container].realx and self.widgets[container].realy:  # Set the adjusted x and y.
+        elif self.widgets[container_wid].type == "container":
+            container = self.widgets[container_wid]
+            new_widget.container = container_wid
+            container.contains.append(new_widget.wid)
+            if container.realx and container.realy:  # Set the adjusted x and y.
                 # Either center or place in a defined position.
                 if x == -1:
-                    self.widgets[self.__last_wid].realx = self.widgets[container].realx + \
-                                                          self.widgets[container].width // 2 - \
-                                                          self.widgets[self.__last_wid].width // 2
+                    new_widget.realx = container.realx + (container.width - new_widget.width) // 2
                 else:
-                    self.widgets[self.__last_wid].realx += self.widgets[container].realx
+                    new_widget.realx += container.realx
 
                 if y == -1:
-                    self.widgets[self.__last_wid].realy = self.widgets[container].realy + \
-                                                          self.widgets[container].height // 2 - \
-                                                          self.widgets[self.__last_wid].height // 2
+                    new_widget.realy = container.realy + (container.height - new_widget.height) // 2
                 else:
-                    self.widgets[self.__last_wid].realy += self.widgets[container].realy
+                    new_widget.realy += container.realy
 
         # Render.
         color_temp = SDL_Color()
         color_temp.r, color_temp.g, color_temp.b, color_temp.a = int(color[0:2], 16), int(color[2:4], 16), \
                                                                  int(color[4:6], 16), int(color[6:8], 16)
-        surface_temp = TTF_RenderUTF8_Solid(self.widgets[self.__last_wid].font.font, contents.encode(), color_temp)
+        surface_temp = TTF_RenderUTF8_Solid(new_widget.font.font, contents.encode(), color_temp)
 
         # Convert to a texture we can use internally.
         if surface_temp:
-            self.widgets[self.__last_wid].texture = SDL_CreateTextureFromSurface(self.driftwood.window.renderer,
-                                                                                 surface_temp)
+            new_widget.texture = SDL_CreateTextureFromSurface(self.driftwood.window.renderer,
+                                                              surface_temp)
             SDL_FreeSurface(surface_temp)
-            if not self.widgets[self.__last_wid].texture:
+            if not new_widget.texture:
                 self.driftwood.log.msg("ERROR", "Widget", "text", "SDL", SDL_GetError())
         else:
             self.driftwood.log.msg("ERROR", "Widget", "text", "TTF", TTF_GetError())
 
         if active:  # Do we activate it to be drawn/used?
-            self.activate(self.__last_wid)
+            self.activate(new_widget.wid)
+
+        return new_widget.wid
 
     def activate(self, wid):
         if wid in self.widgets:
