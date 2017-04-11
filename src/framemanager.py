@@ -92,7 +92,7 @@ class FrameManager:  # TODO: Move most of Area drawing logic into this manager.
                                              SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET,
                                              width, height)
 
-        if type(self.__workspace) == int and self.__workspace < 0:
+        if type(self.__workspace) is int and self.__workspace < 0:
             self.driftwood.log.msg("ERROR", "Frame", "SDL", SDL_GetError())
             return False
 
@@ -251,6 +251,9 @@ class FrameManager:  # TODO: Move most of Area drawing logic into this manager.
         if self.__texture:
             SDL_DestroyTexture(self.__texture)
             self.__texture = None
+        if self.__workspace:
+            SDL_DestroyTexture(self.__workspace)
+            self.__workspace = None
         if self._frame:
             SDL_DestroyTexture(self._frame[0])
             self._frame = None
