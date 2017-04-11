@@ -26,8 +26,6 @@
 # IN THE SOFTWARE.
 # **********
 
-from ctypes import byref, c_int
-
 from sdl2 import *
 from sdl2.ext import *
 from sdl2.sdlttf import *
@@ -105,7 +103,7 @@ class WidgetManager:
         are drawn together and the container's x and y positions are added to the widget's x and y positions.
 
         Args:
-            imagefile: If set, ilename of the image file to use as a background.
+            imagefile: If set, filename of the image file to use as a background.
             parent: If set, the wid of the parent container.
             x: The x position of the container on the window.
             y: The y position of the container on the window.
@@ -118,61 +116,29 @@ class WidgetManager:
         """
         self.__last_wid += 1
 
-        new_widget = widget.Widget(self, "container")
+        if imagefile:  # It has a background.
+            image = self.driftwood.resource.request_image(imagefile)
+            if not image:
+                self.driftwood.log.msg("ERROR", "Widget", "container", "no such image", imagefile)
+                return None
+        else:
+            image = None
+
+
+        new_widget = widget.ContainerWidget(self, self.__last_wid, parent, image, x, y, width, height)
         self.widgets[self.__last_wid] = new_widget
 
-        # Set the variables.
-        new_widget.wid = self.__last_wid
-        new_widget.x = x
-        new_widget.y = y
-        new_widget.realx = x
-        new_widget.realy = y
-        new_widget.width = width
-        new_widget.height = height
-
-        # Center if not in a container.
-        if parent is None:
-            window_logical_width = self.driftwood.window.logical_width
-            window_logical_height = self.driftwood.window.logical_height
-            window_zoom = self.driftwood.config["window"]["zoom"]
-            if x == -1:
-                new_widget.x = (window_logical_width // window_zoom - new_widget.width) // 2
-                new_widget.realx = new_widget.x
-            if y == -1:
-                new_widget.y = (window_logical_height // window_zoom - new_widget.height) // 2
-                new_widget.realy = new_widget.y
-
-        # It has a container.
-        elif self.widgets[parent].type == "container":
-            container = self.widgets[parent]
-            new_widget.container = parent
-            container.contains.append(new_widget.wid)
-            if container.realx and container.realy:  # Set the adjusted x and y.
-                # Either center or place in a defined position.
-                if x == -1:
-                    new_widget.realx = container.realx + (container.width - new_widget.width) // 2
-                else:
-                    new_widget.realx += container.realx
-
-                if y == -1:
-                    new_widget.realy = container.realy + (container.height - new_widget.height) // 2
-                else:
-                    new_widget.realy += container.realy
-
-        # Fake container.
-        else:
-            self.driftwood.log.msg("ERROR", "Widget", "container", "not a container", parent)
+        ret = new_widget._prepare()
+        if ret is None:
+            self.driftwood.log.msg("ERROR", "Widget", "container", "could not create container widget")
             return None
-
-        if imagefile:  # It has a background.
-            new_widget.image = self.driftwood.resource.request_image(imagefile)
 
         if active:  # Do we activate it to be drawn/used?
             self.activate(new_widget.wid)
 
         return new_widget.wid
 
-    def text(self, contents, font, ptsize, parent=None, x=0, y=0, width=-1, height=-1, color="000000FF",
+    def text(self, contents, fontfile, ptsize, parent=None, x=0, y=0, width=-1, height=-1, color="000000FF",
              active=True):
         """Create a new text widget.
 
@@ -180,7 +146,7 @@ class WidgetManager:
 
             Args:
                 contents: The contents of the text.
-                font: The font to render the text with.
+                fontfile: Filename of the font to render the text with.
                 ptsize: The point size of the text.
                 parent: If set, the wid of the parent container.
                 x: The x position of the text on the window. Center if -1.
@@ -191,83 +157,23 @@ class WidgetManager:
                 active: Whether to make the widget active right away.
 
             Returns:
-                Widget ID of the new text widget.
+                Widget ID of the new text widget if succeeded, None if failed.
         """
         self.__last_wid += 1
 
-        new_widget = widget.Widget(self, "text")
-        self.widgets[self.__last_wid] = new_widget
-
-        # Set the variables.
-        new_widget.wid = self.__last_wid
-        new_widget.contents = contents
-        new_widget.ptsize = ptsize
-        new_widget.x = x
-        new_widget.y = y
-        new_widget.realx = x
-        new_widget.realy = y
-        new_widget.width = width
-        new_widget.height = height
-
-        new_widget.font = self.driftwood.resource.request_font(font, ptsize)
-        if not new_widget.font:
+        font = self.driftwood.resource.request_font(fontfile, ptsize)
+        if not font:
+            self.driftwood.log.msg("ERROR", "Widget", "container", "no such font", fontfile)
             return None
 
-        # Get text width and height.
-        tw, th = c_int(), c_int()
-        TTF_SizeText(new_widget.font.font, contents.encode(), byref(tw), byref(th))
-        new_widget.textwidth, new_widget.textheight = tw.value, th.value
+        new_widget = widget.TextWidget(self, self.__last_wid, parent, contents, font, ptsize, x, y, width, height,
+                                       color)
+        self.widgets[self.__last_wid] = new_widget
 
-        # Set width and height if not overridden.
-        if width == -1:
-            new_widget.width = tw.value
-        if height == -1:
-            new_widget.height = th.value
-
-        # Center if not in a container.
-        if parent is None:
-            window_logical_width = self.driftwood.window.logical_width
-            window_logical_height = self.driftwood.window.logical_height
-            window_zoom = self.driftwood.config["window"]["zoom"]
-            if x == -1:
-                new_widget.x = (window_logical_width // window_zoom - new_widget.width) // 2
-                new_widget.realx = new_widget.x
-            if y == -1:
-                new_widget.y = (window_logical_height // window_zoom - new_widget.height) // 2
-                new_widget.realy = new_widget.y
-
-        # Are we inside a container?
-        elif self.widgets[parent].type == "container":
-            container = self.widgets[parent]
-            new_widget.container = parent
-            container.contains.append(new_widget.wid)
-            if container.realx and container.realy:  # Set the adjusted x and y.
-                # Either center or place in a defined position.
-                if x == -1:
-                    new_widget.realx = container.realx + (container.width - new_widget.width) // 2
-                else:
-                    new_widget.realx += container.realx
-
-                if y == -1:
-                    new_widget.realy = container.realy + (container.height - new_widget.height) // 2
-                else:
-                    new_widget.realy += container.realy
-
-        # Render.
-        color_temp = SDL_Color()
-        color_temp.r, color_temp.g, color_temp.b, color_temp.a = int(color[0:2], 16), int(color[2:4], 16), \
-                                                                 int(color[4:6], 16), int(color[6:8], 16)
-        surface_temp = TTF_RenderUTF8_Solid(new_widget.font.font, contents.encode(), color_temp)
-
-        # Convert to a texture we can use internally.
-        if surface_temp:
-            new_widget.texture = SDL_CreateTextureFromSurface(self.driftwood.window.renderer,
-                                                              surface_temp)
-            SDL_FreeSurface(surface_temp)
-            if not new_widget.texture:
-                self.driftwood.log.msg("ERROR", "Widget", "text", "SDL", SDL_GetError())
-        else:
-            self.driftwood.log.msg("ERROR", "Widget", "text", "TTF", TTF_GetError())
+        ret = new_widget._prepare()
+        if ret is None:
+            self.driftwood.log.msg("ERROR", "Widget", "text", "could not create text widget")
+            return None
 
         if active:  # Do we activate it to be drawn/used?
             self.activate(new_widget.wid)
@@ -313,18 +219,20 @@ class WidgetManager:
 
     def _draw_widgets(self):
         """Copy the widgets into FrameManager. This is signaled by AreaManager once the area is drawn."""
-        for widget in sorted(self.widgets.keys()):
-            if self.widgets[widget].active and self.widgets[widget].srcrect():  # It's visible, draw it.
+        for wid in sorted(self.widgets.keys()):
+            if self.widgets[wid].active and self.widgets[wid].srcrect():  # It's visible, draw it.
                 # But ignore inactive containers.
-                if (not self.widgets[widget].container) or self.widgets[self.widgets[widget].container].active:
-                    srcrect = self.widgets[widget].srcrect()
-                    dstrect = list(self.widgets[widget].dstrect())
-                    if self.widgets[widget].type == "container" and self.widgets[widget].image:  # Draw a container.
-                        r = self.driftwood.frame.overlay(self.widgets[widget].image.texture, srcrect, dstrect)
+                if (not self.widgets[wid].parent) or self.widgets[self.widgets[wid].parent].active:
+                    srcrect = self.widgets[wid].srcrect()
+                    dstrect = list(self.widgets[wid].dstrect())
+                    if type(self.widgets[wid]) is widget.ContainerWidget and self.widgets[wid].image:
+                        # Draw a container.
+                        r = self.driftwood.frame.overlay(self.widgets[wid].image.texture, srcrect, dstrect)
                         if type(r) is int and r < 0:
                             self.driftwood.log.msg("ERROR", "Widget", "_draw_widgets", "SDL", SDL_GetError())
-                    elif self.widgets[widget].type == "text" and self.widgets[widget].texture:  # Draw some text.
-                        r = self.driftwood.frame.overlay(self.widgets[widget].texture, srcrect, dstrect)
+                    elif type(self.widgets[wid]) is widget.TextWidget and self.widgets[wid].texture:
+                        # Draw some text.
+                        r = self.driftwood.frame.overlay(self.widgets[wid].texture, srcrect, dstrect)
                         if type(r) is int and r < 0:
                             self.driftwood.log.msg("ERROR", "Widget", "_draw_widgets", "SDL", SDL_GetError())
 

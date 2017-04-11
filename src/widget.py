@@ -26,47 +26,177 @@
 # IN THE SOFTWARE.
 # **********
 
+from ctypes import byref, c_int
+
 from sdl2 import *
+from sdl2.sdlttf import *
 
 
 class Widget:
 
-    def __init__(self, manager, t):
+    def __init__(self, manager, wid, parent, x, y, width, height):
         self.manager = manager
-        self.wid = -1
+        self.wid = wid
 
         self.active = False
         self.focus = False
-        self.type = t
-        self.image = None
-        self.texture = None
-        self.x = 0
-        self.y = 0
+        self.x = x
+        self.y = y
         self.realx = None
         self.realy = None
-        self.width = 0
-        self.height = 0
-        self.font = None
-        self.text = ""
-        self.textwidth = None
-        self.textheight = None
-        self.ptsize = 0
-        self.container = None
+        self.width = width
+        self.height = height
+        self.parent = parent
+
+    def dstrect(self):
+        return self.realx, self.realy, self.width, self.height
+
+
+class ContainerWidget(Widget):
+    def __init__(self, manager, wid, parent, image, x, y, width, height):
+        super(ContainerWidget, self).__init__(manager, wid, parent, x, y, width, height)
+
+        self.image = image
         self.contains = []
 
     def srcrect(self):
         if self.image:
             return 0, 0, self.image.width, self.image.height
-        elif self.texture:
-            return 0, 0, self.textwidth, self.textheight
         return None
 
-    def dstrect(self):
-        return self.realx, self.realy, self.width, self.height
+    def _prepare(self):
+        # Center if not in a container.
+        if self.parent is None:
+            window_logical_width = self.manager.driftwood.window.logical_width
+            window_logical_height = self.manager.driftwood.window.logical_height
+            window_zoom = self.manager.driftwood.config["window"]["zoom"]
+            if self.x == -1:
+                self.x = (window_logical_width // window_zoom - self.width) // 2
+                self.realx = self.x
+            if self.y == -1:
+                self.y = (window_logical_height // window_zoom - self.height) // 2
+                self.realy = self.y
+
+        # Register and center if in a container.
+        elif type(self.manager.widgets[self.parent]) is ContainerWidget:
+            container = self.manager.widgets[self.parent]
+            container.contains.append(self.wid)
+            if container.realx and container.realy:  # Set the adjusted x and y.
+                # Either center or place in a defined position.
+                if self.x == -1:
+                    self.realx = container.realx + (container.width - self.width) // 2
+                else:
+                    self.realx += container.realx
+
+                if self.y == -1:
+                    self.realy = container.realy + (container.height - self.height) // 2
+                else:
+                    self.realy += container.realy
+
+        # Fake container.
+        else:
+            self.manager.driftwood.log.msg("ERROR", "Widget", "ContainerWidget", "_prepare", "not a container",
+                                           self.parent)
+            return None
+
+        return True
 
     def _terminate(self):
         """Cleanup before deletion.
         """
+        if self.image:
+            self.image._terminate()
+            self.image = None
+
+
+class TextWidget(Widget):
+    def __init__(self, manager, wid, parent, contents, font, ptsize, x, y, width, height, color):
+        super(TextWidget, self).__init__(manager, wid, parent, x, y, width, height)
+
+        self.contents = contents
+        self.font = font
+        self.color = color
+        self.ptsize = ptsize
+        self.textwidth = None
+        self.textheight = None
+        self.texture = None
+
+    def srcrect(self):
+        if self.texture:
+            return 0, 0, self.textwidth, self.textheight
+        return None
+
+    def _prepare(self):
+        # Get text width and height.
+        tw, th = c_int(), c_int()
+        TTF_SizeText(self.font.font, self.contents.encode(), byref(tw), byref(th))
+        self.textwidth, self.textheight = tw.value, th.value
+
+        # Set width and height if not overridden.
+        if self.width == -1:
+            self.width = tw.value
+        if self.height == -1:
+            self.height = th.value
+
+        # Center if not in a container.
+        if self.parent is None:
+            window_logical_width = self.manager.driftwood.window.logical_width
+            window_logical_height = self.manager.driftwood.window.logical_height
+            window_zoom = self.manager.driftwood.config["window"]["zoom"]
+            if self.x == -1:
+                self.x = (window_logical_width // window_zoom - self.width) // 2
+                self.realx = self.x
+            if self.y == -1:
+                self.y = (window_logical_height // window_zoom - self.height) // 2
+                self.realy = self.y
+
+        # Register and center if in a container.
+        elif type(self.manager.widgets[self.parent]) is ContainerWidget:
+            container = self.manager.widgets[self.parent]
+            container.contains.append(self.wid)
+            if container.realx and container.realy:  # Set the adjusted x and y.
+                # Either center or place in a defined position.
+                if self.x == -1:
+                    self.realx = container.realx + (container.width - self.width) // 2
+                else:
+                    self.realx += container.realx
+
+                if self.y == -1:
+                    self.realy = container.realy + (container.height - self.height) // 2
+                else:
+                    self.realy += container.realy
+
+        # Fake container.
+        else:
+            self.manager.driftwood.log.msg("ERROR", "Widget", "TextWidget", "_prepare", "not a container",
+                                           self.parent)
+            return None
+
+        # Render.
+        color_temp = SDL_Color()
+        color_temp.r, color_temp.g, color_temp.b, color_temp.a = int(self.color[0:2], 16), \
+                                                                 int(self.color[2:4], 16), \
+                                                                 int(self.color[4:6], 16), \
+                                                                 int(self.color[6:8], 16)
+        surface_temp = TTF_RenderUTF8_Solid(self.font.font, self.contents.encode(), color_temp)
+
+        # Convert to a texture we can use internally.
+        if surface_temp:
+            self.texture = SDL_CreateTextureFromSurface(self.manager.driftwood.window.renderer,
+                                                        surface_temp)
+            SDL_FreeSurface(surface_temp)
+            if not self.texture:
+                self.manager.driftwood.log.msg("ERROR", "Widget", "TextWidget", "_prepare", "SDL", SDL_GetError())
+                return None
+        else:
+            self.manager.driftwood.log.msg("ERROR", "Widget", "TextWidget", "_prepare", "TTF", TTF_GetError())
+            return None
+
+        return True
+
+    def _terminate(self):
+        """Cleanup before deletion.
+                """
         if self.texture:
             SDL_DestroyTexture(self.texture)
             self.texture = None
