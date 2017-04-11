@@ -26,6 +26,8 @@
 # IN THE SOFTWARE.
 # **********
 
+import copy
+
 
 class Tile:
     """This class represents a tile.
@@ -40,7 +42,6 @@ class Tile:
         members: A list of sequence positions of member graphics in the tile's tileset.
         afps: Animation frames-per-second.
         pos: A two-member list containing the x and y coordinates of the tile's position in the map.
-        dstrect: A four-member list containing an x,y,w,h destination rectangle for the tile's placement.
         properties: A dictionary containing tile properties.
 
         nowalk: If true, the tile is not walkable.
@@ -69,17 +70,18 @@ class Tile:
             self.seq % self.layer.tilemap.width,
             self.seq // self.layer.tilemap.width
         ]
-        self.dstrect = None
         self.properties = {}
 
         self.nowalk = None
         self.exits = {}
 
+        self.__dstrect = None
+
         # Real tile.
         if tileset and gid:
             self.localgid = self.gid - self.tileset.range[0]
             self.members = [self.localgid]
-            self.dstrect = [
+            self.__dstrect = [
                 self.pos[0] * self.tileset.tilewidth,
                 self.pos[1] * self.tileset.tileheight,
                 self.tileset.tilewidth,
@@ -109,6 +111,11 @@ class Tile:
                     ((current_member * self.tileset.tilewidth) // self.tileset.imagewidth) * self.tileset.tileheight,
                     self.tileset.tilewidth, self.tileset.tileheight)
         return (0,0,0,0)
+
+    def dstrect(self):
+        """Return a copy of our (x, y, w, h) dstrect so that external operations don't change our local variable.
+        """
+        return copy.copy(self.__dstrect)
 
     def __next_member(self, seconds_past):
         if self.members:

@@ -46,7 +46,7 @@ def rumble(rate, intensity, duration=None):
 
 def __rumble_callback(seconds_past, intensity):
     Driftwood.area.offset = [
-        random.randint(intensity*-1, intensity),
+        random.randint(intensity * -1, intensity),
         random.randint(intensity * -1, intensity)
     ]
     Driftwood.area.changed = True

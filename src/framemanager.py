@@ -73,6 +73,31 @@ class FrameManager:  # TODO: Move most of Area drawing logic into this manager.
 
         self.changed = self.STATE_NOTCHANGED
 
+    def prepare(self, width, height):
+        """Prepare and clear the local workspace.
+
+        Set up our workspace as a texture of the specified size. This also clears the workspace.
+
+        Args:
+            width: Width in pixels.
+            height: Height in pixels.
+
+        Returns:
+            True if succeeded, False if failed.
+        """
+        if self.__workspace:
+            SDL_DestroyTexture(self.__workspace) # TODO: Find out why this causes __build_frame to fail.
+
+        self.__workspace = SDL_CreateTexture(self.driftwood.window.renderer,
+                                             SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET,
+                                             width, height)
+
+        if type(self.__workspace) == int and self.__workspace < 0:
+            self.driftwood.log.msg("ERROR", "Frame", "SDL", SDL_GetError())
+            return False
+
+        return True
+
     def frame(self, tex=None, zoom=False):
         """Replace the current frame with a texture or the internal workspace, and adjust the viewport accordingly.
 
@@ -177,10 +202,48 @@ class FrameManager:  # TODO: Move most of Area drawing logic into this manager.
 
         return True
 
-    def clear(self):
-        """Clear the internal workspace.
+    def copy(self, tex, srcrect, dstrect):
+        """Copy a texture onto the workspace.
+        
+        Copy the source rectangle from the texture tex to the destination rectangle in our workspace.
+        
+        Args:
+            tex: Texture to copy.
+            srcrect: Source rectangle [x, y, w, h]
+            dstrect: Destination rectangle [x, y, w, h]
+        
+        Returns:
+            True if succeeded, False if failed.
         """
-        pass
+        # We have to finish before we return.
+        ret = True
+
+        # Tell SDL to render to our workspace instead of the window's frame.
+        r = SDL_SetRenderTarget(self.driftwood.window.renderer, self.__workspace)
+        if r < 0:
+            self.driftwood.log.msg("ERROR", "Frame", "SDL", SDL_GetError())
+            ret = False
+
+        # Set up the rectangles.
+        src = SDL_Rect()
+        dst = SDL_Rect()
+        src.x, src.y, src.w, src.h = srcrect
+        dst.x, dst.y, dst.w, dst.h = dstrect
+
+        # Copy the texture onto the workspace.
+        r = SDL_RenderCopy(self.driftwood.window.renderer, tex, src,
+                           dst)
+        if r < 0:
+            self.driftwood.log.msg("ERROR", "Frame", "SDL", SDL_GetError())
+            ret = False
+
+        # Tell SDL to switch rendering back to the window's frame.
+        r = SDL_SetRenderTarget(self.driftwood.window.renderer, None)
+        if r < 0:
+            self.driftwood.log.msg("ERROR", "Frame", "SDL", SDL_GetError())
+            ret = False
+
+        return ret
 
     def _terminate(self):
         """Cleanup before deletion.
