@@ -183,8 +183,8 @@ class WidgetManager:
                 font: The font to render the text with.
                 ptsize: The point size of the text.
                 container: If set, the wid of the parent container.
-                x: The x position of the text on the window.
-                y: The y position of the text on the window.
+                x: The x position of the text on the window. Center if -1.
+                y: The y position of the text on the window. Center if -1.
                 width: The width of the text. If -1 don't alter it.
                 height: The height of the container. If -1 don't alter it.
                 color: The color and alpha to draw the text in.

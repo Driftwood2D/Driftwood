@@ -19,9 +19,15 @@ def lights():
         b = Driftwood.light.insert("lightmap_circle1.png", 3, 80, 56, 128, 100, "4444FFEE", blend=True)
         Driftwood.script.call("libs/stdlib/light.py", "flicker", b.lid, 0, 0, 40, 8)
         Driftwood.script.call("libs/stdlib/light.py", "flicker", a.lid, 0, 0, 120, 6)
+        Driftwood.area.tilemap.layers[2].tiles[34].properties["on_tile"] = "blue2.py,leave_world"
+        Driftwood.area.tilemap.layers[2].tiles[35].properties["on_tile"] = "blue2.py,leave_world"
 
 
 def activate_pearl():
     if "got_blue_pearl" in Driftwood.database and "blue_pearl_active" not in Driftwood.database:
         Driftwood.database["blue_pearl_active"] = "true"
         lights()
+
+
+def leave_world():
+    Driftwood.entity.player.teleport(1, 1, 6, area="ring7.json")

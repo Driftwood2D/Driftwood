@@ -89,7 +89,7 @@ class TickManager:
 
         for callback in self.__registry:
             if callback["function"] == func:
-                self.unregister(function)
+                self.unregister(func)
 
         self.__registry.append({
             "most_recent": self._most_recent_time,

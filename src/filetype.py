@@ -70,11 +70,6 @@ class AudioFile:
         if self.driftwood.cache.enabled:
             self.driftwood.cache._reverse_purge(self)
 
-    def __del__(self):
-        """Best effort to cleanup properly if deleted by a script.
-        """
-        self._terminate()
-
 
 class FontFile:
     """This class represents and abstracts a single font file.
@@ -104,11 +99,6 @@ class FontFile:
             self.font = None
         if self.driftwood.cache.enabled:
             self.driftwood.cache._reverse_purge(self)
-
-    def __del__(self):
-        """Best effort to cleanup properly if deleted by a script.
-        """
-        self._terminate()
 
 
 class ImageFile:
@@ -153,8 +143,3 @@ class ImageFile:
             self.texture = None
         if self.driftwood.cache.enabled:
             self.driftwood.cache._reverse_purge(self)
-
-    def __del__(self):
-        """Best effort to cleanup properly if deleted by a script.
-        """
-        self._terminate()

@@ -307,7 +307,7 @@
  "orientation":"orthogonal",
  "properties":
     {
-     "on_enter":"blue2.py,lights",
+     "on_focus":"blue2.py,lights",
      "title":"Blue World 2"
     },
  "propertytypes":
