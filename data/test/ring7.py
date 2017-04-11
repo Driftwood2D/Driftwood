@@ -6,22 +6,16 @@ def kill_door():
 
 
 def kill_door_callback1(seconds_past):
-    Driftwood.area.tilemap.layers[1].tiles[51].localgid = 18
-    Driftwood.area.tilemap.layers[1].tiles[51].gid = 18
-    Driftwood.area.tilemap.layers[1].tiles[51].members = [17]
+    Driftwood.area.tilemap.layers[1].tiles[51].setgid(18)
     Driftwood.area.changed = True
 
 
 def kill_door_callback2(seconds_past):
-    Driftwood.area.tilemap.layers[1].tiles[51].localgid = 19
-    Driftwood.area.tilemap.layers[1].tiles[51].gid = 19
-    Driftwood.area.tilemap.layers[1].tiles[51].members = [18]
+    Driftwood.area.tilemap.layers[1].tiles[51].setgid(19)
     Driftwood.area.changed = True
 
 
 def kill_door_callback3(seconds_past):
-    Driftwood.area.tilemap.layers[1].tiles[51].localgid = 20
-    Driftwood.area.tilemap.layers[1].tiles[51].gid = 20
-    Driftwood.area.tilemap.layers[1].tiles[51].members = [19]
+    Driftwood.area.tilemap.layers[1].tiles[51].setgid(20)
     Driftwood.area.changed = True
 

@@ -117,6 +117,30 @@ class Tile:
         """
         return copy.copy(self.__dstrect)
 
+    def setgid(self, gid, members=None, afps=None):  # TODO: Make sure the GID exists.
+        """Helper function to change the tile graphic or animation.
+        
+        gid: The primary graphic ID to set.
+        members: List of graphic IDs of the animation members if set.
+        afps: Animation frames per second if set. Will not animate otherwise.
+        
+        Returns:
+            True
+        """
+        self.gid = gid
+        self.localgid = self.gid - self.tileset.range[0]
+
+        if members:
+            self.members = members
+        else:
+            self.members = [self.localgid]
+
+        if afps:
+            self.afps = afps
+            self.layer.tilemap.area.driftwood.tick.register(self.__next_member, delay=(1 / self.afps))
+
+        return True
+
     def __next_member(self, seconds_past):
         if self.members:
             self.__cur_member = (self.__cur_member + 1) % len(self.members)

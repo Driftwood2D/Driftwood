@@ -274,11 +274,13 @@
                  "name":"",
                  "properties":
                     {
-                     "exit":"blue4.json,2,2,18"
+                     "exit":"blue4.json,2,2,18",
+                     "nowalk":true
                     },
                  "propertytypes":
                     {
-                     "exit":"string"
+                     "exit":"string",
+                     "nowalk":"bool"
                     },
                  "rotation":0,
                  "type":"",

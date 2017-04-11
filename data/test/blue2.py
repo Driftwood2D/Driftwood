@@ -19,8 +19,8 @@ def lights():
         b = Driftwood.light.insert("lightmap_circle1.png", 3, 80, 56, 128, 100, "4444FFEE", blend=True)
         Driftwood.script.call("libs/stdlib/light.py", "flicker", b.lid, 0, 0, 40, 8)
         Driftwood.script.call("libs/stdlib/light.py", "flicker", a.lid, 0, 0, 120, 6)
-        Driftwood.area.tilemap.layers[2].tiles[34].properties["on_tile"] = "blue2.py,leave_world"
-        Driftwood.area.tilemap.layers[2].tiles[35].properties["on_tile"] = "blue2.py,leave_world"
+        Driftwood.area.tilemap.layers[2].tile(4, 3).properties["on_tile"] = "blue2.py,leave_world"
+        Driftwood.area.tilemap.layers[2].tile(4, 3).properties["on_tile"] = "blue2.py,leave_world"
 
 
 def activate_pearl():
