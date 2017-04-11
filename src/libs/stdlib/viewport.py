@@ -29,6 +29,7 @@
 
 import random
 
+
 def rumble(rate, intensity, duration=None):
     """Rumble the viewport.
 
@@ -44,12 +45,14 @@ def rumble(rate, intensity, duration=None):
     if duration:
         Driftwood.tick.register(end_rumble, delay=duration, once=True)
 
+
 def __rumble_callback(seconds_past, intensity):
     Driftwood.area.offset = [
         random.randint(intensity * -1, intensity),
         random.randint(intensity * -1, intensity)
     ]
     Driftwood.area.changed = True
+
 
 def end_rumble():
     Driftwood.tick.unregister(__rumble_callback)

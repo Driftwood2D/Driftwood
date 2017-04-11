@@ -173,7 +173,7 @@ class InputManager:
         Args:
             keysym: SDLKey for the key which was pressed.
         """
-        if not keysym in self.__stack:
+        if keysym not in self.__stack:
             self.__stack.insert(0, keysym)
             if keysym in self.__registry:
                 self.__registry[keysym]["callback"](InputManager.ONDOWN)

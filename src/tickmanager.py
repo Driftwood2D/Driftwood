@@ -68,14 +68,14 @@ class TickManager:
 
         self.paused = False
 
-    def register(self, function, delay=0.0, once=False, during_pause=False, message=None):
+    def register(self, func, delay=0.0, once=False, during_pause=False, message=None):
         """Register a tick callback, with an optional delay between calls.
 
         Each tick callback must take either no arguments or one argument, for which seconds since its last call will be
         passed.
 
         Args:
-            function: The function to be called.
+            func: The function to be called.
             delay: (optional) Delay in seconds between calls.
             once: (optional) Whether to only call once.
             during_pause: (optional) Whether this tick is also called when the game is paused.
@@ -84,54 +84,54 @@ class TickManager:
         Returns:
             True if succeeded, False if failed.
         """
-        if not type(function) in [FunctionType, MethodType]:
-            print(str(type(function)))
+        if not type(func) in [FunctionType, MethodType]:
+            print(str(type(func)))
 
         for callback in self.__registry:
-            if callback["function"] == function:
+            if callback["function"] == func:
                 self.unregister(function)
 
         self.__registry.append({
             "most_recent": self._most_recent_time,
             "delay": delay,
-            "function": function,
+            "function": func,
             "once": once,
             "during_pause": during_pause,
             "message": message
         })
 
-        self.driftwood.log.info("Tick", "registered callback", function.__name__)
+        self.driftwood.log.info("Tick", "registered callback", func.__name__)
         return True
 
-    def unregister(self, function):
+    def unregister(self, func):
         """Unregister a tick callback.
 
         Args:
-            function: The function to unregister.
+            func: The function to unregister.
 
         Returns:
             True if succeeded, False if failed.
         """
         for n, callback in enumerate(self.__registry):
-            if callback["function"] == function:
+            if callback["function"] == func:
                 del self.__registry[n]
-                self.driftwood.log.info("Tick", "unregistered callback", function.__name__)
+                self.driftwood.log.info("Tick", "unregistered callback", func.__name__)
                 return True
 
-        self.driftwood.log.msg("WARNING", "Tick", "attempt to unregister nonexistent callback", function.__name__)
+        self.driftwood.log.msg("WARNING", "Tick", "attempt to unregister nonexistent callback", func.__name__)
         return False
 
-    def registered(self, function):
+    def registered(self, func):
         """Check if a function is registered.
 
         Args:
-            function: The function to unregister.
+            func: The function to unregister.
 
         Returns:
             True if registered, False otherwise.
         """
         for callback in self.__registry:
-            if callback["function"] == function:
+            if callback["function"] == func:
                 return True
 
         return False
@@ -200,7 +200,7 @@ class TickManager:
             current_second: The time that the current system-wide tick started at.
         """
         # Only tick if not paused.
-        if self.paused and callback["during_pause"] == False:
+        if self.paused and callback["during_pause"] is False:
             # Ignore this tick's passage of time.
             callback["most_recent"] += current_second - self.__last_time
         else:

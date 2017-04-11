@@ -117,7 +117,6 @@ class CacheManager:
 
         Args:
             filename: Filename of the file to purge.
-            terminate: Whether to terminate the file.
 
         Returns:
             True

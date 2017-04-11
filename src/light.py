@@ -70,9 +70,9 @@ class Light:
     def _track_entity(self, seconds_past, msg):
         try:  # Avoid strange timing anomaly.
             self.x = self.manager.driftwood.entity.entity(msg[0]).x +\
-                     self.manager.driftwood.entity.entity(msg[0]).width // 2
+                self.manager.driftwood.entity.entity(msg[0]).width // 2
             self.y = self.manager.driftwood.entity.entity(msg[0]).y +\
-                     self.manager.driftwood.entity.entity(msg[0]).height // 2
+                self.manager.driftwood.entity.entity(msg[0]).height // 2
             self.layer = self.manager.driftwood.entity.entity(msg[0]).layer + msg[1]
         except AttributeError:
             self.manager.driftwood.tick.unregister(self._track_entity)

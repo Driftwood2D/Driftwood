@@ -76,7 +76,7 @@ class WidgetManager:
         Returns:
             True if succeeded, False if failed.
         """
-        if not wid in self.widgets:
+        if wid not in self.widgets:
             self.driftwood.log.msg("WARNING", "Widget", "Cannot select nonexistent widget", wid)
             return False
         if self.selected is not None:

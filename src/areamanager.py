@@ -175,8 +175,8 @@ class AreaManager:
 
                 if tall_amount:  # It's taller than the tile. Figure out where to put the tall part.
                     tall_srcrect = list(entity.srcrect())
-                    tall_dstrect = [entity.x, entity.y - tall_amount, entity.width,\
-                                   entity.height - (entity.height - tall_amount)]
+                    tall_dstrect = [entity.x, entity.y - tall_amount, entity.width,
+                                    entity.height - (entity.height - tall_amount)]
                     tall_dstrect[0] += self.offset[0]
                     tall_dstrect[1] += self.offset[1]
                     tall_srcrect[3] = tall_dstrect[3]

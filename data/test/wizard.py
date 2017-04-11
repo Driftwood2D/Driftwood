@@ -1,17 +1,20 @@
 import random
 
+
 def setup(ent):
     print("New entity \"wizard\" with EID {0} at {1},{2},{3} ".format(str(ent.eid),
-                                                                str(ent.x),
-                                                                str(ent.y),
-                                                                str(ent.layer)))
+                                                                      str(ent.x),
+                                                                      str(ent.y),
+                                                                      str(ent.layer)))
     
     Driftwood.tick.register(move, delay=2.0, message=ent)
 
     Driftwood.light.insert("lightmap_circle1.png", 0, 0, 0, 64, 64, "FFFFFFAA", entity=ent.eid, layermod=-1)
 
+
 def kill(ent):
     Driftwood.tick.unregister(move)
+
 
 def move(seconds_past, ent):
     rand = random.randint(1, 8)

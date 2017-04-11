@@ -101,7 +101,8 @@ class LogManager:
         sys.stdout.flush()
 
     def __check_suppress(self, chain, halt=False):
-        "Checks whether or not the chain matches a suppression rule."
+        """Checks whether or not the chain matches a suppression rule.
+        """
         if halt:
             check = self.driftwood.config["log"]["suppress_halt"]
         else:

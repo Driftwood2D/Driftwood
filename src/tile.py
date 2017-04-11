@@ -110,7 +110,7 @@ class Tile:
             return (((current_member * self.tileset.tilewidth) % self.tileset.imagewidth),
                     ((current_member * self.tileset.tilewidth) // self.tileset.imagewidth) * self.tileset.tileheight,
                     self.tileset.tilewidth, self.tileset.tileheight)
-        return (0,0,0,0)
+        return 0, 0, 0, 0
 
     def dstrect(self):
         """Return a copy of our (x, y, w, h) dstrect so that external operations don't change our local variable.

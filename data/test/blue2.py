@@ -1,5 +1,5 @@
 def lights():
-    if not "blue_pearl_active" in Driftwood.database:
+    if "blue_pearl_active" not in Driftwood.database:
         a = Driftwood.light.insert("lightmap_circle1.png", 2, 80, 20, 48, 48, "4444FFEE")
         b = Driftwood.light.insert("lightmap_circle1.png", 2, 20, 60, 48, 48, "4444FFEE")
         c = Driftwood.light.insert("lightmap_circle1.png", 2, 140, 60, 48, 48, "4444FFEE")
@@ -20,7 +20,8 @@ def lights():
         Driftwood.script.call("libs/stdlib/light.py", "flicker", b.lid, 0, 0, 40, 8)
         Driftwood.script.call("libs/stdlib/light.py", "flicker", a.lid, 0, 0, 120, 6)
 
+
 def activate_pearl():
-    if "got_blue_pearl" in Driftwood.database and not "blue_pearl_active" in Driftwood.database:
+    if "got_blue_pearl" in Driftwood.database and "blue_pearl_active" not in Driftwood.database:
         Driftwood.database["blue_pearl_active"] = "true"
         lights()

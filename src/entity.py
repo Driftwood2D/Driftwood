@@ -111,6 +111,7 @@ class Entity:
         self._next_area = []
         self._next_tile = []
         self._next_stance = ""
+        self._end_stance = ""
 
         self._tilewidth = self.manager.driftwood.area.tilemap.tilewidth
         self._tileheight = self.manager.driftwood.area.tilemap.tileheight
@@ -138,7 +139,7 @@ class Entity:
         Args:
             stance: The name of the stance to set.
         """
-        if not stance in self.__entity:
+        if stance not in self.__entity:
             # Fake!
             self.manager.driftwood.log.msg("ERROR", "Entity", self.eid, "no such stance", stance)
             return False
@@ -272,7 +273,7 @@ class TileModeEntity(Entity):
     """This Entity subclass represents an Entity configured for movement in by-tile mode.
     """
 
-    def teleport(self, layer, x, y, area=None, lazy=False):
+    def teleport(self, layer, x, y, area=None):
         """Teleport the entity to a new tile position.
 
         This is also used to change layers or to move to a new area.
@@ -295,8 +296,7 @@ class TileModeEntity(Entity):
         # Make sure this is a tile.
         if (((layer is not None) and (layer < 0 or len(tilemap.layers) <= layer)) or
                 (x is not None and x >= tilemap.width) or
-                (y is not None and y >= tilemap.height)
-            ):
+                (y is not None and y >= tilemap.height)):
             self.manager.driftwood.log.msg("ERROR", "Entity", "attempted teleport to non-tile position")
             return False
 
@@ -392,7 +392,7 @@ class TileModeEntity(Entity):
 
         Returns: True if succeeded, False if failed.
         """
-        if direction and not direction in ["left", "right", "up", "down", "under"]:  # Illegal facing.
+        if direction and direction not in ["left", "right", "up", "down", "under"]:  # Illegal facing.
             self.manager.driftwood.log.msg("ERROR", "Entity", self.eid, "no such direction for interaction",
                                            direction)
             return False
@@ -558,7 +558,7 @@ class TileModeEntity(Entity):
                             return False
 
                         # Any other values are an unconditional nowalk.
-                        elif not dsttile.nowalk in ["player", "npc"]:
+                        elif dsttile.nowalk not in ["player", "npc"]:
                             self._collide(dsttile)
                             return False
 
@@ -774,7 +774,7 @@ class PixelModeEntity(Entity):
 
         self.manager.driftwood.area.changed = True
 
-    def walk(self, x, y, dont_stop=False, stance=None, end_stance=None):
+    def walk(self, x, y):
         """Move the entity by one pixel to a new position relative to its current position.
 
         Args:
@@ -783,10 +783,10 @@ class PixelModeEntity(Entity):
 
         Returns: True if succeeded, false if failed (due to collision).
         """
-        if not x or not x in [-1, 0, 1]:
+        if not x or x not in [-1, 0, 1]:
             x = 0
 
-        if not y or not y in [-1, 0, 1]:
+        if not y or y not in [-1, 0, 1]:
             y = 0
 
             dsttile = None  # Figure out how to find the destination tile.
@@ -798,11 +798,11 @@ class PixelModeEntity(Entity):
                             # Is the tile a player or npc specific nowalk?
                             if (dsttile.nowalk == "player" and self.manager.player.eid == self.eid
                                 or dsttile.nowalk == "npc" and self.manager.player.eid != self.eid):
-                                self._collide(dsttile)
-                                return False
+                                    self._collide(dsttile)
+                                    return False
 
                             # Any other values are an unconditional nowalk.
-                            elif not dsttile.nowalk in ["player", "npc"]:
+                            elif dsttile.nowalk not in ["player", "npc"]:
                                 self._collide(dsttile)
                                 return False
 
@@ -814,13 +814,10 @@ class PixelModeEntity(Entity):
 
                 # Collision detection, proof by contradiction.
                 if not (
-                                            self.x + x > self.manager.entities[eid].x + self.manager.entities[eid].width
-
-                                or self.x + self.width + x < self.manager.entities[eid].x
-
-                            or self.y + y > self.manager.entities[eid].y + self.manager.entities[eid].height
-
-                        or self.y + self.height + y < self.manager.entities[eid].y
+                    self.x + x > self.manager.entities[eid].x + self.manager.entities[eid].width
+                    or self.x + self.width + x < self.manager.entities[eid].x
+                    or self.y + y > self.manager.entities[eid].y + self.manager.entities[eid].height
+                    or self.y + self.height + y < self.manager.entities[eid].y
                 ):
                     self.manager.collision(self, self.manager.entities[eid])
                     return False
@@ -834,6 +831,7 @@ class PixelModeEntity(Entity):
 
     def _walk_stop(self):
         pass
+
 
 # TODO: Implement turn mode.
 class TurnModeEntity(Entity):

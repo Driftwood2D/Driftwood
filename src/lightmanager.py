@@ -289,7 +289,6 @@ class LightManager:
         for light in self.lights:
             self.lights[light]._terminate()
         self.lights = {}
-        self.area_lighting = None
         self.driftwood.area.changed = True
         self.driftwood.log.info("Light", "reset")
         return True

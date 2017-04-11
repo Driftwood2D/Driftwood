@@ -30,6 +30,7 @@
 import types
 import functools
 
+
 def copy_function(f):
     """Deep copy a function. Needed to pass more than one of the same callback function to tick.register().
     Args:

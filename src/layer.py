@@ -116,7 +116,7 @@ class Layer:
         for obj in objdata["objects"]:
             # Is the object properly sized?
             if (obj["x"] % self.tilemap.tilewidth or obj["y"] % self.tilemap.tileheight or
-                        obj["width"] % self.tilemap.tilewidth or obj["height"] % self.tilemap.tileheight):
+                    obj["width"] % self.tilemap.tilewidth or obj["height"] % self.tilemap.tileheight):
                 self.tilemap.area.driftwood.log.msg("ERROR", "Map", "invalid object size or placement")
                 continue
 
@@ -186,7 +186,6 @@ class Layer:
                         args[2] = int(args[2])
                         args[3] = int(args[3])
                         self.tilemap.area.driftwood.entity.insert(*args)
-
 
     def __prepare_layer(self):
         # Set layer properties if present.

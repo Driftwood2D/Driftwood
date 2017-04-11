@@ -155,7 +155,7 @@ class ConfigManager:
         # Attempt to validate against the schema.
         try:
             jsonschema.validate(self.__config, schema)
-        except (jsonschema.ValidationError):
+        except jsonschema.ValidationError:
             print("Driftwood 2D\nStarting up...")
             print("[0] FATAL: Config: config file failed validation")
             traceback.print_exc(1, sys.stdout)

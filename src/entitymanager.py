@@ -100,7 +100,7 @@ class EntityManager:
         # Attempt to validate against the schema.
         try:
             jsonschema.validate(data, schema)
-        except (jsonschema.ValidationError):
+        except jsonschema.ValidationError:
             self.driftwood.log.msg("ERROR", "Entity", filename, "failed validation")
             traceback.print_exc(1, sys.stdout)
             sys.stdout.flush()
@@ -201,7 +201,7 @@ class EntityManager:
             True if succeeded, False if failed.
         """
         if eid in self.entities:
-            if self.entities[eid]._on_kill: # Call a function before killing the entity.
+            if self.entities[eid]._on_kill:  # Call a function before killing the entity.
                 self.driftwood.script.call(self.entities[eid]._on_kill[0], self.entities[eid]._on_kill[1],
                                            self.entities[eid])
             self.entities[eid]._terminate()
@@ -228,7 +228,7 @@ class EntityManager:
                 to_kill += eid
 
         for eid in to_kill:
-            if self.entities[eid]._on_kill: # Call a function before killing the entity.
+            if self.entities[eid]._on_kill:  # Call a function before killing the entity.
                 self.driftwood.script.call(self.entities[eid]._on_kill[0], self.entities[eid]._on_kill[1],
                                            self.entities[eid])
             self.entities[eid]._terminate()

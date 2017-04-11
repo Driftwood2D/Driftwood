@@ -4,6 +4,7 @@ def open_door():
     Driftwood.area.tilemap.layers[1].tiles[5].gid = 66
     Driftwood.area.tilemap.layers[1].tiles[5].members = [65]
 
+
 def focus():
     if Driftwood.tick.registered(Driftwood.vars["init_rumble_tick_callback"]):
         Driftwood.tick.unregister(Driftwood.vars["init_rumble_tick_callback"])

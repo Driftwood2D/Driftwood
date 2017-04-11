@@ -29,7 +29,7 @@
 from sdl2 import *
 
 
-class Widget():
+class Widget:
 
     def __init__(self, manager, t):
         self.manager = manager

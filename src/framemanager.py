@@ -33,11 +33,11 @@ from sdl2 import *
 import filetype
 
 
-class FrameManager:  # TODO: Move most of Area drawing logic into this manager.
+class FrameManager:
     """The Frame Manager
 
-    This class contains manages the current graphical frame. It allows manipulating and adding content to its workspace,
-    which can then be copied onto the frame. Alternatively, a texture or ImageFile may be given to replace the current
+    This class manages the current graphical frame. It allows manipulating and adding content to its workspace,
+    which can then be copied onto window. Alternatively, a texture or ImageFile may be given to replace the current
     frame. WindowManager queries us for the current frame each tick.
 
     Attributes:
@@ -55,7 +55,8 @@ class FrameManager:  # TODO: Move most of Area drawing logic into this manager.
         Args:
             driftwood: Base class instance.
         """
-        # Mac OS X 10.9 with SDL 2.0.1 does double buffering and needs a second rendering of the same image on still frames.
+        # Mac OS X 10.9 with SDL 2.0.1 does double buffering and needs a second rendering of the same image on
+        # still frames.
         self.STATE_NOTCHANGED, self.STATE_BACKBUFFER_NEEDS_UPDATE, self.STATE_CHANGED = range(3)
 
         self.driftwood = driftwood
@@ -201,7 +202,7 @@ class FrameManager:  # TODO: Move most of Area drawing logic into this manager.
         # Tell WidgetManager it should draw the widgets now.
         self.driftwood.widget._draw_widgets()
 
-        # Draw overlays.
+        # Draw overlays, taking into account the viewport position.
         for overlay in self.__overlay:
             overlay[2][0] -= dstrect.x//self.driftwood.config["window"]["zoom"]
             overlay[2][1] -= dstrect.y//self.driftwood.config["window"]["zoom"]

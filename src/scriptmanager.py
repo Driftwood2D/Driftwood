@@ -26,7 +26,8 @@
 # IN THE SOFTWARE.
 # **********
 
-import importlib.machinery, importlib.util
+import importlib.machinery
+import importlib.util
 import os
 import platform
 import sys
@@ -66,7 +67,7 @@ class ScriptManager:
         Returns:
             Function return code if succeeded, None if failed.
         """
-        if not filename in self.__modules:
+        if filename not in self.__modules:
             # Load the module if not loaded.
             res = self.__load(filename)
             if not res:
@@ -98,7 +99,7 @@ class ScriptManager:
 
         Returns: Python module instance if succeeded, None if failed.
         """
-        if not filename in self.__modules:
+        if filename not in self.__modules:
             self.__load(filename)
 
         if filename in self.__modules:

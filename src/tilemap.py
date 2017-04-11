@@ -73,7 +73,7 @@ class Tilemap:
         Returns:
             Layer z position.
         """
-        fakedata = {"data":[0] * (self.width * self.height)}
+        fakedata = {"data": [0] * (self.width * self.height)}
         self.layers.append(layer.Layer(self, fakedata, len(self.layers)))
         return self.layers[-1].zpos
 

@@ -149,7 +149,7 @@ class AudioManager:
                 # Set the volume.
                 Mix_Volume(channel, volume)
                 return volume
-            else: # Get the volume.
+            else:  # Get the volume.
                 return Mix_Volume(channel, -1)
 
         self.driftwood.log.msg("WARNING", "Audio", "cannot adjust sfx volume on nonexistent channel", channel)
@@ -159,7 +159,7 @@ class AudioManager:
         """Get or adjust the volume of all currently playing instances of the named sound effect.
 
         Args:
-            channel: Filename of the sound effect whose volume to adjust or query.
+            filename: Filename of the sound effect whose volume to adjust or query.
             volume: Optional, sets a new volume. Integer between 0 and 128, or no volume to just query.
 
         Returns:
