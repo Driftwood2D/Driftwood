@@ -145,7 +145,7 @@ class WidgetManager:
         else:
             if self.widgets[container].type == "container":  # It has a container.
                 new_widget.container = container
-                self.widgets[container].contains.append(self.__last_wid)
+                self.widgets[container].contains.append(new_widget.wid)
                 if self.widgets[container].realx and self.widgets[container].realy:  # Set the adjusted x and y.
                     # Either center or place in a defined position.
                     if x == -1:
@@ -170,9 +170,9 @@ class WidgetManager:
             new_widget.image = self.driftwood.resource.request_image(imagefile)
 
         if active:  # Do we activate it to be drawn/used?
-            self.activate(self.__last_wid)
+            self.activate(new_widget.wid)
 
-        return self.__last_wid
+        return new_widget.wid
 
     def text(self, contents, font, ptsize, container=None, x=0, y=0, width=-1, height=-1, color="000000FF",
              active=True):
@@ -241,7 +241,7 @@ class WidgetManager:
         # Are we inside a container?
         elif self.widgets[container].type == "container":
             new_widget.container = container
-            self.widgets[container].contains.append(self.__last_wid)
+            self.widgets[container].contains.append(new_widget.wid)
             if self.widgets[container].realx and self.widgets[container].realy:  # Set the adjusted x and y.
                 # Either center or place in a defined position.
                 if x == -1:
@@ -275,7 +275,7 @@ class WidgetManager:
             self.driftwood.log.msg("ERROR", "Widget", "text", "TTF", TTF_GetError())
 
         if active:  # Do we activate it to be drawn/used?
-            self.activate(self.__last_wid)
+            self.activate(new_widget.wid)
 
     def activate(self, wid):
         if wid in self.widgets:
