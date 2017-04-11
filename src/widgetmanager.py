@@ -132,15 +132,14 @@ class WidgetManager:
 
         # Center if not in a container.
         if container is None:
+            window_logical_width = self.driftwood.window.logical_width
+            window_logical_height = self.driftwood.window.logical_height
+            window_zoom = self.driftwood.config["window"]["zoom"]
             if x == -1:
-                new_widget.x = \
-                    (self.driftwood.window.logical_width // self.driftwood.config["window"]["zoom"]) // 2 - \
-                    new_widget.width // 2
+                new_widget.x = (window_logical_width // window_zoom - new_widget.width) // 2
                 new_widget.realx = new_widget.x
             if y == -1:
-                new_widget.y = \
-                    (self.driftwood.window.logical_height // self.driftwood.config["window"]["zoom"]) // 2 - \
-                    new_widget.height // 2
+                new_widget.y = (window_logical_height // window_zoom - new_widget.height) // 2
                 new_widget.realy = new_widget.y
 
         else:
@@ -229,15 +228,14 @@ class WidgetManager:
 
         # Center if not in a container.
         if container is None:
+            window_logical_width = self.driftwood.window.logical_width
+            window_logical_height = self.driftwood.window.logical_height
+            window_zoom = self.driftwood.config["window"]["zoom"]
             if x == -1:
-                new_widget.x = \
-                    (self.driftwood.window.logical_width // self.driftwood.config["window"]["zoom"]) // 2 - \
-                    new_widget.width // 2
+                new_widget.x = (window_logical_width // window_zoom - new_widget.width) // 2
                 new_widget.realx = new_widget.x
             if y == -1:
-                new_widget.y = \
-                    (self.driftwood.window.logical_height // self.driftwood.config["window"]["zoom"]) // 2 - \
-                    new_widget.height // 2
+                new_widget.y = (window_logical_height // window_zoom - new_widget.height) // 2
                 new_widget.realy = new_widget.y
 
         # Are we inside a container?
