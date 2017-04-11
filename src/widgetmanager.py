@@ -127,14 +127,38 @@ class WidgetManager:
         self.widgets[self.__last_wid].width = width
         self.widgets[self.__last_wid].height = height
 
-        # Are we inside a container?
-        if container is not None:
+        # Center if not in a container.
+        if container is None:
+            if x == -1:
+                self.widgets[self.__last_wid].x = \
+                    (self.driftwood.window.logical_width // self.driftwood.config["window"]["zoom"]) // 2 - \
+                    self.widgets[self.__last_wid].width // 2
+                self.widgets[self.__last_wid].realx = self.widgets[self.__last_wid].x
+            if y == -1:
+                self.widgets[self.__last_wid].y = \
+                    (self.driftwood.window.logical_height // self.driftwood.config["window"]["zoom"]) // 2 - \
+                    self.widgets[self.__last_wid].height // 2
+                self.widgets[self.__last_wid].realy = self.widgets[self.__last_wid].y
+
+        else:
             if self.widgets[container].type == "container":  # It has a container.
                 self.widgets[self.__last_wid].container = container
                 self.widgets[container].contains.append(self.__last_wid)
                 if self.widgets[container].realx and self.widgets[container].realy:  # Set the adjusted x and y.
-                    self.widgets[self.__last_wid].realx += self.widgets[container].realx
-                    self.widgets[self.__last_wid].realy += self.widgets[container].realy
+                    # Either center or place in a defined position.
+                    if x == -1:
+                        self.widgets[self.__last_wid].realx = self.widgets[container].realx + \
+                                                              self.widgets[container].width // 2 - \
+                                                              self.widgets[self.__last_wid].width // 2
+                    else:
+                        self.widgets[self.__last_wid].realx += self.widgets[container].realx
+
+                    if y == -1:
+                        self.widgets[self.__last_wid].realy = self.widgets[container].realy + \
+                                                              self.widgets[container].height // 2 - \
+                                                              self.widgets[self.__last_wid].height // 2
+                    else:
+                        self.widgets[self.__last_wid].realy += self.widgets[container].realy
 
             else:  # Fake container.
                 self.driftwood.log.msg("WARNING", "Widget", "not a container", container)
@@ -219,14 +243,14 @@ class WidgetManager:
                 if x == -1:
                     self.widgets[self.__last_wid].realx = self.widgets[container].realx + \
                                                           self.widgets[container].width // 2 - \
-                                                          width // 2
+                                                          self.widgets[self.__last_wid].width // 2
                 else:
                     self.widgets[self.__last_wid].realx += self.widgets[container].realx
 
                 if y == -1:
                     self.widgets[self.__last_wid].realy = self.widgets[container].realy + \
                                                           self.widgets[container].height // 2 - \
-                                                          height // 2
+                                                          self.widgets[self.__last_wid].height // 2
                 else:
                     self.widgets[self.__last_wid].realy += self.widgets[container].realy
 
