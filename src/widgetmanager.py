@@ -150,15 +150,15 @@ class WidgetManager:
                     # Either center or place in a defined position.
                     if x == -1:
                         new_widget.realx = self.widgets[container].realx + \
-                                                              self.widgets[container].width // 2 - \
-                                                              new_widget.width // 2
+                                           self.widgets[container].width // 2 - \
+                                           new_widget.width // 2
                     else:
                         new_widget.realx += self.widgets[container].realx
 
                     if y == -1:
                         new_widget.realy = self.widgets[container].realy + \
-                                                              self.widgets[container].height // 2 - \
-                                                              new_widget.height // 2
+                                           self.widgets[container].height // 2 - \
+                                           new_widget.height // 2
                     else:
                         new_widget.realy += self.widgets[container].realy
 
@@ -246,15 +246,15 @@ class WidgetManager:
                 # Either center or place in a defined position.
                 if x == -1:
                     new_widget.realx = self.widgets[container].realx + \
-                                                          self.widgets[container].width // 2 - \
-                                                          new_widget.width // 2
+                                       self.widgets[container].width // 2 - \
+                                       new_widget.width // 2
                 else:
                     new_widget.realx += self.widgets[container].realx
 
                 if y == -1:
                     new_widget.realy = self.widgets[container].realy + \
-                                                          self.widgets[container].height // 2 - \
-                                                          new_widget.height // 2
+                                       self.widgets[container].height // 2 - \
+                                       new_widget.height // 2
                 else:
                     new_widget.realy += self.widgets[container].realy
 
@@ -267,7 +267,7 @@ class WidgetManager:
         # Convert to a texture we can use internally.
         if surface_temp:
             new_widget.texture = SDL_CreateTextureFromSurface(self.driftwood.window.renderer,
-                                                                                 surface_temp)
+                                                              surface_temp)
             SDL_FreeSurface(surface_temp)
             if not new_widget.texture:
                 self.driftwood.log.msg("ERROR", "Widget", "text", "SDL", SDL_GetError())
