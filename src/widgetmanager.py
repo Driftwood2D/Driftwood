@@ -149,7 +149,7 @@ class WidgetManager:
 
     def text(self, contents, font, ptsize, container=None, x=0, y=0, width=-1, height=-1, color="000000FF",
              active=True):
-        """Create a new container widget.
+        """Create a new text widget.
 
             A text widget puts text on the screen. It cannot have a background image, but can have a color.
 
@@ -255,6 +255,23 @@ class WidgetManager:
         self.widgets = {}
         self.selected = None
         return True
+
+    def _draw_widgets(self):
+        """Copy the widgets into FrameManager. This is signaled by AreaManager once the area is drawn."""
+        for widget in sorted(self.widgets.keys()):
+            if self.widgets[widget].active and self.widgets[widget].srcrect():  # It's visible, draw it.
+                # But ignore inactive containers.
+                if (not self.widgets[widget].container) or self.widgets[self.widgets[widget].container].active:
+                    srcrect = self.widgets[widget].srcrect()
+                    dstrect = list(self.widgets[widget].dstrect())
+                    if self.widgets[widget].type == "container" and self.widgets[widget].image:  # Draw a container.
+                        r = self.driftwood.frame.overlay(self.widgets[widget].image.texture, srcrect, dstrect)
+                        if type(r) is int and r < 0:
+                            self.driftwood.log.msg("ERROR", "Widget", "SDL", SDL_GetError())
+                    elif self.widgets[widget].type == "text" and self.widgets[widget].texture:  # Draw some text.
+                        r = self.driftwood.frame.overlay(self.widgets[widget].texture, srcrect, dstrect)
+                        if type(r) is int and r < 0:
+                            self.driftwood.log.msg("ERROR", "Widget", "SDL", SDL_GetError())
 
     def __prepare(self):
         if TTF_Init() < 0:

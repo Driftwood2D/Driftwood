@@ -54,21 +54,19 @@ class Widget():
         self.container = None
         self.contains = []
 
-        self.__destroytexture = SDL_DestroyTexture
-
     def srcrect(self):
         if self.image:
-            return (0, 0, self.image.width, self.image.height)
+            return 0, 0, self.image.width, self.image.height
         elif self.texture:
-            return (0, 0, self.textwidth, self.textheight)
+            return 0, 0, self.textwidth, self.textheight
         return None
 
     def dstrect(self):
-        return (self.realx, self.realy, self.width, self.height)
+        return self.realx, self.realy, self.width, self.height
 
     def _terminate(self):
         """Cleanup before deletion.
         """
         if self.texture:
-            self.__destroytexture(self.texture)
+            SDL_DestroyTexture(self.texture)
             self.texture = None

@@ -118,7 +118,7 @@ class AreaManager:
             self.__build_frame()
             self.changed = False
 
-    def __build_frame(self):  # TODO: Merge into FrameManager
+    def __build_frame(self):
         """Build the frame and pass to WindowManager.
 
         For every tile and entity in each layer, copy its graphic onto the frame, then give the frame to WindowManager
@@ -188,27 +188,5 @@ class AreaManager:
                 if r < 0:
                     self.driftwood.log.msg("ERROR", "Area", "SDL", SDL_GetError())
 
-        # Draw the widgets above everything.
-        for widget in sorted(self.driftwood.widget.widgets.keys()):
-            if self.driftwood.widget.widgets[widget].active and \
-                    self.driftwood.widget.widgets[widget].srcrect():  # It's visible, draw it.
-                # But ignore inactive containers.
-                if (not self.driftwood.widget.widgets[widget].container) or \
-                        self.driftwood.widget.widgets[self.driftwood.widget.widgets[widget].container].active:
-                    srcrect = self.driftwood.widget.widgets[widget].srcrect()
-                    dstrect = self.driftwood.widget.widgets[widget].dstrect()
-                    if self.driftwood.widget.widgets[widget].type == "container" and \
-                            self.driftwood.widget.widgets[widget].image:  # Draw a container image.
-                        r = self.driftwood.frame.copy(self.driftwood.widget.widgets[widget].image.texture,
-                                                      srcrect, dstrect)
-                        if r < 0:
-                            self.driftwood.log.msg("ERROR", "Area", "SDL", SDL_GetError())
-                    elif self.driftwood.widget.widgets[widget].type == "text" and \
-                            self.driftwood.widget.widgets[widget].texture:  # Draw some text.
-                        r = self.driftwood.frame.copy(self.driftwood.widget.widgets[widget].texture,
-                                                      srcrect, dstrect)
-                        if r < 0:
-                            self.driftwood.log.msg("ERROR", "Area", "SDL", SDL_GetError())
-
-        # Give our frame to FrameManager for positioning and display.
+        # Tell FrameManager to publish the finished frame.
         self.driftwood.frame.frame(None, True)

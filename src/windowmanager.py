@@ -99,10 +99,13 @@ class WindowManager:
         """
         if self.driftwood.frame.changed:
             SDL_RenderSetLogicalSize(self.renderer,
-                                     self.logical_width, self.logical_height)  # set
+                                     self.logical_width, self.logical_height)  # Set logical size.
 
             SDL_RenderClear(self.renderer)
-            SDL_RenderCopy(self.renderer, *self.driftwood.frame._frame)
+
+            r = SDL_RenderCopy(self.renderer, *self.driftwood.frame._frame)
+            if type(r) is int and r < 0:
+                self.driftwood.log.msg("ERROR", "Window", "SDL", SDL_GetError())
 
             SDL_RenderSetLogicalSize(self.renderer, 0, 0)  # reset
             self.driftwood.frame.changed -= 1

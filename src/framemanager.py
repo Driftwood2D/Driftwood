@@ -70,6 +70,7 @@ class FrameManager:  # TODO: Move most of Area drawing logic into this manager.
         self.__imagefile = None
         self.__texture = None
         self.__workspace = None
+        self.__overlay = []
 
         self.changed = self.STATE_NOTCHANGED
 
@@ -86,7 +87,7 @@ class FrameManager:  # TODO: Move most of Area drawing logic into this manager.
             True if succeeded, False if failed.
         """
         if self.__workspace:
-            SDL_DestroyTexture(self.__workspace) # TODO: Find out why this causes __build_frame to fail.
+            SDL_DestroyTexture(self.__workspace)
 
         self.__workspace = SDL_CreateTexture(self.driftwood.window.renderer,
                                              SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET,
@@ -197,12 +198,19 @@ class FrameManager:  # TODO: Move most of Area drawing logic into this manager.
         # Adjust and copy the frame onto the viewport.
         self._frame = [self.__texture, srcrect, dstrect]
 
+        # Tell WidgetManager it should draw the widgets now.
+        self.driftwood.widget._draw_widgets()
+
+        for overlay in self.__overlay:
+            self.copy(*overlay, True)
+        self.__overlay = []  # These should only be texture references.
+
         # Mark the frame changed.
         self.changed = self.STATE_CHANGED
 
         return True
 
-    def copy(self, tex, srcrect, dstrect):
+    def copy(self, tex, srcrect, dstrect, direct=False):
         """Copy a texture onto the workspace.
         
         Copy the source rectangle from the texture tex to the destination rectangle in our workspace.
@@ -211,6 +219,7 @@ class FrameManager:  # TODO: Move most of Area drawing logic into this manager.
             tex: Texture to copy.
             srcrect: Source rectangle [x, y, w, h]
             dstrect: Destination rectangle [x, y, w, h]
+            direct: Ignore the workspace and copy directly onto the texture.
         
         Returns:
             True if succeeded, False if failed.
@@ -219,8 +228,11 @@ class FrameManager:  # TODO: Move most of Area drawing logic into this manager.
         ret = True
 
         # Tell SDL to render to our workspace instead of the window's frame.
-        r = SDL_SetRenderTarget(self.driftwood.window.renderer, self.__workspace)
-        if r < 0:
+        if direct:
+            r = SDL_SetRenderTarget(self.driftwood.window.renderer, self.__texture)
+        else:
+            r = SDL_SetRenderTarget(self.driftwood.window.renderer, self.__workspace)
+        if type(r) is int and r < 0:
             self.driftwood.log.msg("ERROR", "Frame", "SDL", SDL_GetError())
             ret = False
 
@@ -233,17 +245,31 @@ class FrameManager:  # TODO: Move most of Area drawing logic into this manager.
         # Copy the texture onto the workspace.
         r = SDL_RenderCopy(self.driftwood.window.renderer, tex, src,
                            dst)
-        if r < 0:
+        if type(r) is int and r < 0:
             self.driftwood.log.msg("ERROR", "Frame", "SDL", SDL_GetError())
             ret = False
 
         # Tell SDL to switch rendering back to the window's frame.
         r = SDL_SetRenderTarget(self.driftwood.window.renderer, None)
-        if r < 0:
+        if type(r) is int and r < 0:
             self.driftwood.log.msg("ERROR", "Frame", "SDL", SDL_GetError())
             ret = False
 
         return ret
+
+    def overlay(self, tex, srcrect, dstrect):
+        """Schedule to copy a texture directly onto the window, ignoring any frame or viewport calculations.
+
+        Args:
+            tex: Texture to copy.
+            srcrect: Source rectangle [x, y, w, h]
+            dstrect: Destination rectangle [x, y, w, h]
+
+        Returns:
+            True
+        """
+        # Set up the rectangles.
+        self.__overlay.append([tex, srcrect, dstrect])
 
     def _terminate(self):
         """Cleanup before deletion.
