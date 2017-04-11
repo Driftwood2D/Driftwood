@@ -98,7 +98,7 @@ class WidgetManager:
         self.selected = None
         return True
 
-    def container(self, imagefile=None, container_wid=None, x=0, y=0, width=0, height=0, active=True):
+    def container(self, imagefile=None, parent=None, x=0, y=0, width=0, height=0, active=True):
         """Create a new container widget.
 
         A container widget can have a background image, and other widgets can be contained by it. Widgets in a container
@@ -106,7 +106,7 @@ class WidgetManager:
 
         Args:
             imagefile: If set, ilename of the image file to use as a background.
-            container_wid: If set, the wid of the parent container.
+            parent: If set, the wid of the parent container.
             x: The x position of the container on the window.
             y: The y position of the container on the window.
             width: The width of the container.
@@ -131,7 +131,7 @@ class WidgetManager:
         new_widget.height = height
 
         # Center if not in a container.
-        if container_wid is None:
+        if parent is None:
             window_logical_width = self.driftwood.window.logical_width
             window_logical_height = self.driftwood.window.logical_height
             window_zoom = self.driftwood.config["window"]["zoom"]
@@ -143,9 +143,9 @@ class WidgetManager:
                 new_widget.realy = new_widget.y
 
         # It has a container.
-        elif self.widgets[container_wid].type == "container":
-            container = self.widgets[container_wid]
-            new_widget.container = container_wid
+        elif self.widgets[parent].type == "container":
+            container = self.widgets[parent]
+            new_widget.container = parent
             container.contains.append(new_widget.wid)
             if container.realx and container.realy:  # Set the adjusted x and y.
                 # Either center or place in a defined position.
@@ -161,7 +161,7 @@ class WidgetManager:
 
         # Fake container.
         else:
-            self.driftwood.log.msg("ERROR", "Widget", "container", "not a container", container_wid)
+            self.driftwood.log.msg("ERROR", "Widget", "container", "not a container", parent)
             return None
 
         if imagefile:  # It has a background.
@@ -172,7 +172,7 @@ class WidgetManager:
 
         return new_widget.wid
 
-    def text(self, contents, font, ptsize, container_wid=None, x=0, y=0, width=-1, height=-1, color="000000FF",
+    def text(self, contents, font, ptsize, parent=None, x=0, y=0, width=-1, height=-1, color="000000FF",
              active=True):
         """Create a new text widget.
 
@@ -182,7 +182,7 @@ class WidgetManager:
                 contents: The contents of the text.
                 font: The font to render the text with.
                 ptsize: The point size of the text.
-                container_wid: If set, the wid of the parent container.
+                parent: If set, the wid of the parent container.
                 x: The x position of the text on the window. Center if -1.
                 y: The y position of the text on the window. Center if -1.
                 width: The width of the text. If -1 don't alter it.
@@ -225,7 +225,7 @@ class WidgetManager:
             new_widget.height = th.value
 
         # Center if not in a container.
-        if container_wid is None:
+        if parent is None:
             window_logical_width = self.driftwood.window.logical_width
             window_logical_height = self.driftwood.window.logical_height
             window_zoom = self.driftwood.config["window"]["zoom"]
@@ -237,9 +237,9 @@ class WidgetManager:
                 new_widget.realy = new_widget.y
 
         # Are we inside a container?
-        elif self.widgets[container_wid].type == "container":
-            container = self.widgets[container_wid]
-            new_widget.container = container_wid
+        elif self.widgets[parent].type == "container":
+            container = self.widgets[parent]
+            new_widget.container = parent
             container.contains.append(new_widget.wid)
             if container.realx and container.realy:  # Set the adjusted x and y.
                 # Either center or place in a defined position.
