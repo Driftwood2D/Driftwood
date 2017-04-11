@@ -106,7 +106,7 @@ class PathManager:
                         filelist.append(name)
 
         except:
-            self.driftwood.log.msg("ERROR", "Path", "could not examine pathname", pathname)
+            self.driftwood.log.msg("ERROR", "Path", "examine", "could not examine pathname", pathname)
 
         return tuple(filelist)
 
@@ -148,8 +148,8 @@ class PathManager:
         Returns:
             True if succeeded, False if failed.
         """
-        if not pathnames:
-            self.driftwood.log.msg("WARNING", "Path", "empty argument to prepend()")
+        if type(pathnames) is not list:
+            self.driftwood.log.msg("ERROR", "Path", "prepend", "not a list")
             return False
         pathnames = list(pathnames)
 
@@ -183,8 +183,8 @@ class PathManager:
         Returns:
             True if succeeded, False if failed.
         """
-        if not pathnames:
-            self.driftwood.log.msg("WARNING", "Path", "empty argument to append()")
+        if type(pathnames) is not list:
+            self.driftwood.log.msg("ERROR", "Path", "append", "not a list")
             return False
         pathnames = list(pathnames)
 
@@ -215,7 +215,8 @@ class PathManager:
             True if succeeded, False if failed.
         """
         if not pathnames:
-            self.driftwood.log.msg("WARNING", "Path", "attempt to remove nonexistent pathnames", ', '.join(pathnames))
+            self.driftwood.log.msg("WARNING", "Path", "remove", "attempt to remove nonexistent pathnames",
+                                   ', '.join(pathnames))
             return False
         pathnames = list(pathnames)
 
@@ -255,7 +256,7 @@ class PathManager:
             return None
 
     def find_script(self, filename):
-        """Slightly less dumb hack to look for a compiled script if the uncompiled script cannot be found.
+        """Slightly less dumb hack to look for a compiled script if the uncompiled script cannot be found or vice versa.
         """
         ret = self.find(filename)
         if not ret:

@@ -105,7 +105,7 @@ class WindowManager:
 
             r = SDL_RenderCopy(self.renderer, *self.driftwood.frame._frame)
             if type(r) is int and r < 0:
-                self.driftwood.log.msg("ERROR", "Window", "SDL", SDL_GetError())
+                self.driftwood.log.msg("ERROR", "Window", "_tick", "SDL", SDL_GetError())
 
             SDL_RenderSetLogicalSize(self.renderer, 0, 0)  # reset
             self.driftwood.frame.changed -= 1
@@ -118,10 +118,10 @@ class WindowManager:
         Create a new window and renderer with the configured settings.
         """
         if SDL_Init(SDL_INIT_EVERYTHING) < 0:  # Couldn't init SDL.
-            self.driftwood.log.msg("ERROR", "Window", "SDL", SDL_GetError())
+            self.driftwood.log.msg("ERROR", "Window", "__prepare", "SDL", SDL_GetError())
         init_flags = IMG_INIT_JPG | IMG_INIT_PNG
         if IMG_Init(init_flags) & init_flags != init_flags:  # Couldn't init SDL_Image.
-            self.driftwood.log.msg("ERROR", "Window", "SDL", SDL_GetError())
+            self.driftwood.log.msg("ERROR", "Window", "__prepare", "SDL", SDL_GetError())
 
         if self.driftwood.config["window"]["fullscreen"]:
             # Desktop's current width and height
@@ -142,10 +142,10 @@ class WindowManager:
 
         self.renderer = SDL_CreateRenderer(self.window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC)
         if not self.renderer:  # We don't have hardware rendering on this machine.
-            self.driftwood.log.info("SDL", "falling back to software renderer")
+            self.driftwood.log.info("Window", "SDL", "falling back to software renderer")
             self.renderer = SDL_CreateRenderer(self.window, -1, SDL_RENDERER_SOFTWARE)
             if not self.renderer:  # Still no.
-                self.driftwood.log.msg("ERROR", "Window", "SDL", SDL_GetError())
+                self.driftwood.log.msg("ERROR", "Window", "__prepare", "SDL", SDL_GetError())
 
         # Pixelated goodness, like a rebel.
         SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, b"nearest")

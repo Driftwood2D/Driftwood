@@ -85,7 +85,7 @@ class ResourceManager:
                 del self.driftwood.cache[filename]
             del self.__injections[filename]
             return True
-        self.driftwood.log.msg("ERROR", "Resource", "could not uninject", filename)
+        self.driftwood.log.msg("ERROR", "Resource", "uninject", "no such file", filename)
         return False
 
     def request_json(self, filename):
@@ -214,9 +214,9 @@ class ResourceManager:
                 return contents
 
             except:
-                self.driftwood.log.msg("ERROR", "Resource", "could not read file", filename)
+                self.driftwood.log.msg("ERROR", "Resource", "_request", "could not read file", filename)
                 return None
 
         else:
-            self.driftwood.log.msg("ERROR", "Resource", "no such file", filename)
+            self.driftwood.log.msg("ERROR", "Resource", "_request", "no such file", filename)
             return None

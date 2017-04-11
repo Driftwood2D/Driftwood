@@ -101,7 +101,7 @@ class EntityManager:
         try:
             jsonschema.validate(data, schema)
         except jsonschema.ValidationError:
-            self.driftwood.log.msg("ERROR", "Entity", filename, "failed validation")
+            self.driftwood.log.msg("ERROR", "Entity", "insert", filename, "failed validation")
             traceback.print_exc(1, sys.stdout)
             sys.stdout.flush()
             return None
@@ -127,7 +127,7 @@ class EntityManager:
                 y / self.driftwood.area.tilemap.tileheight
             )
         else:
-            self.driftwood.log.msg("ERROR", "Entity", filename, "must start on a tile")
+            self.driftwood.log.msg("ERROR", "Entity", "insert", filename, "must start on a tile")
             return None
 
         self.driftwood.area.changed = True
@@ -209,7 +209,7 @@ class EntityManager:
             self.driftwood.area.changed = True
             return True
 
-        self.driftwood.log.msg("WARNING", "Entity", "attempt to kill nonexistent entity", eid)
+        self.driftwood.log.msg("WARNING", "Entity", "kill", "attempt to kill nonexistent entity", eid)
         return False
 
     def killall(self, filename):
@@ -238,7 +238,7 @@ class EntityManager:
 
         if to_kill:
             return True
-        self.driftwood.log.msg("WARNING", "Entity", "attempt to kill nonexistent entities", filename)
+        self.driftwood.log.msg("WARNING", "Entity", "killall", "attempt to kill nonexistent entities", filename)
         return False
 
     def spritesheet(self, filename):

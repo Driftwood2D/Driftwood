@@ -118,7 +118,8 @@ class TickManager:
                 self.driftwood.log.info("Tick", "unregistered callback", func.__name__)
                 return True
 
-        self.driftwood.log.msg("WARNING", "Tick", "attempt to unregister nonexistent callback", func.__name__)
+        self.driftwood.log.msg("WARNING", "Tick", "unregister", "attempt to unregister nonexistent callback",
+                               func.__name__)
         return False
 
     def registered(self, func):

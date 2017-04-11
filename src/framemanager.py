@@ -95,7 +95,7 @@ class FrameManager:
                                              width, height)
 
         if type(self.__workspace) is int and self.__workspace < 0:
-            self.driftwood.log.msg("ERROR", "Frame", "SDL", SDL_GetError())
+            self.driftwood.log.msg("ERROR", "Frame", "prepare", "SDL", SDL_GetError())
             return False
 
         return True
@@ -236,7 +236,7 @@ class FrameManager:
         else:  # Tell SDL to render to our workspace instead of the window's frame.
             r = SDL_SetRenderTarget(self.driftwood.window.renderer, self.__workspace)
         if type(r) is int and r < 0:
-            self.driftwood.log.msg("ERROR", "Frame", "SDL", SDL_GetError())
+            self.driftwood.log.msg("ERROR", "Frame", "copy", "SDL", SDL_GetError())
             ret = False
 
         # Set up the rectangles.
@@ -249,13 +249,13 @@ class FrameManager:
         r = SDL_RenderCopy(self.driftwood.window.renderer, tex, src,
                            dst)
         if type(r) is int and r < 0:
-            self.driftwood.log.msg("ERROR", "Frame", "SDL", SDL_GetError())
+            self.driftwood.log.msg("ERROR", "Frame", "copy", "SDL", SDL_GetError())
             ret = False
 
         # Tell SDL to switch rendering back to the window's frame.
         r = SDL_SetRenderTarget(self.driftwood.window.renderer, None)
         if type(r) is int and r < 0:
-            self.driftwood.log.msg("ERROR", "Frame", "SDL", SDL_GetError())
+            self.driftwood.log.msg("ERROR", "Frame", "copy", "SDL", SDL_GetError())
             ret = False
 
         return ret

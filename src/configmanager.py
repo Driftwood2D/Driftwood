@@ -73,7 +73,7 @@ class ConfigManager:
             return self.__config[item]
         else:
             # This should be initialized by now.
-            self.driftwood.log.msg("ERROR", "Config", "no such entry", item)
+            self.driftwood.log.msg("ERROR", "Config", "__getitem__", "no such entry", item)
 
     def __iter__(self):
         return self.__config.items()

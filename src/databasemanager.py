@@ -65,7 +65,7 @@ class DatabaseManager:
 
         # Make sure the database is accessible.
         if self.__database is None:
-            self.driftwood.log.msg("FATAL", "Database", "cannot open database", self.filename)
+            self.driftwood.log.msg("FATAL", "Database", "__init__", "cannot open database", self.filename)
             sys.exit(1)  # Fail.
 
         self.driftwood.tick.register(self._tick, during_pause=True)
@@ -99,7 +99,7 @@ class DatabaseManager:
             return self.__database[key]
 
         else:
-            self.driftwood.log.msg("ERROR", "Database", "no such key", "\"{0}\"".format(key))
+            self.driftwood.log.msg("ERROR", "Database", "get", "no such key", "\"{0}\"".format(key))
             return None
 
     def put(self, key, obj):
@@ -117,7 +117,7 @@ class DatabaseManager:
         try:
             ret = json.loads(obj)
         except json.JSONDecodeError:
-            self.driftwood.log.msg("ERROR", "Database", "bad object type for key", "\"{0}\"".format(key))
+            self.driftwood.log.msg("ERROR", "Database", "put", "bad object type for key", "\"{0}\"".format(key))
             return False
 
         self.__database[key] = obj
@@ -141,7 +141,7 @@ class DatabaseManager:
             self.__changed = True
             return True
         else:
-            self.driftwood.log.msg("ERROR", "Database", "no such key", "\"{0}\"".format(key))
+            self.driftwood.log.msg("ERROR", "Database", "remove", "no such key", "\"{0}\"".format(key))
             return False
 
     def __test_db_dir(self):
@@ -154,14 +154,15 @@ class DatabaseManager:
                 self.driftwood.log.info("Database", "creating database directory", db_dir_path)
                 os.mkdir(db_dir_path)
         except:
-            self.driftwood.log.msg("FATAL", "Database", "cannot create database directory", db_dir_path)
+            self.driftwood.log.msg("FATAL", "Database", "__test_db_dir", "cannot create database directory",
+                                   db_dir_path)
             return False
 
         try:
             # Try opening the directory
             os.listdir(db_dir_path)
         except:
-            self.driftwood.log.msg("FATAL", "Database", "cannot open database directory", db_dir_path)
+            self.driftwood.log.msg("FATAL", "Database", "__test_db_dir", "cannot open database directory", db_dir_path)
             return False
 
         return True
@@ -201,7 +202,7 @@ class DatabaseManager:
                 with open(self.filename, 'wb') as dbfile:
                     dbfile.write(zlib.compress(json.dumps(self.__database).encode()))
             except:
-                self.driftwood.log.msg("FATAL", "Database", "cannot write database to disk", self.filename)
+                self.driftwood.log.msg("FATAL", "Database", "_tick", "cannot write database to disk", self.filename)
                 sys.exit(1)
             self.__changed = False
 

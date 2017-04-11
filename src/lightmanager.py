@@ -88,18 +88,18 @@ class LightManager:
 
         lightmap = self.driftwood.resource.request_image(filename, False)
         if not lightmap:
-            self.driftwood.log.msg("ERROR", "Light", "could not load lightmap", lightmap)
+            self.driftwood.log.msg("ERROR", "Light", "insert", "could not load lightmap", lightmap)
             return None
 
         try:
             int(color, 16)
         except ValueError:
-            self.driftwood.log.msg("ERROR", "Light", "invalid color", color)
+            self.driftwood.log.msg("ERROR", "Light", "insert", "invalid color", color)
             return None
 
         if entity is not None:
             if not self.driftwood.entity.entity(entity):
-                self.driftwood.log.msg("ERROR", "Light", "cannot bind to nonexistent entity", entity)
+                self.driftwood.log.msg("ERROR", "Light", "insert", "cannot bind to nonexistent entity", entity)
                 return None
 
         self.__last_lid += 1
@@ -112,16 +112,16 @@ class LightManager:
         else:
             r = SDL_SetTextureBlendMode(self.lights[lid].lightmap.texture, SDL_BLENDMODE_ADD)
         if r < 0:
-            self.driftwood.log.msg("ERROR", "Light", "SDL", SDL_GetError())
+            self.driftwood.log.msg("ERROR", "Light", "insert", "SDL", SDL_GetError())
 
         r = SDL_SetTextureColorMod(self.lights[lid].lightmap.texture, int(color[0:2], 16), int(color[2:4], 16),
                                    int(color[4:6], 16))
         if r < 0:
-            self.driftwood.log.msg("ERROR", "Light", "SDL", SDL_GetError())
+            self.driftwood.log.msg("ERROR", "Light", "insert", "SDL", SDL_GetError())
 
         r = SDL_SetTextureAlphaMod(self.lights[lid].lightmap.texture, int(color[6:8], 16))
         if r < 0:
-            self.driftwood.log.msg("ERROR", "Light", "SDL", SDL_GetError())
+            self.driftwood.log.msg("ERROR", "Light", "insert", "SDL", SDL_GetError())
 
         self.driftwood.log.info("Light", "inserted", "{0} on layer {1} at position {2}, {3}".format(filename, layer,
                                                                                                     x, y))
@@ -198,7 +198,7 @@ class LightManager:
         try:
             int(color, 16)
         except ValueError:
-            self.driftwood.log.msg("ERROR", "Light", "invalid color", color)
+            self.driftwood.log.msg("ERROR", "Light", "set_color", "invalid color", color)
             return False
 
         if lid in self.lights:
@@ -207,12 +207,12 @@ class LightManager:
             r = SDL_SetTextureColorMod(self.lights[lid].lightmap.texture, int(color[0:2], 16), int(color[2:4], 16),
                                        int(color[4:6], 16))
             if r < 0:
-                self.driftwood.log.msg("ERROR", "Light", "SDL", SDL_GetError())
+                self.driftwood.log.msg("ERROR", "Light", "set_color", "SDL", SDL_GetError())
                 success = False
 
             r = SDL_SetTextureAlphaMod(self.lights[lid].lightmap.texture, int(color[6:8], 16))
             if r < 0:
-                self.driftwood.log.msg("ERROR", "Light", "SDL", SDL_GetError())
+                self.driftwood.log.msg("ERROR", "Light", "set_color", "SDL", SDL_GetError())
                 success = False
 
             if blend is not None:
@@ -221,7 +221,7 @@ class LightManager:
                 else:
                     r = SDL_SetTextureBlendMode(self.lights[lid].lightmap.texture, SDL_BLENDMODE_ADD)
                 if r < 0:
-                    self.driftwood.log.msg("ERROR", "Light", "SDL", SDL_GetError())
+                    self.driftwood.log.msg("ERROR", "Light", "set_color", "SDL", SDL_GetError())
                     success = False
 
             self.driftwood.area.changed = True
@@ -246,7 +246,7 @@ class LightManager:
             self.driftwood.area.changed = True
             return True
 
-        self.driftwood.log.msg("WARNING", "Light", "attempt to kill nonexistent light", lid)
+        self.driftwood.log.msg("WARNING", "Light", "kill", "attempt to kill nonexistent light", lid)
         return False
 
     def killall(self, file):
@@ -278,7 +278,7 @@ class LightManager:
 
         if to_kill:
             return True
-        self.driftwood.log.msg("WARNING", "Entity", "attempt to kill nonexistent lights", file)
+        self.driftwood.log.msg("WARNING", "Entity", "killall", "attempt to kill nonexistent lights", file)
         return False
 
     def reset(self):

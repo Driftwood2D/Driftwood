@@ -77,7 +77,7 @@ class WidgetManager:
             True if succeeded, False if failed.
         """
         if wid not in self.widgets:
-            self.driftwood.log.msg("WARNING", "Widget", "Cannot select nonexistent widget", wid)
+            self.driftwood.log.msg("ERROR", "Widget", "select", "Cannot select nonexistent widget", wid)
             return False
         if self.selected is not None:
             self.widgets[self.selected].selected = False
@@ -92,7 +92,7 @@ class WidgetManager:
             True if succeeded, False if failed.
         """
         if self.selected is None:
-            self.driftwood.log.msg("WARNING", "Widget", "Cannot release if no widget selected")
+            self.driftwood.log.msg("ERROR", "Widget", "release", "Cannot release if no widget selected")
             return False
         self.widgets[self.selected].selected = False
         self.selected = None
@@ -161,7 +161,7 @@ class WidgetManager:
                         self.widgets[self.__last_wid].realy += self.widgets[container].realy
 
             else:  # Fake container.
-                self.driftwood.log.msg("WARNING", "Widget", "not a container", container)
+                self.driftwood.log.msg("ERROR", "Widget", "container", "not a container", container)
                 return None
 
         if imagefile:  # It has a background.
@@ -266,9 +266,9 @@ class WidgetManager:
                                                                                  surface_temp)
             SDL_FreeSurface(surface_temp)
             if not self.widgets[self.__last_wid].texture:
-                self.driftwood.log.msg("ERROR", "Widget", "SDL", SDL_GetError())
+                self.driftwood.log.msg("ERROR", "Widget", "text", "SDL", SDL_GetError())
         else:
-            self.driftwood.log.msg("ERROR", "Widget", "TTF", TTF_GetError())
+            self.driftwood.log.msg("ERROR", "Widget", "text", "TTF", TTF_GetError())
 
         if active:  # Do we activate it to be drawn/used?
             self.activate(self.__last_wid)
@@ -278,7 +278,7 @@ class WidgetManager:
             self.widgets[wid].active = True
             self.driftwood.area.changed = True
             return True
-        self.driftwood.log.msg("WARNING", "Widget", "attempt to activate nonexistent widget", wid)
+        self.driftwood.log.msg("ERROR", "Widget", "activate", "attempt to activate nonexistent widget", wid)
         return False
 
     def deactivate(self, wid):
@@ -286,7 +286,7 @@ class WidgetManager:
             self.widgets[wid].active = False
             self.driftwood.area.changed = False
             return True
-        self.driftwood.log.msg("WARNING", "Widget", "attempt to deactivate nonexistent widget", wid)
+        self.driftwood.log.msg("ERROR", "Widget", "deactivate", "attempt to deactivate nonexistent widget", wid)
         return False
 
     def kill(self, wid):
@@ -295,7 +295,7 @@ class WidgetManager:
             del self.widgets[wid]
             self.driftwood.area.changed = True
             return True
-        self.driftwood.log.msg("WARNING", "Widget", "attempt to kill nonexistent widget", wid)
+        self.driftwood.log.msg("ERROR", "Widget", "kill", "attempt to kill nonexistent widget", wid)
         return False
 
     def widget(self, wid):
@@ -321,15 +321,15 @@ class WidgetManager:
                     if self.widgets[widget].type == "container" and self.widgets[widget].image:  # Draw a container.
                         r = self.driftwood.frame.overlay(self.widgets[widget].image.texture, srcrect, dstrect)
                         if type(r) is int and r < 0:
-                            self.driftwood.log.msg("ERROR", "Widget", "SDL", SDL_GetError())
+                            self.driftwood.log.msg("ERROR", "Widget", "_draw_widgets", "SDL", SDL_GetError())
                     elif self.widgets[widget].type == "text" and self.widgets[widget].texture:  # Draw some text.
                         r = self.driftwood.frame.overlay(self.widgets[widget].texture, srcrect, dstrect)
                         if type(r) is int and r < 0:
-                            self.driftwood.log.msg("ERROR", "Widget", "SDL", SDL_GetError())
+                            self.driftwood.log.msg("ERROR", "Widget", "_draw_widgets", "SDL", SDL_GetError())
 
     def __prepare(self):
         if TTF_Init() < 0:
-            self.driftwood.log.msg("ERROR", "Widget", "SDL_TTF", TTF_GetError())
+            self.driftwood.log.msg("ERROR", "Widget", "__prepare", "SDL_TTF", TTF_GetError())
         self.__spritefactory = SpriteFactory(sprite_type=TEXTURE, renderer=self.driftwood.window.renderer)
         self.__uifactory = UIFactory(self.__spritefactory)
         self.__uiprocessor = UIProcessor()

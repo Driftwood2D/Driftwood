@@ -55,7 +55,8 @@ class AudioManager:
         # Attempt to initialize mixer output.
         if Mix_OpenAudio(self.driftwood.config["audio"]["frequency"], MIX_DEFAULT_FORMAT, 2,
                          self.driftwood.config["audio"]["chunksize"]) == -1:
-            self.driftwood.log.msg("ERROR", "Audio", "failed to initialize mixer output", str(Mix_GetError()))
+            self.driftwood.log.msg("ERROR", "Audio", "__init__", "failed to initialize mixer output",
+                                   str(Mix_GetError()))
         else:
             self.driftwood.log.info("Audio", "initialized mixer output")
             self.__init_success[0] = True
@@ -70,7 +71,8 @@ class AudioManager:
             init_flags |= MIX_INIT_FLAC
 
         if Mix_Init(init_flags) & init_flags != init_flags:
-            self.driftwood.log.msg("ERROR", "Audio", "failed to initialize audio format support", str(Mix_GetError()))
+            self.driftwood.log.msg("ERROR", "Audio", "__init__","failed to initialize audio format support",
+                                   str(Mix_GetError()))
         else:
             self.driftwood.log.info("Audio", "initialized mixer audio format support",
                                     " ,".join(self.driftwood.config["audio"]["support"]))
@@ -93,14 +95,15 @@ class AudioManager:
         """
         # Give up if we didn't initialize properly.
         if False in self.__init_success:
-            self.driftwood.log.msg("WARNING", "Audio", "cannot play sfx due to initialization failure", filename)
+            self.driftwood.log.msg("WARNING", "Audio", "play_sfx", "cannot play sfx due to initialization failure",
+                                   filename)
             return None
 
         # Load the sound effect.
         sfx_temp = [filename, None]
         sfx_temp[1] = self.driftwood.resource.request_audio(filename, False)
         if not sfx_temp[1]:
-            self.driftwood.log.msg("WARNING", "Audio", "could not load sfx", filename)
+            self.driftwood.log.msg("ERROR", "Audio", "play_sfx", "could not load sfx", filename)
             return None
 
         if volume is not None:
@@ -121,7 +124,7 @@ class AudioManager:
             channel = Mix_FadeInChannel(-1, sfx_temp[1].audio, loop, fade*1000)
 
         if channel == -1:
-            self.driftwood.log.msg("WARNING", "Audio", "could not play sfx on channel", str(channel))
+            self.driftwood.log.msg("WARNING", "Audio", "play_sfx", "could not play sfx on channel", str(channel))
             return None
 
         self.__sfx[channel] = sfx_temp
@@ -152,7 +155,8 @@ class AudioManager:
             else:  # Get the volume.
                 return Mix_Volume(channel, -1)
 
-        self.driftwood.log.msg("WARNING", "Audio", "cannot adjust sfx volume on nonexistent channel", channel)
+        self.driftwood.log.msg("WARNING", "Audio", "volume_sfx", "cannot adjust sfx volume on nonexistent channel",
+                               channel)
         return None
 
     def volume_sfx_by_filename(self, filename, volume=None):
@@ -180,7 +184,8 @@ class AudioManager:
                     return Mix_Volume(sfx, -1)
 
         # No such filename.
-        self.driftwood.log.msg("WARNING", "Audio", "cannot adjust volume for nonexistent instances of sfx", filename)
+        self.driftwood.log.msg("WARNING", "Audio", "volume_sfx_by_filename",
+                               "cannot adjust volume for nonexistent instances of sfx", filename)
         return None
 
     def stop_sfx(self, channel, fade=0.0):
@@ -204,7 +209,8 @@ class AudioManager:
                     # Cleanup callback will handle deletion.
             return True
 
-        self.driftwood.log.msg("WARNING", "Audio", "cannot stop sfx on nonexistent channel", channel)
+        self.driftwood.log.msg("WARNING", "Audio", "stop_sfx", "cannot stop sfx on nonexistent channel",
+                               channel)
         return False
 
     def stop_sfx_by_filename(self, filename, fade=0.0):
@@ -231,7 +237,8 @@ class AudioManager:
                         # Cleanup callback will handle deletion.
                     return True
 
-        self.driftwood.log.msg("WARNING", "Audio", "cannot stop nonexistent instances of sfx", filename)
+        self.driftwood.log.msg("WARNING", "Audio", "stop_sfx_by_filename", "cannot stop nonexistent instances of sfx",
+                               filename)
         return False
 
     def stop_all_sfx(self):
@@ -259,7 +266,8 @@ class AudioManager:
         """
         # Give up if we didn't initialize properly.
         if 0 in self.__init_success:
-            self.driftwood.log.msg("WARNING", "Audio", "cannot play music due to initialization failure", filename)
+            self.driftwood.log.msg("WARNING", "Audio", "play_music","cannot play music due to initialization failure",
+                                   filename)
             return False
 
         # Stop and unload any previously loaded music.
@@ -268,7 +276,7 @@ class AudioManager:
         # Load the music.
         self.__music = self.driftwood.resource.request_audio(filename, True)
         if not self.__music:
-            self.driftwood.log.msg("WARNING", "Audio", "could not load music", filename)
+            self.driftwood.log.msg("ERROR", "Audio", "play_music", "could not load music", filename)
             return False
 
         # Stop any currently playing music.
@@ -281,7 +289,7 @@ class AudioManager:
             result = Mix_FadeInMusic(self.__music.audio, loop, fade*1000)
 
         if result == -1:
-            self.driftwood.log.msg("WARNING", "Audio", "could not play music")
+            self.driftwood.log.msg("WARNING", "Audio", "play_music", "could not play music")
             return
 
         if volume is not None:
@@ -322,7 +330,7 @@ class AudioManager:
             else:  # Get the volume.
                 return Mix_VolumeMusic(-1)
 
-        self.driftwood.log.msg("WARNING", "cannot adjust volume for nonexistent music")
+        self.driftwood.log.msg("WARNING", "Audio", "volume_music", "cannot adjust volume for nonexistent music")
         return None
 
     def stop_music(self, fade=0.0):

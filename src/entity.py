@@ -141,7 +141,7 @@ class Entity:
         """
         if stance not in self.__entity:
             # Fake!
-            self.manager.driftwood.log.msg("ERROR", "Entity", self.eid, "no such stance", stance)
+            self.manager.driftwood.log.msg("ERROR", "Entity", "set_stance", self.eid, "no such stance", stance)
             return False
 
         self.stance = stance
@@ -223,7 +223,8 @@ class Entity:
         if "on_exit" in self.manager.driftwood.area.tilemap.properties:
             args = self.manager.driftwood.area.tilemap.properties["on_exit"].split(',')
             if len(args) < 2:
-                self.manager.driftwood.log.msg("ERROR", "Map", "invalid on_exit event", self.tile.properties["on_exit"])
+                self.manager.driftwood.log.msg("ERROR", "Entity", "_do_exit", "invalid on_exit event",
+                                               self.tile.properties["on_exit"])
             self.manager.driftwood.script.call(*args)
 
         # Leave the current area
@@ -297,7 +298,7 @@ class TileModeEntity(Entity):
         if (((layer is not None) and (layer < 0 or len(tilemap.layers) <= layer)) or
                 (x is not None and x >= tilemap.width) or
                 (y is not None and y >= tilemap.height)):
-            self.manager.driftwood.log.msg("ERROR", "Entity", "attempted teleport to non-tile position")
+            self.manager.driftwood.log.msg("ERROR", "Entity", "teleport", "attempt to teleport to non-tile position")
             return False
 
         # Decide what to do with the layer.
@@ -352,7 +353,7 @@ class TileModeEntity(Entity):
                  busy walking).
         """
         if x and y:  # We can't move two directions at once!
-            self.manager.driftwood.log.msg("ERROR", "Entity", self.eid, "cannot move in two directions at once")
+            self.manager.driftwood.log.msg("ERROR", "Entity", "walk", self.eid, "cannot move in two directions at once")
             return False
 
         self._next_stance = stance
@@ -393,7 +394,7 @@ class TileModeEntity(Entity):
         Returns: True if succeeded, False if failed.
         """
         if direction and direction not in ["left", "right", "up", "down", "under"]:  # Illegal facing.
-            self.manager.driftwood.log.msg("ERROR", "Entity", self.eid, "no such direction for interaction",
+            self.manager.driftwood.log.msg("ERROR", "Entity", "interact", self.eid, "no such direction for interaction",
                                            direction)
             return False
         elif not direction:  # Default to the direction the entity is facing currently.
@@ -684,7 +685,8 @@ class TileModeEntity(Entity):
         if "on_tile" in self.tile.properties:
             args = self.tile.properties["on_tile"].split(',')
             if len(args) < 2:
-                self.manager.driftwood.log.msg("ERROR", "Map", "invalid on_tile event", self.tile.properties["on_tile"])
+                self.manager.driftwood.log.msg("ERROR", "Entity", "__call_on_tile", "invalid on_tile event",
+                                               self.tile.properties["on_tile"])
                 return
             self.manager.driftwood.script.call(*args)
 
@@ -693,7 +695,8 @@ class TileModeEntity(Entity):
         if "on_layer" in self.manager.driftwood.area.tilemap.layers[self.layer].properties:
             args = self.manager.driftwood.area.tilemap.layers[self.layer].properties["on_layer"].split(',')
             if len(args) < 2:
-                self.manager.driftwood.log.msg("ERROR", "Map", "invalid on_layer event", self.layer)
+                self.manager.driftwood.log.msg("ERROR", "Entity", "__call_on_layer", "invalid on_layer event",
+                                               self.layer)
                 return
             self.manager.driftwood.script.call(*args)
 
@@ -797,9 +800,9 @@ class PixelModeEntity(Entity):
                         if dsttile.nowalk or dsttile.nowalk == "":
                             # Is the tile a player or npc specific nowalk?
                             if (dsttile.nowalk == "player" and self.manager.player.eid == self.eid
-                                or dsttile.nowalk == "npc" and self.manager.player.eid != self.eid):
-                                    self._collide(dsttile)
-                                    return False
+                                    or dsttile.nowalk == "npc" and self.manager.player.eid != self.eid):
+                                        self._collide(dsttile)
+                                        return False
 
                             # Any other values are an unconditional nowalk.
                             elif dsttile.nowalk not in ["player", "npc"]:

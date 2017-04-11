@@ -82,13 +82,13 @@ class ScriptManager:
                     return getattr(self.__modules[filename], func)()
 
             except:  # Failure
-                self.driftwood.log.msg("ERROR", "Script", "broken function", filename, func + "()")
+                self.driftwood.log.msg("ERROR", "Script", "call", "broken function", filename, func + "()")
                 traceback.print_exc(file=sys.stdout)
                 sys.stdout.flush()
                 return None
 
         else:
-            self.driftwood.log.msg("ERROR", "Script", "no such function", filename, func + "()")
+            self.driftwood.log.msg("ERROR", "Script", "call", "no such function", filename, func + "()")
             return None
 
     def module(self, filename):
@@ -154,11 +154,11 @@ class ScriptManager:
                 return True
 
             except:
-                self.driftwood.log.msg("ERROR", "Script", "broken script", filename)
+                self.driftwood.log.msg("ERROR", "Script", "__load", "broken script", filename)
                 traceback.print_exc(0, sys.stdout)
                 sys.stdout.flush()
                 return False
 
         else:
-            self.driftwood.log.msg("ERROR", "Script", "no such script", filename)
+            self.driftwood.log.msg("ERROR", "Script", "__load", "no such script", filename)
             return False

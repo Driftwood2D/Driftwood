@@ -86,7 +86,7 @@ class AreaManager:
             if "on_focus" in self.tilemap.properties:
                 args = self.tilemap.properties["on_focus"].split(',')
                 if len(args) < 2:
-                    self.driftwood.log.msg("ERROR", "Map", "invalid on_focus event",
+                    self.driftwood.log.msg("ERROR", "Area", "Focus", "invalid on_focus event",
                                            self.tilemap.properties["on_focus"])
                     return True
                 self.driftwood.script.call(*args)
@@ -94,7 +94,7 @@ class AreaManager:
             return True
 
         else:
-            self.driftwood.log.msg("ERROR", "Area", "no such area", filename)
+            self.driftwood.log.msg("ERROR", "Area", "focus", "no such area", filename)
             return False
 
     def blur(self):
@@ -102,7 +102,7 @@ class AreaManager:
         if "on_blur" in self.tilemap.properties:
             args = self.tilemap.properties["on_blur"].split(',')
             if len(args) < 2:
-                self.driftwood.log.msg("ERROR", "Map", "invalid on_blur event",
+                self.driftwood.log.msg("ERROR", "Area", "blur", "invalid on_blur event",
                                        self.tilemap.properties["on_blur"])
                 return
             self.driftwood.script.call(*args)
@@ -143,7 +143,7 @@ class AreaManager:
                 # Copy the tile onto our frame.
                 r = self.driftwood.frame.copy(tile.tileset.texture, srcrect, dstrect)
                 if r < 0:
-                    self.driftwood.log.msg("ERROR", "Area", "SDL", SDL_GetError())
+                    self.driftwood.log.msg("ERROR", "Area", "__build_frame", "SDL", SDL_GetError())
 
             # Draw the lights onto the layer.
             for light in self.driftwood.light.layer(l):
@@ -154,7 +154,7 @@ class AreaManager:
 
                 r = self.driftwood.frame.copy(light.lightmap.texture, srcrect, dstrect)
                 if r < 0:
-                    self.driftwood.log.msg("ERROR", "Area", "SDL", SDL_GetError())
+                    self.driftwood.log.msg("ERROR", "Area", "__build_frame", "SDL", SDL_GetError())
 
             tall_parts = []
 
@@ -171,7 +171,7 @@ class AreaManager:
                 # Copy the entity onto our frame.
                 r = self.driftwood.frame.copy(entity.spritesheet.texture, srcrect, dstrect)
                 if r < 0:
-                    self.driftwood.log.msg("ERROR", "Area", "SDL", SDL_GetError())
+                    self.driftwood.log.msg("ERROR", "Area", "__build_frame", "SDL", SDL_GetError())
 
                 if tall_amount:  # It's taller than the tile. Figure out where to put the tall part.
                     tall_srcrect = list(entity.srcrect())
@@ -186,7 +186,7 @@ class AreaManager:
             for tall in tall_parts:
                 r = self.driftwood.frame.copy(*tall)
                 if r < 0:
-                    self.driftwood.log.msg("ERROR", "Area", "SDL", SDL_GetError())
+                    self.driftwood.log.msg("ERROR", "Area", "__build_frame", "SDL", SDL_GetError())
 
         # Tell FrameManager to publish the finished frame.
         self.driftwood.frame.frame(None, True)
