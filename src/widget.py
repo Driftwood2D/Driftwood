@@ -70,3 +70,5 @@ class Widget():
         if self.texture:
             SDL_DestroyTexture(self.texture)
             self.texture = None
+        if self.font:
+            self.font._terminate()
