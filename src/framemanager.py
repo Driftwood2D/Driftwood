@@ -201,7 +201,10 @@ class FrameManager:  # TODO: Move most of Area drawing logic into this manager.
         # Tell WidgetManager it should draw the widgets now.
         self.driftwood.widget._draw_widgets()
 
+        # Draw overlays.
         for overlay in self.__overlay:
+            overlay[2][0] -= dstrect.x//self.driftwood.config["window"]["zoom"]
+            overlay[2][1] -= dstrect.y//self.driftwood.config["window"]["zoom"]
             self.copy(*overlay, True)
         self.__overlay = []  # These should only be texture references.
 
@@ -227,10 +230,9 @@ class FrameManager:  # TODO: Move most of Area drawing logic into this manager.
         # We have to finish before we return.
         ret = True
 
-        # Tell SDL to render to our workspace instead of the window's frame.
         if direct:
             r = SDL_SetRenderTarget(self.driftwood.window.renderer, self.__texture)
-        else:
+        else:  # Tell SDL to render to our workspace instead of the window's frame.
             r = SDL_SetRenderTarget(self.driftwood.window.renderer, self.__workspace)
         if type(r) is int and r < 0:
             self.driftwood.log.msg("ERROR", "Frame", "SDL", SDL_GetError())
@@ -269,7 +271,7 @@ class FrameManager:  # TODO: Move most of Area drawing logic into this manager.
             True
         """
         # Set up the rectangles.
-        self.__overlay.append([tex, srcrect, dstrect])
+        self.__overlay.append([tex, list(srcrect), list(dstrect)])
 
     def _terminate(self):
         """Cleanup before deletion.
