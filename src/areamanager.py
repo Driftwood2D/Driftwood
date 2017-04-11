@@ -212,6 +212,3 @@ class AreaManager:
 
         # Give our frame to FrameManager for positioning and display.
         self.driftwood.frame.frame(None, True)
-
-    def _terminate(self):
-        pass
