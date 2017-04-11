@@ -291,6 +291,7 @@ class WidgetManager:
 
     def kill(self, wid):
         if wid in self.widgets:
+            self.widgets[wid]._terminate()
             del self.widgets[wid]
             self.driftwood.area.changed = True
             return True
@@ -303,6 +304,8 @@ class WidgetManager:
         return None
 
     def reset(self):
+        for widget in self.widgets:
+            self.widgets[widget]._terminate()
         self.widgets = {}
         self.selected = None
         return True
