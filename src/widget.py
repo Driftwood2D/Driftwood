@@ -196,7 +196,7 @@ class TextWidget(Widget):
 
     def _terminate(self):
         """Cleanup before deletion.
-                """
+        """
         if self.texture:
             SDL_DestroyTexture(self.texture)
             self.texture = None
