@@ -129,7 +129,6 @@ class Driftwood:
         self.audio = AudioManager(self)
         self.widget = WidgetManager(self)
         self.script = ScriptManager(self)
-        self.frame.register()
         self.area.register()
         self.window.register()
 

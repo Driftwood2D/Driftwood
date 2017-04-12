@@ -75,13 +75,6 @@ class FrameManager:
 
         self.changed = self.STATE_NOTCHANGED
 
-    def register(self):
-        # Register the tick callback.
-        self.driftwood.tick.register(self._tick)
-
-    def _tick(self, seconds_past):
-        self.clear()
-
     def clear(self):
         """Clear the local workspace.
 
