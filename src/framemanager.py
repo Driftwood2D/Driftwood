@@ -75,6 +75,35 @@ class FrameManager:
 
         self.changed = self.STATE_NOTCHANGED
 
+    def register(self):
+        # Register the tick callback.
+        self.driftwood.tick.register(self._tick)
+
+    def _tick(self, seconds_past):
+        self.clear()
+
+    def clear(self):
+        """Clear the local workspace.
+
+        Returns:
+            True if succeeded, False if failed.
+        """
+        r = SDL_SetRenderTarget(self.driftwood.window.renderer, self.__workspace)
+        if type(r) is int and r < 0:
+            self.driftwood.log.msg("ERROR", "Frame", "clear", "SDL", SDL_GetError())
+            return False
+
+        # Clear the current workspace.
+        SDL_RenderClear(self.driftwood.window.renderer)
+
+        # Tell SDL to switch rendering back to the window's frame.
+        r = SDL_SetRenderTarget(self.driftwood.window.renderer, None)
+        if type(r) is int and r < 0:
+            self.driftwood.log.msg("ERROR", "Frame", "clear", "SDL", SDL_GetError())
+            return False
+
+        return True
+
     def prepare(self, width, height):
         """Prepare and clear the local workspace.
 
