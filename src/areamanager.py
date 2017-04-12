@@ -115,6 +115,8 @@ class AreaManager:
                 self.driftwood.frame.prepare(self.tilemap.width * self.tilemap.tilewidth,
                                              self.tilemap.height * self.tilemap.tileheight)
                 self.refocused = False
+            else:
+                self.driftwood.frame.clear()
             self.__build_frame()
             self.changed = False
 
