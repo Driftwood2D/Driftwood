@@ -7,7 +7,7 @@
     "image": "wizard.png",
     "width": 16,
     "height": 18,
-    "members": [7],
+    "members": [8],
     "afps": 0,
     "properties": {"nerd": true, "interact": "interact.py,play_blip"},
     "on_insert": "wizard.py,setup",
@@ -15,35 +15,35 @@
     "resting_stance": "init"
   },
   "walk_up": {
-    "members": [0,1,2,1],
+    "members": [1,2,3,2],
     "afps": 4
   },
   "walk_right": {
-    "members": [3,4,5,4],
+    "members": [4,5,6,5],
     "afps": 4
   },
   "walk_down": {
-    "members": [6,7,8,7],
+    "members": [7,8,9,8],
     "afps": 4
   },
   "walk_left": {
-    "members": [9,10,11,10],
+    "members": [10,11,12,11],
     "afps": 4
   },
   "face_up": {
-    "members": [1],
+    "members": [2],
     "afps": 0
   },
   "face_right": {
-    "members": [4],
+    "members": [5],
     "afps": 0
   },
   "face_down": {
-    "members": [7],
+    "members": [8],
     "afps": 0
   },
   "face_left": {
-    "members": [10],
+    "members": [11],
     "afps": 0
   }
 }

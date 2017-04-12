@@ -129,9 +129,13 @@ class Entity:
         else:
             # Guard against rare race condition.
             current_member = self.members[0]
-        return (((current_member * self.width) % self.spritesheet.imagewidth),
-                ((current_member * self.width) // self.spritesheet.imagewidth) * self.height,
-                self.width, self.height)
+
+        if current_member is not -1:
+            return (((current_member * self.width) % self.spritesheet.imagewidth),
+                    ((current_member * self.width) // self.spritesheet.imagewidth) * self.height,
+                    self.width, self.height)
+
+        return 0, 0, 0, 0
 
     def set_stance(self, stance):
         """Set the current stance and return true if succeeded, false if failed.
@@ -167,9 +171,13 @@ class Entity:
             self.speed = self.__init_stance["speed"]
 
         if "members" in self.__entity[stance]:
-            self.members = self.__entity[stance]["members"]
+            temp_members = self.__entity[stance]["members"]
         else:
-            self.members = self.__init_stance["members"]
+            temp_members = self.__init_stance["members"]
+        self.members = []
+        for m in temp_members:
+            # Make things prettier for the end user by lining up member IDs with GIDs.
+            self.members.append(m-1)
         self.__cur_member = 0
 
         if "afps" in self.__entity[stance]:
@@ -205,7 +213,11 @@ class Entity:
         self.width = self.__init_stance["width"]
         self.height = self.__init_stance["height"]
         self.speed = self.__init_stance["speed"]
-        self.members = self.__init_stance["members"]
+        temp_members = self.__init_stance["members"]
+        self.members = []
+        for m in temp_members:
+            # Make things prettier for the end user by lining up member IDs with GIDs.
+            self.members.append(m-1)
         self.properties = self.__init_stance["properties"]
 
         # Setup spritesheet.

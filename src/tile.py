@@ -92,7 +92,11 @@ class Tile:
                 self.properties = self.tileset.tileproperties[self.localgid]
 
             if "members" in self.properties:
-                self.members = list(map(int, self.properties["members"].split(',')))
+                temp_members = list(map(int, self.properties["members"].split(',')))
+                self.members = []
+                for m in temp_members:
+                    # Make things prettier for the end user by lining up member IDs with GIDs.
+                    self.members.append(m - 1)
             if "afps" in self.properties:
                 self.afps = float(self.properties["afps"])
 
@@ -107,9 +111,10 @@ class Tile:
         """
         if self.members:
             current_member = self.members[self.__cur_member]
-            return (((current_member * self.tileset.tilewidth) % self.tileset.imagewidth),
-                    ((current_member * self.tileset.tilewidth) // self.tileset.imagewidth) * self.tileset.tileheight,
-                    self.tileset.tilewidth, self.tileset.tileheight)
+            if current_member is not -1:
+                return (((current_member * self.tileset.tilewidth) % self.tileset.imagewidth),
+                        ((current_member * self.tileset.tilewidth) // self.tileset.imagewidth) * self.tileset.tileheight,
+                        self.tileset.tilewidth, self.tileset.tileheight)
         return 0, 0, 0, 0
 
     def dstrect(self):
@@ -131,6 +136,9 @@ class Tile:
         self.localgid = self.gid - self.tileset.range[0]
 
         if members:
+            for m in range(len(members)):
+                # Make things prettier for the end user by lining up member IDs with GIDs.
+                members[m] -= 1
             self.members = members
         else:
             self.members = [self.localgid]
