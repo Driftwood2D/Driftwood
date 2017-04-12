@@ -53,6 +53,9 @@ class ScriptManager:
         """
         self.driftwood = driftwood
 
+        # Double dictionary of custom triggers mapped by name.
+        self.triggers = {}  # {name: {"event", "func", "nargs", "minargs"}}
+
         # Dictionary of module instances mapped by filename.
         self.__modules = {}
 
@@ -106,6 +109,69 @@ class ScriptManager:
             return self.__modules[filename]
         else:
             return None
+
+    def define(self, name, event, func, nargs, minargs=-1):
+        """Define a custom trigger that can be called directly from a map property.
+        
+        Ex. A trigger named "mytrigger" of type "on_tile" with 4 arguments can be called when the player steps onto
+        that tile by setting the property "mytrigger": "a,b,c,d" on the tile in the map editor. All comma-separated
+        arguments are passed as strings.
+        
+        Args:
+            name: Name by which the trigger is referenced.
+            event: Type of event on which to activate the trigger. [on_tile, on_layer, on_enter, on_exit, on_focus,
+                                                                   on_blur]
+            func: The function to be called when the trigger is activated.
+            nargs: Number of arguments to take.
+            minargs: If set, a minimum number of arguments less than nargs which may be taken.
+        
+        Returns:
+            True if succeeded, False if failed.
+        """
+        # Perform checks on input.
+        if name in self.triggers:
+            self.driftwood.log.msg("ERROR", "Script", "define", "already defined", name)
+            return False
+
+        if event not in ["on_tile", "on_layer", "on_enter", "on_exit", "on_focus", "on_blur"]:
+            self.driftwood.log.msg("ERROR", "Script", "define", "invalid event", event)
+            return False
+
+        if type(func) is not function:
+            self.driftwood.log.msg("ERROR", "Script", "define", "not a function", func)
+            return False
+
+        if nargs < 0:
+            self.driftwood.log.msg("ERROR", "Script", "define", "nargs is less than 0")
+            return False
+
+        if minargs is not -1 and minargs > nargs:
+            self.driftwood.log.msg("ERROR", "Script", "define", "minargs is more than nargs")
+            return False
+
+        # Insert the trigger.
+        self.triggers[name] = {"event": event, "func": func, "nargs": nargs, "minargs": minargs}
+        self.driftwood.log.info("Script", "defined", "{0} trigger \"{1}\"".format(event, name))
+        return True
+
+    def undefine(self, name):
+        """Undefine a custom trigger that was defined earlier.
+        
+        Args:
+            name: Name of the trigger to undefine.
+        
+        Returns:
+            True if succeeded, False if failed.
+        """
+        # Does this exist?
+        if name in self.triggers:
+            del self.triggers[name]
+            self.driftwood.log.info("Script", "undefined trigger", name)
+            return True
+
+        # Failure.
+        self.driftwood.log.msg("ERROR", "Script", "undefine", "no such trigger", name)
+        return False
 
     def __convert_path(self, filename):
         """Get around a documented zipimport flaw.
