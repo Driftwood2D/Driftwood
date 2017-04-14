@@ -13,12 +13,12 @@ def init():
     if "got_blue_pearl" not in Driftwood.database:
         Driftwood.tick.register(rumble, delay=10.0)
     else:
-        Driftwood.script.call("libs/stdlib/viewport.py", "rumble", 12, 3, None)
+        Driftwood.script.call("stdlib/viewport.py", "rumble", 12, 3, None)
     Driftwood.vars["end_rumble"] = "true"
 
 
 def rumble():
-    Driftwood.script.call("libs/stdlib/viewport.py", "rumble", 15, 3, 5)
+    Driftwood.script.call("stdlib/viewport.py", "rumble", 15, 3, 5)
 
 
 def end_rumble():
