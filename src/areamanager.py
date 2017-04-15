@@ -158,6 +158,13 @@ class AreaManager:
                 if r < 0:
                     self.driftwood.log.msg("ERROR", "Area", "__build_frame", "SDL", SDL_GetError())
 
+            arearect = (
+                0,
+                0,
+                self.tilemap.width * self.tilemap.tilewidth,
+                self.tilemap.height * self.tilemap.tileheight,
+            )
+
             tall_parts = []
 
             # Draw each entity on the layer into its position.
@@ -165,8 +172,25 @@ class AreaManager:
                 tall_amount = entity.height - self.tilemap.tileheight
 
                 # Get the source and destination rectangles needed by SDL_RenderCopy.
-                srcrect = entity.srcrect()
+                srcrect = list(entity.srcrect())
                 dstrect = [entity.x, entity.y - tall_amount, entity.width, entity.height]
+
+                # Clip entities so they don't appear outside the area.
+                clip_left = 0 if arearect[0] <= dstrect[0] else arearect[0] - dstrect[0]
+                clip_top = 0 if arearect[1] <= dstrect[1] else arearect[1] - dstrect[1]
+                clip_right = 0 if dstrect[0] + dstrect[2] <= arearect[2] else (dstrect[0] + dstrect[2]) - arearect[2]
+                clip_bot = 0 if dstrect[1] + dstrect[3] <= arearect[3] else (dstrect[1] + dstrect[3]) - arearect[3]
+
+                srcrect[0] += clip_left
+                dstrect[0] += clip_left
+                srcrect[1] += clip_top
+                dstrect[1] += clip_top
+                srcrect[2] -= clip_left + clip_right
+                dstrect[2] -= clip_left + clip_right
+                srcrect[3] -= clip_top + clip_bot
+                dstrect[3] -= clip_top + clip_bot
+
+                # Area rumble et al.
                 dstrect[0] += self.offset[0]
                 dstrect[1] += self.offset[1]
 
@@ -176,13 +200,32 @@ class AreaManager:
                     self.driftwood.log.msg("ERROR", "Area", "__build_frame", "SDL", SDL_GetError())
 
                 if tall_amount:  # It's taller than the tile. Figure out where to put the tall part.
-                    tall_srcrect = list(entity.srcrect())
-                    tall_dstrect = [entity.x, entity.y - tall_amount, entity.width,
-                                    entity.height - (entity.height - tall_amount)]
-                    tall_dstrect[0] += self.offset[0]
-                    tall_dstrect[1] += self.offset[1]
-                    tall_srcrect[3] = tall_dstrect[3]
-                    tall_parts.append([entity.spritesheet.texture, tall_srcrect, tall_dstrect])
+                    srcrect = list(entity.srcrect())
+                    dstrect = [entity.x, entity.y - tall_amount, entity.width,
+                               entity.height - (entity.height - tall_amount)]
+
+                    srcrect[3] = dstrect[3]
+
+                    # Clip entities so they don't appear outside the area.
+                    clip_left = 0 if arearect[0] <= dstrect[0] else arearect[0] - dstrect[0]
+                    clip_top = 0 if arearect[1] <= dstrect[1] else arearect[1] - dstrect[1]
+                    clip_right = 0 if dstrect[0] + dstrect[2] <= arearect[2] else (dstrect[0] + dstrect[2]) - arearect[2]
+                    clip_bot = 0 if dstrect[1] + dstrect[3] <= arearect[3] else (dstrect[1] + dstrect[3]) - arearect[3]
+
+                    srcrect[0] += clip_left
+                    dstrect[0] += clip_left
+                    srcrect[1] += clip_top
+                    dstrect[1] += clip_top
+                    srcrect[2] -= clip_left + clip_right
+                    dstrect[2] -= clip_left + clip_right
+                    srcrect[3] -= clip_top + clip_bot
+                    dstrect[3] -= clip_top + clip_bot
+
+                    # Area rumble et al.
+                    dstrect[0] += self.offset[0]
+                    dstrect[1] += self.offset[1]
+
+                    tall_parts.append([entity.spritesheet.texture, srcrect, dstrect])
 
             # Draw the tall bits here.
             for tall in tall_parts:
