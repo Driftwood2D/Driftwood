@@ -7,5 +7,6 @@ bin/
 todo
 data/test/seis
 src/driftwood.pyz
-static/
+docs/
+release/
 
