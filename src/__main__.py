@@ -180,7 +180,7 @@ class Driftwood:
                 # Process tick callbacks.
                 if self.running:
                     self.tick.tick()
-                    time.sleep(0.005)  # Cap mainloop speed.
+                    time.sleep(0.01)  # Cap mainloop speed.
 
             print("Shutting down...")
             self._terminate()
