@@ -103,9 +103,10 @@ class WindowManager:
 
             SDL_RenderClear(self.renderer)
 
-            r = SDL_RenderCopy(self.renderer, *self.driftwood.frame._frame)
-            if type(r) is int and r < 0:
-                self.driftwood.log.msg("ERROR", "Window", "_tick", "SDL", SDL_GetError())
+            if self.driftwood.frame._frame:  # This might not exist if we didn't find init.py.
+                r = SDL_RenderCopy(self.renderer, *self.driftwood.frame._frame)
+                if type(r) is int and r < 0:
+                    self.driftwood.log.msg("ERROR", "Window", "_tick", "SDL", SDL_GetError())
 
             SDL_RenderSetLogicalSize(self.renderer, 0, 0)  # reset
             self.driftwood.frame.changed -= 1

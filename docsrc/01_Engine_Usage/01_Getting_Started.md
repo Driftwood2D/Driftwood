@@ -82,14 +82,38 @@ To compile, you should be on a Linux, Mac OSX, or Unix system, and make sure you
 
 In the process of "Making", each source file in the "src/" directory is compiled into a faster and more compact Python bytecode file, and then the directory structure is placed into a zip archive with a shebang at the beginning of the file to invoke Python3. Because Python can run code out of a zip archive, the "bin/driftwood" file can be invoked from the command line as an executable.
 
-However, this file may only be safely used on the system it was compiled on. If you would like to compile a redistributable binary that you can package with your project, you should instead run "make release". This is the same as running "make", except that the source files will not be compiled into bytecode before being packaged, and the resulting file will be placed into a new "release/" subdirectory. In order to run this file, you will first need to tell Driftwood to set its self path to "release/driftwood" instead of the default "bin/driftwood". This is covered in the [Configuration File](Configuration_File) section later in this chapter.
+However, this file may only be safely used on the system it was compiled on. If you would like to compile a redistributable binary that you can package with your project, you should instead run "make release". This is the same as running "make", except that the source files will not be compiled into bytecode before being packaged, and the resulting file will be placed into a new "release/" subdirectory. In order to run this file, you will first need to tell Driftwood to set its self path to "release/driftwood" instead of the default "bin/driftwood".
+
+To change the engine's self path, open "config.json" in a text editor and change the line:
+
+`"self": "bin/driftwood",`
+
+to:
+
+`"self": "release/driftwood",`
+
+This is expanded upon in the [Configuration File](Configuration_File) section later in this chapter.
 
 
 ## Starting the Engine
 
-If you compiled the engine, simply run "bin/driftwood" from the top level Driftwood directory to start it up. If you compiled a release version, run "release/driftwood" instead (after configuring appropriately.)
+If you compiled the engine, simply run "bin/driftwood" from the top level Driftwood directory to start it up. If you compiled a release version, run "release/driftwood" instead (after changing the self path.)
 
 If you are using Windows, run the "driftwood.bat" batch file in the top level directory by double clicking it or executing it from the command line.
 
-If you would like to run from source on a non-Windows platform, simply run "python3 src/" from the command line after telling Driftwood to set its self path to "src/" instead of the default "bin/driftwood". This is covered in the [Configuration File](Configuration_File) section later in this chapter.
+If you would like to run from source on a non-Windows platform, simply run "python3 src/" from the command line after telling Driftwood to set its self path to "src/" instead of the default "bin/driftwood". To do so, open "config.json" in a text editor and change the line:
+
+`"self": "bin/driftwood",`
+
+to:
+
+`"self": "src",`
+
+This is covered in the [Configuration File](Configuration_File) section later in this chapter.
+
+Note that the engine will not run if it cannot find a world package (game data). See the next subsection.
+
+## Choosing a Game
+
+If you need to tell Driftwood 2D to read game data from a particular world package and it is not already configured to do so, see the [Configuration File](Configuration_File) section later in this chapter. The [Data Path and Patching](Data_Path_and_Patching) section provides even more information on this topic. The testing world package bundled with the Driftwood 2D source is the "data/test/" directory. World packages can be directories or zip files.
 
