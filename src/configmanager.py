@@ -115,8 +115,9 @@ class ConfigManager:
                             help="run in verbose logging mode")
 
         group3 = parser.add_mutually_exclusive_group()
-        group3.add_argument("--halt", action="store_true", dest="halt", help="halt execution on errors or warnings")
-        group3.add_argument("--continue", action="store_false", dest="halt",
+        group3.add_argument("--halt", default=None, action="store_true", dest="halt",
+                            help="halt execution on errors or warnings")
+        group3.add_argument("--continue", default=None, action="store_false", dest="halt",
                             help="continue execution despite errors or warnings")
 
         parser.add_argument("--version", action="store_true", dest="version", help="print the version string")

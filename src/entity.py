@@ -364,7 +364,7 @@ class TileModeEntity(Entity):
         Returns: True if succeeded, false if failed (due to collision or already
                  busy walking).
         """
-        if x and y:  # We can't move two directions at once!
+        if x and y:  # We can't move in two directions at once!
             self.manager.driftwood.log.msg("ERROR", "Entity", "walk", self.eid, "cannot move in two directions at once")
             return False
 
@@ -804,7 +804,7 @@ class PixelModeEntity(Entity):
         if not y or y not in [-1, 0, 1]:
             y = 0
 
-            dsttile = None  # Figure out how to find the destination tile.
+            dsttile = None  # TODO: Figure out how to find the destination tile.
 
             if self.tile:
                 if dsttile:  # Does a tile exist where we're going?
