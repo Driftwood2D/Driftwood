@@ -57,7 +57,12 @@ class FrameManager:
         """
         # Mac OS X 10.9 with SDL 2.0.1 does double buffering and needs a second rendering of the same image on
         # still frames.
-        self.STATE_NOTCHANGED, self.STATE_BACKBUFFER_NEEDS_UPDATE, self.STATE_CHANGED = range(3)
+        #
+        # self.STATE_NOTCHANGED, self.STATE_BACKBUFFER_NEEDS_UPDATE, self.STATE_CHANGED = range(3)
+        #
+        # Fixed in macOS 10.12 and SDL 2.0.5.
+        #
+        self.STATE_NOTCHANGED, self.STATE_CHANGED = range(2)
 
         self.driftwood = driftwood
         self._frame = None  # [self.__texture, srcrect, dstrect]
