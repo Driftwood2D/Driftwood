@@ -789,7 +789,7 @@ class PixelModeEntity(Entity):
 
         self.manager.driftwood.area.changed = True
 
-    def walk(self, x, y):
+    def walk(self, x, y, dont_stop=False, stance=None, end_stance=None):
         """Move the entity by one pixel to a new position relative to its current position.
 
         Args:
