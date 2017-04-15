@@ -795,6 +795,9 @@ class PixelModeEntity(Entity):
         Args:
             x: -1 for left, 1 for right, 0 for no x movement.
             y: -1 for up, 1 for down, 0 for no y movement.
+            dont_stop: Unused, Needed for compatibility with turn mode.
+            stance: Set the stance we will assume when the walk occurs.
+            end_stance: Set the stance we will assume if we stop after this walk.
 
         Returns: True if succeeded, false if failed (due to collision).
         """
@@ -804,47 +807,74 @@ class PixelModeEntity(Entity):
         if not y or y not in [-1, 0, 1]:
             y = 0
 
-            dsttile = None  # TODO: Figure out how to find the destination tile.
+        dsttile = None  # TODO: Figure out how to find the destination tile.
 
-            if self.tile:
-                if dsttile:  # Does a tile exist where we're going?
-                    if "tile" in self.collision:  # We are colliding with tiles.
-                        if dsttile.nowalk or dsttile.nowalk == "":
-                            # Is the tile a player or npc specific nowalk?
-                            if (dsttile.nowalk == "player" and self.manager.player.eid == self.eid
-                                    or dsttile.nowalk == "npc" and self.manager.player.eid != self.eid):
-                                        self._collide(dsttile)
-                                        return False
+        self._next_stance = stance
+        self._end_stance = end_stance
 
-                            # Any other values are an unconditional nowalk.
-                            elif dsttile.nowalk not in ["player", "npc"]:
-                                self._collide(dsttile)
-                                return False
+        if self.tile:
+            if dsttile:  # Does a tile exist where we're going?
+                if "tile" in self.collision:  # We are colliding with tiles.
+                    if dsttile.nowalk or dsttile.nowalk == "":
+                        # Is the tile a player or npc specific nowalk?
+                        if (dsttile.nowalk == "player" and self.manager.player.eid == self.eid
+                                or dsttile.nowalk == "npc" and self.manager.player.eid != self.eid):
+                                    self._collide(dsttile)
+                                    return False
 
-            # Entity collision detection.
-            for eid in self.manager.entities:
-                # This is us.
-                if eid == self.eid:
-                    continue
+                        # Any other values are an unconditional nowalk.
+                        elif dsttile.nowalk not in ["player", "npc"]:
+                            self._collide(dsttile)
+                            return False
 
-                # Collision detection, proof by contradiction.
-                if not (
-                    self.x + x > self.manager.entities[eid].x + self.manager.entities[eid].width
-                    or self.x + self.width + x < self.manager.entities[eid].x
-                    or self.y + y > self.manager.entities[eid].y + self.manager.entities[eid].height
-                    or self.y + self.height + y < self.manager.entities[eid].y
-                ):
-                    self.manager.collision(self, self.manager.entities[eid])
-                    return False
+        if x or y:
+            # Set which direction the entity is facing. If we're facing two directions at once, arbitrarily prefer
+            # the vertical direction.
+            if x == -1:
+                self.facing = "left"
+            elif x == 1:
+                self.facing = "right"
+            if y == -1:
+                self.facing = "up"
+            elif y == 1:
+                self.facing = "down"
+
+        # Entity collision detection.
+        for eid in self.manager.entities:
+            # This is us.
+            if eid == self.eid:
+                continue
+
+            # Collision detection, proof by contradiction.
+            if not (
+                self.x + x > self.manager.entities[eid].x + self.manager.entities[eid].width
+                or self.x + self.width + x < self.manager.entities[eid].x
+                or self.y + y > self.manager.entities[eid].y + self.manager.entities[eid].height
+                or self.y + self.height + y < self.manager.entities[eid].y
+            ):
+                self.manager.collision(self, self.manager.entities[eid])
+                return False
 
         self.x += x
         self.y += y
 
         self.manager.driftwood.area.changed = True
 
-        return True
+        return self.__can_walk()
 
     def _walk_stop(self):
+        if self._end_stance and self.stance != self._end_stance:
+            self.set_stance(self._end_stance)
+
+    def _process_walk(self, seconds_past):
+        pass
+
+    def __can_walk(self):
+        self.manager.driftwood.tick.register(self._process_walk)
+        if self._next_stance and self.stance != self._next_stance:
+            self.set_stance(self._next_stance)
+
+    def __step(self, x, y):
         pass
 
 
