@@ -5,7 +5,7 @@
   },
   "cache": {
     "enabled": true,
-    "ttl": 300.0
+    "ttl": 300
   },
   "input": {
     "keybindings": {
@@ -41,7 +41,7 @@
     ]
   },
   "tick": {
-    "tps": 60.0
+    "tps": 60
   },
   "window": {
     "title": "Driftwood 2D",
