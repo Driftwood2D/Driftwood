@@ -167,6 +167,17 @@ class AreaManager:
                 # Get the source and destination rectangles needed by SDL_RenderCopy.
                 srcrect = entity.srcrect()
                 dstrect = [entity.x, entity.y - tall_amount, entity.width, entity.height]
+
+                # Clip entities so they don't appear off the top of the area boundary.
+                if dstrect[1] < 0:
+                    clip_amount = -dstrect[1]
+                    srcrect = list(srcrect)
+                    srcrect[1] += clip_amount
+                    srcrect[3] -= clip_amount
+                    dstrect[1] += clip_amount
+                    dstrect[3] -= clip_amount
+
+                # Area rumble et al.
                 dstrect[0] += self.offset[0]
                 dstrect[1] += self.offset[1]
 
@@ -179,9 +190,19 @@ class AreaManager:
                     tall_srcrect = list(entity.srcrect())
                     tall_dstrect = [entity.x, entity.y - tall_amount, entity.width,
                                     entity.height - (entity.height - tall_amount)]
+
+                    # Clip entities so they don't appear off the top of the area boundary.
+                    if tall_dstrect[1] < 0:
+                        clip_amount = -tall_dstrect[1]
+                        tall_srcrect[1] += clip_amount
+                        tall_srcrect[3] -= clip_amount
+                        tall_dstrect[1] += clip_amount
+                        tall_dstrect[3] -= clip_amount
+
                     tall_dstrect[0] += self.offset[0]
                     tall_dstrect[1] += self.offset[1]
                     tall_srcrect[3] = tall_dstrect[3]
+
                     tall_parts.append([entity.spritesheet.texture, tall_srcrect, tall_dstrect])
 
             # Draw the tall bits here.
