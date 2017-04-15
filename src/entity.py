@@ -228,6 +228,14 @@ class Entity:
                 spritesheet.Spritesheet(self.manager, self.__init_stance["image"])
             self.spritesheet = self.manager.spritesheets[self.__init_stance["image"]]
 
+    def _tile_at(self, layer, x, y):
+        """Retrieve a tile by layer and pixel coordinates.
+        """
+        return self.manager.driftwood.area.tilemap.layers[layer].tile(
+            x / self._tilewidth,
+            y / self._tileheight
+        )
+
     def _do_exit(self):
         """Perform an exit to another area.
         """
@@ -440,14 +448,6 @@ class TileModeEntity(Entity):
             success = True
 
         return success
-
-    def _tile_at(self, layer, x, y, px=0, py=0):
-        """Retrieve a tile by layer and pixel coordinates.
-        """
-        return self.manager.driftwood.area.tilemap.layers[layer].tile(
-            (x / self._tilewidth) + px,
-            (y / self._tileheight) + py
-        )
 
     def _walk_stop(self):
         # Schedule us to stop walking.
@@ -809,8 +809,7 @@ class PixelModeEntity(Entity):
 
         self.walking = [x, y]
 
-        dsttile = self._tile_cross(self.layer, self.x + x, self.y + y)  # TODO: Edge detection
-        print(dsttile.pos)
+        dsttile = self._tile_cross(self.layer, self.x + x, self.y + y)
 
         self._next_stance = stance
         self._end_stance = end_stance
@@ -865,19 +864,15 @@ class PixelModeEntity(Entity):
 
         return self.__can_walk()
 
-    def _tile_cross(self, layer, x, y, px=0, py=0):
-        """Retrieve a tile by layer and pixel coordinates, that we are about to cross onto at this position.
+    def _tile_cross(self, layer, x, y):
+        """Retrieve a tile by layer and pixel coordinates, that we are about to cross onto at this position. The center
+        of the entity, rather than its edge, collides with the edge of the tile. Alternatively you can look at it as the
+        edge of the entity colliding with the center of the tile.
         """
-        print(self._tilewidth)
         return self.manager.driftwood.area.tilemap.layers[layer].tile(
-            ((x + (self.width / 2)) // self._tilewidth) + px,
-            ((y + (self.height / 2)) // self._tileheight) + py
+            (x + (self.width / 2)) // self._tilewidth,
+            (y + (self.height / 2)) // self._tileheight
         )
-
-    def _tile_edge(self, layer, x, y, px=0, py=0):
-        """Retrieve a tile by layer and pixel coordinates, that we are about to touch the edge of at this position.
-        """
-        pass
 
     def _walk_stop(self):
         if self._end_stance and self.stance != self._end_stance:
