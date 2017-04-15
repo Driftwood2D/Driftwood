@@ -67,7 +67,7 @@ This is the README file which gives some basic information about Driftwood 2D, w
 
 ### config.json
 
-This is the Driftwood 2D configuration file, which sets default options for running the engine. You will learn how to change this file in the [Configuration File](Configuration_File) section later in this chapter.
+This is the Driftwood 2D configuration file, which contains default settings for running the engine. You will learn how to edit this file in the [Configuration File](Configuration_File) section later in this chapter.
 
 ### driftwood.bat
 
@@ -115,5 +115,5 @@ Note that the engine will not run if it cannot find a world package (game data).
 
 ## Choosing a Game
 
-If you need to tell Driftwood 2D to read game data from a particular world package and it is not already configured to do so, see the [Configuration File](Configuration_File) section later in this chapter. The [Data Path and Patching](Data_Path_and_Patching) section provides even more information on this topic. The testing world package bundled with the Driftwood 2D source is the "data/test/" directory. World packages can be directories or zip files.
+If you need to tell Driftwood 2D to read game data from a particular world package and it is not already configured to do so, see the "path" settings in the [Configuration File](Configuration_File) section later in this chapter. You may also choose a game using [Command Line Options](Command_Line_Options). The [Data Path and Patching](Data_Path_and_Patching) section provides even more information on this topic. The testing world package bundled with the Driftwood 2D source is the "data/test/" directory. World packages can be directories or zip files.
 

@@ -49,7 +49,7 @@ See the [Configuration File](Configuration_File) section earlier in this chapter
 
 ### config
 
-This is the only option that is not a switch. Its value is the relative path (from the current working directory) to an alternative configuration file to load settings out of.
+This is the only option that is not a switch. Its value is the relative path (from the current working directory) to an alternative configuration file to load settings out of. Any further command line options will override the settings in this configuration file.
 
 ### --help
 

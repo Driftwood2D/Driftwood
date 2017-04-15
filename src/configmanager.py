@@ -92,6 +92,8 @@ class ConfigManager:
         parser.add_argument("--root", nargs=1, dest="root", type=str, metavar="<root>", help="set path root")
         parser.add_argument("--self", nargs=1, dest="myself", type=str, metavar="<self>", help="set path to self")
         parser.add_argument("--db", nargs=1, dest="db", type=str, metavar="<database>", help="set database to use")
+        parser.add_argument("--dbroot", nargs=1, dest="dbroot", type=str, metavar="<root>",
+                            help="set database root")
         parser.add_argument("--size", nargs=1, dest="size", type=str, metavar="<WxH>", help="set window dimensions")
         parser.add_argument("--tps", nargs=1, dest="tps", type=int, metavar="<hertz>", help="set ticks-per-second")
         parser.add_argument("--ttl", nargs=1, dest="ttl", type=int, metavar="<seconds>", help="set cache time-to-live")
@@ -112,7 +114,10 @@ class ConfigManager:
         group2.add_argument("--verbose", default=None, action="store_true", dest="verbose",
                             help="run in verbose logging mode")
 
-        parser.add_argument("--halt", action="store_true", dest="halt", help="halt execution on errors or warnings")
+        group3 = parser.add_mutually_exclusive_group()
+        group3.add_argument("--halt", action="store_true", dest="halt", help="halt execution on errors or warnings")
+        group3.add_argument("--continue", action="store_false", dest="halt",
+                            help="continue execution despite errors or warnings")
 
         parser.add_argument("--version", action="store_true", dest="version", help="print the version string")
 
@@ -179,6 +184,9 @@ class ConfigManager:
         if self.__cmdline_args.db:
             self.__config["database"]["name"] = self.__cmdline_args.db[0]
 
+        if self.__cmdline_args.dbroot:
+            self.__config["database"]["root"] = self.__cmdline_args.dbroot[0]
+
         if self.__cmdline_args.size:
             w, h = self.__cmdline_args.size[0].split('x')
             self.__config["window"]["width"], self.__config["window"]["height"] = int(w), int(h)
@@ -223,5 +231,8 @@ class ConfigManager:
             else:
                 self.__config["log"]["verbose"] = False
 
-        if self.__cmdline_args.halt:
-            self.__config["log"]["halt"] = True
+        if self.__cmdline_args.halt is not None:
+            if self.__cmdline_args.halt:
+                self.__config["log"]["halt"] = True
+            else:
+                self.__config["log"]["halt"] = False
