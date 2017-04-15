@@ -69,7 +69,11 @@ The "--self" option is followed by the relative path (from the current working d
 
 ### --db
 
-The "--db" option is followed by the relative path (from the database root) to the database to be loaded. The database root cannot currently be changed from the command line.
+The "--db" option is followed by the relative path (from the database root) to the database to be loaded.
+
+### --dbroot
+
+The "--dbroot" option is followed by the relative path (from the current working directory) to the folder where databases are kept.
 
 ### --size
 
@@ -117,7 +121,11 @@ The "--verbose" option takes no arguments. It causes the engine to display infor
 
 ### --halt
 
-The "--halt" option takes no arguments. It causes the engine to shut down upon encountering warnings or errors. There is currently no command line option to disable halting.
+The "--halt" option takes no arguments. It causes the engine to shut down upon encountering warnings or errors.
+
+### --continue
+
+The "--continue" option takes no arguments. It causes the engine to continue running despite encountering warnings or errors.
 
 ### --version
 
