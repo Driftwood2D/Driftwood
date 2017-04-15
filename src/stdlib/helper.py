@@ -1,6 +1,6 @@
 ####################################
 # Driftwood 2D Game Dev. Suite     #
-# libs/stdlib/helper.py            #
+# stdlib/helper.py                 #
 # Copyright 2016 Michael D. Reiley #
 # & Paul Merrill                   #
 ####################################

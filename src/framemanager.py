@@ -37,7 +37,7 @@ class FrameManager:
     """The Frame Manager
 
     This class manages the current graphical frame. It allows manipulating and adding content to its workspace,
-    which can then be copied onto window. Alternatively, a texture or ImageFile may be given to replace the current
+    which can then be copied onto the window. Alternatively, a texture or ImageFile may be given to replace the current
     frame. WindowManager queries us for the current frame each tick.
 
     Attributes:

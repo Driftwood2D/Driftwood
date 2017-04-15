@@ -1,6 +1,6 @@
 ####################################
 # Driftwood 2D Game Dev. Suite     #
-# libs/stdlib/viewport.py          #
+# stdlib/viewport.py               #
 # Copyright 2016 Michael D. Reiley #
 # & Paul Merrill                   #
 ####################################

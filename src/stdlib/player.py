@@ -1,6 +1,6 @@
 ####################################
 # Driftwood 2D Game Dev. Suite     #
-# libs/stdlib/player.py            #
+# stdlib/player.py                 #
 # Copyright 2016 Michael D. Reiley #
 # & Paul Merrill                   #
 ####################################

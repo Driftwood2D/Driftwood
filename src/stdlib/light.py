@@ -1,6 +1,6 @@
 ####################################
 # Driftwood 2D Game Dev. Suite     #
-# libs/stdlib/light.py             #
+# stdlib/light.py                  #
 # Copyright 2016 Michael D. Reiley #
 # & Paul Merrill                   #
 ####################################
@@ -112,7 +112,7 @@ def flicker(lid, rx, ry, ralpha, rate, duration=None):
     oy = Driftwood.light.light(lid).y
     oalpha = int(Driftwood.light.light(lid).color[6:], 16)
 
-    fc = Driftwood.script.module("libs/stdlib/helper.py").copy_function(__flicker_callback)
+    fc = Driftwood.script.module("stdlib/helper.py").copy_function(__flicker_callback)
     fc.active = True
     fc.lid = lid
 
