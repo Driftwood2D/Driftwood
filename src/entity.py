@@ -257,14 +257,6 @@ class Entity:
         if self.manager.collider:
             self.manager.collider(self, dsttile)
 
-    def _tile_at(self, layer, x, y, px=0, py=0):
-        """Retrieve a tile by layer and pixel coordinates.
-        """
-        return self.manager.driftwood.area.tilemap.layers[layer].tile(
-            (x / self._tilewidth) + px,
-            (y / self._tileheight) + py
-        )
-
     def __next_member(self, seconds):
         """Set to change the animation frame.
         """
@@ -448,6 +440,14 @@ class TileModeEntity(Entity):
             success = True
 
         return success
+
+    def _tile_at(self, layer, x, y, px=0, py=0):
+        """Retrieve a tile by layer and pixel coordinates.
+        """
+        return self.manager.driftwood.area.tilemap.layers[layer].tile(
+            (x / self._tilewidth) + px,
+            (y / self._tileheight) + py
+        )
 
     def _walk_stop(self):
         # Schedule us to stop walking.
@@ -807,7 +807,10 @@ class PixelModeEntity(Entity):
         if not y or y not in [-1, 0, 1]:
             y = 0
 
-        dsttile = None  # TODO: Figure out how to find the destination tile.
+        self.walking = [x, y]
+
+        dsttile = self._tile_cross(self.layer, self.x + x, self.y + y)  # TODO: Edge detection
+        print(dsttile.pos)
 
         self._next_stance = stance
         self._end_stance = end_stance
@@ -861,6 +864,20 @@ class PixelModeEntity(Entity):
         self.manager.driftwood.area.changed = True
 
         return self.__can_walk()
+
+    def _tile_cross(self, layer, x, y, px=0, py=0):
+        """Retrieve a tile by layer and pixel coordinates, that we are about to cross onto at this position.
+        """
+        print(self._tilewidth)
+        return self.manager.driftwood.area.tilemap.layers[layer].tile(
+            ((x + (self.width / 2)) // self._tilewidth) + px,
+            ((y + (self.height / 2)) // self._tileheight) + py
+        )
+
+    def _tile_edge(self, layer, x, y, px=0, py=0):
+        """Retrieve a tile by layer and pixel coordinates, that we are about to touch the edge of at this position.
+        """
+        pass
 
     def _walk_stop(self):
         if self._end_stance and self.stance != self._end_stance:
