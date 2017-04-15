@@ -273,8 +273,7 @@ class FrameManager:
         dst.x, dst.y, dst.w, dst.h = dstrect
 
         # Copy the texture onto the workspace.
-        r = SDL_RenderCopy(self.driftwood.window.renderer, tex, src,
-                           dst)
+        r = SDL_RenderCopy(self.driftwood.window.renderer, tex, src, dst)
         if type(r) is int and r < 0:
             self.driftwood.log.msg("ERROR", "Frame", "copy", "SDL", SDL_GetError())
             ret = False
