@@ -683,7 +683,7 @@ class TileModeEntity(Entity):
         return True
 
     def __schedule_walk(self, x, y, dont_stop):
-        self.__reset_walk()
+        self._reset_walk()
         self.walking = [x, y]
         if self._next_stance and self.stance != self._next_stance:
             self.set_stance(self._next_stance)
@@ -770,14 +770,33 @@ class PixelModeEntity(Entity):
     """This Entity subclass represents an Entity configured for movement in by-pixel mode.
     """
 
-    def teleport(self, layer, x, y):
-        """Teleport the entity to a new pixel position.
+    def teleport(self, layer, x, y, area=None):
+        """Teleport the entity to a new tile position.
+
+        This is also used to change layers or to move to a new area.
 
         Args:
             layer: New layer, or None to skip.
             x: New x-coordinate, or None to skip.
             y: New y-coordinate, or None to skip.
+            area: The area to teleport to, if any.
+
+        Returns:
+            True if succeeded, False if failed.
         """
+        tilemap = self.manager.driftwood.area.tilemap
+
+        if area:
+            self._next_area = [area, layer, x, y]
+            return True
+
+        # Make sure this is a tile.
+        if (((layer is not None) and (layer < 0 or len(tilemap.layers) <= layer)) or
+                (x is not None and x >= tilemap.width) or
+                (y is not None and y >= tilemap.height)):
+            self.manager.driftwood.log.msg("ERROR", "Entity", "teleport", "attempt to teleport to non-tile position")
+            return False
+
         if layer:
             self.layer = layer
 
@@ -786,6 +805,12 @@ class PixelModeEntity(Entity):
 
         if y:
             self.y = y
+
+        # Set the new tile.
+        self._next_tile = [layer, x, y]
+
+        if layer is not None:
+            self._call_on_layer()
 
         self.manager.driftwood.area.changed = True
 
