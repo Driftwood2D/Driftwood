@@ -106,6 +106,7 @@ class Entity:
         self.walking = []
         self._last_walk = []
         self._cw_teleport = False
+        self._clipped = [None, None]
 
         self.__cur_member = 0
         self._prev_xy = [0, 0]
@@ -896,8 +897,11 @@ class PixelModeEntity(Entity):
         # Are we moving at all?
         if x or y:
             can_walk = self.__can_walk(x, y)  # Are we allowed to walk this way?
-            if can_walk and not self._face_key_active:
-                self.__do_walk(x, y)  # Walk the walk.
+            if can_walk and not self._face_key_active and not self._clipped == [x, y]:
+                if self.walking:  # Are we already walking?
+                    pass
+                else:
+                    self.__do_walk(x, y)  # Walk the walk.
             elif not self.walking:  # Not walking.
                 if self._end_stance:
                     self.set_stance(self._end_stance)
@@ -1010,9 +1014,32 @@ class PixelModeEntity(Entity):
         # Clean up after an interrupted walk.
         if not self.walking or not self.__can_walk(*self.walking) or self._face_key_active:
             self._walk_stop()
+            return
 
-    def __can_walk(self, x, y):
-        self._next_tile = self.layer, self.x + x, self.y + y
+        prev_tile = self.tile
+
+        # We need to keep track of our traveled distance in floats, or it clips each tick.
+        self._partial_xy[0] += self.walking[0] * self.speed * seconds_past
+        self._partial_xy[1] += self.walking[1] * self.speed * seconds_past
+
+        if not self.__can_walk(int(self._partial_xy[0]), int(self._partial_xy[1]), True):  # We've gone too far.
+            self._clipped = [self.walking[0], self.walking[1]]
+            self._walk_stop()
+            return
+
+        self.x = int(self._partial_xy[0])
+        self.y = int(self._partial_xy[1])
+
+        self.tile = self._tile_cross(self.layer, self.x, self.y)
+
+        if self.tile != prev_tile:  # We must be on a new tile now.
+            self.__arrive_at_tile()
+
+    def __can_walk(self, x, y, absolute=False):
+        if not absolute:
+            self._next_tile = self.layer, self.x + x, self.y + y
+        else:
+            self._next_tile = self.layer, x, y
         dsttile = self._tile_cross(*self._next_tile)
 
         if self.tile:
@@ -1082,20 +1109,15 @@ class PixelModeEntity(Entity):
         return True
 
     def __do_walk(self, x, y):
-        self.walking = [x, y]
+        self._clipped = [None, None]
+        self._partial_xy = [self.x, self.y]
+        self.walking = [x, y]  # We are now walking.
         self.manager.driftwood.tick.register(self._process_walk)
         if self._next_stance and self.stance != self._next_stance:
             self.set_stance(self._next_stance)
 
-        prev_tile = self.tile
-
-        self.x += x
-        self.y += y
-
-        self.tile = self._tile_cross(self.layer, self.x, self.y)
-
-        if self.tile != prev_tile:  # We must be on a new tile now.
-            self.__arrive_at_tile()
+        # Start walking on this frame.
+        self._process_walk(seconds_past=0)
 
     def _reset_walk(self):
         self._walk_stop()
