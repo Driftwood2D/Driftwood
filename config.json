@@ -1,19 +1,20 @@
 {
   "database": {
     "root": "db/",
-    "name": "testworld.jzdb"
+    "name": "test.db"
   },
   "cache": {
     "enabled": true,
     "ttl": 300
   },
   "input": {
-    "keybindings": {
+    "keybinds": {
       "up": "SDLK_UP",
       "down": "SDLK_DOWN",
       "left": "SDLK_LEFT",
       "right": "SDLK_RIGHT",
-      "interact": "SDLK_SPACE"
+      "interact": "SDLK_SPACE",
+      "face": "SDLK_LSHIFT"
     }
   },
   "audio": {

@@ -46,6 +46,7 @@ def set_default_walk_keybinds():
     Driftwood.input.register("left", __default_keybind_move_left)
     Driftwood.input.register("right", __default_keybind_move_right)
     Driftwood.input.register("interact", __default_keybind_interact)
+    Driftwood.input.register("face", __default_keybind_face)
     
     return True
 
@@ -100,3 +101,10 @@ def __default_keybind_interact(keyevent):
         if not player.interact():
             player.interact("under")
 
+
+def __default_keybind_face(keyevent):
+    player = Driftwood.entity.player
+    if keyevent == Driftwood.input.ONDOWN:
+        player._face_key_active = True
+    elif keyevent == Driftwood.input.ONUP:
+        player._face_key_active = False

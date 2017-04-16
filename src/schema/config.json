@@ -35,7 +35,7 @@
     "input": {
       "type": "object",
       "properties": {
-        "keybindings": {
+        "keybinds": {
           "type": "object",
           "additionalProperties": {
             "type": "string"
@@ -43,7 +43,7 @@
         }
       },
       "required": [
-        "keybindings"
+        "keybinds"
       ]
     },
     "audio": {

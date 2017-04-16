@@ -114,6 +114,8 @@ class Entity:
         self._next_stance = ""
         self._end_stance = ""
 
+        self._face_key_active = False
+
         self._tilewidth = self.manager.driftwood.area.tilemap.tilewidth
         self._tileheight = self.manager.driftwood.area.tilemap.tileheight
 
@@ -514,7 +516,7 @@ class TileModeEntity(Entity):
 
         self._last_walk = [x, y]
         if x or y:  # We call walk with 0,0 when entering a new area.
-            can_walk = not self.walking and self.__can_walk(x, y)
+            can_walk = not self.walking and self.__can_walk(x, y) and not self._face_key_active
             if can_walk:  # Can we walk? If so schedule the walking.
                 self.__schedule_walk(x, y, dont_stop)
             elif not self.walking:  # We can't and are not walking, but tried to. Face the entity.
@@ -605,7 +607,7 @@ class TileModeEntity(Entity):
             if self.__is_at_next_tile():
                 self.__walk_set_tile()
                 self.__arrive_at_tile()
-                if not self.__can_walk(*self.walking):
+                if not self.__can_walk(*self.walking) or self._face_key_active:
                     self.__stand_still()
 
         elif self.walk_state == Entity.WALKING_WANT_STOP:
@@ -893,7 +895,7 @@ class PixelModeEntity(Entity):
 
         # Are we moving at all?
         if x or y:
-            can_walk = self.__can_walk(x, y)  # Are we allowed to walk this way?
+            can_walk = self.__can_walk(x, y) and not self._face_key_active  # Are we allowed to walk this way?
             if can_walk:
                 self.__do_walk(x, y)  # Walk the walk.
             elif not self.walking:  # If you can't walk the walk, don't talk the talk.

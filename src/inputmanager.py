@@ -99,7 +99,7 @@ class InputManager:
             Keysym if succeeded, None if failed.
         """
         try:
-            return getattr(self.driftwood.keycode, self.driftwood.config["input"]["keybindings"][keyname])
+            return getattr(self.driftwood.keycode, self.driftwood.config["input"]["keybinds"][keyname])
         except:
             return None
 
