@@ -60,9 +60,10 @@ class Entity:
             ["all"]: Enable all flags.
             ["entity"]: Collide with other entities.
             ["tile"]: Collide with unwalkable tiles.
-            ["next"]: Collide with the position another entity is moving to.
-            ["prev"]: Collide with the position another entity is moving from.
-            ["here"]: Collide with the position another entity is standing still on.
+            ["next"]: Collide with the position another entity is moving to. Tile mode only.
+            ["prev"]: Collide with the position another entity is moving from. Tile mode only.
+            ["here"]: Collide with the position another entity is standing still on. In tile mode, we pretend the
+                      other entity occupies the whole tile it is on and collide accordingly.
     """
 
     NOT_WALKING, WALKING_WANT_CONT, WALKING_WANT_STOP = range(3)
