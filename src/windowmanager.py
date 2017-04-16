@@ -64,10 +64,6 @@ class WindowManager:
 
         self.__prepare()
 
-    def register(self):
-        self.driftwood.tick.register(self._tick, delay=1.0 / self.driftwood.config["window"]["maxfps"],
-                                     during_pause=True)
-
     def title(self, title):
         """Set the window title.
 
@@ -112,6 +108,10 @@ class WindowManager:
             self.driftwood.frame.changed -= 1
 
             SDL_RenderPresent(self.renderer)
+
+    def _register_tick(self):
+        self.driftwood.tick.register(self._tick, delay=1.0 / self.driftwood.config["window"]["maxfps"],
+                                     during_pause=True)
 
     def __prepare(self):
         """Prepare the window for use.

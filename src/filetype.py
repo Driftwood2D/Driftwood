@@ -35,6 +35,9 @@ from sdl2.sdlttf import *
 
 class AudioFile:
     """This class represents and abstracts a single OGG Vorbis audio file.
+    
+    Attributes:
+        audio: The SDL_mixer audio handle.
     """
 
     def __init__(self, driftwood, data, music=False):
@@ -73,6 +76,10 @@ class AudioFile:
 
 class FontFile:
     """This class represents and abstracts a single font file.
+    
+    Attributes:
+        font: The SDL_ttf font handle.
+        ptsize: The size of the font in pt.
     """
     def __init__(self, driftwood, data, ptsize):
         """FontFile class initializer.
@@ -103,6 +110,10 @@ class FontFile:
 
 class ImageFile:
     """This class represents and abstracts a single image file.
+    
+    Attributes:
+        surface: An SDL surface containing the image.
+        texture: An SDL texture containing the image.
     """
 
     def __init__(self, driftwood, data, renderer):

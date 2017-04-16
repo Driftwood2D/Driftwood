@@ -122,7 +122,7 @@ class Tile:
         """
         return copy.copy(self.__dstrect)
 
-    def diff(self, x, y):
+    def offset(self, x, y):
         """Return the tile at this offset.
         """
         return self.layer.tile(self.pos[0] + x, self.pos[1]+ y)

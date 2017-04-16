@@ -68,6 +68,8 @@ class Light:
             self.manager.driftwood.tick.register(self._track_entity, message=[entity, layermod])
 
     def _track_entity(self, seconds_past, msg):
+        """Follow an entity's position.
+        """
         try:  # Avoid strange timing anomaly.
             self.x = self.manager.driftwood.entity.entity(msg[0]).x +\
                 self.manager.driftwood.entity.entity(msg[0]).width // 2

@@ -129,8 +129,8 @@ class Driftwood:
         self.audio = AudioManager(self)
         self.widget = WidgetManager(self)
         self.script = ScriptManager(self)
-        self.area.register()
-        self.window.register()
+        self.area._register_tick()
+        self.window._register_tick()
 
         # SDL Keycodes.
         self.keycode = keycode
@@ -198,7 +198,8 @@ class Driftwood:
                 self.tick.toggle_pause()
 
     def _terminate(self):
-        """Cleanup before shutdown.
+        """Cleanup before shutdown. Here we tell all the relevant parts of the engine to free their resources
+        before being deleted. We do this because Python's __del__ method is nearly useless as a destructor.
         """
         self.audio._terminate()
         self.widget._terminate()

@@ -84,6 +84,7 @@ class Tileset:
         self.__prepare_tileset()
 
     def __prepare_tileset(self):
+        """Load values into our tileset."""
         self.filename = self.__tileset["image"]
         self.name = self.__tileset["name"]
         self.image = self.tilemap.area.driftwood.resource.request_image(self.filename)  # Ouch

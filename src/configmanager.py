@@ -42,7 +42,7 @@ class ConfigManager:
     """The Config Manager
 
     This class reads command line input and a configuration file and presents the resulting configuration for easy
-    access. This class' state is not modified after initialization.
+    access. This class' state is not modified after initialization. It also contains no API-accessible methods.
 
     Note: Command line options always supercede their configuration file equivalents.
 
@@ -176,6 +176,7 @@ class ConfigManager:
 
         print("Driftwood 2D\nStarting up...")
 
+        # Read the rest of the command line arguments.
         if self.__cmdline_args.path:
             self.__config["path"]["path"] = self.__cmdline_args.path[0].split(',')
 

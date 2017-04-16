@@ -164,6 +164,9 @@ class CacheManager:
         return True
 
     def _reverse_purge(self, inst):
+        """Purge an item from the cache by checking if the passed instance is cached, rather than searching by
+        filename.
+        """
         for items in self.__cache:
             if self.__cache[items]["contents"] is inst:
                 del self.__cache[items]

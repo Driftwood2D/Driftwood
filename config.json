@@ -1,7 +1,7 @@
 {
   "database": {
     "root": "db/",
-    "name": "test.db"
+    "name": "testworld.jzdb"
   },
   "cache": {
     "enabled": true,

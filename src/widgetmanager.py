@@ -34,6 +34,15 @@ import widget
 
 
 class WidgetManager:
+    """The Widget Manager
+    
+    This class keeps track of widgets. These are things like text dialogs and UI elements.
+    
+    Attributes:
+        driftwood: Base class instance.
+        widgets: The dictionary of widgets, sorted by widget id.
+        selected: Whether or not this widget is the selected widget. ex. a selected button in a UI menu.
+    """
 
     def __init__(self, driftwood):
         self.driftwood = driftwood
@@ -43,9 +52,9 @@ class WidgetManager:
 
         self.__last_wid = -1
 
-        self.__spritefactory = None
-        self.__uifactory = None
-        self.__uiprocessor = None
+        self.__spritefactory = None  # The sdlext sprite factory.
+        self.__uifactory = None  # The sdlext ui factory.
+        self.__uiprocessor = None  # The sdlext ui processor.
 
         self.__prepare()
 
@@ -181,6 +190,11 @@ class WidgetManager:
         return new_widget.wid
 
     def activate(self, wid):
+        """Activate a widget. This widget becomes visible.
+        
+        Args:
+            wid: Widget id of widget to activate.
+        """
         if wid in self.widgets:
             self.widgets[wid].active = True
             self.driftwood.area.changed = True
@@ -189,6 +203,11 @@ class WidgetManager:
         return False
 
     def deactivate(self, wid):
+        """Deactivate a widget. This widget becomes invisible.
+
+        Args:
+            wid: Widget id of widget to deactivate.
+        """
         if wid in self.widgets:
             self.widgets[wid].active = False
             self.driftwood.area.changed = False
@@ -197,6 +216,11 @@ class WidgetManager:
         return False
 
     def kill(self, wid):
+        """Kill a widget.
+        
+        Args:
+            wid: Widget id of widget to kill.
+        """
         if wid in self.widgets:
             self.widgets[wid]._terminate()
             del self.widgets[wid]
@@ -206,11 +230,18 @@ class WidgetManager:
         return False
 
     def widget(self, wid):
+        """Get a widget by widget id.
+        
+        Args:
+            wid: The widget id of the widget to return.
+        """
         if wid in self.widgets:
             return self.widgets[wid]
         return None
 
     def reset(self):
+        """Destroy all widgets.
+        """
         for widget in self.widgets:
             self.widgets[widget]._terminate()
         self.widgets = {}
@@ -237,6 +268,8 @@ class WidgetManager:
                             self.driftwood.log.msg("ERROR", "Widget", "_draw_widgets", "SDL", SDL_GetError())
 
     def __prepare(self):
+        """Initialize some things we need to get started.
+        """
         if TTF_Init() < 0:
             self.driftwood.log.msg("ERROR", "Widget", "__prepare", "SDL_TTF", TTF_GetError())
         self.__spritefactory = SpriteFactory(sprite_type=TEXTURE, renderer=self.driftwood.window.renderer)

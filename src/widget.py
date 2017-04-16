@@ -33,13 +33,29 @@ from sdl2.sdlttf import *
 
 
 class Widget:
+    """This parent class represents a widget. It is subclassed by one of the widget types.
+    
+    Attributes:
+        manager: Link back to the WidgetManager.
+        wid: Widget id of this widget.
+        active: Whether the widget is active or not.
+        selected: Whether this widget is the selected widget.
+        x: The x position of the widget, relative to its parent (if one exists).
+        y: The y position of the widget, relative to its parent (if one exists).
+        realx: The real x position of the widget, relative to the viewport.
+        realy: The real y position of the widget, relative to the viewport.
+        width: The width of the widget.
+        height: The height of the widget.
+        parent: The parent of the widget if one exists. Otherwise None.
+        
+    """
 
     def __init__(self, manager, wid, parent, x, y, width, height):
         self.manager = manager
         self.wid = wid
 
         self.active = False
-        self.focus = False
+        self.selected = False
         self.x = x
         self.y = y
         self.realx = None
@@ -49,10 +65,18 @@ class Widget:
         self.parent = parent
 
     def dstrect(self):
+        """Return the destination rectangle for drawing the widget.
+        """
         return self.realx, self.realy, self.width, self.height
 
 
 class ContainerWidget(Widget):
+    """This subclass represents a Container widget.
+    
+    Attributes:
+        image: The graphic for the container, if it has one.
+        contains: List of widgets contained by this container.
+    """
     def __init__(self, manager, wid, parent, image, x, y, width, height):
         super(ContainerWidget, self).__init__(manager, wid, parent, x, y, width, height)
 
@@ -60,6 +84,8 @@ class ContainerWidget(Widget):
         self.contains = []
 
     def srcrect(self):
+        """Return the source rectangle for the widget graphic, if it has one.
+        """
         if self.image:
             return 0, 0, self.image.width, self.image.height
         return None
@@ -110,6 +136,17 @@ class ContainerWidget(Widget):
 
 
 class TextWidget(Widget):
+    """This subclass represents a text widget.
+    
+    Attributes:
+        contents: The text content of the widget.
+        font: FontFile for the font being used.
+        color: The color of the font.
+        ptsize: The size of the font in pt.
+        textwidth: The width of the text in pixels.
+        textheight: The height of the text in pixels.
+        texture: A texture containing the rendered graphic for the text.
+    """
     def __init__(self, manager, wid, parent, contents, font, ptsize, x, y, width, height, color):
         super(TextWidget, self).__init__(manager, wid, parent, x, y, width, height)
 

@@ -38,9 +38,11 @@ class AreaManager:
 
     Attributes:
         driftwood: Base class instance.
+        filename: Filename of the current area.
         tilemap: Tilemap instance for the area's tilemap.
-        changed: Whether the area should be rebuilt.
+        changed: Whether the area should be rebuilt. This is true if the area changed since last checked.
         offset: Offset at which to draw the area inside the viewport.
+        refocused: Whether we have gone to a new area since last checked.
     """
 
     def __init__(self, driftwood):
@@ -62,7 +64,7 @@ class AreaManager:
         self.refocused = False
 
     def register(self):
-        # Register the tick callback.
+        """Register our tick callback."""
         self.driftwood.tick.register(self._tick)
 
     def focus(self, filename):
@@ -74,12 +76,15 @@ class AreaManager:
         Returns:
             True if succeeded, False if failed.
         """
+        # Ask the resource manager for the JSON map file.
         map_json = self.driftwood.resource.request_json(filename)
-        if map_json:
-            self.filename = filename
-            self.tilemap._read(map_json)  # This should only be called from here.
+
+        if map_json: # Did we successfully retrieve the map?
+            self.filename = filename  # Set out current filename.
+            self.tilemap._read(map_json)  # Read the tilemap. This should only be called from here.
             self.driftwood.log.info("Area", "loaded", filename)
 
+            # We have moved areas.
             self.refocused = True
 
             # If there is an on_focus function defined for this map, call it.
@@ -97,8 +102,9 @@ class AreaManager:
             self.driftwood.log.msg("ERROR", "Area", "focus", "no such area", filename)
             return False
 
-    def blur(self):
-        # If there is an on_blur function defined for this map, call it.
+    def _blur(self):
+        """If there is an on_blur function defined for this map, call it. This is called when we leave an area.
+        """
         if "on_blur" in self.tilemap.properties:
             args = self.tilemap.properties["on_blur"].split(',')
             if len(args) < 2:
@@ -106,6 +112,10 @@ class AreaManager:
                                        self.tilemap.properties["on_blur"])
                 return
             self.driftwood.script.call(*args)
+
+    def _register_tick(self):
+        """Register our tick callback."""
+        self.driftwood.tick.register(self._tick)
 
     def _tick(self, seconds_past):
         """Tick callback.

@@ -39,7 +39,7 @@ class LightManager:
     Attributes:
         driftwood: Base class instance.
 
-        lights: The list of Light class instances for each light. Stored by lid.
+        lights: The dictionary of Light class instances for each light. Stored by lid.
     """
 
     def __init__(self, driftwood):
@@ -85,28 +85,33 @@ class LightManager:
 
         Returns: New light if succeeded, None if failed.
         """
-
+        # Try to request the lightmap image from the resource manager.
         lightmap = self.driftwood.resource.request_image(filename, False)
         if not lightmap:
             self.driftwood.log.msg("ERROR", "Light", "insert", "could not load lightmap", lightmap)
             return None
 
+        # Is the color a real color?
         try:
             int(color, 16)
         except ValueError:
             self.driftwood.log.msg("ERROR", "Light", "insert", "invalid color", color)
             return None
 
+        # Does the entity exist if we passed one to track?
         if entity is not None:
             if not self.driftwood.entity.entity(entity):
                 self.driftwood.log.msg("ERROR", "Light", "insert", "cannot bind to nonexistent entity", entity)
                 return None
 
+        # Add our light to the dictionary and increment the light id count.
         self.__last_lid += 1
         lid = self.__last_lid
 
+        # Assign the light to its light id in the dictionary.
         self.lights[lid] = light.Light(self, lid, lightmap, layer, x, y, w, h, color, blend, entity, layermod)
 
+        # Are we blending the light? Try it.
         if blend:
             r = SDL_SetTextureBlendMode(self.lights[lid].lightmap.texture, SDL_BLENDMODE_BLEND)
         else:
@@ -114,18 +119,21 @@ class LightManager:
         if r < 0:
             self.driftwood.log.msg("ERROR", "Light", "insert", "SDL", SDL_GetError())
 
+        # Give the light color.
         r = SDL_SetTextureColorMod(self.lights[lid].lightmap.texture, int(color[0:2], 16), int(color[2:4], 16),
                                    int(color[4:6], 16))
         if r < 0:
             self.driftwood.log.msg("ERROR", "Light", "insert", "SDL", SDL_GetError())
 
+        # Give the light transparency.
         r = SDL_SetTextureAlphaMod(self.lights[lid].lightmap.texture, int(color[6:8], 16))
         if r < 0:
             self.driftwood.log.msg("ERROR", "Light", "insert", "SDL", SDL_GetError())
 
+        # We are done.
         self.driftwood.log.info("Light", "inserted", "{0} on layer {1} at position {2}, {3}".format(filename, layer,
                                                                                                     x, y))
-
+        # The area has changed because we added a light.
         self.driftwood.area.changed = True
 
         return self.lights[lid]
@@ -195,26 +203,31 @@ class LightManager:
 
         Returns: True if succeeded, False if failed.
         """
+        # Is it a real color?
         try:
             int(color, 16)
         except ValueError:
             self.driftwood.log.msg("ERROR", "Light", "set_color", "invalid color", color)
             return False
 
+        # If the light exists, work on it.
         if lid in self.lights:
             success = True
 
+            # Set the color.
             r = SDL_SetTextureColorMod(self.lights[lid].lightmap.texture, int(color[0:2], 16), int(color[2:4], 16),
                                        int(color[4:6], 16))
             if r < 0:
                 self.driftwood.log.msg("ERROR", "Light", "set_color", "SDL", SDL_GetError())
                 success = False
 
+            # Set the alpha.
             r = SDL_SetTextureAlphaMod(self.lights[lid].lightmap.texture, int(color[6:8], 16))
             if r < 0:
                 self.driftwood.log.msg("ERROR", "Light", "set_color", "SDL", SDL_GetError())
                 success = False
 
+            # Are we going to blend the light?
             if blend is not None:
                 if blend:
                     r = SDL_SetTextureBlendMode(self.lights[lid].lightmap.texture, SDL_BLENDMODE_BLEND)
@@ -224,6 +237,7 @@ class LightManager:
                     self.driftwood.log.msg("ERROR", "Light", "set_color", "SDL", SDL_GetError())
                     success = False
 
+            # The area has changed because we changed the light.
             self.driftwood.area.changed = True
 
             if success:
@@ -260,22 +274,26 @@ class LightManager:
         """
         to_kill = []
 
+        # Collect a list of lights to kill, searching by lightmap ImageFile.
         if isinstance(file, filetype.ImageFile):
             for lid in self.lights:
                 if self.lights[lid].lightmap == file:
                     to_kill += lid
 
+        # Collect a list of lights to kill, searching by lightmap filename.
         else:
             for lid in self.lights:
                 if self.lights[lid].filename == file:
                     to_kill += lid
 
+        # Kill the lights in the list.
         for lid in to_kill:
             self.lights[lid]._terminate()
             del self.lights[lid]
 
         self.driftwood.area.changed = True
 
+        # Did we succeed?
         if to_kill:
             return True
         self.driftwood.log.msg("WARNING", "Entity", "killall", "attempt to kill nonexistent lights", file)

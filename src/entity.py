@@ -40,7 +40,7 @@ class Entity:
         mode: The movement mode of the entity.
         stance: The current stance of the entity.
         resting_stance: The default stance to return to when not walking.
-        travel: Whether the entity is automatically destroyed when a new area is loaded.
+        travel: If True, the entity is not automatically destroyed when a new area is loaded.
         facing: Which direction the entity is facing.
         walk_state: Whether we are moving or not and whether we want to stop ASAP.
         spritesheet: Spritesheet instance of the spritesheet which owns this entity's graphic.
@@ -302,7 +302,7 @@ class Entity:
             self.manager.driftwood.script.call(*args)
 
         # Leave the current area
-        self.manager.driftwood.area.blur()
+        self.manager.driftwood.area._blur()
 
         # Enter the next area.
         if self.manager.driftwood.area.focus(self._next_area[0]):
@@ -880,26 +880,30 @@ class PixelModeEntity(Entity):
 
         Returns: True if succeeded, false if failed (due to collision).
         """
+        # Are we not moving horizontally?
         if not x or x not in [-1, 0, 1]:
             x = 0
 
+        # Are we not moving vertically?
         if not y or y not in [-1, 0, 1]:
             y = 0
 
         self._next_stance = stance
         self._end_stance = end_stance
 
+        # Are we moving at all?
         if x or y:
-            can_walk = self.__can_walk(x, y)
+            can_walk = self.__can_walk(x, y)  # Are we allowed to walk this way?
             if can_walk:
-                self.__do_walk(x, y)
-            elif not self.walking:
+                self.__do_walk(x, y)  # Walk the walk.
+            elif not self.walking:  # If you can't walk the walk, don't talk the talk.
                 if self._end_stance:
                     self.set_stance(self._end_stance)
 
-            else:
+            else:  # We're done walking.
                 self._walk_stop()
 
+            # Figure out which way we're facing.
             if x == -1:
                 self.facing = "left"
             elif x == 1:
@@ -910,7 +914,7 @@ class PixelModeEntity(Entity):
                 self.facing = "down"
 
         else:
-            self.__arrive_at_tile()
+            self.__arrive_at_tile()  # Arrive at a tile.
             return True
 
         # Entity collision detection.
@@ -956,13 +960,13 @@ class PixelModeEntity(Entity):
             tile = self.tile
         # Tiles in other directions.
         elif direction == "left":
-            tile = self.tile.diff(-1, 0)
+            tile = self.tile.offset(-1, 0)
         elif direction == "right":
-            tile = self.tile.diff(1, 0)
+            tile = self.tile.offset(1, 0)
         elif direction == "up":
-            tile = self.tile.diff(0, -1)
+            tile = self.tile.offset(0, -1)
         elif direction == "down":
-            tile = self.tile.diff(0, 1)
+            tile = self.tile.offset(0, 1)
         else:  # What?
             return False
 
@@ -1087,7 +1091,7 @@ class PixelModeEntity(Entity):
 
         self.tile = self._tile_cross(self.layer, self.x, self.y)
 
-        if self.tile != prev_tile:
+        if self.tile != prev_tile:  # We must be on a new tile now.
             self.__arrive_at_tile()
 
     def _reset_walk(self):

@@ -70,6 +70,7 @@ class AudioManager:
         if "flac" in self.driftwood.config["audio"]["support"]:
             init_flags |= MIX_INIT_FLAC
 
+        # Did we succeed?
         if Mix_Init(init_flags) & init_flags != init_flags:
             self.driftwood.log.msg("ERROR", "Audio", "__init__","failed to initialize audio format support",
                                    str(Mix_GetError()))
