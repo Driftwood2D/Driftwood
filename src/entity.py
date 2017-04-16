@@ -516,8 +516,8 @@ class TileModeEntity(Entity):
 
         self._last_walk = [x, y]
         if x or y:  # We call walk with 0,0 when entering a new area.
-            can_walk = not self.walking and self.__can_walk(x, y) and not self._face_key_active
-            if can_walk:  # Can we walk? If so schedule the walking.
+            can_walk = not self.walking and self.__can_walk(x, y)
+            if can_walk and not self._face_key_active:  # Can we walk? If so schedule the walking.
                 self.__schedule_walk(x, y, dont_stop)
             elif not self.walking:  # We can't and are not walking, but tried to. Face the entity.
                 if self._end_stance:
@@ -895,13 +895,12 @@ class PixelModeEntity(Entity):
 
         # Are we moving at all?
         if x or y:
-            can_walk = self.__can_walk(x, y) and not self._face_key_active  # Are we allowed to walk this way?
-            if can_walk:
+            can_walk = self.__can_walk(x, y)  # Are we allowed to walk this way?
+            if can_walk and not self._face_key_active:
                 self.__do_walk(x, y)  # Walk the walk.
-            elif not self.walking:  # If you can't walk the walk, don't talk the talk.
+            elif not self.walking:  # Not walking.
                 if self._end_stance:
                     self.set_stance(self._end_stance)
-
             else:  # We're done walking.
                 self._walk_stop()
 
@@ -1008,7 +1007,9 @@ class PixelModeEntity(Entity):
             self.set_stance(self._end_stance)
 
     def _process_walk(self, seconds_past):
-        pass
+        # Clean up after an interrupted walk.
+        if not self.walking or not self.__can_walk(*self.walking) or self._face_key_active:
+            self._walk_stop()
 
     def __can_walk(self, x, y):
         self._next_tile = self.layer, self.x + x, self.y + y
