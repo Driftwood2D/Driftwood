@@ -259,17 +259,43 @@ class Entity:
 
         self._next_area = None
 
+    def _do_take_exit(self):
+        # If there is an exit, take it.
+        if self._next_area:
+
+            # If we're the player, change the area.
+            if self.manager.player.eid == self.eid:
+                self._do_kill()
+                self._do_exit()
+                self._call_on_tile()
+                self._reset_walk()
+
+            # Exits destroy other entities.
+            else:
+                self._do_kill()
+
+            return True
+
+        return False
+
+    def _do_kill(self):
+        # Kill all lights and all entities except the player and entities with "travel" set to true.
+        to_kill = []
+
+        for eid in self.manager.entities:
+            if not self.manager.entities[eid].travel:
+                to_kill.append(eid)
+
+        for eid in to_kill:
+            self.manager.kill(eid)
+
+        self.manager.driftwood.widget.reset()
+
     def _collide(self, dsttile):
         """Report a collision.
         """
         if self.manager.collider:
             self.manager.collider(self, dsttile)
-
-    def __next_member(self, seconds):
-        """Set to change the animation frame.
-        """
-        self.__cur_member = (self.__cur_member + 1) % len(self.members)
-        self.manager.driftwood.area.changed = True
 
     def _call_on_tile(self):
         # Call the on_tile event if set.
@@ -290,6 +316,47 @@ class Entity:
                                                self.layer)
                 return
             self.manager.driftwood.script.call(*args)
+
+    def _prepare_exit_dest(self, exit_dest, tile):
+        # Prepare coordinates for teleport().
+
+        # layer coordinate.
+        if not exit_dest[1]:  # Stays the same.
+            exit_dest[1] = None
+        elif exit_dest[1].startswith('+'):  # Increments upward.
+            exit_dest[1] = self.layer + int(exit_dest[1][1:])
+        elif exit_dest[1].startswith('-'):  # Increments downward.
+            exit_dest[1] = self.layer - int(exit_dest[1][1:])
+        else:  # Set to a specific coordinate.
+            exit_dest[1] = int(exit_dest[1])
+
+        # x coordinate.
+        if not exit_dest[2]:  # Stays the same.
+            exit_dest[2] = None
+        elif exit_dest[2].startswith('+'):  # Increments upward.
+            exit_dest[2] = tile.pos[0] + int(exit_dest[2][1:])
+        elif exit_dest[2].startswith('-'):  # Increments downward.
+            exit_dest[2] = tile.tile.pos[0] - int(exit_dest[2][1:])
+        else:  # Set to a specific coordinate.
+            exit_dest[2] = int(exit_dest[2])
+
+        # y coordinate.
+        if not exit_dest[3]:  # Stays the same.
+            exit_dest[3] = None
+        elif exit_dest[3].startswith('+'):  # Increments upward.
+            exit_dest[3] = tile.pos[1] + int(exit_dest[3][1:])
+        elif exit_dest[3].startswith('-'):  # Increments downward.
+            exit_dest[3] = tile.pos[1] - int(exit_dest[3][1:])
+        else:  # Set to a specific coordinate.
+            exit_dest[3] = int(exit_dest[3])
+
+        return exit_dest
+
+    def __next_member(self, seconds):
+        """Set to change the animation frame.
+        """
+        self.__cur_member = (self.__cur_member + 1) % len(self.members)
+        self.manager.driftwood.area.changed = True
 
     def _terminate(self):
         """Cleanup before deletion.
@@ -494,41 +561,6 @@ class TileModeEntity(Entity):
                 self.__arrive_at_tile()
                 self.__stand_still()
 
-    def __prepare_exit_dest(self, exit_dest, tile):
-        # Prepare coordinates for teleport().
-
-        # layer coordinate.
-        if not exit_dest[1]:  # Stays the same.
-            exit_dest[1] = None
-        elif exit_dest[1].startswith('+'):  # Increments upward.
-            exit_dest[1] = self.layer + int(exit_dest[1][1:])
-        elif exit_dest[1].startswith('-'):  # Increments downward.
-            exit_dest[1] = self.layer - int(exit_dest[1][1:])
-        else:  # Set to a specific coordinate.
-            exit_dest[1] = int(exit_dest[1])
-
-        # x coordinate.
-        if not exit_dest[2]:  # Stays the same.
-            exit_dest[2] = None
-        elif exit_dest[2].startswith('+'):  # Increments upward.
-            exit_dest[2] = tile.pos[0] + int(exit_dest[2][1:])
-        elif exit_dest[2].startswith('-'):  # Increments downward.
-            exit_dest[2] = tile.tile.pos[0] - int(exit_dest[2][1:])
-        else:  # Set to a specific coordinate.
-            exit_dest[2] = int(exit_dest[2])
-
-        # y coordinate.
-        if not exit_dest[3]:  # Stays the same.
-            exit_dest[3] = None
-        elif exit_dest[3].startswith('+'):  # Increments upward.
-            exit_dest[3] = tile.pos[1] + int(exit_dest[3][1:])
-        elif exit_dest[3].startswith('-'):  # Increments downward.
-            exit_dest[3] = tile.pos[1] - int(exit_dest[3][1:])
-        else:  # Set to a specific coordinate.
-            exit_dest[3] = int(exit_dest[3])
-
-        return exit_dest
-
     def __detect_entity_collision(self, x, y):
         # Detect if this entity will collide with another.
         for eid in self.manager.entities:
@@ -602,7 +634,7 @@ class TileModeEntity(Entity):
                         exit_dest = self.tile.exits[ex].split(',')
                         if not exit_dest[0]:  # This area.
                             # Prepare coordinates for teleport().
-                            exit_dest = self.__prepare_exit_dest(exit_dest, self.tile)
+                            exit_dest = self._prepare_exit_dest(exit_dest, self.tile)
 
                             # Do the teleport.
                             self.teleport(exit_dest[1], exit_dest[2], exit_dest[3])
@@ -616,7 +648,7 @@ class TileModeEntity(Entity):
                         exit_dest = dsttile.exits[ex].split(',')
                         if not exit_dest[0]:  # This area.
                             # Prepare coordinates for teleport().
-                            exit_dest = self.__prepare_exit_dest(exit_dest, dsttile)
+                            exit_dest = self._prepare_exit_dest(exit_dest, dsttile)
 
                             # Tell teleport() we got here by walking onto an exit.
                             # self._cw_teleport = True
@@ -661,7 +693,7 @@ class TileModeEntity(Entity):
             self.walk_state = Entity.WALKING_WANT_STOP
         self.manager.driftwood.tick.register(self._process_walk)
 
-    def __reset_walk(self):
+    def _reset_walk(self):
         """Reset walking if our X,Y coordinates change."""
         self._prev_xy = [self.x, self.y]
         self._partial_xy = [self.x, self.y]
@@ -704,45 +736,13 @@ class TileModeEntity(Entity):
                 self._walk_stop()
 
         # May be lazy exit, where we have no self.tile
-        self.__do_take_exit()
+        self._do_take_exit()
 
     def __walk_set_tile(self):
         # Set the current tile.
         self._prev_xy[0] = self._prev_xy[0] + (self._tilewidth * self.walking[0])
         self._prev_xy[1] = self._prev_xy[1] + (self._tileheight * self.walking[1])
         self.tile = self._tile_at(self.layer, self._prev_xy[0], self._prev_xy[1])
-
-    def __do_take_exit(self):
-        # If there is an exit, take it.
-        if self._next_area:
-
-            # If we're the player, change the area.
-            if self.manager.player.eid == self.eid:
-                self.__do_kill()
-                self._do_exit()
-                self._call_on_tile()
-                self.__reset_walk()
-
-            # Exits destroy other entities.
-            else:
-                self.__do_kill()
-
-            return True
-
-        return False
-
-    def __do_kill(self):
-        # Kill all lights and all entities except the player and entities with "travel" set to true.
-        to_kill = []
-
-        for eid in self.manager.entities:
-            if not self.manager.entities[eid].travel:
-                to_kill.append(eid)
-
-        for eid in to_kill:
-            self.manager.kill(eid)
-
-        self.manager.driftwood.widget.reset()
 
     def __stand_still(self):
         # We are entirely finished walking.
@@ -890,6 +890,55 @@ class PixelModeEntity(Entity):
                             self._collide(dsttile)
                             return False
 
+                # Prepare exit for this tile.
+                for ex in dsttile.exits.keys():
+                    if ex == "exit":
+                        exit_dest = dsttile.exits[ex].split(',')
+                        if not exit_dest[0]:  # This area.
+                            # Prepare coordinates for teleport().
+                            exit_dest = self._prepare_exit_dest(exit_dest, dsttile)
+
+                            # Tell teleport() we got here by walking onto an exit.
+                            # self._cw_teleport = True
+                            self.teleport(exit_dest[1], exit_dest[2], exit_dest[3])
+                            # self._cw_teleport = False
+
+                        else:  # Another area.
+                            self._next_area = exit_dest
+
+                # Prepare exit for this tile.
+                for ex in dsttile.exits.keys():
+                    if ex == "exit":
+                        exit_dest = dsttile.exits[ex].split(',')
+                        if not exit_dest[0]:  # This area.
+                            # Prepare coordinates for teleport().
+                            exit_dest = self._prepare_exit_dest(exit_dest, dsttile)
+
+                            # Tell teleport() we got here by walking onto an exit.
+                            # self._cw_teleport = True
+                            self.teleport(exit_dest[1], exit_dest[2], exit_dest[3])
+                            # self._cw_teleport = False
+
+                        else:  # Another area.
+                            self._next_area = exit_dest
+
+            else:  # Are we allowed to walk off the edge of the area to follow a lazy exit?
+                if "exit:up" in self.tile.exits and y == -1:
+                    self._next_area = self.tile.exits["exit:up"].split(',')
+
+                elif "exit:down" in self.tile.exits and y == 1:
+                    self._next_area = self.tile.exits["exit:down"].split(',')
+
+                elif "exit:left" in self.tile.exits and x == -1:
+                    self._next_area = self.tile.exits["exit:left"].split(',')
+
+                elif "exit:right" in self.tile.exits and x == 1:
+                    self._next_area = self.tile.exits["exit:right"].split(',')
+
+                else:
+                    self._collide(dsttile)
+                    return False
+
         return True
 
     def __do_walk(self, x, y):
@@ -908,8 +957,14 @@ class PixelModeEntity(Entity):
         if self.tile != prev_tile:
             self.__arrive_at_tile()
 
+    def _reset_walk(self):
+        self._walk_stop()
+
     def __arrive_at_tile(self):
-        self._call_on_tile()
+        if self.tile:
+            self._call_on_tile()
+        # May be lazy exit, where we have no self.tile
+        self._do_take_exit()
 
 
 # TODO: Implement turn mode.
