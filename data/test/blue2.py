@@ -9,7 +9,7 @@ def lights():
 
     else:
         if "end_rumble" in Driftwood.vars and Driftwood.vars["end_rumble"]:
-            Driftwood.script.call("libs/stdlib/viewport.py", "end_rumble")
+            Driftwood.script.call("stdlib/viewport.py", "end_rumble")
         Driftwood.vars["end_rumble"] = "true"
         Driftwood.script.call("stdlib/viewport.py", "rumble", 30, 2, None)
         Driftwood.light.reset()

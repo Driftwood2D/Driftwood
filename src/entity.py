@@ -196,6 +196,59 @@ class Entity:
 
         self.manager.driftwood.area.changed = True
 
+    def interact(self, direction=None):
+        """Interact with the entity and/or tile in the specified direction.
+
+        Args:
+            direction: One of ["left", "right", "up", "down", "under"], otherwise the direction this entity is
+                currently facing.
+
+        Returns: True if succeeded, False if failed.
+        """
+        if direction and direction not in ["left", "right", "up", "down", "under"]:  # Illegal facing.
+            self.manager.driftwood.log.msg("ERROR", "Entity", "interact", self.eid, "no such direction for interaction",
+                                           direction)
+            return False
+        elif not direction:  # Default to the direction the entity is facing currently.
+            direction = self.facing
+
+        success = False
+
+        # Otherwise interact in the specified direction.
+        if direction == "under":  # This tile.
+            tile = self.tile
+        # Tiles in other directions.
+        elif direction == "left":
+            tile = self._tile_at(self.layer, self.x - self._tilewidth, self.y)
+        elif direction == "right":
+            tile = self._tile_at(self.layer, self.x + self._tilewidth, self.y)
+        elif direction == "up":
+            tile = self._tile_at(self.layer, self.x, self.y - self._tileheight)
+        elif direction == "down":
+            tile = self._tile_at(self.layer, self.x, self.y + self._tileheight)
+        else:  # What?
+            return False
+
+        # We could be facing the edge of the area.
+        if not tile:
+            return False
+
+        # Check if this tile contains an interactable entity.
+        ent = self.manager.entity_at(tile.pos[0] * self._tilewidth, tile.pos[1] * self._tileheight)
+        if ent and "interact" in ent.properties:
+            # Interact with entity.
+            args = ent.properties["interact"].split(',')
+            self.manager.driftwood.script.call(*args)
+            success = True
+
+        # Check if this tile is interactable.
+        if "interact" in tile.properties:
+            args = tile.properties["interact"].split(',')
+            self.manager.driftwood.script.call(*args)
+            success = True
+
+        return success
+
     def _read(self, filename, data, eid):
         """Read the entity descriptor.
         """
@@ -232,8 +285,8 @@ class Entity:
         """Retrieve a tile by layer and pixel coordinates.
         """
         return self.manager.driftwood.area.tilemap.layers[layer].tile(
-            x / self._tilewidth,
-            y / self._tileheight
+            x // self._tilewidth,
+            y // self._tileheight
         )
 
     def _do_exit(self):
@@ -843,16 +896,17 @@ class PixelModeEntity(Entity):
                 if self._end_stance:
                     self.set_stance(self._end_stance)
 
-                if x == -1:
-                    self.facing = "left"
-                elif x == 1:
-                    self.facing = "right"
-                if y == -1:
-                    self.facing = "up"
-                elif y == 1:
-                    self.facing = "down"
             else:
                 self._walk_stop()
+
+            if x == -1:
+                self.facing = "left"
+            elif x == 1:
+                self.facing = "right"
+            if y == -1:
+                self.facing = "up"
+            elif y == 1:
+                self.facing = "down"
 
         else:
             self.__arrive_at_tile()
@@ -877,6 +931,59 @@ class PixelModeEntity(Entity):
         self.manager.driftwood.area.changed = True
 
         return can_walk
+
+    def interact(self, direction=None):
+        """Interact with the entity and/or tile in the specified direction.
+
+        Args:
+            direction: One of ["left", "right", "up", "down", "under"], otherwise the direction this entity is
+                currently facing.
+
+        Returns: True if succeeded, False if failed.
+        """
+        if direction and direction not in ["left", "right", "up", "down", "under"]:  # Illegal facing.
+            self.manager.driftwood.log.msg("ERROR", "Entity", "interact", self.eid, "no such direction for interaction",
+                                           direction)
+            return False
+        elif not direction:  # Default to the direction the entity is facing currently.
+            direction = self.facing
+
+        success = False
+
+        # Otherwise interact in the specified direction.
+        if direction == "under":  # This tile.
+            tile = self.tile
+        # Tiles in other directions.
+        elif direction == "left":
+            tile = self.tile.diff(-1, 0)
+        elif direction == "right":
+            tile = self.tile.diff(1, 0)
+        elif direction == "up":
+            tile = self.tile.diff(0, -1)
+        elif direction == "down":
+            tile = self.tile.diff(0, 1)
+        else:  # What?
+            return False
+
+        # We could be facing the edge of the area.
+        if not tile:
+            return False
+
+        # Check if this tile contains an interactable entity.
+        ent = self.manager.entity_at(tile.pos[0] * self._tilewidth, tile.pos[1] * self._tileheight)
+        if ent and "interact" in ent.properties:
+            # Interact with entity.
+            args = ent.properties["interact"].split(',')
+            self.manager.driftwood.script.call(*args)
+            success = True
+
+        # Check if this tile is interactable.
+        if "interact" in tile.properties:
+            args = tile.properties["interact"].split(',')
+            self.manager.driftwood.script.call(*args)
+            success = True
+
+        return success
 
     def _tile_cross(self, layer, x, y):
         """Retrieve a tile by layer and pixel coordinates, that we are about to cross onto at this position. The center
