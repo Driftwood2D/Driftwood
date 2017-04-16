@@ -1,6 +1,6 @@
 {
   "init": {
-    "mode": "tile",
+    "mode": "pixel",
     "collision": ["all"],
     "travel": true,
     "speed": 64,
