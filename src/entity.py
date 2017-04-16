@@ -271,6 +271,26 @@ class Entity:
         self.__cur_member = (self.__cur_member + 1) % len(self.members)
         self.manager.driftwood.area.changed = True
 
+    def _call_on_tile(self):
+        # Call the on_tile event if set.
+        if "on_tile" in self.tile.properties:
+            args = self.tile.properties["on_tile"].split(',')
+            if len(args) < 2:
+                self.manager.driftwood.log.msg("ERROR", "Entity", "_call_on_tile", "invalid on_tile event",
+                                               self.tile.properties["on_tile"])
+                return
+            self.manager.driftwood.script.call(*args)
+
+    def _call_on_layer(self):
+        # Call the on_layer event if set.
+        if "on_layer" in self.manager.driftwood.area.tilemap.layers[self.layer].properties:
+            args = self.manager.driftwood.area.tilemap.layers[self.layer].properties["on_layer"].split(',')
+            if len(args) < 2:
+                self.manager.driftwood.log.msg("ERROR", "Entity", "_call_on_layer", "invalid on_layer event",
+                                               self.layer)
+                return
+            self.manager.driftwood.script.call(*args)
+
     def _terminate(self):
         """Cleanup before deletion.
         """
@@ -339,11 +359,11 @@ class TileModeEntity(Entity):
         self._next_tile = [temp_layer, temp_x, temp_y]
 
         # Call the on_tile event if set.
-        self.__call_on_tile()
+        self._call_on_tile()
 
         # If we changed the layer, call the on_layer event if set.
         if layer is not None:
-            self.__call_on_layer()
+            self._call_on_layer()
 
         self.manager.driftwood.area.changed = True
 
@@ -667,7 +687,7 @@ class TileModeEntity(Entity):
     def __arrive_at_tile(self):
         # Perform actions for when we arrive at another tile.
         if self.tile:
-            self.__call_on_tile()
+            self._call_on_tile()
 
             # Handle teleports.
             if self._next_tile:
@@ -692,26 +712,6 @@ class TileModeEntity(Entity):
         self._prev_xy[1] = self._prev_xy[1] + (self._tileheight * self.walking[1])
         self.tile = self._tile_at(self.layer, self._prev_xy[0], self._prev_xy[1])
 
-    def __call_on_tile(self):
-        # Call the on_tile event if set.
-        if "on_tile" in self.tile.properties:
-            args = self.tile.properties["on_tile"].split(',')
-            if len(args) < 2:
-                self.manager.driftwood.log.msg("ERROR", "Entity", "__call_on_tile", "invalid on_tile event",
-                                               self.tile.properties["on_tile"])
-                return
-            self.manager.driftwood.script.call(*args)
-
-    def __call_on_layer(self):
-        # Call the on_layer event if set.
-        if "on_layer" in self.manager.driftwood.area.tilemap.layers[self.layer].properties:
-            args = self.manager.driftwood.area.tilemap.layers[self.layer].properties["on_layer"].split(',')
-            if len(args) < 2:
-                self.manager.driftwood.log.msg("ERROR", "Entity", "__call_on_layer", "invalid on_layer event",
-                                               self.layer)
-                return
-            self.manager.driftwood.script.call(*args)
-
     def __do_take_exit(self):
         # If there is an exit, take it.
         if self._next_area:
@@ -720,7 +720,7 @@ class TileModeEntity(Entity):
             if self.manager.player.eid == self.eid:
                 self.__do_kill()
                 self._do_exit()
-                self.__call_on_tile()
+                self._call_on_tile()
                 self.__reset_walk()
 
             # Exits destroy other entities.
@@ -807,39 +807,31 @@ class PixelModeEntity(Entity):
         if not y or y not in [-1, 0, 1]:
             y = 0
 
-        self.walking = [x, y]
-
-        dsttile = self._tile_cross(self.layer, self.x + x, self.y + y)
-
         self._next_stance = stance
         self._end_stance = end_stance
 
-        if self.tile:
-            if dsttile:  # Does a tile exist where we're going?
-                if "tile" in self.collision:  # We are colliding with tiles.
-                    if dsttile.nowalk or dsttile.nowalk == "":
-                        # Is the tile a player or npc specific nowalk?
-                        if (dsttile.nowalk == "player" and self.manager.player.eid == self.eid
-                                or dsttile.nowalk == "npc" and self.manager.player.eid != self.eid):
-                                    self._collide(dsttile)
-                                    return False
-
-                        # Any other values are an unconditional nowalk.
-                        elif dsttile.nowalk not in ["player", "npc"]:
-                            self._collide(dsttile)
-                            return False
-
         if x or y:
-            # Set which direction the entity is facing. If we're facing two directions at once, arbitrarily prefer
-            # the vertical direction.
-            if x == -1:
-                self.facing = "left"
-            elif x == 1:
-                self.facing = "right"
-            if y == -1:
-                self.facing = "up"
-            elif y == 1:
-                self.facing = "down"
+            can_walk = self.__can_walk(x, y)
+            if can_walk:
+                self.__do_walk(x, y)
+            elif not self.walking:
+                if self._end_stance:
+                    self.set_stance(self._end_stance)
+
+                if x == -1:
+                    self.facing = "left"
+                elif x == 1:
+                    self.facing = "right"
+                if y == -1:
+                    self.facing = "up"
+                elif y == 1:
+                    self.facing = "down"
+            else:
+                self._walk_stop()
+
+        else:
+            self.__arrive_at_tile()
+            return True
 
         # Entity collision detection.
         for eid in self.manager.entities:
@@ -857,12 +849,9 @@ class PixelModeEntity(Entity):
                 self.manager.collision(self, self.manager.entities[eid])
                 return False
 
-        self.x += x
-        self.y += y
-
         self.manager.driftwood.area.changed = True
 
-        return self.__can_walk()
+        return can_walk
 
     def _tile_cross(self, layer, x, y):
         """Retrieve a tile by layer and pixel coordinates, that we are about to cross onto at this position. The center
@@ -875,19 +864,52 @@ class PixelModeEntity(Entity):
         )
 
     def _walk_stop(self):
+        self.walking = []
         if self._end_stance and self.stance != self._end_stance:
             self.set_stance(self._end_stance)
 
     def _process_walk(self, seconds_past):
         pass
 
-    def __can_walk(self):
+    def __can_walk(self, x, y):
+        self._next_tile = self.layer, self.x + x, self.y + y
+        dsttile = self._tile_cross(*self._next_tile)
+
+        if self.tile:
+            if dsttile:  # Does a tile exist where we're going?
+                if "tile" in self.collision:  # We are colliding with tiles.
+                    if dsttile.nowalk or dsttile.nowalk == "":
+                        # Is the tile a player or npc specific nowalk?
+                        if (dsttile.nowalk == "player" and self.manager.player.eid == self.eid
+                                or dsttile.nowalk == "npc" and self.manager.player.eid != self.eid):
+                                    self._collide(dsttile)
+                                    return False
+
+                        # Any other values are an unconditional nowalk.
+                        elif dsttile.nowalk not in ["player", "npc"]:
+                            self._collide(dsttile)
+                            return False
+
+        return True
+
+    def __do_walk(self, x, y):
+        self.walking = [x, y]
         self.manager.driftwood.tick.register(self._process_walk)
         if self._next_stance and self.stance != self._next_stance:
             self.set_stance(self._next_stance)
 
-    def __step(self, x, y):
-        pass
+        prev_tile = self.tile
+
+        self.x += x
+        self.y += y
+
+        self.tile = self._tile_cross(self.layer, self.x, self.y)
+
+        if self.tile != prev_tile:
+            self.__arrive_at_tile()
+
+    def __arrive_at_tile(self):
+        self._call_on_tile()
 
 
 # TODO: Implement turn mode.
