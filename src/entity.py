@@ -525,14 +525,16 @@ class TileModeEntity(Entity):
                     self.set_stance(self._end_stance)
 
             # Set which direction the entity is facing.
-            if x == -1:
+            if x == -1 and y == 0:
                 self.facing = "left"
-            elif x == 1:
+            elif x == 1 and y == 0:
                 self.facing = "right"
-            elif y == -1:
+            elif y == -1 and x == 0:
                 self.facing = "up"
-            elif y == 1:
+            elif y == 1 and x == 0:
                 self.facing = "down"
+            else:
+                self.facing = "none"
 
             return can_walk
 
@@ -552,6 +554,8 @@ class TileModeEntity(Entity):
         if direction and direction not in ["left", "right", "up", "down", "under"]:  # Illegal facing.
             self.manager.driftwood.log.msg("ERROR", "Entity", "interact", self.eid, "no such direction for interaction",
                                            direction)
+            return False
+        elif direction is "none":
             return False
         elif not direction:  # Default to the direction the entity is facing currently.
             direction = self.facing
@@ -909,14 +913,16 @@ class PixelModeEntity(Entity):
                 self._walk_stop()
 
             # Figure out which way we're facing.
-            if x == -1:
+            if x == -1 and y == 0:
                 self.facing = "left"
-            elif x == 1:
+            elif x == 1 and y == 0:
                 self.facing = "right"
-            if y == -1:
+            if y == -1 and x == 0:
                 self.facing = "up"
-            elif y == 1:
+            elif y == 1 and x == 0:
                 self.facing = "down"
+            else:
+                self.facing = "none"
 
         else:
             self.__arrive_at_tile()  # Arrive at a tile.
@@ -954,6 +960,8 @@ class PixelModeEntity(Entity):
         if direction and direction not in ["left", "right", "up", "down", "under"]:  # Illegal facing.
             self.manager.driftwood.log.msg("ERROR", "Entity", "interact", self.eid, "no such direction for interaction",
                                            direction)
+            return False
+        elif direction is "none":
             return False
         elif not direction:  # Default to the direction the entity is facing currently.
             direction = self.facing
