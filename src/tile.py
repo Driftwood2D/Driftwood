@@ -125,7 +125,7 @@ class Tile:
     def offset(self, x, y):
         """Return the tile at this offset.
         """
-        return self.layer.tile(self.pos[0] + x, self.pos[1]+ y)
+        return self.layer.tile(self.pos[0] + x, self.pos[1] + y)
 
     def setgid(self, gid, members=None, afps=None):  # TODO: Make sure the GID exists.
         """Helper function to change the tile graphic or animation.

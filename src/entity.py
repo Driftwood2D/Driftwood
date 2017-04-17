@@ -62,8 +62,7 @@ class Entity:
             ["tile"]: Collide with unwalkable tiles.
             ["next"]: Collide with the position another entity is moving to. Tile mode only.
             ["prev"]: Collide with the position another entity is moving from. Tile mode only.
-            ["here"]: Collide with the position another entity is standing still on. In tile mode, we pretend the
-                      other entity occupies the whole tile it is on and collide accordingly.
+            ["here"]: Collide with the position another entity is standing still on.
     """
 
     NOT_WALKING, WALKING_WANT_CONT, WALKING_WANT_STOP = range(3)
@@ -106,11 +105,11 @@ class Entity:
         self.walking = []
         self._last_walk = []
         self._cw_teleport = False
-        self._clipped = [None, None]
+        self._clipped = [None, None]  # When set, a direction of travel in which we clipped the wall.
 
         self.__cur_member = 0
         self._prev_xy = [0, 0]
-        self._next_area = []
+        self._next_area = []  # Area queued to load.
         self._next_tile = []
         self._next_stance = ""
         self._end_stance = ""
@@ -199,59 +198,6 @@ class Entity:
             self.manager.driftwood.tick.register(self.__next_member, delay=(1 / self.afps))
 
         self.manager.driftwood.area.changed = True
-
-    def interact(self, direction=None):
-        """Interact with the entity and/or tile in the specified direction.
-
-        Args:
-            direction: One of ["left", "right", "up", "down", "under"], otherwise the direction this entity is
-                currently facing.
-
-        Returns: True if succeeded, False if failed.
-        """
-        if direction and direction not in ["left", "right", "up", "down", "under"]:  # Illegal facing.
-            self.manager.driftwood.log.msg("ERROR", "Entity", "interact", self.eid, "no such direction for interaction",
-                                           direction)
-            return False
-        elif not direction:  # Default to the direction the entity is facing currently.
-            direction = self.facing
-
-        success = False
-
-        # Otherwise interact in the specified direction.
-        if direction == "under":  # This tile.
-            tile = self.tile
-        # Tiles in other directions.
-        elif direction == "left":
-            tile = self._tile_at(self.layer, self.x - self._tilewidth, self.y)
-        elif direction == "right":
-            tile = self._tile_at(self.layer, self.x + self._tilewidth, self.y)
-        elif direction == "up":
-            tile = self._tile_at(self.layer, self.x, self.y - self._tileheight)
-        elif direction == "down":
-            tile = self._tile_at(self.layer, self.x, self.y + self._tileheight)
-        else:  # What?
-            return False
-
-        # We could be facing the edge of the area.
-        if not tile:
-            return False
-
-        # Check if this tile contains an interactable entity.
-        ent = self.manager.entity_at(tile.pos[0] * self._tilewidth, tile.pos[1] * self._tileheight)
-        if ent and "interact" in ent.properties:
-            # Interact with entity.
-            args = ent.properties["interact"].split(',')
-            self.manager.driftwood.script.call(*args)
-            success = True
-
-        # Check if this tile is interactable.
-        if "interact" in tile.properties:
-            args = tile.properties["interact"].split(',')
-            self.manager.driftwood.script.call(*args)
-            success = True
-
-        return success
 
     def _read(self, filename, data, eid):
         """Read the entity descriptor.
@@ -425,7 +371,6 @@ class Entity:
             self.spritesheet = None
 
 
-# TODO: When PixelModeEntity is done, move common logic into functions in the superclass.
 class TileModeEntity(Entity):
     """This Entity subclass represents an Entity configured for movement in by-tile mode.
     """
@@ -551,7 +496,7 @@ class TileModeEntity(Entity):
 
         Returns: True if succeeded, False if failed.
         """
-        if direction and direction not in ["left", "right", "up", "down", "under"]:  # Illegal facing.
+        if direction and direction not in ["left", "right", "up", "down", "under", "none"]:  # Illegal facing.
             self.manager.driftwood.log.msg("ERROR", "Entity", "interact", self.eid, "no such direction for interaction",
                                            direction)
             return False
@@ -574,7 +519,7 @@ class TileModeEntity(Entity):
             tile = self._tile_at(self.layer, self.x, self.y - self._tileheight)
         elif direction == "down":
             tile = self._tile_at(self.layer, self.x, self.y + self._tileheight)
-        else:  # What?
+        else:  # Must be "none" or garbage.
             return False
 
         # We could be facing the edge of the area.
@@ -917,7 +862,7 @@ class PixelModeEntity(Entity):
                 self.facing = "left"
             elif x == 1 and y == 0:
                 self.facing = "right"
-            if y == -1 and x == 0:
+            elif y == -1 and x == 0:
                 self.facing = "up"
             elif y == 1 and x == 0:
                 self.facing = "down"
@@ -957,7 +902,7 @@ class PixelModeEntity(Entity):
 
         Returns: True if succeeded, False if failed.
         """
-        if direction and direction not in ["left", "right", "up", "down", "under"]:  # Illegal facing.
+        if direction and direction not in ["left", "right", "up", "down", "under", "none"]:  # Illegal facing.
             self.manager.driftwood.log.msg("ERROR", "Entity", "interact", self.eid, "no such direction for interaction",
                                            direction)
             return False
@@ -980,7 +925,7 @@ class PixelModeEntity(Entity):
             tile = self.tile.offset(0, -1)
         elif direction == "down":
             tile = self.tile.offset(0, 1)
-        else:  # What?
+        else:  # Must be "none" or garbage.
             return False
 
         # We could be facing the edge of the area.
@@ -1031,7 +976,7 @@ class PixelModeEntity(Entity):
         self._partial_xy[1] += self.walking[1] * self.speed * seconds_past
 
         if not self.__can_walk(int(self._partial_xy[0]), int(self._partial_xy[1]), True):  # We've gone too far.
-            self._clipped = [self.walking[0], self.walking[1]]
+            self._clipped = [self.walking[0], self.walking[1]]  # Mark this direction as one where we clipped the wall.
             self._walk_stop()
             return
 
@@ -1117,8 +1062,8 @@ class PixelModeEntity(Entity):
         return True
 
     def __do_walk(self, x, y):
-        self._clipped = [None, None]
-        self._partial_xy = [self.x, self.y]
+        self._clipped = [None, None]  # Reset the clip check.
+        self._partial_xy = [self.x, self.y]  # Reset the movement tracker.
         self.walking = [x, y]  # We are now walking.
         self.manager.driftwood.tick.register(self._process_walk)
         if self._next_stance and self.stance != self._next_stance:
