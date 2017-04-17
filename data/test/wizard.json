@@ -18,11 +18,27 @@
     "members": [1,2,3,2],
     "afps": 4
   },
+  "walk_up_left": {
+    "members": [1,2,3,2],
+    "afps": 4
+  },
+  "walk_up_right": {
+    "members": [1,2,3,2],
+    "afps": 4
+  },
   "walk_right": {
     "members": [4,5,6,5],
     "afps": 4
   },
   "walk_down": {
+    "members": [7,8,9,8],
+    "afps": 4
+  },
+  "walk_down_left": {
+    "members": [7,8,9,8],
+    "afps": 4
+  },
+  "walk_down_right": {
     "members": [7,8,9,8],
     "afps": 4
   },
@@ -34,11 +50,27 @@
     "members": [2],
     "afps": 0
   },
+  "face_up_left": {
+    "members": [2],
+    "afps": 0
+  },
+  "face_up_right": {
+    "members": [2],
+    "afps": 0
+  },
   "face_right": {
     "members": [5],
     "afps": 0
   },
   "face_down": {
+    "members": [8],
+    "afps": 0
+  },
+  "face_down_left": {
+    "members": [8],
+    "afps": 0
+  },
+  "face_down_right": {
     "members": [8],
     "afps": 0
   },
