@@ -573,30 +573,22 @@ class TileModeEntity(Entity):
             # This is us.
             if eid == self.eid:
                 continue
+            ent = self.manager.entities[eid]
             # Collision detection.
-            if self.manager.entities[eid].layer == self.layer:  # Are we on the same layer?
-                # It's moving. What tile is it moving to?
-                if self.manager.entities[eid].walking and ("next" in self.collision) and (
-                                    self._prev_xy[0] + self._tilewidth * x ==
-                                    self.manager.entities[eid]._prev_xy[0] + self._tilewidth *
-                                    self.manager.entities[eid].walking[0] and
-                                    self._prev_xy[1] + self._tileheight * y ==
-                                    self.manager.entities[eid]._prev_xy[1] + self._tileheight *
-                                    self.manager.entities[eid].walking[1]):
+            if ent.layer == self.layer:  # Are we on the same layer?
+                # It's moving. What tile is it moving to? Are we trying to move to the same tile?
+                if ent.walking and ("next" in self.collision) and \
+                                self.tile.offset(*self._last_walk) is ent.tile.offset(*ent.walking):
                     self.manager.collision(self, self.manager.entities[eid])
                     return False
 
-                # What tile is it moving from?
-                if ("prev" in self.collision) and (
-                                    self.x + self._tilewidth * x == self.manager.entities[eid]._prev_xy[0] and
-                                    self.y + self._tileheight * y == self.manager.entities[eid]._prev_xy[1]):
+                # What tile is it moving from? Are we trying to occupy that tile?
+                if ent.walking and ("prev" in self.collision) and self.tile.offset(*self._last_walk) is ent.tile:
                     self.manager.collision(self, self.manager.entities[eid])
                     return False
 
-                # Where is it standing still?
-                if ("here" in self.collision) and (
-                                    self.x + self._tilewidth * x == self.manager.entities[eid].x and
-                                    self.y + self._tileheight * y == self.manager.entities[eid].y):
+                # Is it standing still? Don't step on it.
+                if not ent.walking and ("here" in self.collision) and self.tile.offset(*self._last_walk) is ent.tile:
                     self.manager.collision(self, self.manager.entities[eid])
                     return False
 
