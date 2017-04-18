@@ -36,9 +36,9 @@ import filetype
 class FrameManager:
     """The Frame Manager
 
-    This class manages the current graphical frame. It allows manipulating and adding content to its workspace,
-    which can then be copied onto the window. Alternatively, a texture or ImageFile may be given to replace the current
-    frame. WindowManager queries us for the current frame each tick.
+    This class manages the current graphical frame. It allows manipulating and adding content to its back buffer,
+    which can then be copied onto the front buffer and framed in the window. Alternatively, a texture or ImageFile
+    may be given to replace the current frame. WindowManager queries us for the current frame each tick.
 
     Attributes:
         driftwood: Base class instance.
@@ -65,7 +65,7 @@ class FrameManager:
         self.STATE_NOTCHANGED, self.STATE_CHANGED = range(2)
 
         self.driftwood = driftwood
-        self._frame = None  # [self.__texture, srcrect, dstrect]
+        self._frame = None  # [self.__frontbuffer, srcrect, dstrect]
 
         # Offset at which to draw the viewport.
         self.offset = [0, 0]
@@ -74,24 +74,24 @@ class FrameManager:
         self.centering = True
 
         self.__imagefile = None
-        self.__texture = None
-        self.__workspace = None
+        self.__frontbuffer = None
+        self.__backbuffer = None
         self.__overlay = []
 
         self.changed = self.STATE_NOTCHANGED
 
     def clear(self):
-        """Clear the local workspace.
+        """Clear the back buffer.
 
         Returns:
             True if succeeded, False if failed.
         """
-        r = SDL_SetRenderTarget(self.driftwood.window.renderer, self.__workspace)
+        r = SDL_SetRenderTarget(self.driftwood.window.renderer, self.__backbuffer)
         if type(r) is int and r < 0:
             self.driftwood.log.msg("ERROR", "Frame", "clear", "SDL", SDL_GetError())
             return False
 
-        # Clear the current workspace.
+        # Clear the current back buffer.
         SDL_RenderClear(self.driftwood.window.renderer)
 
         # Tell SDL to switch rendering back to the window's frame.
@@ -103,9 +103,9 @@ class FrameManager:
         return True
 
     def prepare(self, width, height):
-        """Prepare and clear the local workspace.
+        """Prepare and clear the back buffer.
 
-        Set up our workspace as a texture of the specified size. This also clears the workspace.
+        Set up our back buffer as a texture of the specified size. This also clears the back buffer.
 
         Args:
             width: Width in pixels.
@@ -114,51 +114,51 @@ class FrameManager:
         Returns:
             True if succeeded, False if failed.
         """
-        if self.__workspace:
-            SDL_DestroyTexture(self.__workspace)
+        if self.__backbuffer:
+            SDL_DestroyTexture(self.__backbuffer)
 
-        self.__workspace = SDL_CreateTexture(self.driftwood.window.renderer,
+        self.__backbuffer = SDL_CreateTexture(self.driftwood.window.renderer,
                                              SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET,
                                              width, height)
 
-        if type(self.__workspace) is int and self.__workspace < 0:
+        if type(self.__backbuffer) is int and self.__backbuffer < 0:
             self.driftwood.log.msg("ERROR", "Frame", "prepare", "SDL", SDL_GetError())
             return False
 
         return True
 
     def frame(self, tex=None, zoom=False):
-        """Replace the current frame with a texture or the internal workspace, and adjust the viewport accordingly.
+        """Replace the current frame with a texture or the internal back buffer, and adjust the viewport accordingly.
 
         Args:
-            tex: Use internal workspace if None, otherwise SDL_Texture or filetype.ImageFile instance.
+            tex: Use internal back buffer if None, otherwise SDL_Texture or filetype.ImageFile instance.
             zoom: Whether or not to zoom the texture.
 
         Returns:
             True
         """
-        # Use our internal workspace.
+        # Use our internal back buffer.
         if tex is None:
-            self.__texture = self.__workspace
+            self.__frontbuffer = self.__backbuffer
 
         # Prevent this ImageFile (probably from a script) from losing scope and taking our texture with it.
         elif isinstance(tex, filetype.ImageFile):
             if self.__imagefile and tex is not self.__imagefile:
                 self.__imagefile._terminate()
             self.__imagefile = tex
-            if self.__texture and self.__imagefile.texture is not self.__texture:
-                SDL_DestroyTexture(self.__texture)
-            self.__texture = self.__imagefile.texture
+            if self.__frontbuffer and self.__imagefile.texture is not self.__frontbuffer:
+                SDL_DestroyTexture(self.__frontbuffer)
+            self.__frontbuffer = self.__imagefile.texture
 
         # It's just an ordinary texture, probably passed from the engine code.
         else:
-            if self.__texture and self.__texture is not tex:
-                SDL_DestroyTexture(self.__texture)
-            self.__texture = tex
+            if self.__frontbuffer and self.__frontbuffer is not tex:
+                SDL_DestroyTexture(self.__frontbuffer)
+            self.__frontbuffer = tex
 
         # Get texture width and height.
         tw, th = c_int(), c_int()
-        SDL_QueryTexture(self.__texture, None, None, byref(tw), byref(th))
+        SDL_QueryTexture(self.__frontbuffer, None, None, byref(tw), byref(th))
         tw, th = tw.value, th.value
 
         # Zoom the texture.
@@ -224,7 +224,7 @@ class FrameManager:
         dstrect.y += self.offset[1]
 
         # Adjust and copy the frame onto the viewport.
-        self._frame = [self.__texture, srcrect, dstrect]
+        self._frame = [self.__frontbuffer, srcrect, dstrect]
 
         # Tell WidgetManager it should draw the widgets now.
         self.driftwood.widget._draw_widgets()
@@ -242,15 +242,15 @@ class FrameManager:
         return True
 
     def copy(self, tex, srcrect, dstrect, direct=False):
-        """Copy a texture onto the workspace.
+        """Copy a texture onto the back buffer.
         
-        Copy the source rectangle from the texture tex to the destination rectangle in our workspace.
+        Copy the source rectangle from the texture tex to the destination rectangle in our back buffer.
         
         Args:
             tex: Texture to copy.
             srcrect: Source rectangle [x, y, w, h]
             dstrect: Destination rectangle [x, y, w, h]
-            direct: Ignore the workspace and copy directly onto the texture.
+            direct: Ignore the back buffer and copy directly onto the front buffer.
         
         Returns:
             True if succeeded, False if failed.
@@ -259,9 +259,9 @@ class FrameManager:
         ret = True
 
         if direct:
-            r = SDL_SetRenderTarget(self.driftwood.window.renderer, self.__texture)
-        else:  # Tell SDL to render to our workspace instead of the window's frame.
-            r = SDL_SetRenderTarget(self.driftwood.window.renderer, self.__workspace)
+            r = SDL_SetRenderTarget(self.driftwood.window.renderer, self.__frontbuffer)
+        else:  # Tell SDL to render to our back buffer instead of the window's frame.
+            r = SDL_SetRenderTarget(self.driftwood.window.renderer, self.__backbuffer)
         if type(r) is int and r < 0:
             self.driftwood.log.msg("ERROR", "Frame", "copy", "SDL", SDL_GetError())
             ret = False
@@ -272,7 +272,7 @@ class FrameManager:
         src.x, src.y, src.w, src.h = srcrect
         dst.x, dst.y, dst.w, dst.h = dstrect
 
-        # Copy the texture onto the workspace.
+        # Copy the texture onto the back buffer.
         r = SDL_RenderCopy(self.driftwood.window.renderer, tex, src, dst)
         if type(r) is int and r < 0:
             self.driftwood.log.msg("ERROR", "Frame", "copy", "SDL", SDL_GetError())
@@ -303,12 +303,12 @@ class FrameManager:
     def _terminate(self):
         """Cleanup before deletion.
         """
-        if self.__texture:
-            SDL_DestroyTexture(self.__texture)
-            self.__texture = None
-        if self.__workspace:
-            SDL_DestroyTexture(self.__workspace)
-            self.__workspace = None
+        if self.__frontbuffer:
+            SDL_DestroyTexture(self.__frontbuffer)
+            self.__frontbuffer = None
+        if self.__backbuffer:
+            SDL_DestroyTexture(self.__backbuffer)
+            self.__backbuffer = None
         if self._frame:
             SDL_DestroyTexture(self._frame[0])
             self._frame = None

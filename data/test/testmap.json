@@ -308,12 +308,12 @@
  "orientation":"orthogonal",
  "properties":
     {
-     "on_enter":"focus_testmap.py,setup",
+     "on_focus":"focus_testmap.py,setup",
      "title":"Test Map"
     },
  "propertytypes":
     {
-     "on_enter":"string",
+     "on_focus":"string",
      "title":"string"
     },
  "renderorder":"right-down",
