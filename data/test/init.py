@@ -1,9 +1,13 @@
 def init():
     """Called on engine start.
     """
+    # Set the logical resolution of the window.
+    Driftwood.window.resolution(120, 120)
+
     # Load the area.
     Driftwood.area.focus("blue1.json")
 
+    # Play placeholder music.
     Driftwood.audio.play_music("A_Travellers_Tale.oga", loop=-1)
 
     # Insert the player entity.

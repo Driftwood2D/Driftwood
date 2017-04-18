@@ -30,6 +30,20 @@
 import random
 
 
+def zoom(amount):
+    """Zoom the window.
+    
+    Args:
+        amount: Integer amount to zoom the window.
+    
+    Returns:
+        Tuple containing new window resolution.
+    """
+    width = Driftwood.config["window"]["width"]
+    height = Driftwood.config["window"]["height"]
+    return Driftwood.window.resolution(width // amount, height // amount)
+
+
 def rumble(rate, intensity, duration=None):
     """Rumble the viewport.
 

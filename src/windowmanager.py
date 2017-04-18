@@ -39,8 +39,6 @@ class WindowManager:
         driftwood: Base class instance.
         window: The SDL Window.
         renderer: The SDL Renderer attached to the window.
-        logical_width: The window's width in pixels.
-        logical_height: The window's height in pixels.
     """
 
     def __init__(self, driftwood):
@@ -55,8 +53,8 @@ class WindowManager:
 
         # The resolution that the game wants to pretend it is running at.
         # (See physical_width in __prepare() for comparison.)
-        self.logical_width = self.driftwood.config["window"]["width"]
-        self.logical_height = self.driftwood.config["window"]["height"]
+        self.__logical_width = self.driftwood.config["window"]["width"]
+        self.__logical_height = self.driftwood.config["window"]["height"]
 
         # The SDL Window and Renderer.
         self.window = None
@@ -90,12 +88,28 @@ class WindowManager:
             self.driftwood.area.changed = True
         return True
 
+    def resolution(self, width=None, height=None):
+        """Set or query the logical resolution of the window. This is different from the window dimensions.
+        
+        Args:
+            width: If set, the new logical width.
+            height: If set, the new logical height.
+        
+        Returns: A tuple containing the new resolution.
+        """
+        if width:
+            self.__logical_width = width
+        if height:
+            self.__logical_height = height
+
+        return [self.__logical_width, self.__logical_height]
+
     def _tick(self, seconds_past):
         """Tick callback which refreshes the renderer.
         """
         if self.driftwood.frame.changed:
             SDL_RenderSetLogicalSize(self.renderer,
-                                     self.logical_width, self.logical_height)  # Set logical size.
+                                     self.__logical_width, self.__logical_height)  # Set logical size.
 
             SDL_RenderClear(self.renderer)
 
@@ -133,8 +147,8 @@ class WindowManager:
             flags = SDL_WINDOW_FULLSCREEN_DESKTOP
         else:
             # 1-to-1 mapping between logical and physical pixels
-            physical_width = self.logical_width
-            physical_height = self.logical_height
+            physical_width = self.__logical_width
+            physical_height = self.__logical_height
             flags = 0
 
         flags |= SDL_WINDOW_ALLOW_HIGHDPI

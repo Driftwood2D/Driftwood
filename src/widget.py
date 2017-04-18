@@ -93,14 +93,12 @@ class ContainerWidget(Widget):
     def _prepare(self):
         # Center if not in a container.
         if self.parent is None:
-            window_logical_width = self.manager.driftwood.window.logical_width
-            window_logical_height = self.manager.driftwood.window.logical_height
-            window_zoom = self.manager.driftwood.config["window"]["zoom"]
+            window_logical_width, window_logical_height = self.manager.driftwood.window.resolution()
             if self.x == -1:
-                self.x = (window_logical_width // window_zoom - self.width) // 2
+                self.x = (window_logical_width - self.width) // 2
                 self.realx = self.x
             if self.y == -1:
-                self.y = (window_logical_height // window_zoom - self.height) // 2
+                self.y = (window_logical_height - self.height) // 2
                 self.realy = self.y
 
         # Register and center if in a container.
@@ -177,14 +175,12 @@ class TextWidget(Widget):
 
         # Center if not in a container.
         if self.parent is None:
-            window_logical_width = self.manager.driftwood.window.logical_width
-            window_logical_height = self.manager.driftwood.window.logical_height
-            window_zoom = self.manager.driftwood.config["window"]["zoom"]
+            window_logical_width, window_logical_height = self.manager.driftwood.window.resolution()
             if self.x == -1:
-                self.x = (window_logical_width // window_zoom - self.width) // 2
+                self.x = (window_logical_width - self.width) // 2
                 self.realx = self.x
             if self.y == -1:
-                self.y = (window_logical_height // window_zoom - self.height) // 2
+                self.y = (window_logical_height - self.height) // 2
                 self.realy = self.y
 
         # Register and center if in a container.

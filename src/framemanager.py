@@ -127,12 +127,11 @@ class FrameManager:
 
         return True
 
-    def frame(self, tex=None, zoom=False):
+    def frame(self, tex=None):
         """Replace the current frame with a texture or the internal back buffer, and adjust the viewport accordingly.
 
         Args:
             tex: Use internal back buffer if None, otherwise SDL_Texture or filetype.ImageFile instance.
-            zoom: Whether or not to zoom the texture.
 
         Returns:
             True
@@ -161,11 +160,6 @@ class FrameManager:
         SDL_QueryTexture(self.__frontbuffer, None, None, byref(tw), byref(th))
         tw, th = tw.value, th.value
 
-        # Zoom the texture.
-        if zoom:
-            tw *= self.driftwood.config["window"]["zoom"]
-            th *= self.driftwood.config["window"]["zoom"]
-
         # Both the dstrect and the window size are measured in logical
         # coordinates at this stage.  The transformation to physical
         # coordinates happens below in tick().
@@ -176,8 +170,7 @@ class FrameManager:
         dstrect.x, dstrect.y, dstrect.w, dstrect.h = 0, 0, tw, th
 
         # Get logical window width and height.
-        ww = self.driftwood.window.logical_width
-        wh = self.driftwood.window.logical_height
+        ww, wh = self.driftwood.window.resolution()
 
         # Area width is smaller than window width. Center by width on area.
         if tw < ww:
@@ -187,7 +180,7 @@ class FrameManager:
         if tw > ww and self.centering:
             if self.driftwood.entity.player:
                 playermidx = self.driftwood.entity.player.x + (self.driftwood.entity.player.width / 2)
-                prepx = int(ww / 2 - playermidx * self.driftwood.config["window"]["zoom"])
+                prepx = int(ww / 2 - playermidx)
 
                 if prepx > 0:
                     dstrect.x = 0
@@ -207,7 +200,7 @@ class FrameManager:
         if th > wh and self.centering:
             if self.driftwood.entity.player:
                 playermidy = self.driftwood.entity.player.y + (self.driftwood.entity.player.height / 2)
-                prepy = int(wh / 2 - playermidy * self.driftwood.config["window"]["zoom"])
+                prepy = int(wh / 2 - playermidy)
 
                 if prepy > 0:
                     dstrect.y = 0
@@ -231,8 +224,8 @@ class FrameManager:
 
         # Draw overlays, taking into account the viewport position.
         for overlay in self.__overlay:
-            overlay[2][0] -= dstrect.x//self.driftwood.config["window"]["zoom"]
-            overlay[2][1] -= dstrect.y//self.driftwood.config["window"]["zoom"]
+            overlay[2][0] -= dstrect.x
+            overlay[2][1] -= dstrect.y
             self.copy(*overlay, True)
         self.__overlay = []  # These should only be texture references.
 
