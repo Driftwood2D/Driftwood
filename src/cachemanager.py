@@ -136,7 +136,8 @@ class CacheManager:
         Returns:
             True
         """
-        self.__cache = {}
+        for item in self.__cache:
+            self.purge(item)
         self.driftwood.log.info("Cache", "flushed")
 
         return True
