@@ -51,10 +51,11 @@ class InputManager:
 
         self.handler = None
 
-        # {keysym: {callback, throttle, delay, last_called, repeats}}
+        # {keysym: {callback, throttle, delay, last_called, repeats, mod}}
         self.__registry = {}
 
         self.__stack = []
+        self.__modifier_stack = []
 
         self.__now = 0.0
 
@@ -103,7 +104,7 @@ class InputManager:
         except:
             return None
 
-    def register(self, keyid, callback, throttle=0.0, delay=0.0):
+    def register(self, keyid, callback, throttle=0.0, delay=0.0, mod=False):
         """Register an input callback.
 
         The callback function will receive a call every tick that the key is on top of the input stack. (the key which
@@ -115,6 +116,7 @@ class InputManager:
                 a value of InputManager.ONDOWN, ONREPEAT, or ONUP.
             throttle: Number of seconds to wait between ONREPEAT calls when the key is held down.
             delay: Number of seconds to wait after the key is pressed before making the first ONREPEAT call.
+            mod: Whether this is a modifier key. Modifier keys do not compete for the top of the input stack.
 
         Returns:
             True if succeeded, False if failed.
@@ -135,7 +137,8 @@ class InputManager:
             "throttle": throttle,
             "delay": delay,
             "last_called": self.__now,
-            "repeats": 0
+            "repeats": 0,
+            "mod": mod
         }
 
         return True
@@ -173,9 +176,12 @@ class InputManager:
         Args:
             keysym: SDLKey for the key which was pressed.
         """
-        if keysym not in self.__stack:
-            self.__stack.insert(0, keysym)
+        if keysym not in self.__stack and keysym not in self.__modifier_stack:
             if keysym in self.__registry:
+                if self.__registry[keysym]["mod"]:
+                    self.__modifier_stack.insert(0, keysym)
+                else:
+                    self.__stack.insert(0, keysym)
                 self.__registry[keysym]["callback"](InputManager.ONDOWN)
         else:
             # SDL2 gives us key-repeat events so this is actually okay.
@@ -188,9 +194,15 @@ class InputManager:
         Args:
             keysym: SDLKey for the key which was released.
         """
+        found = False
         if keysym in self.__stack:
             self.__stack.remove(keysym)
+            found = True
+        elif keysym in self.__modifier_stack:
+            self.__modifier_stack.remove(keysym)
+            found = True
 
+        if found:
             # Set the key callback as not called yet.
             if keysym in self.__registry:
                 self.__registry[keysym]["repeats"] = 0
@@ -205,6 +217,26 @@ class InputManager:
         If a second-callback delay is set, make sure to wait the proper amount of time before the second call.
         """
         self.__now += seconds_past
+
+        if self.__modifier_stack:
+            for mod_key in self.__modifier_stack:
+                mod_callback = self.__registry[mod_key]
+
+                # Have we waited long enough between calls?
+                if mod_callback["repeats"] == 0:
+                    waiting_until = mod_callback["delay"]
+                else:
+                    waiting_until = mod_callback["throttle"]
+
+                if self.__now - mod_callback["last_called"] >= waiting_until:
+                    # Update time last called.
+                    mod_callback["last_called"] = self.__now
+
+                    # Call the callback.
+                    mod_callback["callback"](InputManager.ONREPEAT)
+
+                    # Update number of times called.
+                    mod_callback["repeats"] += 1
 
         if self.__stack:
             # The user's current (or latest, if multiple ongoing,) keydown.
