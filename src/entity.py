@@ -483,6 +483,10 @@ class TileModeEntity(Entity):
             elif not self.walking:  # We can't and are not walking, but tried to. Face the entity.
                 if self._end_stance:
                     self.set_stance(self._end_stance)
+                # We have to check for a strange condition where we failed to take an exit.
+                # FIXME: Why does this happen?
+                if self._next_area:
+                    self._do_take_exit()
 
             # Set which direction the entity is facing.
             if x == -1 and y == 0:
@@ -496,10 +500,6 @@ class TileModeEntity(Entity):
             else:
                 self.facing = "none"
 
-            # Check for unusual condition where we did not properly act on a lazy exit.
-            if not can_walk:
-                # May be lazy exit, where we have no self.tile
-                self._do_take_exit()
             return can_walk
 
         else:

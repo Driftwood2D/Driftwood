@@ -176,12 +176,12 @@ class InputManager:
         Args:
             keysym: SDLKey for the key which was pressed.
         """
-        if keysym not in self.__stack and keysym not in self.__modifier_stack:
-            if keysym in self.__registry:
-                if self.__registry[keysym]["mod"]:
-                    self.__modifier_stack.insert(0, keysym)
-                else:
-                    self.__stack.insert(0, keysym)
+        if keysym not in self.__stack:
+            if keysym in self.__registry and not self.__registry[keysym]["mod"]:
+                self.__stack.insert(0, keysym)
+                self.__registry[keysym]["callback"](InputManager.ONDOWN)
+            elif keysym in self.__registry:
+                self.__modifier_stack.insert(0, keysym)
                 self.__registry[keysym]["callback"](InputManager.ONDOWN)
         else:
             # SDL2 gives us key-repeat events so this is actually okay.
@@ -218,6 +218,7 @@ class InputManager:
         """
         self.__now += seconds_past
 
+        # TODO: Remove duplicate code.
         if self.__modifier_stack:
             for mod_key in self.__modifier_stack:
                 mod_callback = self.__registry[mod_key]
@@ -237,6 +238,10 @@ class InputManager:
 
                     # Update number of times called.
                     mod_callback["repeats"] += 1
+
+            # Call the handler if set.
+            if self.handler:
+                self.handler(mod_key)
 
         if self.__stack:
             # The user's current (or latest, if multiple ongoing,) keydown.
