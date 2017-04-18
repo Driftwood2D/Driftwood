@@ -123,7 +123,7 @@ class CacheManager:
         """
         if filename in self.__cache:
             # If this file has a _terminate() function, be sure to call it first.
-            if getattr(self.__cache[filename]["contents"], "_terminate", None) and terminate:
+            if getattr(self.__cache[filename]["contents"], "_terminate", None):
                 self.__cache[filename]["contents"]._terminate()
             del self.__cache[filename]
             self.driftwood.log.info("Cache", "purged", filename)
