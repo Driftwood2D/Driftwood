@@ -847,14 +847,15 @@ class PixelModeEntity(Entity):
 
         self.manager.driftwood.area.changed = True
 
-    def walk(self, x, y, dont_stop=False, facing="none", stance=None, end_stance=None):
+    def walk(self, x, y, dont_stop=False, facing=None, stance=None, end_stance=None):
         """Move the entity by one pixel to a new position relative to its current position.
 
         Args:
             x: -1 for left, 1 for right, 0 for no x movement.
             y: -1 for up, 1 for down, 0 for no y movement.
             dont_stop: Unused, Needed for compatibility with turn mode.
-            facing: The way we're facing while walking.
+            facing: If set, which way to face for the purpose of interaction.
+                ["left", "right", "up", "down", "none"]
             stance: Set the stance we will assume when the walk occurs.
             end_stance: Set the stance we will assume if we stop after this walk.
 
@@ -884,7 +885,23 @@ class PixelModeEntity(Entity):
                 self._walk_stop()
 
             # Figure out which way we're facing.
-            self.facing = facing
+            if facing:
+                if facing not in ["left", "right", "up", "down", "none"
+                                  ]:
+                    self.manager.driftwood.log.msg("ERROR", "Entity", "walk", "illegal facing")
+                else:
+                    self.facing = facing
+            else:
+                if x == -1 and y == 0:
+                    self.facing = "left"
+                elif x == 1 and y == 0:
+                    self.facing = "right"
+                elif y == -1 and x == 0:
+                    self.facing = "up"
+                elif y == 1 and x == 0:
+                    self.facing = "down"
+                else:
+                    self.facing = "none"
 
         else:
             self.__arrive_at_tile()  # Arrive at a tile.

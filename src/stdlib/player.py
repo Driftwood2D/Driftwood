@@ -163,12 +163,11 @@ def __eight_way_keybind_move_right(keyevent):
         player._move_keys_active[3] = 0
     __eight_way_update()
 
-__eight_way_facing = [
+__eight_way_stance = [
     ["up_left", "up", "up_right"],
     ["left", "none", "right"],
     ["down_left", "down", "down_right"],
 ]
-
 def __eight_way_update():
     player = Driftwood.entity.player
     up, down, left, right = player._move_keys_active
@@ -176,11 +175,11 @@ def __eight_way_update():
     y = down - up
     x = right - left
 
-    facing = __eight_way_facing[y+1][x+1]
-    stance = "walk_" + facing
-    end_stance = "face_" + facing
+    base = __eight_way_stance[y+1][x+1]
+    stance = "walk_" + base
+    end_stance = "face_" + base
 
     if x == 0 and y == 0:
         player._walk_stop()
     else:
-        player.walk(x, y, dont_stop=True, facing=facing, stance=stance, end_stance=end_stance)
+        player.walk(x, y, dont_stop=True, facing=None, stance=stance, end_stance=end_stance)
