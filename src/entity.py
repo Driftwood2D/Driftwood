@@ -1055,12 +1055,38 @@ class PixelModeEntity(Entity):
 
         # Entity collision detection.
         if "entity" in self.collision:
-            if not self.__detect_entity_collision(x, y):
+            if not self.__detect_entity_collision(self._next_tile[1], self._next_tile[2]):
                 return False
 
         return True
 
     def __detect_entity_collision(self, x, y):
+        # Detect if this entity will collide with another.
+        for eid in self.manager.entities:
+            # This is us.
+            if eid == self.eid:
+                continue
+            ent = self.manager.entities[eid]
+            # Collision detection.
+            if ent.layer == self.layer:  # Are we on the same layer?
+                # Bounding box collision.
+                xw = x + self.width - 1
+                yw = y + self.height - 1
+                ex = ent.x
+                ey = ent.y
+                exw = ex + ent.width - 1
+                eyw = ey + ent.height - 1
+                if (
+                    ex < x < exw and y < ey < yw or
+                    ex < x < exw and ey < y < eyw or
+                    x < ex < xw and ey < y < eyw or
+                    x < ex < xw and y < ey < yw or
+                    x == ex and y < ey < yw or
+                    x == ex and ey < y < eyw or
+                    ex < x < exw and y == ey or
+                    x < ex < xw and y == ey
+                ):
+                    return False
         return True
 
     def __do_walk(self, x, y):
