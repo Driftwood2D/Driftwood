@@ -141,6 +141,10 @@ class Driftwood:
         # Are we going to continue running?
         self.running = False
 
+        # Check for problems.
+        if self.config["tick"]["tps"] < 10:
+            self.log.msg("WARNING", "Driftwood", "Very low tps values may cause unexpected behavior")
+
     def _run(self):
         """Perform startup procedures and enter the mainloop.
         """

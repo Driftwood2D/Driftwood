@@ -130,6 +130,10 @@ class EntityManager:
             self.driftwood.log.msg("ERROR", "Entity", "insert", filename, "must start on a tile")
             return None
 
+        # In pixel mode, record which tile(s) the entity occupies at first.
+        if self.entities[eid].mode is "pixel":
+            self.entities[eid]._occupies = [self.entities[eid].tile, None, None, None]
+
         self.driftwood.area.changed = True
 
         self.driftwood.log.info("Entity", "inserted", "{0} on layer {1} at position {2}, {3}".format(filename,

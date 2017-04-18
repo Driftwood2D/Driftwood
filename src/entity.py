@@ -106,6 +106,7 @@ class Entity:
         self._last_walk = []
         self._cw_teleport = False
         self._clipped = [None, None]  # When set, a direction of travel in which we clipped the wall.
+        self._occupies = []  # Tiles a pixel mode entity is partially occupying.
 
         self.__cur_member = 0
         self._prev_xy = [0, 0]
@@ -238,6 +239,14 @@ class Entity:
             x // self._tilewidth,
             y // self._tileheight
         )
+
+    def _check_occupies(self):
+        self._occupies = [
+            self._tile_at(self.layer, self.x, self.y),
+            self._tile_at(self.layer, self.x + self.width - 1, self.y),
+            self._tile_at(self.layer, self.x, self.y + self.height - 1),
+            self._tile_at(self.layer, self.x + self.width + 1, self.y + self.height - 1)
+        ]
 
     def _do_exit(self):
         """Perform an exit to another area.
@@ -567,50 +576,21 @@ class TileModeEntity(Entity):
                 self.__arrive_at_tile()
                 self.__stand_still()
 
-    def __detect_entity_collision(self, x, y):
-        # Detect if this entity will collide with another.
-        for eid in self.manager.entities:
-            # This is us.
-            if eid == self.eid:
-                continue
-            ent = self.manager.entities[eid]
-            # Collision detection.
-            if ent.layer == self.layer:  # Are we on the same layer?
-                # It's moving. What tile is it moving to? Are we trying to move to the same tile?
-                if ent.walking and ("next" in self.collision) and \
-                                self.tile.offset(*self._last_walk) is ent.tile.offset(*ent.walking):
-                    self.manager.collision(self, self.manager.entities[eid])
-                    return False
-
-                # What tile is it moving from? Are we trying to occupy that tile?
-                if ent.walking and ("prev" in self.collision) and self.tile.offset(*self._last_walk) is ent.tile:
-                    self.manager.collision(self, self.manager.entities[eid])
-                    return False
-
-                # Is it standing still? Don't step on it.
-                if not ent.walking and ("here" in self.collision) and self.tile.offset(*self._last_walk) is ent.tile:
-                    self.manager.collision(self, self.manager.entities[eid])
-                    return False
-
-        return True
-
     def __can_walk(self, x, y):
-        # Check if we're allowed to walk this way.
+        # Change weird values to 0.
         if x not in [-1, 0, 1]:
             x = 0
-
         if y not in [-1, 0, 1]:
             y = 0
-
-        if not self.tile or self._next_tile:
-            return False  # panic!
 
         # Perform collision detection.
         dsttile = self.manager.driftwood.area.tilemap.layers[self.layer].tile(self.tile.pos[0] + x,
                                                                               self.tile.pos[1] + y)
 
-        # Don't walk on nowalk tiles or off the edge of the map unless there's a lazy exit.
-        if self.tile:
+        if not self.tile or self._next_tile:  # Bizarre situation, abort.
+            return False
+        elif self.tile:
+            # Don't walk on nowalk tiles or off the edge of the map unless there's a lazy exit.
             if dsttile:  # Does a tile exist where we're going?
                 if "tile" in self.collision:  # We are colliding with tiles.
                     if dsttile.nowalk or dsttile.nowalk == "":
@@ -677,6 +657,40 @@ class TileModeEntity(Entity):
         if "entity" in self.collision:
             if not self.__detect_entity_collision(x, y):
                 return False
+
+        return True
+
+    def __detect_entity_collision(self, x, y):
+        # Detect if this entity will collide with another.
+        for eid in self.manager.entities:
+            # This is us.
+            if eid == self.eid:
+                continue
+            ent = self.manager.entities[eid]
+            # Collision detection.
+            if ent.layer == self.layer:  # Are we on the same layer?
+                if ent.mode is "tile":  # Checking against another tile mode entity.
+                    # It's moving. What tile is it moving to? Are we trying to move to the same tile?
+                    if ent.walking and ("next" in self.collision) and \
+                                    self.tile.offset(*self._last_walk) is ent.tile.offset(*ent.walking):
+                        self.manager.collision(self, self.manager.entities[eid])
+                        return False
+
+                    # What tile is it moving from? Are we trying to occupy that tile?
+                    if ent.walking and ("prev" in self.collision) and self.tile.offset(*self._last_walk) is ent.tile:
+                        self.manager.collision(self, self.manager.entities[eid])
+                        return False
+
+                    # Is it standing still? Don't step on it.
+                    if not ent.walking and ("here" in self.collision) and \
+                                    self.tile.offset(*self._last_walk) is ent.tile:
+                        self.manager.collision(self, self.manager.entities[eid])
+                        return False
+
+                elif ent.mode is "pixel":  # Checking against a pixel mode entity.
+                    # Does a pixel mode entity occupy any part of this tile?
+                    if self.tile.offset(*self._last_walk) in ent._occupies:
+                        return False
 
         return True
 
@@ -824,11 +838,9 @@ class PixelModeEntity(Entity):
 
         Returns: True if succeeded, false if failed (due to collision).
         """
-        # Are we not moving horizontally?
+        # Change weird values to 0.
         if not x or x not in [-1, 0, 1]:
             x = 0
-
-        # Are we not moving vertically?
         if not y or y not in [-1, 0, 1]:
             y = 0
 
@@ -864,22 +876,6 @@ class PixelModeEntity(Entity):
         else:
             self.__arrive_at_tile()  # Arrive at a tile.
             return True
-
-        # Entity collision detection.
-        for eid in self.manager.entities:
-            # This is us.
-            if eid == self.eid:
-                continue
-
-            # Collision detection, proof by contradiction.
-            if not (
-                self.x + x > self.manager.entities[eid].x + self.manager.entities[eid].width
-                or self.x + self.width + x < self.manager.entities[eid].x
-                or self.y + y > self.manager.entities[eid].y + self.manager.entities[eid].height
-                or self.y + self.height + y < self.manager.entities[eid].y
-            ):
-                self.manager.collision(self, self.manager.entities[eid])
-                return False
 
         self.manager.driftwood.area.changed = True
 
@@ -975,19 +971,25 @@ class PixelModeEntity(Entity):
         self.x = int(self._partial_xy[0])
         self.y = int(self._partial_xy[1])
 
+        self._check_occupies()
+
         self.tile = self._tile_cross(self.layer, self.x, self.y)
 
         if self.tile != prev_tile:  # We must be on a new tile now.
             self.__arrive_at_tile()
 
     def __can_walk(self, x, y, absolute=False):
+        """Check if nothing is preventing us from walking in this direction."""
         if not absolute:
             self._next_tile = self.layer, self.x + x, self.y + y
         else:
             self._next_tile = self.layer, x, y
         dsttile = self._tile_cross(*self._next_tile)
 
-        if self.tile:
+        if not self.tile:  # Bizarre situation, abort.
+            return False
+        else:
+            # Don't walk on nowalk tiles or off the edge of the map unless there's a lazy exit.
             if dsttile:  # Does a tile exist where we're going?
                 if "tile" in self.collision:  # We are colliding with tiles.
                     if dsttile.nowalk or dsttile.nowalk == "":
@@ -1051,6 +1053,14 @@ class PixelModeEntity(Entity):
                     self._collide(dsttile)
                     return False
 
+        # Entity collision detection.
+        if "entity" in self.collision:
+            if not self.__detect_entity_collision(x, y):
+                return False
+
+        return True
+
+    def __detect_entity_collision(self, x, y):
         return True
 
     def __do_walk(self, x, y):
