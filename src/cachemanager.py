@@ -171,6 +171,7 @@ class CacheManager:
         for items in self.__cache:
             if self.__cache[items]["contents"] is inst:
                 del self.__cache[items]
+                self.driftwood.log.info("Cache", "reverse-purged", items)
                 break
 
     def _tick(self, seconds_past):
