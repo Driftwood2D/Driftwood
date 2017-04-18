@@ -84,6 +84,36 @@ class DatabaseManager:
     def __delitem__(self, item):
         self.remove(item)
 
+    def open(self, filename):
+        """Opens a new database and closes the current one.
+        
+        If opening the new database fails, the old one stays loaded.
+        
+        Args:
+            filename: The filename of the database to load, relative to the database root.
+        
+        Returns:
+            True if succeeded, False if failed.
+        """
+        filename = os.path.join(self.driftwood.config["database"]["root"], filename)
+        oldfn = self.filename  # Keep track of the old filename.
+        self.filename = filename  # Set the new filename.
+
+        if not self.__test_db_open():  # Test and possibly create the new file.
+            self.filename = oldfn  # We failed, revert.
+            self.driftwood.log.msg("ERROR", "Database", "open", "cannot open database", filename)
+            return False
+
+        newdb = self.__load()  # Load the new database into a temporary variable.
+
+        if newdb is None:  # Did it not load correctly?
+            self.filename = oldfn  # We failed, revert.
+            self.driftwood.log.msg("ERROR", "Database", "open", "cannot open database", filename)
+            return False
+
+        self.__database = newdb  # Replace the old database in memory with the new one.
+        return True  # Success
+
     def get(self, key):
         """Get an object by key (name).
 
@@ -143,6 +173,17 @@ class DatabaseManager:
         else:
             self.driftwood.log.msg("ERROR", "Database", "remove", "no such key", "\"{0}\"".format(key))
             return False
+
+    def flush(self):
+        """Force the database to write to disk now.
+        
+        Returns:
+            True
+        """
+        self.__changed = True
+        self._tick(0)
+        self.driftwood.log.info("Database", "flush", self.filename)
+        return True
 
     def __test_db_dir(self):
         """Test if we can create or open the database directory.

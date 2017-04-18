@@ -46,8 +46,9 @@ class JZdb:
 
     Attributes:
         filename: Filename of the database.
+        makenew: Whether to make a database if one does not exist.
     """
-    def __init__(self, filename):
+    def __init__(self, filename, makenew=False):
         """JZdb class constructor.
 
         Args:
@@ -58,6 +59,7 @@ class JZdb:
 
         self.filename = filename
         self.fail = False
+        self.makenew = makenew
 
         self.database = self.__load()
 
@@ -123,8 +125,12 @@ class JZdb:
         """Test if we can create or open the database file.
         """
         try:
-            with open(self.filename, "ab+") as test:
-                return True
+            if self.makenew:
+                with open(self.filename, "ab+") as test:
+                    return True
+            else:
+                with open(self.filename, "rb") as test:
+                    return True
         except:
             return False
 
@@ -182,7 +188,10 @@ if __name__ == "__main__":
         sys.exit(0)
 
     # Initialize JZdb
-    db = JZdb(args.filename)
+    if args.put:  # We don't create a new database unless using --put.
+        db = JZdb(args.filename, True)
+    else:
+        db = JZdb(args.filename)
     if not db or db.fail:
         if not args.quiet:
             print("FAILURE :: OPEN :: {0}".format(args.filename))
