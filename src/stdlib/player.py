@@ -36,7 +36,7 @@ def set_player(ent):
 
 
 def set_four_way_walk_keybinds():
-    """Setup the default walk keybinds.
+    """Setup the four-way (movement along major axes) walk keybinds.
     """
     if not Driftwood.entity.player:
         return False
@@ -112,7 +112,7 @@ def __default_keybind_face(keyevent):
 
 
 def set_eight_way_walk_keybinds():
-    """Setup the default walk keybinds.
+    """Setup the eight-way (axes + diagonals) walk keybinds.
     """
     player = Driftwood.entity.player
 
