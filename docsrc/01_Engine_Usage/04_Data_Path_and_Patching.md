@@ -38,4 +38,4 @@ ex.
 $ bin/driftwood --path first/,second/,third.zip,extra/fourth/
 ```
 
-The path can also be modified during runtime. This is covered in the [API Reference](../API_Reference).
+The path can also be modified during runtime. This is covered later in the [API Reference](../API_Reference).
