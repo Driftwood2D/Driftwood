@@ -496,6 +496,10 @@ class TileModeEntity(Entity):
             else:
                 self.facing = "none"
 
+            # Check for unusual condition where we did not properly act on a lazy exit.
+            if not can_walk:
+                # May be lazy exit, where we have no self.tile
+                self._do_take_exit()
             return can_walk
 
         else:
@@ -972,6 +976,11 @@ class PixelModeEntity(Entity):
             self.set_stance(self._end_stance)
         self._clipped = [None, None]  # Reset the clip check.
 
+    def _reset_walk(self):
+        """Stop walking. Here for compatibility.
+        """
+        self._walk_stop()
+
     def _process_walk(self, seconds_past):
         """Process walking each tick.
         """
@@ -1133,11 +1142,6 @@ class PixelModeEntity(Entity):
 
         # Start walking on this frame.
         self._process_walk(seconds_past=0)
-
-    def _reset_walk(self):
-        """Stop walking. Here for compatibility.
-        """
-        self._walk_stop()
 
     def __arrive_at_tile(self):
         """Arrive at a tile.
