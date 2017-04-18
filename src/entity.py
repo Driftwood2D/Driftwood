@@ -965,6 +965,9 @@ class PixelModeEntity(Entity):
 
         if not self.__can_walk(int(self._partial_xy[0]), int(self._partial_xy[1]), True):  # We've gone too far.
             self._clipped = [self.walking[0], self.walking[1]]  # Mark this direction as one where we clipped the wall.
+            if self.__can_walk(*self.walking):  # Get us pixel perfect.
+                self.x += self.walking[0]
+                self.y += self.walking[1]
             self._walk_stop()
             return
 
