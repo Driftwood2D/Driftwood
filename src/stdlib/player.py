@@ -35,23 +35,24 @@ def set_player(ent):
     return True
 
 
-def set_default_walk_keybinds():
-    """Setup the default walk keybinds.
+def set_four_way_walk_keybinds():
+    """Setup the four-way (movement along major axes) walk keybinds.
     """
     if not Driftwood.entity.player:
         return False
     
-    Driftwood.input.register("up", __default_keybind_move_up)
-    Driftwood.input.register("down", __default_keybind_move_down)
-    Driftwood.input.register("left", __default_keybind_move_left)
-    Driftwood.input.register("right", __default_keybind_move_right)
+    Driftwood.input.register("up", __four_way_keybind_move_up)
+    Driftwood.input.register("down", __four_way_keybind_move_down)
+    Driftwood.input.register("left", __four_way_keybind_move_left)
+    Driftwood.input.register("right", __four_way_keybind_move_right)
+
     Driftwood.input.register("interact", __default_keybind_interact)
     Driftwood.input.register("face", __default_keybind_face)
     
     return True
 
 
-def __default_keybind_move_up(keyevent):
+def __four_way_keybind_move_up(keyevent):
     player = Driftwood.entity.player
     if keyevent == Driftwood.input.ONDOWN:
         player._walk_stop()
@@ -62,7 +63,7 @@ def __default_keybind_move_up(keyevent):
         player._walk_stop()
 
 
-def __default_keybind_move_down(keyevent):
+def __four_way_keybind_move_down(keyevent):
     player = Driftwood.entity.player
     if keyevent == Driftwood.input.ONDOWN:
         player._walk_stop()
@@ -73,7 +74,7 @@ def __default_keybind_move_down(keyevent):
         player._walk_stop()
 
 
-def __default_keybind_move_left(keyevent):
+def __four_way_keybind_move_left(keyevent):
     player = Driftwood.entity.player
     if keyevent == Driftwood.input.ONDOWN:
         player._walk_stop()
@@ -84,7 +85,7 @@ def __default_keybind_move_left(keyevent):
         player._walk_stop()
 
 
-def __default_keybind_move_right(keyevent):
+def __four_way_keybind_move_right(keyevent):
     player = Driftwood.entity.player
     if keyevent == Driftwood.input.ONDOWN:
         player._walk_stop()
@@ -108,3 +109,77 @@ def __default_keybind_face(keyevent):
         player._face_key_active = True
     elif keyevent == Driftwood.input.ONUP:
         player._face_key_active = False
+
+
+def set_eight_way_walk_keybinds():
+    """Setup the eight-way (axes + diagonals) walk keybinds.
+    """
+    player = Driftwood.entity.player
+
+    if not player:
+        return False
+
+    player._move_keys_active = [0, 0, 0, 0]
+
+    Driftwood.input.register("up", __eight_way_keybind_move_up)
+    Driftwood.input.register("down", __eight_way_keybind_move_down)
+    Driftwood.input.register("left", __eight_way_keybind_move_left)
+    Driftwood.input.register("right", __eight_way_keybind_move_right)
+
+    Driftwood.input.register("interact", __default_keybind_interact)
+    Driftwood.input.register("face", __default_keybind_face)
+
+    return True
+
+def __eight_way_keybind_move_up(keyevent):
+    player = Driftwood.entity.player
+    if keyevent == Driftwood.input.ONDOWN:
+        player._move_keys_active[0] = 1
+    elif keyevent == Driftwood.input.ONUP:
+        player._move_keys_active[0] = 0
+    __eight_way_update()
+
+def __eight_way_keybind_move_down(keyevent):
+    player = Driftwood.entity.player
+    if keyevent == Driftwood.input.ONDOWN:
+        player._move_keys_active[1] = 1
+    elif keyevent == Driftwood.input.ONUP:
+        player._move_keys_active[1] = 0
+    __eight_way_update()
+
+def __eight_way_keybind_move_left(keyevent):
+    player = Driftwood.entity.player
+    if keyevent == Driftwood.input.ONDOWN:
+        player._move_keys_active[2] = 1
+    elif keyevent == Driftwood.input.ONUP:
+        player._move_keys_active[2] = 0
+    __eight_way_update()
+
+def __eight_way_keybind_move_right(keyevent):
+    player = Driftwood.entity.player
+    if keyevent == Driftwood.input.ONDOWN:
+        player._move_keys_active[3] = 1
+    elif keyevent == Driftwood.input.ONUP:
+        player._move_keys_active[3] = 0
+    __eight_way_update()
+
+__eight_way_stance = [
+    ["up_left", "up", "up_right"],
+    ["left", "none", "right"],
+    ["down_left", "down", "down_right"],
+]
+def __eight_way_update():
+    player = Driftwood.entity.player
+    up, down, left, right = player._move_keys_active
+
+    y = down - up
+    x = right - left
+
+    base = __eight_way_stance[y+1][x+1]
+    stance = "walk_" + base
+    end_stance = "face_" + base
+
+    if x == 0 and y == 0:
+        player._walk_stop()
+    else:
+        player.walk(x, y, dont_stop=True, facing=None, stance=stance, end_stance=end_stance)
