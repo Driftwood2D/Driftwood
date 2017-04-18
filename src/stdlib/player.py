@@ -163,16 +163,10 @@ def __eight_way_keybind_move_right(keyevent):
         player._move_keys_active[3] = 0
     __eight_way_update()
 
-__eight_way_stances = [
-    ["walk_up_left", "walk_up", "walk_up_right"],
-    ["walk_left", "none", "walk_right"],
-    ["walk_down_left", "walk_down", "walk_down_right"],
-]
-
-__eight_way_end_stances = [
-    ["face_up_left", "face_up", "face_up_right"],
-    ["face_left", "none", "face_right"],
-    ["face_down_left", "face_down", "face_down_right"],
+__eight_way_facing = [
+    ["up_left", "up", "up_right"],
+    ["left", "none", "right"],
+    ["down_left", "down", "down_right"],
 ]
 
 def __eight_way_update():
@@ -182,10 +176,11 @@ def __eight_way_update():
     y = down - up
     x = right - left
 
-    stance = __eight_way_end_stances[y+1][x+1]
-    end_stance = __eight_way_end_stances[y+1][x+1]
+    facing = __eight_way_facing[y+1][x+1]
+    stance = "walk_" + facing
+    end_stance = "face_" + facing
 
     if x == 0 and y == 0:
         player._walk_stop()
     else:
-        player.walk(x, y, dont_stop=True, stance=stance, end_stance=end_stance)
+        player.walk(x, y, dont_stop=True, facing=facing, stance=stance, end_stance=end_stance)
