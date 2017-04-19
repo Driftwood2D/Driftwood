@@ -110,7 +110,7 @@ class LogManager:
         for supp in check:
             if supp[0] == chain[0] and len(chain) >= len(supp):
                 for n, s in enumerate(supp):
-                    if s == chain[n] or not s:
-                        return True
-                    else:
+                    if s and s != chain[n]:
                         return False
+                return True
+        return False
