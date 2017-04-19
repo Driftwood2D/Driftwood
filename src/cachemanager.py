@@ -125,8 +125,12 @@ class CacheManager:
             # If this file has a _terminate() function, be sure to call it first.
             if getattr(self.__cache[filename]["contents"], "_terminate", None):
                 self.__cache[filename]["contents"]._terminate()
-            del self.__cache[filename]
-            self.driftwood.log.info("Cache", "purged", filename)
+            if getattr(self.__cache[filename]["contents"], "_terminate", None):
+                self.driftwood.log.info("Cache", "purged", filename)
+                del self.__cache[filename]
+            else:
+                self.driftwood.log.msg("WARNING", "Cache", "purge", filename,
+                                       "file removed itself from cache while terminating")
 
         return True
 
