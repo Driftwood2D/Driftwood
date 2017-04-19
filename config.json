@@ -4,7 +4,6 @@
     "name": "test.db"
   },
   "cache": {
-    "enabled": true,
     "ttl": 300
   },
   "input": {
