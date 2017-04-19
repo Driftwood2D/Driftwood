@@ -9,6 +9,8 @@ Driftwood 2D will look for packages in its path using the configured data root a
 
 The "root" setting in the "path" section of the configuration file determines the data root. Alternatively, the "--root" command line option may be used to define the data root.
 
+Driftwood 2D itself is always the first (lowest priority) item in the path, and is not relative to the data root. The path to the engine source or executable is set in the "self" setting in the "path" section of the configuration file, or with the "--self" command line option.
+
 ## Packages
 A package is simply a directory or zip file that contains game data. These are placed in the data root directory so that they can be added to the path. Files in packages later in the path will replace files of the same name earlier in the path, inclusive of the paths' directory structures.
 
