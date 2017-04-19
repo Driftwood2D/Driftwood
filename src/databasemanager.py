@@ -95,6 +95,8 @@ class DatabaseManager:
         Returns:
             True if succeeded, False if failed.
         """
+        self.flush()  # Write the current database to disk first.
+
         filename = os.path.join(self.driftwood.config["database"]["root"], filename)
         oldfn = self.filename  # Keep track of the old filename.
         self.filename = filename  # Set the new filename.
@@ -112,6 +114,7 @@ class DatabaseManager:
             return False
 
         self.__database = newdb  # Replace the old database in memory with the new one.
+        self.driftwood.log.info("Database", "open", self.filename)
         return True  # Success
 
     def get(self, key):
