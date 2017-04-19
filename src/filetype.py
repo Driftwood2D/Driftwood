@@ -64,14 +64,13 @@ class AudioFile:
     def _terminate(self):
         """Cleanup before deletion.
         """
-        if self.__is_music:
-            Mix_FreeMusic(self.audio)
-            self.audio = None
-        else:
-            Mix_FreeChunk(self.audio)
-            self.audio = None
-        if self.driftwood.cache.enabled:
-            self.driftwood.cache._reverse_purge(self)
+        if self.audio:
+            if self.__is_music:
+                Mix_FreeMusic(self.audio)
+                self.audio = None
+            else:
+                Mix_FreeChunk(self.audio)
+                self.audio = None
 
 
 class FontFile:
@@ -104,8 +103,6 @@ class FontFile:
         if self.font:
             TTF_CloseFont(self.font)
             self.font = None
-        if self.driftwood.cache.enabled:
-            self.driftwood.cache._reverse_purge(self)
 
 
 class ImageFile:
@@ -152,5 +149,3 @@ class ImageFile:
         if self.texture:
             SDL_DestroyTexture(self.texture)
             self.texture = None
-        if self.driftwood.cache.enabled:
-            self.driftwood.cache._reverse_purge(self)

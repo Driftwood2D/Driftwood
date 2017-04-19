@@ -26,6 +26,8 @@
 # IN THE SOFTWARE.
 # **********
 
+import gc
+
 
 class CacheManager:
     """The Cache Manager
@@ -157,7 +159,13 @@ class CacheManager:
         # Collect expired filenames to be purged.
         for filename in self.__cache:
             if self.__now - self.__cache[filename]["timestamp"] >= self.driftwood.config["cache"]["ttl"]:
-                expired.append(filename)
+                referrers = gc.get_referrers(self.__cache[filename]["contents"])
+                referrers.remove(self.__cache[filename])
+
+                self.driftwood.log.info("Cache", "clean", "referrers", filename, referrers)
+
+                if not referrers:
+                    expired.append(filename)
 
         # Clean expired files
         if expired:
