@@ -142,8 +142,6 @@ class FrameManager:
 
         # Prevent this ImageFile (probably from a script) from losing scope and taking our texture with it.
         elif isinstance(tex, filetype.ImageFile):
-            if self.__imagefile and tex is not self.__imagefile:
-                self.__imagefile._terminate()
             self.__imagefile = tex
             if self.__frontbuffer and self.__imagefile.texture is not self.__frontbuffer:
                 SDL_DestroyTexture(self.__frontbuffer)
