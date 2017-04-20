@@ -231,16 +231,11 @@ class ScriptManager:
                 if os.path.isdir(importpath):
                     mname = os.path.splitext(os.path.split(filename)[-1])[0]
 
-                    # Different import code recommended for different Python versions.
-                    if sys.version_info[1] < 5:
-                        self.__modules[filename] = \
-                            importlib.machinery.SourceFileLoader(mname, os.path.join(importpath,
-                                                                                     filename)).load_module()
-                    else:
-                        spec = importlib.util.spec_from_file_location(mname, os.path.join(importpath, filename))
-                        mod = importlib.util.module_from_spec(spec)
-                        spec.loader.exec_module(mod)
-                        self.__modules[filename] = mod
+                    # Build the module.
+                    spec = importlib.util.spec_from_file_location(mname, os.path.join(importpath, filename))
+                    mod = importlib.util.module_from_spec(spec)
+                    spec.loader.exec_module(mod)
+                    self.__modules[filename] = mod
 
                 # This is hopefully a zip archive.
                 else:

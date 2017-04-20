@@ -32,7 +32,7 @@ The engine loads a world package made of images, sounds, maps, descriptive files
 * SDL2_image
 * SDL2_mixer
 * SDL2_ttf
-* Python >= 3.3.3
+* Python >= 3.5.0
 * Python jsonschema (https://pypi.python.org/pypi/jsonschema)
 * Python PySDL2 (https://pypi.python.org/pypi/PySDL2/)
 

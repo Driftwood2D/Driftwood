@@ -11,7 +11,7 @@ Before we start, you should make sure you have the following software installed.
 * [SDL2_image](https://www.libsdl.org/projects/SDL_image/)
 * [SDL2_mixer](https://www.libsdl.org/projects/SDL_mixer/)
 * [SDL2_ttf](https://www.libsdl.org/projects/SDL_ttf/)
-* [Python >= 3.3.3](https://www.python.org/) (Any version 3.3.3 or greater will work.)
+* [Python >= 3.5.0](https://www.python.org/) (Any version 3.5.0 or greater will work.)
 * [Python jsonschema](https://pypi.python.org/pypi/jsonschema)
 * [Python PySDL2](https://pypi.python.org/pypi/PySDL2/)
 
