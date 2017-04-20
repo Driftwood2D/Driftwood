@@ -203,7 +203,6 @@ class AudioManager:
             if Mix_Playing(channel):
                 if not fade:  # Stop channel.
                     Mix_HaltChannel(channel)
-                    self.__sfx[channel][1]._terminate()
                     del self.__sfx[channel]
                 else:  # Fade out channel.
                     Mix_FadeOutChannel(channel, fade*1000)
@@ -231,7 +230,6 @@ class AudioManager:
                 else:
                     if not fade:  # Stop sfx.
                         Mix_HaltChannel(sfx)
-                        self.__sfx[sfx][1]._terminate()
                         del self.__sfx[sfx]
                     else:
                         Mix_FadeOutChannel(sfx, fade*1000)
@@ -349,7 +347,6 @@ class AudioManager:
         if Mix_PlayingMusic():
             if not fade:  # Stop the music.
                 Mix_HaltMusic()
-                self.__music._terminate()
                 self.__music = None
                 self.playing_music = False
             else:  # Fade out the music.
@@ -361,7 +358,6 @@ class AudioManager:
     def _cleanup(self, seconds_past):
         # Tick callback to clean up files we're done with.
         if self.__music and not Mix_PlayingMusic():
-            self.__music._terminate()
             self.__music = None
             self.playing_music = False
         try:
@@ -370,7 +366,6 @@ class AudioManager:
             else:
                 for sfx in self.__sfx:
                     if not Mix_Playing(sfx):
-                        self.__sfx[sfx][1]._terminate()
                         del self.__sfx[sfx]
         except RuntimeError:
             pass

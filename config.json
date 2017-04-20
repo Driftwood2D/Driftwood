@@ -4,7 +4,6 @@
     "name": "test.db"
   },
   "cache": {
-    "enabled": true,
     "ttl": 300
   },
   "input": {
@@ -28,7 +27,8 @@
     "verbose": true,
     "halt": true,
     "suppress": [
-      ["Tick"]
+      ["Tick"],
+      ["Cache", "clean", "referrers"]
     ],
     "suppress_halt": [
       ["WARNING"]

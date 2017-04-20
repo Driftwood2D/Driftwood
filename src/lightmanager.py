@@ -86,7 +86,7 @@ class LightManager:
         Returns: New light if succeeded, None if failed.
         """
         # Try to request the lightmap image from the resource manager.
-        lightmap = self.driftwood.resource.request_image(filename, False)
+        lightmap = self.driftwood.resource.request_image(filename)
         if not lightmap:
             self.driftwood.log.msg("ERROR", "Light", "insert", "could not load lightmap", lightmap)
             return None
@@ -255,7 +255,6 @@ class LightManager:
             True if succeeded, False if failed.
         """
         if lid in self.lights:
-            self.lights[lid]._terminate()
             del self.lights[lid]
             self.driftwood.area.changed = True
             return True
@@ -288,7 +287,6 @@ class LightManager:
 
         # Kill the lights in the list.
         for lid in to_kill:
-            self.lights[lid]._terminate()
             del self.lights[lid]
 
         self.driftwood.area.changed = True
@@ -304,16 +302,7 @@ class LightManager:
 
         Returns: True
         """
-        for light in self.lights:
-            self.lights[light]._terminate()
         self.lights = {}
         self.driftwood.area.changed = True
         self.driftwood.log.info("Light", "reset")
         return True
-
-    def _terminate(self):
-        """Cleanup before deletion.
-        """
-        for light in self.lights:
-            self.lights[light]._terminate()
-        self.lights = {}

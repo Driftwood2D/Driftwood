@@ -125,13 +125,6 @@ class ContainerWidget(Widget):
 
         return True
 
-    def _terminate(self):
-        """Cleanup before deletion.
-        """
-        if self.image:
-            self.image._terminate()
-            self.image = None
-
 
 class TextWidget(Widget):
     """This subclass represents a text widget.
@@ -233,5 +226,3 @@ class TextWidget(Widget):
         if self.texture:
             SDL_DestroyTexture(self.texture)
             self.texture = None
-        if self.font:
-            self.font._terminate()

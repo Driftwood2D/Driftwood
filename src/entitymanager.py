@@ -278,7 +278,5 @@ class EntityManager:
         """
         for entity in self.entities:
             self.entities[entity]._terminate()
-        self.entities = {}
-        for spritesheet in self.spritesheets:
-            self.spritesheets[spritesheet]._terminate()
-        self.spritesheets = {}
+        self.entities = None
+        self.spritesheets = None

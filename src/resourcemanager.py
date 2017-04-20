@@ -40,7 +40,6 @@ class ResourceManager:
 
     Attributes:
         driftwood: Base class instance.
-
     """
 
     def __init__(self, driftwood):
@@ -99,7 +98,7 @@ class ResourceManager:
         """
         if filename in self.driftwood.cache:
             return self.driftwood.cache[filename]
-        data = self._request(filename)
+        data = self._request(filename, binary=False)
         if data:
             if type(data) == bytes:
                 data = data.decode()
@@ -122,7 +121,7 @@ class ResourceManager:
         """
         if filename in self.driftwood.cache:
             return self.driftwood.cache[filename]
-        data = self._request(filename, True)
+        data = self._request(filename, binary=True)
         if data:
             obj = filetype.AudioFile(self.driftwood, data, music)
             self.driftwood.cache.upload(filename, obj)
@@ -144,7 +143,7 @@ class ResourceManager:
         cache_name = filename + ":" + str(ptsize)
         if cache_name in self.driftwood.cache:
             return self.driftwood.cache[cache_name]
-        data = self._request(filename, True)
+        data = self._request(filename, binary=True)
         if data:
             obj = filetype.FontFile(self.driftwood, data, ptsize)
             self.driftwood.cache.upload(cache_name, obj)
@@ -153,35 +152,32 @@ class ResourceManager:
             self.driftwood.cache.upload(cache_name, None)
             return None
 
-    def request_image(self, filename, cache=True):
+    def request_image(self, filename):
         """Retrieve an internal abstraction of an image file.
 
         Args:
             filename: The filename of the image file to load.
-            cache: Whether to cache the file.
 
         Returns:
             Image filetype abstraction if succeeded, None if failed.
         """
         if filename in self.driftwood.cache:
             return self.driftwood.cache[filename]
-        data = self._request(filename, True)
+        data = self._request(filename, binary=True)
         if data:
             obj = filetype.ImageFile(self.driftwood, data, self.driftwood.window.renderer)
-            if cache:
-                self.driftwood.cache.upload(filename, obj)
+            self.driftwood.cache.upload(filename, obj)
             return obj
         else:
             self.driftwood.cache.upload(filename, None)
             return None
 
-    def _request(self, filename, binary=False, cache=False):
+    def _request(self, filename, binary=False):
         """Retrieve the contents of a file.
 
         Args:
             filename: Filename of the file to read.
             binary: Whether the file is a binary file, rather than a plaintext file.
-            cache: Whether to upload the data to the cache inside this function.
 
         Returns:
             Contents of the requested file, if present. Otherwise None.
@@ -206,10 +202,6 @@ class ResourceManager:
                 else:  # This is hopefully a zip archive.
                     with zipfile.ZipFile(pathname, 'r') as zf:
                         contents = zf.read(filename)
-
-                # Upload the file to the cache.
-                if cache:
-                    self.driftwood.cache.upload(filename, contents)
 
                 return contents
 

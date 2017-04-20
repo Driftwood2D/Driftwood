@@ -174,3 +174,4 @@ class Tilemap:
         for t in range(len(self.tilesets)):
             self.tilesets[t]._terminate()
         self.tilesets = []
+
