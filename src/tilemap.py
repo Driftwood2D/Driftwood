@@ -46,12 +46,14 @@ class Tilemap:
         tilesets: The list of Tileset class instances for each tileset.
     """
 
-    def __init__(self, area):
+    def __init__(self, driftwood, area):
         """Tilemap class initializer.
 
         Args:
+            driftwood: Base class instance.
             area: Link back to the parent AreaManager instance.
         """
+        self.driftwood = driftwood
         self.area = area
 
         # Attributes which will be updated with information about the map.
@@ -108,6 +110,8 @@ class Tilemap:
         else:
             self.properties = {}
 
+        self.__expand_properties()
+
         # Call the on_enter event if set.
         if "on_load" in self.properties:
             self.area.driftwood.script.call(*self.properties["on_load"].split(','))
@@ -131,7 +135,7 @@ class Tilemap:
 
             # This is a tile layer.
             if l["type"] == "tilelayer":
-                self.layers.append(layer.Layer(self, l, zpos))
+                self.layers.append(layer.Layer(self.driftwood, self, l, zpos))
 
             # This is an object layer.
             elif l["type"] == "objectgroup":
@@ -145,4 +149,29 @@ class Tilemap:
         # Merge the global object layer into all tile layers.
         if gobjlayer:
             for l in self.layers:
-                l._process_objects(gobjlayer)
+               l._process_objects(gobjlayer)
+
+    def __expand_properties(self):
+        new_props = {}
+        old_props = []
+
+        # Expand user-defined trigger shortcuts
+        for property_name in self.properties:
+            if self.driftwood.script.is_custom_trigger(property_name):
+                property = self.properties[property_name]
+                event, trigger = self.driftwood.script.lookup(property_name, property)
+                new_props[event] = trigger
+                old_props.append(property_name)
+
+        for event in new_props:
+            self.properties[event] = new_props[event]
+        for prop in old_props:
+            del self.properties[prop]
+
+    def _terminate(self):
+        """Cleanup before deletion.
+        """
+        for t in range(len(self.tilesets)):
+            self.tilesets[t]._terminate()
+        self.tilesets = []
+

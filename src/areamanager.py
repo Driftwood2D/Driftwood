@@ -55,7 +55,7 @@ class AreaManager:
 
         self.filename = ""
 
-        self.tilemap = tilemap.Tilemap(self)
+        self.tilemap = tilemap.Tilemap(driftwood, self)
 
         self.changed = False
 

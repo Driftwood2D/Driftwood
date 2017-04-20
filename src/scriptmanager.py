@@ -53,6 +53,9 @@ class ScriptManager:
         """
         self.driftwood = driftwood
 
+        # Double dictionary of custom triggers mapped by name.
+        self.custom_triggers = {}  # {name: {"event", "func", "nargs", "minargs"}}
+
         # Dictionary of module instances mapped by filename.
         self.__modules = {}
 
@@ -104,6 +107,103 @@ class ScriptManager:
 
         if filename in self.__modules:
             return self.__modules[filename]
+        else:
+            return None
+
+    def define(self, name, event, filename, func, nargs, minargs=None):
+        """Define a custom trigger that can be called directly from a map property.
+
+        Ex. A trigger named "mytrigger" of type "on_tile" with 4 arguments can be called when the player steps onto
+        that tile by setting the property "mytrigger": "a,b,c,d" on the tile in the map editor. All comma-separated
+        arguments are passed as strings.
+
+        Args:
+            name: Name by which the trigger is referenced.
+            event: Type of event on which to activate the trigger. [on_tile, on_layer, on_enter, on_exit, on_focus,
+                                                                    on_blur]
+            filename: The filename where the function is located.
+            func: The name of the function to be called when the trigger is activated.
+            nargs: Number of arguments to take.
+            minargs: If set, a minimum number of arguments less than nargs which may be taken.
+
+        Returns:
+            True if succeeded, False if failed.
+        """
+        # Perform checks on input.
+        if name in self.custom_triggers:
+            self.driftwood.log.msg("ERROR", "Script", "define", "already defined", name)
+            return False
+
+        if event not in ["on_tile", "on_layer", "on_enter", "on_exit", "on_focus", "on_blur"]:
+            self.driftwood.log.msg("ERROR", "Script", "define", "invalid event", event)
+            return False
+
+        if not isinstance(filename, str):
+            self.driftwood.log.msg("ERROR", "Script", "define", "not a string", filename)
+            return False
+
+        if not isinstance(func, str):
+            self.driftwood.log.msg("ERROR", "Script", "define", "not a string", func)
+            return False
+
+        if nargs < 0:
+            self.driftwood.log.msg("ERROR", "Script", "define", "nargs is less than 0")
+            return False
+
+        if minargs and minargs > nargs:
+            self.driftwood.log.msg("ERROR", "Script", "define", "minargs is more than nargs")
+            return False
+
+        # Insert the trigger.
+        self.custom_triggers[name] = {
+            "event": event,
+            "filename": filename,
+            "func": func,
+            "nargs": nargs,
+            "minargs": minargs
+        }
+        self.driftwood.log.info("Script", "defined", "{0} trigger \"{1}\"".format(event, name))
+        return True
+
+    def undefine(self, name):
+        """Undefine a custom trigger that was defined earlier.
+        
+        Args:
+            name: Name of the trigger to undefine.
+        
+        Returns:
+            True if succeeded, False if failed.
+        """
+        # Does this exist?
+        if name in self.custom_triggers:
+            del self.custom_triggers[name]
+            self.driftwood.log.info("Script", "undefined trigger", name)
+            return True
+
+        # Failure.
+        self.driftwood.log.msg("ERROR", "Script", "undefine", "no such trigger", name)
+        return False
+
+    def is_custom_trigger(self, property_name):
+        return property_name in self.custom_triggers
+
+    def lookup(self, property_name, property):
+        if property_name in self.custom_triggers:
+            custom_trigger = self.custom_triggers[property_name]
+            event = custom_trigger["event"]
+            filename = custom_trigger["filename"]
+            func = custom_trigger["func"]
+            minargs = custom_trigger["minargs"]
+            nargs = custom_trigger["nargs"]
+            args = property.split(',')
+            if minargs is not None:
+                if args < minargs:
+                    self.driftwood.log.msg("ERROR", "Tilemap", "read", property_name, "too few args")
+                    return None
+            elif nargs != len(args):
+                self.driftwood.log.msg("ERROR", "Tilemap", "read", property_name, "incorrect number of args")
+                return None
+            return event, filename + "," + func + "," + ",".join(args)
         else:
             return None
 

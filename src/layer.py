@@ -40,14 +40,16 @@ class Layer:
         tiles: The list of Tile class instances for each tile.
     """
 
-    def __init__(self, tilemap, layerdata, zpos):
+    def __init__(self, driftwood, tilemap, layerdata, zpos):
         """Layer class initializer.
 
         Args:
+            driftwood: Base class instance.
             tilemap: Link back to the parent Tilemap instance.
             layerdata: JSON layer segment.
             zpos: Layer's z-position.
         """
+        self.driftwood = driftwood
         self.tilemap = tilemap
 
         self.zpos = zpos
@@ -80,7 +82,7 @@ class Layer:
             return self.tiles[int((y * self.tilemap.width) + x)]
 
         else:
-            self.tilemap.manager.driftwood.log.msg("WARNING", "Layer", "tile", self.zpos,
+            self.driftwood.log.msg("WARNING", "Layer", "tile", self.zpos,
                                                    "tried to lookup nonexistent tile at", "{0}x{1}".format(x, y))
             return None
 
@@ -97,8 +99,8 @@ class Layer:
             return int((y * self.tilemap.width) + x)
 
         else:
-            self.tilemap.manager.driftwood.log.msg("WARNING", "Layer", "tile_index", self.zpos,
-                                                   "tried to lookup nonexistent tile at", "{0}x{1}".format(x, y))
+            self.driftwood.log.msg("WARNING", "Layer", "tile_index", self.zpos,
+                                   "tried to lookup nonexistent tile at", "{0}x{1}".format(x, y))
             return None
 
     def _process_objects(self, objdata):
@@ -117,8 +119,8 @@ class Layer:
             # Is the object properly sized?
             if (obj["x"] % self.tilemap.tilewidth or obj["y"] % self.tilemap.tileheight or
                     obj["width"] % self.tilemap.tilewidth or obj["height"] % self.tilemap.tileheight):
-                self.tilemap.area.driftwood.log.msg("ERROR", "Layer", "_process_objects",
-                                                    "invalid object size or placement")
+                self.driftwood.log.msg("ERROR", "Layer", "_process_objects",
+                                       "invalid object size or placement")
                 continue
 
             # Map object properties onto their tiles.
@@ -126,6 +128,8 @@ class Layer:
                 for y in range(0, obj["height"] // self.tilemap.tileheight):
                     tx = obj["x"] // self.tilemap.tilewidth + x
                     ty = obj["y"] // self.tilemap.tileheight + y
+
+                    self.__expand_properties(obj["properties"])
 
                     # Insert the object properties.
                     if "properties" in obj:
@@ -142,15 +146,15 @@ class Layer:
                             # First check for and handle wide exits.
                             exit_coords = self.tile(tx, ty).properties[exittype].split(',')
                             if len(exit_coords) != 4:
-                                self.tilemap.area.driftwood.log.msg("ERROR", "Layer", "_process_objects",
-                                                                    "invalid exit trigger",
-                                                                    self.tile(tx, ty).properties[exittype])
+                                self.driftwood.log.msg("ERROR", "Layer", "_process_objects",
+                                                       "invalid exit trigger",
+                                                       self.tile(tx, ty).properties[exittype])
                                 continue
 
                             if (exit_coords[2] and exit_coords[2][-1] == '+') and \
                                     (exit_coords[3] and exit_coords[3][-1] == '+'):  # Invalid wide exit.
-                                self.tilemap.area.driftwood.log.msg("ERROR", "Layer", "_process_objects",
-                                                                    "cannot have multi-directional wide exits")
+                                self.driftwood.log.msg("ERROR", "Layer", "_process_objects",
+                                                       "cannot have multi-directional wide exits")
 
                             # Check for and handle horizontal wide exit.
                             elif exit_coords[2] and exit_coords[2][-1] == '+':
@@ -181,14 +185,31 @@ class Layer:
                     if "entity" in self.tile(tx, ty).properties:
                         args = self.tile(tx, ty).properties["entity"].split(",")
                         if len(args) != 4:
-                            self.tilemap.area.driftwood.log.msg("ERROR", "Layer", "_process_objects",
-                                                                "invalid entity trigger",
-                                                                self.tile(tx, ty).properties["entity"])
+                            self.driftwood.log.msg("ERROR", "Layer", "_process_objects",
+                                                   "invalid entity trigger",
+                                                   self.tile(tx, ty).properties["entity"])
                             return
                         args[1] = int(args[1])
                         args[2] = int(args[2])
                         args[3] = int(args[3])
-                        self.tilemap.area.driftwood.entity.insert(*args)
+                        self.driftwood.entity.insert(*args)
+
+    def __expand_properties(self, properties):
+        new_props = {}
+        old_props = []
+
+        # Expand user-defined trigger shortcuts
+        for property_name in properties:
+            if self.driftwood.script.is_custom_trigger(property_name):
+                property = properties[property_name]
+                event, trigger = self.driftwood.script.lookup(property_name, property)
+                new_props[event] = trigger
+                old_props.append(property_name)
+
+        for event in new_props:
+            properties[event] = new_props[event]
+        for prop in old_props:
+            del properties[prop]
 
     def __prepare_layer(self):
         # Set layer properties if present.
