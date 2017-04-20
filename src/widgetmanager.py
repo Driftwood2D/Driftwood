@@ -217,12 +217,13 @@ class WidgetManager:
 
     def kill(self, wid):
         """Kill a widget.
-        
+
         Args:
             wid: Widget id of widget to kill.
         """
         if wid in self.widgets:
-            self.widgets[wid]._terminate()
+            if getattr(self.widgets[wid], "_terminate", None):
+                self.widgets[wid]._terminate()
             del self.widgets[wid]
             self.driftwood.area.changed = True
             return True
@@ -231,7 +232,7 @@ class WidgetManager:
 
     def widget(self, wid):
         """Get a widget by widget id.
-        
+
         Args:
             wid: The widget id of the widget to return.
         """
@@ -243,7 +244,8 @@ class WidgetManager:
         """Destroy all widgets.
         """
         for widget in self.widgets:
-            self.widgets[widget]._terminate()
+            if getattr(self.widgets[widget], "_terminate", None):
+                self.widgets[widget]._terminate()
         self.widgets = {}
         self.selected = None
         return True
@@ -280,6 +282,7 @@ class WidgetManager:
         """Cleanup before deletion.
         """
         for widget in self.widgets:
-            self.widgets[widget]._terminate()
+            if getattr(self.widgets[widget], "_terminate", None):
+                self.widgets[widget]._terminate()
         self.widgets = {}
         TTF_Quit()

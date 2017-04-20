@@ -64,14 +64,15 @@ class AudioFile:
     def _terminate(self):
         """Cleanup before deletion.
         """
-        if self.__is_music:
-            Mix_FreeMusic(self.audio)
-            self.audio = None
+        if self.audio:
+            if self.__is_music:
+                Mix_FreeMusic(self.audio)
+                self.audio = None
+            else:
+                Mix_FreeChunk(self.audio)
+                self.audio = None
         else:
-            Mix_FreeChunk(self.audio)
-            self.audio = None
-        if self.driftwood.cache.enabled:
-            self.driftwood.cache._reverse_purge(self)
+            self.driftwood.log.msg("WARNING", "AudioFile", "terminate", "subsequent termination of same object")
 
 
 class FontFile:
@@ -101,11 +102,13 @@ class FontFile:
                 self.driftwood.log.msg("ERROR", "FontFile", "__load", "SDL_TTF", TTF_GetError())
 
     def _terminate(self):
+        """Cleanup before deletion.
+        """
         if self.font:
             TTF_CloseFont(self.font)
             self.font = None
-        if self.driftwood.cache.enabled:
-            self.driftwood.cache._reverse_purge(self)
+        else:
+            self.driftwood.log.msg("WARNING", "FontFile", "terminate", "subsequent termination of same object")
 
 
 class ImageFile:
@@ -146,11 +149,13 @@ class ImageFile:
                 self.driftwood.log.msg("ERROR", "ImageFile", "__load", "SDL_Image", IMG_GetError())
 
     def _terminate(self):
+        """Cleanup before deletion.
+        """
+        if not self.surface and not self.texture:
+            self.driftwood.log.msg("WARNING", "ImageFile", "terminate", "subsequent termination of same object")
         if self.surface:
             SDL_FreeSurface(self.surface)
             self.surface = None
         if self.texture:
             SDL_DestroyTexture(self.texture)
             self.texture = None
-        if self.driftwood.cache.enabled:
-            self.driftwood.cache._reverse_purge(self)

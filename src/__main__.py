@@ -207,7 +207,6 @@ class Driftwood:
         """
         self.audio._terminate()
         self.widget._terminate()
-        self.light._terminate()
         self.entity._terminate()
         self.database._terminate()
         self.frame._terminate()

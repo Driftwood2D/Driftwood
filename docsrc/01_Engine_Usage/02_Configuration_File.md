@@ -15,7 +15,6 @@ Here is the configuration file that comes with this version of the engine:
     "name": "test.db"
   },
   "cache": {
-    "enabled": true,
     "ttl": 300
   },
   "input": {
@@ -81,15 +80,11 @@ The value of "name" is a string. It contains the filename of the database that w
 
 ## cache
 
-The "cache" section contains settings related to resource caching. When a resource is requested by the engine, it will be kept in memory in case it is needed again for a specified amount of time if the cache is enabled.
-
-### enabled
-
-The value of "enabled" is a boolean (true or false.) If this is set to false, resources will not be cached; instead they will disappear from memory after each use and have to be reloaded from the disk. You should probably leave this set to "true" unless you are running on a computer with very little RAM.
+The "cache" section contains settings related to resource caching. When a resource is requested by the engine, it will be kept in memory in case it is needed again for a specified amount of time.
 
 ### ttl
 
-The value of "ttl" is a number of seconds. This is the "time to live" for the cache -- the amount of time that a resource is held in memory after the most recent time it was used before dropping out of the cache. Decreasing this number will lower RAM usage, but may also increase load times if your computer has very slow storage. 300 (or 5 minutes) is generally a sensible value. Setting this to 0 disables the cache.
+The value of "ttl" is a number of seconds. This is the "time to live" for the cache -- the amount of time that a resource is held in memory after the most recent time it was used before dropping out of the cache. Decreasing this number will lower RAM usage, but may also increase load times if your computer has very slow storage. 300 (or 5 minutes) is generally a sensible value.
 
 ## input
 

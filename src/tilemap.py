@@ -146,10 +146,3 @@ class Tilemap:
         if gobjlayer:
             for l in self.layers:
                 l._process_objects(gobjlayer)
-
-    def _terminate(self):
-        """Cleanup before deletion.
-        """
-        for t in range(len(self.tilesets)):
-            self.tilesets[t]._terminate()
-        self.tilesets = []

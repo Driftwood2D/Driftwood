@@ -19,16 +19,12 @@
     "cache": {
       "type": "object",
       "properties": {
-        "enabled": {
-          "type": "boolean"
-        },
         "ttl": {
           "type": "number",
-          "minimum": 0
+          "minimum": 1
         }
       },
       "required": [
-        "enabled",
         "ttl"
       ]
     },

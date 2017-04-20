@@ -26,12 +26,14 @@
 # IN THE SOFTWARE.
 # **********
 
+import gc
+
 
 class CacheManager:
     """The Cache Manager
 
-    This class handles the cache of recently used files. If enabled, files are stored in memory for a specified period
-    of time and up to the specified maximum cache size.
+    This class handles the cache of recently used files. Files are stored in memory for a specified period of time and
+    up to the specified maximum cache size.
 
     Attributes:
         driftwood: Base class instance.
@@ -49,15 +51,8 @@ class CacheManager:
         self.__ticks = 0
         self.__now = 0.0
 
-        # Check if the cache should be enabled.
-        if self.driftwood.config["cache"]["enabled"] and self.driftwood.config["cache"]["ttl"] > 0.0:
-            self.enabled = True
-
-            # Register the tick callback.
-            self.driftwood.tick.register(self._tick, delay=float(self.driftwood.config["cache"]["ttl"]))
-
-        else:
-            self.enabled = False
+        # Register the tick callback.
+        self.driftwood.tick.register(self._tick, delay=float(self.driftwood.config["cache"]["ttl"]))
 
     def __contains__(self, item):
         return item in self.__cache
@@ -72,7 +67,7 @@ class CacheManager:
         return self.__cache.keys()
 
     def upload(self, filename, contents):
-        """Upload a file into the cache if the cache is enabled.
+        """Upload a file into the cache.
 
         Args:
             filename: Filename of the file to upload.
@@ -81,9 +76,6 @@ class CacheManager:
         Returns:
             True if succeeded, false if failed.
         """
-        if not self.enabled:
-            return False
-
         # If a previous version existed, clean it up properly.
         if filename in self.__cache:
             self.purge(filename)
@@ -125,8 +117,13 @@ class CacheManager:
             # If this file has a _terminate() function, be sure to call it first.
             if getattr(self.__cache[filename]["contents"], "_terminate", None):
                 self.__cache[filename]["contents"]._terminate()
-            del self.__cache[filename]
-            self.driftwood.log.info("Cache", "purged", filename)
+
+            if filename in self.__cache:
+                self.driftwood.log.info("Cache", "purged", filename)
+                del self.__cache[filename]
+            else:
+                self.driftwood.log.msg("WARNING", "Cache", "purge", filename,
+                                       "file removed itself from cache while terminating")
 
         return True
 
@@ -153,7 +150,13 @@ class CacheManager:
         # Collect expired filenames to be purged.
         for filename in self.__cache:
             if self.__now - self.__cache[filename]["timestamp"] >= self.driftwood.config["cache"]["ttl"]:
-                expired.append(filename)
+                referrers = gc.get_referrers(self.__cache[filename]["contents"])
+                referrers.remove(self.__cache[filename])
+
+                self.driftwood.log.info("Cache", "clean", "referrers", filename, referrers)
+
+                if not referrers:
+                    expired.append(filename)
 
         # Clean expired files
         if expired:

@@ -381,9 +381,6 @@ class Entity:
         """
         if self.manager.driftwood.tick.registered(self.__next_member):
             self.manager.driftwood.tick.unregister(self.__next_member)
-        if self.spritesheet:
-            self.spritesheet._terminate()
-            self.spritesheet = None
 
 
 class TileModeEntity(Entity):
