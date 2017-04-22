@@ -27,7 +27,7 @@
 # **********
 
 from ctypes import byref
-from ctypes import c_int
+from ctypes import c_int, c_ubyte
 from sdl2 import *
 
 import filetype
@@ -263,17 +263,41 @@ class FrameManager:
             self.driftwood.log.msg("ERROR", "Frame", "copy", "SDL", SDL_GetError())
             ret = False
 
+        prev_alpha = None
+        prev_blendmode = None
+        prev_colormod = None
+
         if alpha:
+            prev_alpha = c_ubyte()
+            r = SDL_GetTextureAlphaMod(tex, byref(prev_alpha))
+            if type(r) is int and r < 0:
+                self.driftwood.log.msg("ERROR", "Frame", "copy", "SDL", SDL_GetError())
+                ret = False
+
             r = SDL_SetTextureAlphaMod(tex, alpha)
             if type(r) is int and r < 0:
                 self.driftwood.log.msg("ERROR", "Frame", "copy", "SDL", SDL_GetError())
                 ret = False
+
         if blendmode:
+            prev_blendmode = c_int()
+            r = SDL_GetTextureBlendMode(tex, byref(prev_blendmode))
+            if type(r) is int and r < 0:
+                self.driftwood.log.msg("ERROR", "Frame", "copy", "SDL", SDL_GetError())
+                ret = False
+
             r = SDL_SetTextureBlendMode(tex, blendmode)
             if type(r) is int and r < 0:
                 self.driftwood.log.msg("ERROR", "Frame", "copy", "SDL", SDL_GetError())
                 ret = False
+
         if colormod:
+            prev_colormod = (c_ubyte(), c_ubyte(), c_ubyte())
+            r = SDL_GetTextureColorMod(tex, byref(prev_colormod[0]), byref(prev_colormod[1]), byref(prev_colormod[2]))
+            if type(r) is int and r < 0:
+                self.driftwood.log.msg("ERROR", "Frame", "copy", "SDL", SDL_GetError())
+                ret = False
+
             r = SDL_SetTextureColorMod(tex, *colormod)
             if type(r) is int and r < 0:
                 self.driftwood.log.msg("ERROR", "Frame", "copy", "SDL", SDL_GetError())
@@ -286,17 +310,19 @@ class FrameManager:
             ret = False
 
         if alpha:
-            r = SDL_SetTextureAlphaMod(tex, 255)
+            r = SDL_SetTextureAlphaMod(tex, prev_alpha.value)
             if type(r) is int and r < 0:
                 self.driftwood.log.msg("ERROR", "Frame", "copy", "SDL", SDL_GetError())
                 ret = False
+
         if blendmode:
-            r = SDL_SetTextureBlendMode(tex, SDL_BLENDMODE_BLEND)
+            r = SDL_SetTextureBlendMode(tex, prev_blendmode.value)
             if type(r) is int and r < 0:
                 self.driftwood.log.msg("ERROR", "Frame", "copy", "SDL", SDL_GetError())
                 ret = False
+
         if colormod:
-            r = SDL_SetTextureColorMod(tex, 255, 255, 255)
+            r = SDL_SetTextureColorMod(tex, prev_colormod[0].value, prev_colormod[1].value, prev_colormod[2].value)
             if type(r) is int and r < 0:
                 self.driftwood.log.msg("ERROR", "Frame", "copy", "SDL", SDL_GetError())
                 ret = False
