@@ -164,7 +164,8 @@ class AreaManager:
                 dstrect[0] += self.offset[0]
                 dstrect[1] += self.offset[1]
 
-                r = self.driftwood.frame.copy(light.lightmap.texture, srcrect, dstrect)
+                r = self.driftwood.frame.copy(light.lightmap.texture, srcrect, dstrect, alpha=light.alpha,
+                                              blendmode=light.blendmode, colormod=light.colormod)
                 if r < 0:
                     self.driftwood.log.msg("ERROR", "Area", "__build_frame", "SDL", SDL_GetError())
 
