@@ -232,7 +232,7 @@ class FrameManager:
 
         return True
 
-    def copy(self, tex, srcrect, dstrect, direct=False):
+    def copy(self, tex, srcrect, dstrect, direct=False, alpha=None, blendmode=None, colormod=None):
         """Copy a texture onto the back buffer.
         
         Copy the source rectangle from the texture tex to the destination rectangle in our back buffer.
@@ -249,6 +249,12 @@ class FrameManager:
         # We have to finish before we return.
         ret = True
 
+        # Set up the rectangles.
+        src = SDL_Rect()
+        dst = SDL_Rect()
+        src.x, src.y, src.w, src.h = srcrect
+        dst.x, dst.y, dst.w, dst.h = dstrect
+
         if direct:
             r = SDL_SetRenderTarget(self.driftwood.window.renderer, self.__frontbuffer)
         else:  # Tell SDL to render to our back buffer instead of the window's frame.
@@ -257,17 +263,43 @@ class FrameManager:
             self.driftwood.log.msg("ERROR", "Frame", "copy", "SDL", SDL_GetError())
             ret = False
 
-        # Set up the rectangles.
-        src = SDL_Rect()
-        dst = SDL_Rect()
-        src.x, src.y, src.w, src.h = srcrect
-        dst.x, dst.y, dst.w, dst.h = dstrect
+        if alpha:
+            r = SDL_SetTextureAlphaMod(tex, alpha)
+            if type(r) is int and r < 0:
+                self.driftwood.log.msg("ERROR", "Frame", "copy", "SDL", SDL_GetError())
+                ret = False
+        if blendmode:
+            r = SDL_SetTextureBlendMode(tex, blendmode)
+            if type(r) is int and r < 0:
+                self.driftwood.log.msg("ERROR", "Frame", "copy", "SDL", SDL_GetError())
+                ret = False
+        if colormod:
+            r = SDL_SetTextureColorMod(tex, *colormod)
+            if type(r) is int and r < 0:
+                self.driftwood.log.msg("ERROR", "Frame", "copy", "SDL", SDL_GetError())
+                ret = False
 
         # Copy the texture onto the back buffer.
         r = SDL_RenderCopy(self.driftwood.window.renderer, tex, src, dst)
         if type(r) is int and r < 0:
             self.driftwood.log.msg("ERROR", "Frame", "copy", "SDL", SDL_GetError())
             ret = False
+
+        if alpha:
+            r = SDL_SetTextureAlphaMod(tex, 255)
+            if type(r) is int and r < 0:
+                self.driftwood.log.msg("ERROR", "Frame", "copy", "SDL", SDL_GetError())
+                ret = False
+        if blendmode:
+            r = SDL_SetTextureBlendMode(tex, SDL_BLENDMODE_BLEND)
+            if type(r) is int and r < 0:
+                self.driftwood.log.msg("ERROR", "Frame", "copy", "SDL", SDL_GetError())
+                ret = False
+        if colormod:
+            r = SDL_SetTextureColorMod(tex, 255, 255, 255)
+            if type(r) is int and r < 0:
+                self.driftwood.log.msg("ERROR", "Frame", "copy", "SDL", SDL_GetError())
+                ret = False
 
         # Tell SDL to switch rendering back to the window's frame.
         r = SDL_SetRenderTarget(self.driftwood.window.renderer, None)
