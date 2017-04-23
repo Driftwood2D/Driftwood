@@ -50,6 +50,7 @@ class ResourceManager:
         """
         self.driftwood = driftwood
         self.__injections = {}
+        self.__duplicate_file_counts = {}
 
     def inject(self, filename, data):
         """Inject data to be retrieved later by a fake filename.
@@ -171,6 +172,33 @@ class ResourceManager:
         else:
             self.driftwood.cache.upload(filename, None)
             return None
+
+    def request_duplicate_image(self, filename):
+        """Retrieve an internal abstraction of an image file. This object will not be shared with any other consumers
+        so is free to be modified.
+
+        Args:
+            filename: The filename of the image file to load.
+
+        Returns:
+            Image filetype abstraction if succeeded, None if failed.
+        """
+        obj = None
+
+        if filename in self.__duplicate_file_counts:
+            self.__duplicate_file_counts[filename] += 1
+        else:
+            self.__duplicate_file_counts[filename] = 1
+
+        cache_name = "{} duplicate {}".format(filename, self.__duplicate_file_counts[filename])
+
+        data = self._request(filename, binary=True)
+        if data:
+            obj = filetype.ImageFile(self.driftwood, data, self.driftwood.window.renderer)
+            if obj:
+                self.driftwood.cache.upload(cache_name, obj, keep_for_ttl=False)
+
+        return obj
 
     def _request(self, filename, binary=False):
         """Retrieve the contents of a file.
