@@ -32,8 +32,7 @@ class Light:
     Attributes:
         Same as __init__ args.
     """
-
-    def __init__(self, manager, lid, lightmap, layer, x, y, w, h, color, blend=False, entity=None, layermod=0):
+    def __init__(self, manager, lid, lightmap, layer, x, y, w, h, alpha, blendmode, colormod, entity, layermod):
         """Light class initializer.
 
         Args:
@@ -46,8 +45,9 @@ class Light:
             y: y-coordinate in pixels.
             w: Width of the light.
             h: Height of the light.
-            color: Hexadeximal color and alpha value of the light. "RRGGBBAA"
-            blend: Whether to blend light instead of adding it. Useful for dark lights.
+            alpha: Alpha value of the light.
+            blendmode: Whether to blend light instead of adding it. Useful for dark lights.
+            colormod: RGB-triple of color value of the light.
             entity: If set, eid of entity to track the light to. Disabled if None.
             layermod: Integer to add to the layer the light is drawn on when tracking an entity.
         """
@@ -60,8 +60,9 @@ class Light:
         self.y = y
         self.w = w
         self.h = h
-        self.color = color
-        self.blend = blend
+        self.alpha = alpha
+        self.blendmode = blendmode
+        self.colormod = colormod
         self.entity = entity
 
         if entity is not None:

@@ -108,27 +108,24 @@ class LightManager:
         self.__last_lid += 1
         lid = self.__last_lid
 
-        # Assign the light to its light id in the dictionary.
-        self.lights[lid] = light.Light(self, lid, lightmap, layer, x, y, w, h, color, blend, entity, layermod)
+        # Give the light transparency.
+        alpha = int(color[6:8], 16)
 
-        # Are we blending the light? Try it.
+        # Are we blending the light?
+        blendmode = SDL_BLENDMODE_ADD
         if blend:
-            r = SDL_SetTextureBlendMode(self.lights[lid].lightmap.texture, SDL_BLENDMODE_BLEND)
-        else:
-            r = SDL_SetTextureBlendMode(self.lights[lid].lightmap.texture, SDL_BLENDMODE_ADD)
-        if r < 0:
-            self.driftwood.log.msg("ERROR", "Light", "insert", "SDL", SDL_GetError())
+            blendmode = SDL_BLENDMODE_BLEND
 
         # Give the light color.
-        r = SDL_SetTextureColorMod(self.lights[lid].lightmap.texture, int(color[0:2], 16), int(color[2:4], 16),
-                                   int(color[4:6], 16))
-        if r < 0:
-            self.driftwood.log.msg("ERROR", "Light", "insert", "SDL", SDL_GetError())
+        colormod = (
+            int(color[0:2], 16),
+            int(color[2:4], 16),
+            int(color[4:6], 16)
+        )
 
-        # Give the light transparency.
-        r = SDL_SetTextureAlphaMod(self.lights[lid].lightmap.texture, int(color[6:8], 16))
-        if r < 0:
-            self.driftwood.log.msg("ERROR", "Light", "insert", "SDL", SDL_GetError())
+        # Assign the light to its light id in the dictionary.
+        self.lights[lid] = light.Light(self, lid, lightmap, layer, x, y, w, h, alpha, blendmode, colormod, entity,
+                                       layermod)
 
         # We are done.
         self.driftwood.log.info("Light", "inserted", "{0} on layer {1} at position {2}, {3}".format(filename, layer,
