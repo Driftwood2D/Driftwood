@@ -73,7 +73,7 @@ def color(lid, c):
     returns:
         True
     """
-    modcolor = (
+    colormod = (
         int(c[0:2], 16),
         int(c[2:4], 16),
         int(c[4:6], 16)
