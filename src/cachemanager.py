@@ -66,12 +66,13 @@ class CacheManager:
     def __iter__(self):
         return self.__cache.keys()
 
-    def upload(self, filename, contents):
+    def upload(self, filename, contents, keep_for_ttl=True):
         """Upload a file into the cache.
 
         Args:
             filename: Filename of the file to upload.
             contents: Contents of the file to upload.
+            keep_for_ttl: Whether to keep the file around for the whole TTL.
 
         Returns:
             True if succeeded, false if failed.
@@ -83,6 +84,7 @@ class CacheManager:
         self.__cache[filename] = {}
         self.__cache[filename]["timestamp"] = self.__now
         self.__cache[filename]["contents"] = contents
+        self.__cache[filename]["keep_for_ttl"] = keep_for_ttl
 
         self.driftwood.log.info("Cache", "uploaded", filename)
 
@@ -145,13 +147,19 @@ class CacheManager:
         Returns:
             True
         """
+        ttl = self.driftwood.config["cache"]["ttl"]
+
         expired = []
 
         # Collect expired filenames to be purged.
         for filename in self.__cache:
-            if self.__now - self.__cache[filename]["timestamp"] >= self.driftwood.config["cache"]["ttl"]:
-                referrers = gc.get_referrers(self.__cache[filename]["contents"])
-                referrers.remove(self.__cache[filename])
+            entry = self.__cache[filename]
+
+            being_kept_alive = entry["keep_for_ttl"] and self.__now < entry["timestamp"] + ttl
+
+            if not being_kept_alive:
+                referrers = gc.get_referrers(entry["contents"])
+                referrers.remove(entry)
 
                 self.driftwood.log.info("Cache", "clean", "referrers", filename, referrers)
 

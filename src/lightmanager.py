@@ -86,7 +86,7 @@ class LightManager:
         Returns: New light if succeeded, None if failed.
         """
         # Try to request the lightmap image from the resource manager.
-        lightmap = self.driftwood.resource.request_image(filename)
+        lightmap = self.driftwood.resource.request_duplicate_image(filename)
         if not lightmap:
             self.driftwood.log.msg("ERROR", "Light", "insert", "could not load lightmap", lightmap)
             return None
