@@ -9,6 +9,8 @@ TICK TYPE  DOMAIN    OPERATION  DATA
 [27] INFO: Resource: requested: blue6.json
 </pre>
 
+[TOC]
+
 ## Kinds of Messages
 
 There are several kinds of messages the engine will output, with different meanings and effects.
