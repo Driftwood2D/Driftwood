@@ -4,10 +4,10 @@ Log messages start with a tick count, indicating which tick of the engine the me
 
 An example log message, notated:
 
-```
+<pre>
 TICK TYPE  DOMAIN    OPERATION  DATA
 [27] INFO: Resource: requested: blue6.json
-```
+</pre>
 
 ## Kinds of Messages
 
@@ -18,30 +18,30 @@ Warnings and Errors are output when something doesn't go as expected. A warning 
 
 Ex.
 
-```
+<pre>
 TICK TYPE    DOMAIN FUNCTION    PROBLEM                                          DATA
 [0] WARNING: Audio: volume_sfx: cannot adjust sfx volume on nonexistent channel: 9
-```
+</pre>
 
 ### Fatal Errors
 Fatal errors cause the engine to exit immediately without shutting down, and cannot be disabled. They are also not always handled by the logging subsystem, sometimes being output by regular print statement instead; this is because some fatal errors can occur before the logging subsystem is initialized.
 
 Ex.
 
-```
+<pre>
 TICK TYPE  DOMAIN  PROBLEM
 [0] FATAL: Config: could not read config file
-```
+</pre>
 
 ### Info Messages
 Info messages provide information about internal engine processes, and do not generally indicate a problem. They are only output if the engine is running in verbose mode. There is no consequence to an info message being output.
 
 Ex.
 
-```
+<pre>
 TICK TYPE DOMAIN OPERATION DATA
 [0] INFO: Cache: uploaded: blue1.json
-```
+</pre>
 
 ### Script Messages
 
@@ -61,7 +61,7 @@ It may be desirable to prevent certain messages from appearing in the log. Suppr
 
 Example:
 
-```
+<pre>
 (position)       0     1      2         3
 Log Chain:   [0] INFO: Cache: uploaded: A_Travellers_Tale.oga
 
@@ -76,6 +76,6 @@ As does this one.
 (position)       0       1
 Suppression:   ["INFO", "Resource"]
 This one does not match, as "Resource" != "Cache" at the same position.
-```
+</pre>
 
-There are also halt suppressions, defined in the log.suppress_halt config option. These are structured exactly the same as regular suppressions, but instead of preventing the matching message from being output, they prevent the message from shutting down the engine in halting mode. As an example, the simple suppression rule ```["WARNING"]``` will helpfully prevent all warnings from halting the engine, and is enabled by default.
+There are also halt suppressions, defined in the log.suppress_halt config option. These are structured exactly the same as regular suppressions, but instead of preventing the matching message from being output, they prevent the message from shutting down the engine in halting mode. As an example, the simple suppression rule `["WARNING"]` will helpfully prevent all warnings from halting the engine, and is enabled by default.

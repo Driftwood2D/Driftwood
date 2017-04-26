@@ -6,7 +6,7 @@ Sometimes you may want to start the Driftwood 2D engine with some particular opt
 
 Running the engine with the "--help" option shows us what options are available:
 
-```
+<pre>
 [myself@Linux Driftwood]$ bin/driftwood --help
 usage: driftwood [-h] [--path <name,...>] [--root <root>] [--self <self>]
                  [--db <database>] [--size <WxH>] [--tps <hertz>]
@@ -39,7 +39,7 @@ optional arguments:
   --verbose            run in verbose logging mode
   --halt               halt execution on errors or warnings
   --version            print the version string
-```
+</pre>
 
 All options are... optional. Let's go over each of these command line options and how to use them.
 

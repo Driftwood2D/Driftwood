@@ -36,8 +36,8 @@ ex.
 If set from the command line using the "--path" option, the path is a list of strings separated by commas and no spaces, with no square brackets.
 
 ex.
-```
+<pre>
 $ bin/driftwood --path first/,second/,third.zip,extra/fourth/
-```
+</pre>
 
 The path can also be modified during runtime. This is covered later in the [API Reference](../API_Reference).
