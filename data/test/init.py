@@ -18,7 +18,6 @@ def init():
         Driftwood.tick.register(rumble, delay=10.0)
     else:
         Driftwood.script.call("stdlib/viewport.py", "rumble", 12, 3, None)
-    Driftwood.vars["end_rumble"] = "true"
 
 
 def rumble():
