@@ -96,6 +96,9 @@
         "halt": {
           "type": "boolean"
         },
+        "file": {
+          "type": "string"
+        },
         "suppress": {
           "type": "array",
           "items": {
@@ -118,6 +121,7 @@
       "required": [
         "verbose",
         "halt",
+        "file",
         "suppress",
         "suppress_halt"
       ]

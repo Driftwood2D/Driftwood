@@ -28,6 +28,7 @@
   "log": {
     "verbose": true,
     "halt": true,
+    "file": "driftwood.log",
     "suppress": [
       ["Tick"],
       ["Cache", "clean", "referrers"]

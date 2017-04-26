@@ -216,6 +216,7 @@ class _Driftwood:
         """Cleanup before shutdown. Here we tell all the relevant parts of the engine to free their resources
         before being deleted. We do this because Python's __del__ method is nearly useless as a destructor.
         """
+        self.log._terminate()
         self.audio._terminate()
         self.widget._terminate()
         self.entity._terminate()
