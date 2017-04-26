@@ -1,9 +1,12 @@
 def setup():
     a = Driftwood.light.insert("lightmap_vertical1.png", 2, 2, 80, 50, 160, "000000FF", blend=True)
     b = Driftwood.light.insert("lightmap_vertical1.png", 2, 158, 80, 50, 160, "000000FF", blend=True)
-    if "got_blue_pearl" in Driftwood.database:
-        Driftwood.script.call("stdlib/viewport.py", "end_rumble")
-        Driftwood.script.call("stdlib/viewport.py", "rumble", 10, 3, None)
+
+    # Prepare earthquake.
+    if "got_blue_pearl" not in Driftwood.database:
+        Driftwood.script.call("rumble.py", "regular_rumble", 15, 3, 5, 10)
+    else:
+        Driftwood.script.call("rumble.py", "constant_rumble", 10, 3)
 
     h = Driftwood.widget.container(x=-1, y=-1, width=80, height=80)
     Driftwood.widget.text("Test Text", "pf_arma_five.ttf", 16, parent=h,
