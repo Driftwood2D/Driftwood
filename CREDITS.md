@@ -128,3 +128,7 @@ are attributed in the distributions of the below mentioned primary dependencies.
 * License: <http://p.yusukekamiyamane.com/fonts/>
 * Title: Arma Five Fonts
 * URI: <http://p.yusukekamiyamane.com/fonts/>
+
+
+## Special Thanks
+* Daux.io documentation generator <http://daux.io/>
