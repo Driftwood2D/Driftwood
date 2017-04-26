@@ -13,8 +13,10 @@
       "left": "SDLK_LEFT",
       "right": "SDLK_RIGHT",
       "interact": "SDLK_SPACE",
-      "face": "SDLK_LSHIFT"
-    }
+      "face": "SDLK_LSHIFT",
+      "console": "SDLK_BACKQUOTE"
+    },
+    "debug": true
   },
   "audio": {
     "support": ["ogg"],

@@ -26,6 +26,7 @@
 # IN THE SOFTWARE.
 # **********
 
+import pdb
 import signal
 import sys
 import time
@@ -78,7 +79,7 @@ from widgetmanager import WidgetManager
 from scriptmanager import ScriptManager
 
 
-class Driftwood:
+class _Driftwood:
     """The top-level base class
 
     This class contains the top level manager class instances and the mainloop. The instance of this class is
@@ -145,6 +146,12 @@ class Driftwood:
         if self.config["tick"]["tps"] < 10:
             self.log.msg("WARNING", "Driftwood", "Very low tps values may cause unexpected behavior")
 
+    def _console(self, evtype):
+        """Drop to a pdb console.
+        """
+        if evtype is self.input.ONDOWN:
+            pdb.set_trace()
+
     def _run(self):
         """Perform startup procedures and enter the mainloop.
         """
@@ -160,6 +167,10 @@ class Driftwood:
 
             # Escape key pauses the engine.
             self.input.register(self.keycode.SDLK_ESCAPE, self.__handle_pause)
+
+            # Register the debug console key if debug mode is enabled.
+            if self.config["input"]["debug"]:
+                self.input.register("console", self._console)
 
             # This is the mainloop.
             while self.running:
@@ -183,7 +194,7 @@ class Driftwood:
 
                 # Process tick callbacks.
                 if self.running:
-                    self.tick.tick()
+                    self.tick._tick()
                     time.sleep(0.01)  # Cap mainloop speed.
 
             print("Shutting down...")
@@ -215,7 +226,7 @@ class Driftwood:
 
 if __name__ == "__main__":
     # Set up the entry point.
-    entry = Driftwood()
+    entry = _Driftwood()
 
     # Make sure scripts have access to the base class.
     import builtins

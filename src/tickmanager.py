@@ -137,7 +137,19 @@ class TickManager:
 
         return False
 
-    def tick(self):
+    def toggle_pause(self):
+        """Toggle a pause in most registered ticks.
+
+        During this time, only ticks with during_pause set to true will get called.  All gameplay ticks *should* have
+        this set to false, while some UI ticks will have this set to true.
+
+        Returns:
+            True
+        """
+        self.paused = not self.paused
+        return True
+
+    def _tick(self):
         """Call all registered tick callbacks not currently delayed, and regulate tps.
 
         Returns:
@@ -159,24 +171,12 @@ class TickManager:
         # Regulate ticks per second. Course-grained sleep by OS.
         delay = self._get_delay()
         if delay - WAKE_UP_LATENCY > 0.0:
-            # SDL_Delay delays for AT LEAST as long as we request. So, don't ask to sleep exactly the right amount of
-            # time. Ask for less.
+            # SDL_Delay delays for AT LEAST as long as we request. So, don't ask to sleep exactly the right
+            # amount of time. Ask for less.
             SDL_Delay(int((delay - WAKE_UP_LATENCY) * 1000.0))
         # elif delay < 0.0:
         #    self.driftwood.log.info("Tick", "tick", "tick running behind by {} seconds".format(-delay))
 
-        return True
-
-    def toggle_pause(self):
-        """Toggle a pause in most registered ticks.
-
-        During this time, only ticks with during_pause set to true will get called.  All gameplay ticks *should* have
-        this set to false, while some UI ticks will have this set to true.
-
-        Returns:
-            True
-        """
-        self.paused = not self.paused
         return True
 
     def _get_time(self):
@@ -218,7 +218,7 @@ class TickManager:
 
             if execute:
                 callback["most_recent"] = current_second
-                if len(signature(callback["function"]).parameters.keys()) == 0:
+                if len(signature(callback["function"]).parameters.keys()) == 0:  # Check if not taking arguments.
                     callback["function"]()
                 elif callback["message"]:
                     callback["function"](seconds_past, callback["message"])

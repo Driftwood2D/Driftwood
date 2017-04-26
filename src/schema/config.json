@@ -36,10 +36,14 @@
           "additionalProperties": {
             "type": "string"
           }
+        },
+        "debug": {
+          "type": "boolean"
         }
       },
       "required": [
-        "keybinds"
+        "keybinds",
+        "debug"
       ]
     },
     "audio": {

@@ -133,7 +133,6 @@ class WidgetManager:
         else:
             image = None
 
-
         new_widget = widget.ContainerWidget(self, self.__last_wid, parent, image, x, y, width, height)
         self.widgets[self.__last_wid] = new_widget
 
