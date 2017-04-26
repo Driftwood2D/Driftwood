@@ -6,8 +6,6 @@ def open_door():
 
 
 def focus():
-    if Driftwood.tick.registered(Driftwood.vars["init_rumble_tick_callback"]):
-        Driftwood.tick.unregister(Driftwood.vars["init_rumble_tick_callback"])
     a = Driftwood.light.insert("lightmap_circle1.png", 2, 7, 115, 32, 32, "FFCC4466")
     b = Driftwood.light.insert("lightmap_circle1.png", 2, 153, 115, 32, 32, "FFCC4466")
     c = Driftwood.light.insert("lightmap_circle1.png", 2, 40, 7, 32, 32, "FFCC4466")
