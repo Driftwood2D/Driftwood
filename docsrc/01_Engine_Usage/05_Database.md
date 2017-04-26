@@ -1,6 +1,6 @@
 In many games it is necessary to save the contents of variables or other data to disk when shutting down, and then load those values back into memory when starting up again. The file where this information is saved is usually referred to as a save file.
 
-In Driftwood 2D, we present for saving data a simple database format consisting of zlib-compressed JSON data, which can save the contents of most common Python objects. We can also open a different database while running. This is covered in the [API Reference](API_Reference).
+In Driftwood 2D, we present for saving data a simple database format consisting of zlib-compressed JSON data, which can save the contents of most common Python objects. We can also open a different database while running, allowing for things like multiple save files. This is covered in the [API Reference](API_Reference).
 
 [TOC]
 

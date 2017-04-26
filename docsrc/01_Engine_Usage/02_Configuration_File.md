@@ -23,8 +23,10 @@ Here is the configuration file that comes with this version of the engine:
       "down": "SDLK_DOWN",
       "left": "SDLK_LEFT",
       "right": "SDLK_RIGHT",
-      "interact": "SDLK_SPACE"
-    }
+      "interact": "SDLK_SPACE",
+      "console": "SDLK_BACKQUOTE"
+    },
+    "debug": true
   },
   "audio": {
     "support": ["ogg"],
@@ -36,6 +38,7 @@ Here is the configuration file that comes with this version of the engine:
   "log": {
     "verbose": true,
     "halt": true,
+    "file": "driftwood.log",
     "suppress": [
       ["Tick"]
     ],
@@ -64,7 +67,7 @@ Here is the configuration file that comes with this version of the engine:
 }
 ```
 
-You can see that there are several sections (called dictionaries). Let's take a look over each section and the settings it contains.
+You can see that there are several sections. Let's take a look over each section and the settings it contains.
 
 ## database
 
@@ -88,13 +91,22 @@ The value of "ttl" is a number of seconds. This is the "time to live" for the ca
 
 ## input
 
-The "input" section defines keybindings, and contains a subsection called "keybindings". Inside this subsection are the names of several input actions, and each of them contains a string value which references an [SDL Keycode](https://wiki.libsdl.org/SDL_Keycode).
+The "input" section contains input handling settings. Keybindings and debug mode are set in this section.
+
+### keybindings
+
+This subsection contains the names of several input actions, and each of them contains a string value which references an [SDL Keycode](https://wiki.libsdl.org/SDL_Keycode).
 
 * "up": Move up.
 * "down": Move down.
 * "left": Move left.
 * "right": Move right.
 * "interact": Interact with an object.
+* "console": Drop to debug console if enabled.
+
+### debug
+
+The value of debug is a boolean. If true, pressing tilde (or your configured key) will drop to a debug console which can be used to enter event scripting code while the engine is running. Otherwise the feature is disabled.
 
 ## audio
 
@@ -131,6 +143,9 @@ The value of "verbose" is a boolean (true or false.) If this is set to false, th
 ### halt
 
 The value of "halt" is a boolean (true or false.) If this is set to false, the engine will not stop when encountering warnings or errors. Otherwise it will.
+
+### file
+The value of "file" is a string. It contains the relative (to the working directory) path to a file to which log messages should be written, in addition to being written to the console.
 
 ### suppress
 

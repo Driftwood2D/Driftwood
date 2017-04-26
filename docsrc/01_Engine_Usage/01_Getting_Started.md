@@ -21,7 +21,7 @@ Before we start, you should make sure you have the following software installed.
 Once you unpack your release, the top level Driftwood directory should contain the following files and subdirectories:
 
 * data/
-* docs/
+* docsrc/
 * src/
 * tools/
 * CREDITS.md
@@ -37,7 +37,7 @@ Let's take a brief look at each of these items.
 
 By default, this is where Driftwood 2D looks for game data, in the form of world packages and patches. You will learn more about this in the [Data Path and Patching](Data_Path_and_Patching) section later in this chapter.
 
-### docs/
+### docsrc/
 
 This directory contains the source code for this documentation, which can be compiled using [Daux.io](https://daux.io/). This is covered in the later chapter [Tools and Documentation](../Tools_and_Documentation).
 

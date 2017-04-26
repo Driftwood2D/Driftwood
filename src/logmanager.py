@@ -87,7 +87,8 @@ class LogManager:
         """
         if not self.__check_suppress(chain):
             if self.driftwood.config["log"]["verbose"]:
-                self.__print(list(chain))
+
+                self.__print(["INFO"] + list(chain))
                 return True
 
         return False
