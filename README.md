@@ -22,6 +22,7 @@ Current features include:
 * Rudimentary database for saving data between plays
 * Simple widgets with TTF font support
 * Fully scriptable in Python 3
+* Developer console accessible during runtime
 
 ...and more on the way!
 
