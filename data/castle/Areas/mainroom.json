@@ -42,8 +42,16 @@
                  "height":16,
                  "id":20,
                  "name":"Player Start",
+                 "properties":
+                    {
+                     "player_start":""
+                    },
+                 "propertytypes":
+                    {
+                     "player_start":"string"
+                    },
                  "rotation":0,
-                 "type":"player-start",
+                 "type":"",
                  "visible":true,
                  "width":16,
                  "x":304,
@@ -140,13 +148,12 @@
         {
          "columns":12,
          "firstgid":1,
-         "image":"Tiles\/Castle Tileset.png",
+         "image":"..\/Tiles\/Castle Tileset.png",
          "imageheight":64,
          "imagewidth":192,
          "margin":0,
          "name":"Castle Tileset",
          "spacing":0,
-         "terrains":[],
          "tilecount":48,
          "tileheight":16,
          "tilewidth":16
