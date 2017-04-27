@@ -6,6 +6,7 @@ def setup(ent):
                                                                         str(ent.x),
                                                                         str(ent.y),
                                                                         str(ent.layer)))
+    ent.set_stance("init")
 
 
 def insert_from_tiled():
