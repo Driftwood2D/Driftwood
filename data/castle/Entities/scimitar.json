@@ -1,0 +1,81 @@
+{
+  "init": {
+    "mode": "pixel",
+    "collision": ["all"],
+    "travel": true,
+    "speed": 64,
+    "image": "Tiles/Scimitar.png",
+    "width": 16,
+    "height": 16,
+    "members": [1,3,1,5],
+    "afps": 4,
+    "properties": {},
+    "on_insert": "Entities/scimitar.py,setup",
+    "on_kill": "",
+    "resting_stance": "init"
+  },
+  "walk_up": {
+    "members": [1,3,1,5],
+    "afps": 8
+  },
+  "walk_up_left": {
+    "members": [1,3,1,5],
+    "afps": 8
+  },
+  "walk_up_right": {
+    "members": [1,3,1,5],
+    "afps": 8
+  },
+  "walk_right": {
+    "members": [2,4,2,6],
+    "afps": 8
+  },
+  "walk_down": {
+    "members": [2,4,2,6],
+    "afps": 8
+  },
+  "walk_down_left": {
+    "members": [2,4,2,6],
+    "afps": 8
+  },
+  "walk_down_right": {
+    "members": [2,4,2,6],
+    "afps": 8
+  },
+  "walk_left": {
+    "members": [1,3,1,5],
+    "afps": 8
+  },
+  "face_up": {
+    "members": [1,3,1,5],
+    "afps": 4
+  },
+  "face_up_left": {
+    "members": [1,3,1,5],
+    "afps": 4
+  },
+  "face_up_right": {
+    "members": [1,3,1,5],
+    "afps": 4
+  },
+  "face_right": {
+    "members": [2,4,2,6],
+    "afps": 4
+  },
+  "face_down": {
+    "members": [2,4,2,6],
+    "afps": 4
+  },
+  "face_down_left": {
+    "members": [2,4,2,6],
+    "afps": 4
+  },
+  "face_down_right": {
+    "members": [2,4,2,6],
+    "afps": 4
+  },
+  "face_left": {
+    "members": [1,3,1,5],
+    "afps": 4
+  }
+}

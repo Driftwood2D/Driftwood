@@ -1,4 +1,6 @@
 player = Driftwood.script.module("Entities/player.py")
+scimitar = Driftwood.script.module("Entities/scimitar.py")
+
 
 def init():
     """Called on engine start.
@@ -13,3 +15,4 @@ def init():
     Driftwood.area.focus("Areas/mainroom.json")
 
     player.insert_from_tiled()
+    scimitar.insert_from_tiled()
