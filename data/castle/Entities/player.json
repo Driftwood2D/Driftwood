@@ -1,0 +1,81 @@
+{
+  "init": {
+    "mode": "pixel",
+    "collision": ["all"],
+    "travel": true,
+    "speed": 64,
+    "image": "Tiles/Castle Tileset.png",
+    "width": 16,
+    "height": 16,
+    "members": [8],
+    "afps": 0,
+    "properties": {},
+    "on_insert": "Entities/player.py,setup",
+    "on_kill": "",
+    "resting_stance": "init"
+  },
+  "walk_up": {
+    "members": [8],
+    "afps": 0
+  },
+  "walk_up_left": {
+    "members": [8],
+    "afps": 0
+  },
+  "walk_up_right": {
+    "members": [8],
+    "afps": 0
+  },
+  "walk_right": {
+    "members": [8],
+    "afps": 0
+  },
+  "walk_down": {
+    "members": [8],
+    "afps": 0
+  },
+  "walk_down_left": {
+    "members": [8],
+    "afps": 0
+  },
+  "walk_down_right": {
+    "members": [8],
+    "afps": 0
+  },
+  "walk_left": {
+    "members": [8],
+    "afps": 0
+  },
+  "face_up": {
+    "members": [8],
+    "afps": 0
+  },
+  "face_up_left": {
+    "members": [8],
+    "afps": 0
+  },
+  "face_up_right": {
+    "members": [8],
+    "afps": 0
+  },
+  "face_right": {
+    "members": [8],
+    "afps": 0
+  },
+  "face_down": {
+    "members": [8],
+    "afps": 0
+  },
+  "face_down_left": {
+    "members": [8],
+    "afps": 0
+  },
+  "face_down_right": {
+    "members": [8],
+    "afps": 0
+  },
+  "face_left": {
+    "members": [8],
+    "afps": 0
+  }
+}

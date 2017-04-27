@@ -1,0 +1,13 @@
+def setup(ent):
+    print("New entity \"player\" with EID {0} at {1},{2},{3} ".format(str(ent.eid),
+                                                                      str(ent.x),
+                                                                      str(ent.y),
+                                                                      str(ent.layer)))
+
+    # Make this entity the player and set default walk keybinds.
+    Driftwood.script.call("stdlib/player.py", "set_player", ent)
+    Driftwood.script.call("stdlib/player.py", "set_eight_way_walk_keybinds")
+
+
+def insert():
+    Driftwood.entity.insert("Entities/player.json", layer=2, x=16*17, y=16*17)
