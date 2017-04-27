@@ -190,12 +190,15 @@ class ScriptManager:
     def lookup(self, property_name, property):
         if property_name in self.custom_triggers:
             custom_trigger = self.custom_triggers[property_name]
+
             event = custom_trigger["event"]
             filename = custom_trigger["filename"]
             func = custom_trigger["func"]
             minargs = custom_trigger["minargs"]
             nargs = custom_trigger["nargs"]
+
             args = property.split(',')
+
             if minargs is not None:
                 if args < minargs:
                     self.driftwood.log.msg("ERROR", "Tilemap", "read", property_name, "too few args")
