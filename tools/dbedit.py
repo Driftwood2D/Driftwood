@@ -32,7 +32,7 @@ import sys
 import zlib
 
 
-VERSION = "JSON//zlib Database Editor for Driftwood v0.0.1"
+VERSION = "JSON//zlib Database Editor for Driftwood v0.1.0"
 COPYRIGHT = "Copyright 2017 Michael D. Reiley"
 
 

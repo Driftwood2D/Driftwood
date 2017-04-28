@@ -49,7 +49,7 @@ if __name__ == "__main__":
         import sdl2.ext as sdl2ext
     except ImportError:
         print("Driftwood 2D\nStarting up...")
-        print("[0] FATAL: PySDL2 required, module \"sdl2\" not found")
+        print("[0] FATAL: PySDL2 required, module \"sdl2\" not found or sdl missing")
         sys.exit(1)  # Fail.
 
     # Try to import jsonschema.
@@ -237,7 +237,7 @@ if __name__ == "__main__":
     def sigint_handler(signum, frame):
         entry.running = False
 
-    # Set up interrupt handlers
+    # Set up interrupt handlers.
     signal.signal(signal.SIGINT, sigint_handler)
     signal.signal(signal.SIGTERM, sigint_handler)
 

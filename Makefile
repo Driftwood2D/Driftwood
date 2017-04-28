@@ -5,10 +5,10 @@ all: bin/driftwood
 run: bin/driftwood
 	bin/driftwood
 
-bin:
-	mkdir -p bin
+bin: bin/driftwood
 
 bin/driftwood: bin $(shell test -f bin/driftwood && find src/ -newer bin/driftwood)
+	mkdir -p bin
 	echo '#!/usr/bin/env python3' > bin/driftwood
 	cd src && python3 -m compileall -b .
 	cd src && rm -f driftwood.pyz
