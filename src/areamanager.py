@@ -54,14 +54,12 @@ class AreaManager:
         self.driftwood = driftwood
 
         self.filename = ""
-
         self.tilemap = tilemap.Tilemap(driftwood, self)
-
         self.changed = False
-
         self.offset = [0, 0]
-
         self.refocused = False
+
+        self._register_tick()
 
     def register(self):
         """Register our tick callback."""

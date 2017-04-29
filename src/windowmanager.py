@@ -62,6 +62,8 @@ class WindowManager:
 
         self.__prepare()
 
+        self._register_tick()
+
     def title(self, title):
         """Set the window title.
 

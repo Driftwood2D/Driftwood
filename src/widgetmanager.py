@@ -73,10 +73,10 @@ class WidgetManager:
         return self.widgets.items()
 
     def select(self, wid):
-        """Select the specified widget.
-        
+        """Select the specified widget. Previously selected widget is released.
+
         An example is selecting a button in a menu or selecting a text input box, out of the other widgets on screen.
-        
+
         Args:
              wid: Widget ID of the widget to select.
 

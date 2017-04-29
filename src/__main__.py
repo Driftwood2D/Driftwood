@@ -129,8 +129,6 @@ class _Driftwood:
         self.audio = AudioManager(self)
         self.widget = WidgetManager(self)
         self.script = ScriptManager(self)
-        self.area._register_tick()
-        self.window._register_tick()
 
         # SDL Keycodes.
         self.keycode = keycode
