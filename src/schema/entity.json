@@ -47,7 +47,7 @@
         "members": {
           "type": "array",
           "items": {
-            "type": "integer",
+            "type": ["integer", "array"],
             "minimum": 0
           }
         },

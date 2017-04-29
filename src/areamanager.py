@@ -176,41 +176,12 @@ class AreaManager:
             for entity in self.driftwood.entity.layer(l):
                 tall_amount = entity.height - self.tilemap.tileheight
 
-                # Get the source and destination rectangles needed by SDL_RenderCopy.
-                srcrect = list(entity.srcrect())
+                # Get the destination rectangle needed by SDL_RenderCopy.
                 dstrect = [entity.x, entity.y - tall_amount, entity.width, entity.height]
 
-                # Clip entities so they don't appear outside the area.
-                clip_left = 0 if arearect[0] <= dstrect[0] else arearect[0] - dstrect[0]
-                clip_top = 0 if arearect[1] <= dstrect[1] else arearect[1] - dstrect[1]
-                clip_right = 0 if dstrect[0] + dstrect[2] <= arearect[2] else (dstrect[0] + dstrect[2]) - arearect[2]
-                clip_bot = 0 if dstrect[1] + dstrect[3] <= arearect[3] else (dstrect[1] + dstrect[3]) - arearect[3]
-
-                srcrect[0] += clip_left
-                dstrect[0] += clip_left
-                srcrect[1] += clip_top
-                dstrect[1] += clip_top
-                srcrect[2] -= clip_left + clip_right
-                dstrect[2] -= clip_left + clip_right
-                srcrect[3] -= clip_top + clip_bot
-                dstrect[3] -= clip_top + clip_bot
-
-                # Area rumble et al.
-                dstrect[0] += self.offset[0]
-                dstrect[1] += self.offset[1]
-
-                # Copy the entity onto our frame.
-                r = self.driftwood.frame.copy(entity.spritesheet.texture, srcrect, dstrect)
-                if r < 0:
-                    self.driftwood.log.msg("ERROR", "Area", "__build_frame", "SDL", SDL_GetError())
-
-                if tall_amount:  # It's taller than the tile. Figure out where to put the tall part.
-                    srcrect = list(entity.srcrect())
-                    dstrect = [entity.x, entity.y - tall_amount, entity.width,
-                               entity.height - (entity.height - tall_amount)]
-
-                    srcrect[3] = dstrect[3]
-
+                # Draw the layers of the entity.
+                for srcrect in entity.srcrect():
+                    srcrect = list(srcrect)
                     # Clip entities so they don't appear outside the area.
                     clip_left = 0 if arearect[0] <= dstrect[0] else arearect[0] - dstrect[0]
                     clip_top = 0 if arearect[1] <= dstrect[1] else arearect[1] - dstrect[1]
@@ -230,13 +201,43 @@ class AreaManager:
                     dstrect[0] += self.offset[0]
                     dstrect[1] += self.offset[1]
 
-                    tall_parts.append([entity.spritesheet.texture, srcrect, dstrect])
+                    # Copy the entity onto our frame.
+                    r = self.driftwood.frame.copy(entity.spritesheet.texture, srcrect, dstrect)
+                    if r < 0:
+                        self.driftwood.log.msg("ERROR", "Area", "__build_frame", "SDL", SDL_GetError())
 
-            # Draw the tall bits here.
-            for tall in tall_parts:
-                r = self.driftwood.frame.copy(*tall)
-                if r < 0:
-                    self.driftwood.log.msg("ERROR", "Area", "__build_frame", "SDL", SDL_GetError())
+                    if tall_amount:  # It's taller than the tile. Figure out where to put the tall part.
+                        dstrect = [entity.x, entity.y - tall_amount, entity.width,
+                                   entity.height - (entity.height - tall_amount)]
+
+                        srcrect[3] = dstrect[3]
+
+                        # Clip entities so they don't appear outside the area.
+                        clip_left = 0 if arearect[0] <= dstrect[0] else arearect[0] - dstrect[0]
+                        clip_top = 0 if arearect[1] <= dstrect[1] else arearect[1] - dstrect[1]
+                        clip_right = 0 if dstrect[0] + dstrect[2] <= arearect[2] else (dstrect[0] + dstrect[2]) - arearect[2]
+                        clip_bot = 0 if dstrect[1] + dstrect[3] <= arearect[3] else (dstrect[1] + dstrect[3]) - arearect[3]
+
+                        srcrect[0] += clip_left
+                        dstrect[0] += clip_left
+                        srcrect[1] += clip_top
+                        dstrect[1] += clip_top
+                        srcrect[2] -= clip_left + clip_right
+                        dstrect[2] -= clip_left + clip_right
+                        srcrect[3] -= clip_top + clip_bot
+                        dstrect[3] -= clip_top + clip_bot
+
+                        # Area rumble et al.
+                        dstrect[0] += self.offset[0]
+                        dstrect[1] += self.offset[1]
+
+                        tall_parts.append([entity.spritesheet.texture, srcrect, dstrect])
+
+                # Draw the tall bits here.
+                for tall in tall_parts:
+                    r = self.driftwood.frame.copy(*tall)
+                    if r < 0:
+                        self.driftwood.log.msg("ERROR", "Area", "__build_frame", "SDL", SDL_GetError())
 
         # Tell FrameManager to publish the finished frame.
         self.driftwood.frame.frame(None)

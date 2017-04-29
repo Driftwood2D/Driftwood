@@ -126,7 +126,7 @@ class Entity:
         self._on_kill = None
 
     def srcrect(self):
-        """Return an (x, y, w, h) srcrect for the current graphic frame of the entity.
+        """Return a list of (x, y, w, h) srcrects for the layers of the current graphic frame of the entity.
         """
         if self.__cur_member < len(self.members):
             current_member = self.members[self.__cur_member]
@@ -135,11 +135,21 @@ class Entity:
             current_member = self.members[0]
 
         if current_member is not -1:
-            return (((current_member * self.width) % self.spritesheet.imagewidth),
-                    ((current_member * self.width) // self.spritesheet.imagewidth) * self.height,
-                    self.width, self.height)
+            if type(current_member) is list:  # This is a layered member.
+                ret = []
+                for layer in current_member:
+                    ret.append(
+                        (((layer * self.width) % self.spritesheet.imagewidth),
+                         ((layer * self.width) // self.spritesheet.imagewidth) * self.height,
+                         self.width, self.height)
+                    )
+                return ret
+            else:
+                return [[((current_member * self.width) % self.spritesheet.imagewidth),
+                        ((current_member * self.width) // self.spritesheet.imagewidth) * self.height,
+                        self.width, self.height]]
 
-        return 0, 0, 0, 0
+        return [[0, 0, 0, 0]]
 
     def set_stance(self, stance):
         """Set the current stance and return true if succeeded, false if failed.
@@ -218,10 +228,14 @@ class Entity:
         self.height = self.__init_stance["height"]
         self.speed = self.__init_stance["speed"]
         temp_members = self.__init_stance["members"]
+        if type(temp_members[0]) is int:
+            temp_members = [temp_members]
         self.members = []
-        for m in temp_members:
-            # Make things prettier for the end user by lining up member IDs with GIDs.
-            self.members.append(m-1)
+        for member in temp_members:
+            self.members.append([])
+            for layer in member:
+                # Make things prettier for the end user by lining up member IDs with GIDs.
+                self.members[-1].append(layer-1)
         self.afps = self.__init_stance["afps"]
         self.properties = self.__init_stance["properties"]
 
