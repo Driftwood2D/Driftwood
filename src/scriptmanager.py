@@ -271,7 +271,10 @@ class _ModuleGuard:
         if hasattr(self.__module, item):
             attr = getattr(self.__module, item)
             if inspect.isfunction(attr) or inspect.isclass(attr):  # This is a callable.
-                return _CallGuard(self.manager, self.__name, item, attr)
+                try:
+                    return _CallGuard(self.manager, self.__name, item, attr)
+                except:
+                    raise sys.exc_info()[0]
             return attr  # This is just some other data.
         self.driftwood.log.msg("ERROR", "Script", "module", "no such attribute", self.__name, item + "()")
         return None
@@ -299,4 +302,4 @@ class _CallGuard:
                                            self.__name + "()")
             traceback.print_exc(file=sys.stdout)
             sys.stdout.flush()
-            return None
+            raise sys.exc_info()[0]
