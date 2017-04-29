@@ -109,7 +109,11 @@ class Tileset:
 
     def __load_image(self, tilemap_filename):
         """Find and load the tileset image."""
+        filename = self.filename
+
         # Tiled stores the image's path relative to the tilemap path.
-        filename = os.path.dirname(tilemap_filename) + os.path.sep + self.filename
-        filename = os.path.normpath(filename)
+        if os.path.dirname(tilemap_filename):
+            filename = os.path.dirname(tilemap_filename) + os.path.sep + filename
+            filename = os.path.normpath(filename)
+
         return self.tilemap.driftwood.resource.request_image(filename)  # Ouch
