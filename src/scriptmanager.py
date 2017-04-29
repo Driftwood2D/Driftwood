@@ -88,9 +88,8 @@ class ScriptManager:
                 return getattr(self[filename], func)(*args)
             return getattr(self[filename], func)()
         except:
-            self.driftwood.log.msg("ERROR", "Script", "call", "broken function", filename, func + "()")
-            traceback.print_exc(file=sys.stdout)
-            sys.stdout.flush()
+            self.driftwood.log.msg("ERROR", "Script", "call", "broken function", filename, func + "()",
+                                   '\n'+traceback.format_exc().rstrip())
             return None
 
     def define(self, name, event, filename, func, nargs, minargs=None):
