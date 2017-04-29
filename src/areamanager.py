@@ -59,7 +59,7 @@ class AreaManager:
         self.offset = [0, 0]
         self.refocused = False
 
-        self._register_tick()
+        self.driftwood.tick.register(self._tick)
 
     def register(self):
         """Register our tick callback."""
@@ -110,10 +110,6 @@ class AreaManager:
                                        self.tilemap.properties["on_blur"])
                 return
             self.driftwood.script.call(*args)
-
-    def _register_tick(self):
-        """Register our tick callback."""
-        self.driftwood.tick.register(self._tick)
 
     def _tick(self, seconds_past):
         """Tick callback.
