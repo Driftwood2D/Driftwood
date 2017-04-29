@@ -1,5 +1,5 @@
-player = Driftwood.script.module("Entities/player.py")
-scimitar = Driftwood.script.module("Entities/scimitar.py")
+player = Driftwood.script["Entities/player.py"]
+scimitar = Driftwood.script["Entities/scimitar.py"]
 
 
 def init():

@@ -1,4 +1,4 @@
-map_util = Driftwood.script.module("Scripts/map_util.py")
+map_util = Driftwood.script["Scripts/map_util.py"]
 
 
 def setup(ent):
