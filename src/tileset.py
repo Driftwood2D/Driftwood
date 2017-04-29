@@ -26,6 +26,8 @@
 # IN THE SOFTWARE.
 # **********
 
+import os
+
 from sdl2 import *
 
 
@@ -52,11 +54,12 @@ class Tileset:
         tileproperties: A dictionary containing mappings of tile GIDs to properties that apply to that GID.
     """
 
-    def __init__(self, tilemap, tilesetdata):
+    def __init__(self, tilemap, tilemap_filename, tilesetdata):
         """Tileset class initializer.
 
         Args:
             tilemap: Link back to the parent Tilemap instance.
+            tileset_filename: Filename of the Tiled map file this tileset is from.
             tilesetdata: JSON tileset segment.
         """
         self.tilemap = tilemap
@@ -81,13 +84,13 @@ class Tileset:
         self.__tileset = tilesetdata
 
         # Prepare the tileset abstractions.
-        self.__prepare_tileset()
+        self.__prepare_tileset(tilemap_filename)
 
-    def __prepare_tileset(self):
+    def __prepare_tileset(self, tilemap_filename):
         """Load values into our tileset."""
         self.filename = self.__tileset["image"]
         self.name = self.__tileset["name"]
-        self.image = self.tilemap.area.driftwood.resource.request_image(self.filename)  # Ouch
+        self.image = self.__load_image(tilemap_filename)
         self.texture = self.image.texture
         self.imagewidth = self.__tileset["imagewidth"]
         self.imageheight = self.__tileset["imageheight"]
@@ -103,3 +106,10 @@ class Tileset:
         if "tileproperties" in self.__tileset:
             for key in self.__tileset["tileproperties"].keys():
                 self.tileproperties[int(key)] = self.__tileset["tileproperties"][key]
+
+    def __load_image(self, tilemap_filename):
+        """Find and load the tileset image."""
+        # Tiled stores the image's path relative to the tilemap path.
+        filename = os.path.dirname(tilemap_filename) + os.path.sep + self.filename
+        filename = os.path.normpath(filename)
+        return self.tilemap.driftwood.resource.request_image(filename)  # Ouch
