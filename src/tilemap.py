@@ -88,13 +88,14 @@ class Tilemap:
         self.layers.append(layer.Layer(self, fakedata, len(self.layers)))
         return self.layers[-1].zpos
 
-    def _read(self, data):
+    def _read(self, filename, data):
         """Read and abstract a Tiled map.
 
         Reads the JSON Tiled map and processes its information into useful abstractions. This method is marked private
         even though it's called from AreaManager, because it must only be called once per area focus.
 
         Args:
+            filename: Filename of the Tiled map file.
             data: JSON contents of the Tiled map.
         """
         # Reset variables left over from the last map.
@@ -104,7 +105,7 @@ class Tilemap:
             self.layers = []
         if self.tilesets:
             self.tilesets = []
-        self.area.driftwood.light.reset()
+        self.driftwood.light.reset()
 
         # Load the JSON data.
         self.__tilemap = data
@@ -123,15 +124,15 @@ class Tilemap:
 
         # Call the on_enter event if set.
         if "on_load" in self.properties:
-            self.area.driftwood.script.call(*self.properties["on_load"].split(','))
+            self.driftwood.script.call(*self.properties["on_load"].split(','))
 
         # Set the window title.
         if "title" in self.properties:
-            self.area.driftwood.window.title(self.properties["title"])
+            self.driftwood.window.title(self.properties["title"])
 
         # Build the tileset abstractions.
         for ts in self.__tilemap["tilesets"]:
-            self.tilesets.append(tileset.Tileset(self, ts))
+            self.tilesets.append(tileset.Tileset(self, filename, ts))
 
         # Global object layer.
         gobjlayer = {}
@@ -183,4 +184,3 @@ class Tilemap:
         for t in range(len(self.tilesets)):
             self.tilesets[t]._terminate()
         self.tilesets = []
-
