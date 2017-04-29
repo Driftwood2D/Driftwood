@@ -58,7 +58,7 @@ class ConfigManager:
         """
         self.driftwood = driftwood  # A link back to the top-level base class.
 
-        self.selfpath = ""
+        self.selfpath = os.path.dirname(os.path.realpath(__file__))  # Path to ourselves.
 
         self.__config_file = ""
         self.__config = {}
@@ -130,8 +130,6 @@ class ConfigManager:
         Combine the command line arguments and the configuration file into the internal __config dictionary, favoring
         command line arguments.
         """
-        selfpath = os.path.dirname(os.path.realpath(__file__))
-
         # Open the configuration file.
         try:
             with open(self.__cmdline_args.config, 'r') as config:
@@ -143,12 +141,12 @@ class ConfigManager:
 
         # Try to load the schema for validation.
         try:
-            if os.path.isdir(selfpath):  # This is a directory.
-                with open(os.path.join(selfpath, "schema/config.json")) as sch:
+            if os.path.isdir(self.selfpath):  # This is a directory.
+                with open(os.path.join(self.selfpath, "schema/config.json")) as sch:
                     schema = json.load(sch)
 
             else:  # This is hopefully a zip archive.
-                with zipfile.ZipFile(selfpath, 'r') as zf:
+                with zipfile.ZipFile(self.selfpath, 'r') as zf:
                     sch = zf.read("schema/config.json")
                     if type(sch) == bytes:
                         sch = sch.decode()
@@ -167,9 +165,6 @@ class ConfigManager:
             traceback.print_exc(1, sys.stdout)
             sys.stdout.flush()
             sys.exit(1)  # Fail.
-
-        # Set our self path permanently.
-        self.selfpath = selfpath
 
         # If --version was used, print the version string and exit.
         if self.__cmdline_args.version:
