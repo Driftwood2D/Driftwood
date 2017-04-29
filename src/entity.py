@@ -222,6 +222,7 @@ class Entity:
         for m in temp_members:
             # Make things prettier for the end user by lining up member IDs with GIDs.
             self.members.append(m-1)
+        self.afps = self.__init_stance["afps"]
         self.properties = self.__init_stance["properties"]
 
         # Setup spritesheet.
@@ -231,6 +232,10 @@ class Entity:
             self.manager.spritesheets[self.__init_stance["image"]] = \
                 spritesheet.Spritesheet(self.manager, self.__init_stance["image"])
             self.spritesheet = self.manager.spritesheets[self.__init_stance["image"]]
+
+        # Schedule animation.
+        if self.afps:
+            self.manager.driftwood.tick.register(self.__next_member, delay=(1 / self.afps))
 
     def _tile_at(self, layer, x, y):
         """Retrieve a tile by layer and pixel coordinates.
