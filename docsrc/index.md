@@ -1,4 +1,4 @@
-# Driftwood 2D - Alpha-0.0.6
+# Driftwood 2D - Alpha-0.0.7
 
 * Copyright (c) 2014 PariahSoft LLC (Abandoned)
 * Copyright (c) 2016-2017 Michael D. Reiley and Paul Merrill
