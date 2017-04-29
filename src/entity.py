@@ -1138,21 +1138,15 @@ class PixelModeEntity(Entity):
             # Collision detection.
             if ent.layer == self.layer:  # Are we on the same layer?
                 # Bounding box collision. Check if any of our corners or sides are inside another entity.
-                xw = x + self.width - 1  # Our right side.
-                yw = y + self.height - 1  # Our bottom side.
+                xw = x + self.width  # Our right side.
+                yw = y + self.height  # Our bottom side.
                 ex = ent.x  # Entity's left side.
                 ey = ent.y  # Entity's top side.
-                exw = ex + ent.width - 1  # Entity's right side.
-                eyw = ey + ent.height - 1  # Entity's bottom side.
-                if (  # MATH IS FUN
-                    ex < x < exw and y < ey < yw or
-                    ex < x < exw and ey < y < eyw or
-                    x < ex < xw and ey < y < eyw or
-                    x < ex < xw and y < ey < yw or
-                    x == ex and y < ey < yw or
-                    x == ex and ey < y < eyw or
-                    ex < x < exw and y == ey or
-                    x < ex < xw and y == ey
+                exw = ex + ent.width  # Entity's right side.
+                eyw = ey + ent.height  # Entity's bottom side.
+                if (
+                    x < exw and ex < xw and
+                    y < eyw and ey < yw
                 ):
                     return False
         return True
