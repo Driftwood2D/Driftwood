@@ -61,11 +61,11 @@ class ScriptManager:
         self.__modules = {}
 
     def __contains__(self, item):
-        return self.module(item) is not None
+        return self._module(item) is not None
 
     def __getitem__(self, item):
-        if self.module(item) is not None:
-            return ModuleGuard(self, item, self.module(item))
+        if self._module(item) is not None:
+            return ModuleGuard(self, item, self._module(item))
         self.driftwood.log.msg("ERROR", "Script", "no such module", item)
         return None
 
@@ -86,25 +86,6 @@ class ScriptManager:
         if args:
             return getattr(self[filename], func)(*args)
         return getattr(self[filename], func)()
-
-    def module(self, filename):
-        """Return the module instance of a script, loading if not already loaded.
-
-        This method is not crash-safe. If you call a method in a module you got from this function, errors will
-        not be caught and the engine will crash if a problem occurs.
-
-        Args:
-            filename: Filename of the python script whose module instance should be returned.
-
-        Returns: Python module instance if succeeded, None if failed.
-        """
-        if filename not in self.__modules:
-            self.__load(filename)
-
-        if filename in self.__modules:
-            return self.__modules[filename]
-        else:
-            return None
 
     def define(self, name, event, filename, func, nargs, minargs=None):
         """Define a custom trigger that can be called directly from a map property.
@@ -206,6 +187,26 @@ class ScriptManager:
         else:
             return None
 
+    def _module(self, filename):
+        """Return the module instance of a script, loading if not already loaded.
+
+        This method is not crash-safe. If you call a method in a module you got from this function, errors will
+        not be caught and the engine will crash if a problem occurs. This is mostly used internally by ScriptManager
+        to load a module or check if one exists.
+
+        Args:
+            filename: Filename of the python script whose module instance should be returned.
+
+        Returns: Python module instance if succeeded, None if failed.
+        """
+        if filename not in self.__modules:
+            self.__load(filename)
+
+        if filename in self.__modules:
+            return self.__modules[filename]
+        else:
+            return None
+
     def __convert_path(self, filename):
         """Get around a documented zipimport flaw.
 
@@ -272,7 +273,7 @@ class ModuleGuard:
             if inspect.isfunction(attr) or inspect.isclass(attr):  # This is a callable.
                 return CallGuard(self.manager, self.__name, item, attr)
             return attr  # This is just some other data.
-        self.driftwood.log.msg("ERROR", "Script", "module has no such attribute", self.__name, item + "()")
+        self.driftwood.log.msg("ERROR", "Script", "module", "no such attribute", self.__name, item + "()")
         return None
 
 
@@ -294,7 +295,7 @@ class CallGuard:
                 return self.__callable()
 
         except:  # Failure
-            self.manager.driftwood.log.msg("ERROR", "Script", "broken function", self.__modulename,
+            self.manager.driftwood.log.msg("ERROR", "Script", "call", "broken function", self.__modulename,
                                            self.__name + "()")
             traceback.print_exc(file=sys.stdout)
             sys.stdout.flush()
