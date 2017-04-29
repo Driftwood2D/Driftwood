@@ -69,6 +69,15 @@ class Tilemap:
         # This contains the JSON of the Tiled map.
         self.__tilemap = {}
 
+    def __contains__(self, item):
+        if len(self.layers) > item:
+            return True
+        return False
+
+    def __getitem__(self, item):
+        if len(self.layers) > item:
+            return self.layers[item]
+
     def new_layer(self):
         """Create a new virtual tile layer.
 

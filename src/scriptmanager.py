@@ -65,7 +65,7 @@ class ScriptManager:
 
     def __getitem__(self, item):
         if self._module(item) is not None:
-            return ModuleGuard(self, item, self._module(item))
+            return _ModuleGuard(self, item, self._module(item))
         self.driftwood.log.msg("ERROR", "Script", "no such module", item)
         return None
 
@@ -259,7 +259,7 @@ class ScriptManager:
             return False
 
 
-class ModuleGuard:
+class _ModuleGuard:
     """This class helps us safely encapsulate a module so exceptions can be caught.
     """
     def __init__(self, manager, name, item):
@@ -271,13 +271,13 @@ class ModuleGuard:
         if hasattr(self.__module, item):
             attr = getattr(self.__module, item)
             if inspect.isfunction(attr) or inspect.isclass(attr):  # This is a callable.
-                return CallGuard(self.manager, self.__name, item, attr)
+                return _CallGuard(self.manager, self.__name, item, attr)
             return attr  # This is just some other data.
         self.driftwood.log.msg("ERROR", "Script", "module", "no such attribute", self.__name, item + "()")
         return None
 
 
-class CallGuard:
+class _CallGuard:
     """This class helps us safely encapsulate a constructor or method call so exceptions can be caught.
     """
     def __init__(self, manager, modulename, name, item):

@@ -62,6 +62,9 @@ class Layer:
 
         self.__prepare_layer()
 
+    def __getitem__(self, item):
+        return _AbstractColumn(self, item)
+
     def clear(self):
         for tile in self.tiles:
             tile.unregister()
@@ -83,7 +86,7 @@ class Layer:
 
         else:
             self.driftwood.log.msg("WARNING", "Layer", "tile", self.zpos,
-                                                   "tried to lookup nonexistent tile at", "{0}x{1}".format(x, y))
+                                   "tried to lookup nonexistent tile at", "{0}x{1}".format(x, y))
             return None
 
     def tile_index(self, x, y):
@@ -235,3 +238,12 @@ class Layer:
         for tile in self.tiles:
             tile._terminate()
         self.tiles = []
+
+
+class _AbstractColumn:
+    def __init__(self, layer, x):
+        self.__layer = layer
+        self.__x = x
+
+    def __getitem__(self, item):
+        return self.__layer.tile(self.__x, item)
