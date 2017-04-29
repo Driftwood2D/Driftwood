@@ -11,3 +11,4 @@ def setup():
     h = Driftwood.widget.container(x=-1, y=-1, width=80, height=80)
     Driftwood.widget.text("Test Text", "pf_arma_five.ttf", 16, parent=h,
                           x=-1, y=-1, width=-1, height=-1, color="0000FFFF", active=True)
+rfaksdj
