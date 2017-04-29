@@ -110,6 +110,8 @@ class WidgetManager:
 
         A container widget can have a background image, and other widgets can be contained by it. Widgets in a container
         are drawn together and the container's x and y positions are added to the widget's x and y positions.
+        
+        All widgets except for text widgets are containers.
 
         Args:
             imagefile: If set, filename of the image file to use as a background.

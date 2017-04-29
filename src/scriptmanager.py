@@ -59,6 +59,12 @@ class ScriptManager:
         # Dictionary of module instances mapped by filename.
         self.__modules = {}
 
+    def __contains__(self, item):
+        return self.module(item) is not None
+
+    def __getitem__(self, item):
+        return self.module(item)
+
     def call(self, filename, func, *args):
         """Call a function from a script, loading if not already loaded.
 

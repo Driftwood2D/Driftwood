@@ -4,9 +4,9 @@ def setup():
 
     # Prepare earthquake.
     if "got_blue_pearl" not in Driftwood.database:
-        Driftwood.script.call("rumble.py", "regular_rumble", 15, 3, 5, 10)
+        Driftwood.script["rumble.py"].regular_rumble(15, 3, 5, 10)
     else:
-        Driftwood.script.call("rumble.py", "constant_rumble", 10, 3)
+        Driftwood.script["rumble.py"].constant_rumble(10, 3)
 
     h = Driftwood.widget.container(x=-1, y=-1, width=80, height=80)
     Driftwood.widget.text("Test Text", "pf_arma_five.ttf", 16, parent=h,

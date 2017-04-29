@@ -26,6 +26,7 @@
 # IN THE SOFTWARE.
 # **********
 
+import importlib
 import pdb
 import signal
 import sys
@@ -77,7 +78,6 @@ from areamanager import AreaManager
 from audiomanager import AudioManager
 from widgetmanager import WidgetManager
 from scriptmanager import ScriptManager
-
 
 class _Driftwood:
     """The top-level base class

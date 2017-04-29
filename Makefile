@@ -7,7 +7,7 @@ run: bin/driftwood
 
 bin: bin/driftwood
 
-bin/driftwood: bin $(shell test -f bin/driftwood && find src/ -newer bin/driftwood)
+bin/driftwood: $(shell test -f bin/driftwood && find src/ -newer bin/driftwood)
 	mkdir -p bin
 	echo '#!/usr/bin/env python3' > bin/driftwood
 	cd src && python3 -m compileall -b .

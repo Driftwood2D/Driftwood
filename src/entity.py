@@ -969,6 +969,8 @@ class PixelModeEntity(Entity):
         of the entity, rather than its edge, collides with the edge of the tile. Alternatively you can look at it as the
         edge of the entity colliding with the center of the tile.
         """
+        # FIXME: This hasn't been tested with entities that aren't the same size as the tile.
+        # The player is only barely taller, so we wouldn't notice any issues.
         return self.manager.driftwood.area.tilemap.layers[layer].tile(
             (x + (self.width / 2)) // self._tilewidth,
             (y + (self.height / 2)) // self._tileheight
