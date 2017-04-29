@@ -28,6 +28,7 @@
 
 import importlib.machinery
 import importlib.util
+import inspect
 import os
 import platform
 import sys
@@ -63,10 +64,16 @@ class ScriptManager:
         return self.module(item) is not None
 
     def __getitem__(self, item):
-        return self.module(item)
+        if self.module(item) is not None:
+            return ModuleGuard(self, item, self.module(item))
+        self.driftwood.log.msg("ERROR", "Script", "no such module", item)
+        return None
 
     def call(self, filename, func, *args):
         """Call a function from a script, loading if not already loaded.
+
+        Usually you just want to run "Driftwood.script[path].function(args)". This wraps around that, and is cleaner
+        for the engine to use in some cases.
 
         Args:
             filename: Filename of the python script containing the function.
@@ -76,32 +83,15 @@ class ScriptManager:
         Returns:
             Function return code if succeeded, None if failed.
         """
-        if filename not in self.__modules:
-            # Load the module if not loaded.
-            res = self.__load(filename)
-            if not res:
-                return None
-
-        if filename in self.__modules and hasattr(self.__modules[filename], func):
-            try:  # Try calling the function.
-                self.driftwood.log.info("Script", "called", filename, func + "()")
-                if args:  # We have arguments.
-                    return getattr(self.__modules[filename], func)(*args)
-                else:  # We have no arguments.
-                    return getattr(self.__modules[filename], func)()
-
-            except:  # Failure
-                self.driftwood.log.msg("ERROR", "Script", "call", "broken function", filename, func + "()")
-                traceback.print_exc(file=sys.stdout)
-                sys.stdout.flush()
-                return None
-
-        else:
-            self.driftwood.log.msg("ERROR", "Script", "call", "no such function", filename, func + "()")
-            return None
+        if args:
+            return getattr(self[filename], func)(*args)
+        return getattr(self[filename], func)()
 
     def module(self, filename):
         """Return the module instance of a script, loading if not already loaded.
+
+        This method is not crash-safe. If you call a method in a module you got from this function, errors will
+        not be caught and the engine will crash if a problem occurs.
 
         Args:
             filename: Filename of the python script whose module instance should be returned.
@@ -266,3 +256,46 @@ class ScriptManager:
         else:
             self.driftwood.log.msg("ERROR", "Script", "__load", "no such script", filename)
             return False
+
+
+class ModuleGuard:
+    """This class helps us safely encapsulate a module so exceptions can be caught.
+    """
+    def __init__(self, manager, name, item):
+        self.manager = manager
+        self.__name = name
+        self.__module = item
+
+    def __getattr__(self, item):
+        if hasattr(self.__module, item):
+            attr = getattr(self.__module, item)
+            if inspect.isfunction(attr) or inspect.isclass(attr):  # This is a callable.
+                return CallGuard(self.manager, self.__name, item, attr)
+            return attr  # This is just some other data.
+        self.driftwood.log.msg("ERROR", "Script", "module has no such attribute", self.__name, item + "()")
+        return None
+
+
+class CallGuard:
+    """This class helps us safely encapsulate a constructor or method call so exceptions can be caught.
+    """
+    def __init__(self, manager, modulename, name, item):
+        self.manager = manager
+        self.__modulename = modulename
+        self.__name = name
+        self.__callable = item
+
+    def __call__(self, *args):
+        try:  # Try calling the function.
+            self.manager.driftwood.log.info("Script", "called", self.__modulename, self.__name + "()")
+            if args:  # We have arguments.
+                return self.__callable(*args)
+            else:  # We have no arguments.
+                return self.__callable()
+
+        except:  # Failure
+            self.manager.driftwood.log.msg("ERROR", "Script", "broken function", self.__modulename,
+                                           self.__name + "()")
+            traceback.print_exc(file=sys.stdout)
+            sys.stdout.flush()
+            return None

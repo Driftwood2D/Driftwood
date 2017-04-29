@@ -6,6 +6,8 @@ When starting up, one of the first things the Driftwood 2D engine does is read t
 
 ## Structure of the Configuration File
 
+The engine will not make assumptions about configuration; all options must be present or it will not run.
+
 Here is the configuration file that comes with this version of the engine:
 
 ```
@@ -128,7 +130,7 @@ The value of "chunksize" is the chunk size of the audio subsystem. This should b
 
 The value of "music_volume" is the numeric volume at which music is played by default. It is a number between 0 and 128, 128 being highest and 0 being off.
 
-### music_volume
+### sfx_volume
 
 The value of "sfx_volume" is the numeric volume at which sound effects are played by default. It is a number between 0 and 128, 128 being highest and 0 being off.
 
@@ -153,7 +155,7 @@ The value of suppress is a comma separated list of lists of strings. Each item i
 
 ### suppress_halt
 
-"suppress_halt" is just like "suppress", except that instead of preventing output, it prevents halting. If a suppress_halt rule matches a message, that message will not cause the engine to stop running even if the "halt" setting is true. You can see that \["WARNING"\] is suppressed by default; this prevents the engine from stopping on warnings. Again, these rules are discussed in the [Engine Log](Engine_Log) section later in this chapter.
+The "suppress_halt" option is just like "suppress", except that instead of preventing output, it prevents halting. If a suppress_halt rule matches a message, that message will not cause the engine to stop running even if the "halt" setting is true. You can see that \["WARNING"\] is suppressed by default; this prevents the engine from stopping on warnings. Again, these rules are discussed in the [Engine Log](Engine_Log) section later in this chapter.
 
 ## path
 
