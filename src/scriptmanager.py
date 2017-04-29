@@ -28,7 +28,6 @@
 
 import importlib.machinery
 import importlib.util
-import inspect
 import os
 import platform
 import sys
@@ -65,7 +64,7 @@ class ScriptManager:
 
     def __getitem__(self, item):
         if self._module(item) is not None:
-            return _ModuleGuard(self, item, self._module(item))
+            return self._module(item)
         self.driftwood.log.msg("ERROR", "Script", "no such module", item)
         return None
 
@@ -73,8 +72,8 @@ class ScriptManager:
         """Call a function from a script, loading if not already loaded.
 
         Usually you just want to run "Driftwood.script[path].function(args)". This wraps around that, and is cleaner
-        for the engine to use in some cases. It also prevents exceptions from raising into the engine scope and
-        crashing it.
+        for the engine to use in most cases. It also prevents exceptions from raising into the engine scope and
+        crashing it, so the engine will always call scripts through this method.
 
         Args:
             filename: Filename of the python script containing the function.
@@ -89,6 +88,9 @@ class ScriptManager:
                 return getattr(self[filename], func)(*args)
             return getattr(self[filename], func)()
         except:
+            self.driftwood.log.msg("ERROR", "Script", "call", "broken function", filename, func + "()")
+            traceback.print_exc(file=sys.stdout)
+            sys.stdout.flush()
             return None
 
     def define(self, name, event, filename, func, nargs, minargs=None):
@@ -261,49 +263,3 @@ class ScriptManager:
         else:
             self.driftwood.log.msg("ERROR", "Script", "__load", "no such script", filename)
             return False
-
-
-class _ModuleGuard:
-    """This class helps us safely encapsulate a module so exceptions can be caught.
-    """
-    def __init__(self, manager, name, item):
-        self.manager = manager
-        self.__name = name
-        self.__module = item
-
-    def __getattr__(self, item):
-        if hasattr(self.__module, item):
-            attr = getattr(self.__module, item)
-            if inspect.isfunction(attr) or inspect.isclass(attr):  # This is a callable.
-                try:
-                    return _CallGuard(self.manager, self.__name, item, attr)
-                except:
-                    raise sys.exc_info()[0]
-            return attr  # This is just some other data.
-        self.driftwood.log.msg("ERROR", "Script", "module", "no such attribute", self.__name, item + "()")
-        return None
-
-
-class _CallGuard:
-    """This class helps us safely encapsulate a constructor or method call so exceptions can be caught.
-    """
-    def __init__(self, manager, modulename, name, item):
-        self.manager = manager
-        self.__modulename = modulename
-        self.__name = name
-        self.__callable = item
-
-    def __call__(self, *args):
-        try:  # Try calling the function.
-            self.manager.driftwood.log.info("Script", "called", self.__modulename, self.__name + "()")
-            if args:  # We have arguments.
-                return self.__callable(*args)
-            else:  # We have no arguments.
-                return self.__callable()
-
-        except:  # Failure
-            self.manager.driftwood.log.msg("ERROR", "Script", "call", "broken function", self.__modulename,
-                                           self.__name + "()")
-            traceback.print_exc(file=sys.stdout)
-            sys.stdout.flush()
-            raise sys.exc_info()[0]
