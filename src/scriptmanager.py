@@ -73,7 +73,8 @@ class ScriptManager:
         """Call a function from a script, loading if not already loaded.
 
         Usually you just want to run "Driftwood.script[path].function(args)". This wraps around that, and is cleaner
-        for the engine to use in some cases.
+        for the engine to use in some cases. It also prevents exceptions from raising into the engine scope and
+        crashing it.
 
         Args:
             filename: Filename of the python script containing the function.
@@ -83,9 +84,12 @@ class ScriptManager:
         Returns:
             Function return code if succeeded, None if failed.
         """
-        if args:
-            return getattr(self[filename], func)(*args)
-        return getattr(self[filename], func)()
+        try:
+            if args:
+                return getattr(self[filename], func)(*args)
+            return getattr(self[filename], func)()
+        except:
+            return None
 
     def define(self, name, event, filename, func, nargs, minargs=None):
         """Define a custom trigger that can be called directly from a map property.
