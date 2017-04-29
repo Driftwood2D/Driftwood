@@ -114,7 +114,7 @@ def flicker(lid, rx, ry, ralpha, rate, duration=None):
     oy = Driftwood.light.light(lid).y
     oalpha = Driftwood.light.light(lid).alpha
 
-    fc = Driftwood.script.module("stdlib/helper.py").copy_function(__flicker_callback)
+    fc = Driftwood.script["stdlib/helper.py"].copy_function(__flicker_callback)
     fc.active = True
     fc.lid = lid
 
