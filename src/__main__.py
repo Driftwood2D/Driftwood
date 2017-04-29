@@ -26,7 +26,6 @@
 # IN THE SOFTWARE.
 # **********
 
-import importlib
 import pdb
 import signal
 import sys

@@ -8,37 +8,37 @@ Running the engine with the "--help" option shows us what options are available:
 
 <pre>
 [myself@Linux Driftwood]$ bin/driftwood --help
-usage: driftwood [-h] [--path <name,...>] [--root <root>] [--self <self>]
-                 [--db <database>] [--size <WxH>] [--tps <hertz>]
-                 [--ttl <seconds>] [--zoom <multiplier>] [--maxfps <fps>]
-                 [--mvol <0-128>] [--svol <0-128>] [--window | --fullscreen]
-                 [--quiet | --verbose] [--halt] [--version]
+usage: driftwood [-h] [--path <name,...>] [--root <root>] [--db <database>]
+                 [--dbroot <root>] [--size <WxH>] [--tps <hertz>]
+                 [--ttl <seconds>] [--maxfps <fps>] [--mvol <0-128>]
+                 [--svol <0-128>] [--window | --fullscreen]
+                 [--quiet | --verbose] [--halt | --continue] [--version]
                  [config]
 
-Driftwood 2D Alpha-0.0.4
+Driftwood 2D Alpha-0.0.6
 
 positional arguments:
-  config               config file to use
+  config             config file to use
 
 optional arguments:
-  -h, --help           show this help message and exit
-  --path <name,...>    set path
-  --root <root>        set path root
-  --self <self>        set path to self
-  --db <database>      set database to use
-  --size <WxH>         set window dimensions
-  --tps <hertz>        set ticks-per-second
-  --ttl <seconds>      set cache time-to-live
-  --zoom <multiplier>  set viewport zoom
-  --maxfps <fps>       set max fps
-  --mvol <0-128>       set music volume
-  --svol <0-128>       set sfx volume
-  --window             run in windowed mode
-  --fullscreen         run in fullscreen mode
-  --quiet              run in quiet logging mode
-  --verbose            run in verbose logging mode
-  --halt               halt execution on errors or warnings
-  --version            print the version string
+  -h, --help         show this help message and exit
+  --path <name,...>  set path
+  --root <root>      set path root
+  --db <database>    set database to use
+  --dbroot <root>    set database root
+  --size <WxH>       set window dimensions
+  --tps <hertz>      set ticks-per-second
+  --ttl <seconds>    set cache time-to-live
+  --maxfps <fps>     set max fps
+  --mvol <0-128>     set music volume
+  --svol <0-128>     set sfx volume
+  --window           run in windowed mode
+  --fullscreen       run in fullscreen mode
+  --quiet            run in quiet logging mode
+  --verbose          run in verbose logging mode
+  --halt             halt execution on errors or warnings
+  --continue         continue execution despite errors or warnings
+  --version          print the version string
 </pre>
 
 All options are... optional. Let's go over each of these command line options and how to use them.
@@ -62,10 +62,6 @@ The "--path" option is followed by a comma-separated list of path names to appen
 ### --root
 
 The "--root" option is followed by the relative path (from the current working directory) to the folder where world packages and patches are kept. Path entries are relative to the root path set here.
-
-### --self
-
-The "--self" option is followed by the relative path (from the current working directory) to the engine executable or source folder.
 
 ### --db
 

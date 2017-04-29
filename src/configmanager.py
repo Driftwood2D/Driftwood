@@ -58,6 +58,8 @@ class ConfigManager:
         """
         self.driftwood = driftwood  # A link back to the top-level base class.
 
+        self.selfpath = ""
+
         self.__config_file = ""
         self.__config = {}
         self.__cmdline_args = self.__read_cmdline()
@@ -90,7 +92,6 @@ class ConfigManager:
         parser.add_argument("config", nargs='?', type=str, default="config.json", help="config file to use")
         parser.add_argument("--path", nargs=1, dest="path", type=str, metavar="<name,...>", help="set path")
         parser.add_argument("--root", nargs=1, dest="root", type=str, metavar="<root>", help="set path root")
-        parser.add_argument("--self", nargs=1, dest="myself", type=str, metavar="<self>", help="set path to self")
         parser.add_argument("--db", nargs=1, dest="db", type=str, metavar="<database>", help="set database to use")
         parser.add_argument("--dbroot", nargs=1, dest="dbroot", type=str, metavar="<root>",
                             help="set database root")
@@ -129,6 +130,8 @@ class ConfigManager:
         Combine the command line arguments and the configuration file into the internal __config dictionary, favoring
         command line arguments.
         """
+        selfpath = os.path.dirname(os.path.realpath(__file__))
+
         # Open the configuration file.
         try:
             with open(self.__cmdline_args.config, 'r') as config:
@@ -140,14 +143,12 @@ class ConfigManager:
 
         # Try to load the schema for validation.
         try:
-            if self.__cmdline_args.myself:
-                self.__config["path"]["self"] = self.__cmdline_args.myself[0]
-            if os.path.isdir(self.__config["path"]["self"]):  # This is a directory.
-                with open(os.path.join(self.__config["path"]["self"], "schema/config.json")) as sch:
+            if os.path.isdir(selfpath):  # This is a directory.
+                with open(os.path.join(selfpath, "schema/config.json")) as sch:
                     schema = json.load(sch)
 
             else:  # This is hopefully a zip archive.
-                with zipfile.ZipFile(self.__config["path"]["self"], 'r') as zf:
+                with zipfile.ZipFile(selfpath, 'r') as zf:
                     sch = zf.read("schema/config.json")
                     if type(sch) == bytes:
                         sch = sch.decode()
@@ -166,6 +167,9 @@ class ConfigManager:
             traceback.print_exc(1, sys.stdout)
             sys.stdout.flush()
             sys.exit(1)  # Fail.
+
+        # Set our self path permanently.
+        self.selfpath = selfpath
 
         # If --version was used, print the version string and exit.
         if self.__cmdline_args.version:

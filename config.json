@@ -38,7 +38,6 @@
     ]
   },
   "path": {
-    "self": "bin/driftwood",
     "root": "data/",
     "path": [
       "test/"

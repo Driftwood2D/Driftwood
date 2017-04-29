@@ -129,9 +129,6 @@
     "path": {
       "type": "object",
       "properties": {
-        "self": {
-          "type": "string"
-        },
         "root": {
           "type": "string"
         },
@@ -143,7 +140,6 @@
         }
       },
       "required": [
-        "self",
         "root",
         "path"
       ]

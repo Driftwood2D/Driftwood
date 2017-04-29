@@ -49,7 +49,6 @@ Here is the configuration file that comes with this version of the engine:
     ]
   },
   "path": {
-    "self": "bin/driftwood",
     "root": "data/",
     "path": [
       "test/"
@@ -160,10 +159,6 @@ The "suppress_halt" option is just like "suppress", except that instead of preve
 ## path
 
 The "path" section contains settings for the virtual filesystem. Settings here tell the engine where to look for data. The virtual filesystem is discussed in-depth in the [Data Path and Patching](Data_Path_and_Patching) section later in this chapter.
-
-### self
-
-The value of "self" is a string. It contains the relative path (from the top directory) to the driftwood executable or the source folder. The previous section [Configuration File](Configuration_File) tells you about some circumstances in which you may want to change this.
 
 ### root
 

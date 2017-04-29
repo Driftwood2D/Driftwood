@@ -1,2 +1,2 @@
 @ECHO OFF
-python src --self src --root data --path test
+python src --root data --path test

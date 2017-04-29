@@ -57,7 +57,7 @@ class PathManager:
         self.__root = self.driftwood.config["path"]["root"]  # Path root.
         if not self.__root.endswith('/'):  # Another stupid Windows hack.
             self.__root += '/'
-        self.__path = [self.driftwood.config["path"]["self"]]  # Start with base module.
+        self.__path = [self.driftwood.config.selfpath]  # Start with base module.
 
         if self.driftwood.config["path"]["path"]:
             # Start with the configured path.
@@ -118,7 +118,7 @@ class PathManager:
         Returns:
             True
         """
-        basepath = self.driftwood.config["path"]["self"]
+        basepath = self.driftwood.config.selfpath
 
         # If the base module is missing, put it back at the top.
         if self.__path[0] != basepath:
