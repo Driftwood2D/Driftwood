@@ -54,17 +54,18 @@ class Tileset:
         tileproperties: A dictionary containing mappings of tile GIDs to properties that apply to that GID.
     """
 
-    def __init__(self, tilemap, tilemap_filename, tilesetdata):
+    def __init__(self, driftwood, tilemap):
         """Tileset class initializer.
 
         Args:
+            driftwood: Base class instance.
             tilemap: Link back to the parent Tilemap instance.
-            tileset_filename: Filename of the Tiled map file this tileset is from.
-            tilesetdata: JSON tileset segment.
+            source_filename: Filename of the Tiled map file this tileset is from.
         """
+        self.driftwood = driftwood
         self.tilemap = tilemap
 
-        self.filename = ""
+        self.filename = None
         self.name = ""
         self.image = None
         self.texture = None
@@ -80,40 +81,65 @@ class Tileset:
         self.properties = {}
         self.tileproperties = {}
 
-        # This contains the JSON of the tileset.
-        self.__tileset = tilesetdata
+    def load(self, tilemap_filename, tileset_json):
+        """Populate a Tileset with data from a Tiled map's tileset object.
 
-        # Prepare the tileset abstractions.
-        self.__prepare_tileset(tilemap_filename)
+        Args:
+            tileset_json: Tiled tileset JSON object
 
-    def __prepare_tileset(self, tilemap_filename):
+        Returns:
+            True if everything was successful, False otherwise
+        """
+        try:
+            # Regardless of whether this will be an internal or external tileset, the firstgid is always found here.
+            firstgid = tileset_json["firstgid"]
+
+            if "image" in tileset_json:
+                # Internal tileset... everything we need is here
+                return self.__prepare(tilemap_filename, tileset_json, firstgid)
+            else:
+                # External tileset... there's a filename with another JSON
+                tileset_filename = self.__resolve_path(tilemap_filename, tileset_json["source"])
+                external_json = self.driftwood.resource.request_json(tileset_filename)
+                return external_json and self.__prepare(tileset_filename, external_json, firstgid)
+        except:
+            self.driftwood.log.msg("ERROR", "Tileset", "load_tileset", "could not load tileset from", tilemap_filename)
+            return False
+
+    def __prepare(self, image_base_path, tileset_json, firstgid):
         """Load values into our tileset."""
-        self.filename = self.__tileset["image"]
-        self.name = self.__tileset["name"]
-        self.image = self.__load_image(tilemap_filename)
-        self.texture = self.image.texture
-        self.imagewidth = self.__tileset["imagewidth"]
-        self.imageheight = self.__tileset["imageheight"]
-        self.tilewidth = self.__tileset["tilewidth"]
-        self.tileheight = self.__tileset["tileheight"]
+        self.name = tileset_json["name"]
+        self.imagewidth = tileset_json["imagewidth"]
+        self.imageheight = tileset_json["imageheight"]
+        self.tilewidth = tileset_json["tilewidth"]
+        self.tileheight = tileset_json["tileheight"]
         self.width = self.imagewidth // self.tilewidth
         self.height = self.imageheight // self.tileheight
         self.size = int(self.width * self.height)
-        self.spacing = self.__tileset["spacing"]
-        self.range = [self.__tileset["firstgid"], self.__tileset["firstgid"] - 1 + self.size]
-        if "properties" in self.__tileset:
-            self.properties = self.__tileset["properties"]
-        if "tileproperties" in self.__tileset:
-            for key in self.__tileset["tileproperties"].keys():
-                self.tileproperties[int(key)] = self.__tileset["tileproperties"][key]
+        self.spacing = tileset_json["spacing"]
+        self.range = [firstgid, firstgid - 1 + self.size]
+        if "properties" in tileset_json:
+            self.properties = tileset_json["properties"]
+        if "tileproperties" in tileset_json:
+            for key in tileset_json["tileproperties"].keys():
+                self.tileproperties[int(key)] = tileset_json["tileproperties"][key]
 
-    def __load_image(self, tilemap_filename):
-        """Find and load the tileset image."""
-        filename = self.filename
+        # The image's path is relative to another file. Which file it is depends on if this is an internal or external
+        # tileset.
+        image_filename = self.__resolve_path(image_base_path, tileset_json["image"])
 
-        # Tiled stores the image's path relative to the tilemap path.
-        if os.path.dirname(tilemap_filename):
-            filename = os.path.dirname(tilemap_filename) + os.path.sep + filename
-            filename = os.path.normpath(filename)
+        self.image = self.driftwood.resource.request_image(image_filename)  # Ouch
 
-        return self.tilemap.driftwood.resource.request_image(filename)  # Ouch
+        if self.image:
+            self.texture = self.image.texture
+            return True
+        else:
+            return False
+
+    @staticmethod
+    def __resolve_path(base_filename, filename):
+        """Determine the location of a file that was defined relative to another"""
+        if os.path.dirname(base_filename):
+            return os.path.normpath(os.path.dirname(base_filename) + os.path.sep + filename)
+        else:
+            return filename

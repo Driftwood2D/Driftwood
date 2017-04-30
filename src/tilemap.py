@@ -131,8 +131,11 @@ class Tilemap:
             self.driftwood.window.title(self.properties["title"])
 
         # Build the tileset abstractions.
-        for ts in self.__tilemap["tilesets"]:
-            self.tilesets.append(tileset.Tileset(self, filename, ts))
+        for tileset_json in self.__tilemap["tilesets"]:
+            ts = tileset.Tileset(self.driftwood, self)
+            if not ts.load(filename, tileset_json):
+                pass  # TODO: stop loading the tilemap & fail in an elegant manner
+            self.tilesets.append(ts)
 
         # Global object layer.
         gobjlayer = {}
