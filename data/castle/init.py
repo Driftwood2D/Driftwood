@@ -1,5 +1,4 @@
-player = Driftwood.script["Entities/player.py"]
-scimitar = Driftwood.script["Entities/scimitar.py"]
+entities = Driftwood.script["Entities/__init__.py"]
 
 
 def init():
@@ -14,5 +13,4 @@ def init():
     # Load the area.
     Driftwood.area.focus("Areas/mainroom.json")
 
-    player.insert_from_tiled()
-    scimitar.insert_from_tiled()
+    entities.insert_entities_from_tiled()
