@@ -65,7 +65,6 @@ class Tileset:
         self.driftwood = driftwood
         self.tilemap = tilemap
 
-        self.filename = None
         self.name = ""
         self.image = None
         self.texture = None
