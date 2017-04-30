@@ -44,11 +44,11 @@
                  "name":"Player Start",
                  "properties":
                     {
-                     "player_start":""
+                     "player":""
                     },
                  "propertytypes":
                     {
-                     "player_start":"string"
+                     "player":"string"
                     },
                  "rotation":0,
                  "type":"",
