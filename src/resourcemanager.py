@@ -28,6 +28,8 @@
 
 import json
 import os
+import sys
+import traceback
 import zipfile
 
 import filetype
@@ -103,7 +105,12 @@ class ResourceManager:
         if data:
             if type(data) == bytes:
                 data = data.decode()
-            obj = json.loads(data)
+            try:
+                obj = json.loads(data)
+            except json.decoder.JSONDecodeError:
+                self.driftwood.log.msg("ERROR", "Resource", "request_json", "malformed json", filename)
+                traceback.print_exc(1, sys.stdout)
+                return None
             self.driftwood.cache.upload(filename, obj)
             return obj
         else:

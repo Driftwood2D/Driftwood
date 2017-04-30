@@ -85,7 +85,7 @@ class Layer:
             return self.tiles[int((y * self.tilemap.width) + x)]
 
         else:
-            self.driftwood.log.msg("WARNING", "Layer", "tile", self.zpos,
+            self.driftwood.log.msg("WARNING", "Layer", self.zpos, "tile",
                                    "tried to lookup nonexistent tile at", "{0}x{1}".format(x, y))
             return None
 
@@ -102,7 +102,7 @@ class Layer:
             return int((y * self.tilemap.width) + x)
 
         else:
-            self.driftwood.log.msg("WARNING", "Layer", "tile_index", self.zpos,
+            self.driftwood.log.msg("WARNING", "Layer", self.zpos, "tile_index",
                                    "tried to lookup nonexistent tile at", "{0}x{1}".format(x, y))
             return None
 
@@ -122,7 +122,7 @@ class Layer:
             # Is the object properly sized?
             if (obj["x"] % self.tilemap.tilewidth or obj["y"] % self.tilemap.tileheight or
                     obj["width"] % self.tilemap.tilewidth or obj["height"] % self.tilemap.tileheight):
-                self.driftwood.log.msg("ERROR", "Layer", "_process_objects",
+                self.driftwood.log.msg("ERROR", "Layer", self.zpos, "_process_objects",
                                        "invalid object size or placement")
                 continue
 
@@ -148,7 +148,7 @@ class Layer:
                             # First check for and handle wide exits.
                             exit_coords = self.tile(tx, ty).properties[exittype].split(',')
                             if len(exit_coords) != 4:
-                                self.driftwood.log.msg("ERROR", "Layer", "_process_objects",
+                                self.driftwood.log.msg("ERROR", "Layer", self.zpos, "_process_objects",
                                                        "invalid exit trigger",
                                                        self.tile(tx, ty).properties[exittype])
                                 continue
@@ -187,7 +187,7 @@ class Layer:
                     if "entity" in self.tile(tx, ty).properties:
                         args = self.tile(tx, ty).properties["entity"].split(",")
                         if len(args) != 4:
-                            self.driftwood.log.msg("ERROR", "Layer", "_process_objects",
+                            self.driftwood.log.msg("ERROR", "Layer", self.zpos, "_process_objects",
                                                    "invalid entity trigger",
                                                    self.tile(tx, ty).properties["entity"])
                             return

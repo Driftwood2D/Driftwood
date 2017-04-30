@@ -79,7 +79,9 @@ class AreaManager:
 
         if map_json: # Did we successfully retrieve the map?
             self.filename = filename  # Set out current filename.
-            self.tilemap._read(filename, map_json)  # Read the tilemap. This should only be called from here.
+            if not self.tilemap._read(filename, map_json):  # Read the tilemap.
+                self.driftwood.log.msg("ERROR", "Area", "focus", "could not load tilemap", filename)
+                return False
             self.driftwood.log.info("Area", "loaded", filename)
 
             # We have moved areas.

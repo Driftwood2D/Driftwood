@@ -97,6 +97,9 @@ class Tilemap:
         Args:
             filename: Filename of the Tiled map file.
             data: JSON contents of the Tiled map.
+
+        Returns:
+            True if succeeded, False if failed.
         """
         # Reset variables left over from the last map.
         if self.layers:
@@ -134,7 +137,7 @@ class Tilemap:
         for tileset_json in self.__tilemap["tilesets"]:
             ts = tileset.Tileset(self.driftwood, self)
             if not ts.load(filename, tileset_json):
-                pass  # TODO: stop loading the tilemap & fail in an elegant manner
+                return False  # There is no way we can continue without our tilesets.
             self.tilesets.append(ts)
 
         # Global object layer.
@@ -155,14 +158,15 @@ class Tilemap:
                 # If this is the very first layer, it's the global object layer.
                 if not self.layers:
                     gobjlayer = l
-
                 else:
                     self.layers[-1]._process_objects(l)
 
         # Merge the global object layer into all tile layers.
         if gobjlayer:
             for l in self.layers:
-               l._process_objects(gobjlayer)
+                l._process_objects(gobjlayer)
+
+        return True
 
     def __expand_properties(self):
         new_props = {}
