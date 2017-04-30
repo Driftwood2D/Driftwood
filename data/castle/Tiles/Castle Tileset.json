@@ -1,0 +1,11 @@
+{ "columns":12,
+ "image":"Castle Tileset.png",
+ "imageheight":64,
+ "imagewidth":192,
+ "margin":0,
+ "name":"Castle Tileset",
+ "spacing":0,
+ "tilecount":48,
+ "tileheight":16,
+ "tilewidth":16
+}

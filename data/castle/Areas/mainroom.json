@@ -184,30 +184,8 @@
  "tileheight":16,
  "tilesets":[
         {
-         "columns":12,
          "firstgid":1,
-         "image":"..\/Tiles\/Castle Tileset.png",
-         "imageheight":64,
-         "imagewidth":192,
-         "margin":0,
-         "name":"Castle Tileset",
-         "spacing":0,
-         "tilecount":48,
-         "tileheight":16,
-         "tilewidth":16
-        }, 
-        {
-         "columns":2,
-         "firstgid":49,
-         "image":"..\/Tiles\/Scimitar.png",
-         "imageheight":48,
-         "imagewidth":32,
-         "margin":0,
-         "name":"Scimitar",
-         "spacing":0,
-         "tilecount":6,
-         "tileheight":16,
-         "tilewidth":16
+         "source":"..\/Tiles\/Castle Tileset.json"
         }],
  "tilewidth":16,
  "version":1,
