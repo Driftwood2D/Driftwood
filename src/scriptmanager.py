@@ -82,9 +82,9 @@ class ScriptManager:
         Returns:
             Function return code if succeeded, None if failed.
         """
+        if self[filename] is None:
+            return None
         try:
-            if self[filename] is None:
-                return None
             return getattr(self[filename], func)(*args)
         except:
             self.driftwood.log.msg("ERROR", "Script", "call", "broken function", filename, func + "()",

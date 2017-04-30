@@ -78,6 +78,7 @@ from audiomanager import AudioManager
 from widgetmanager import WidgetManager
 from scriptmanager import ScriptManager
 
+
 class _Driftwood:
     """The top-level base class
 
@@ -222,13 +223,102 @@ class _Driftwood:
         self.window._terminate()
 
 
+class CheckFailure(Exception):
+    """This only needs to exist. It belongs to the global scope so is recognized anywhere.
+    """
+    pass
+
+
+def _check(item, _type, _min=None, _max=None, _equals=None):
+    """Check if an input matches type, min, max, and/or equality requirements.
+    
+    This function belongs to the global scope as CHECK().
+    
+    For integers and floats, the min, max, and equals checks work as one would expect. For strings, lists, and
+    tuples, they compare length. For dicts they compare numbers of keys.
+    
+    On failure, an CheckFailure will be raised. CheckFailure belongs to the global scope so all scripts
+    know what it is.
+    
+    The correct way to use CHECK()s is to wrap them in a try/except clause and then catch CheckFailure. When
+    caught, the text contents of the exception can be logged to give more information.
+    
+    Arguments:
+        item: Input to be checked.
+        _type: The type the input is expected to be.
+        _min: If set, the minimum value, length, or size of the input, depending on type.
+        _max: If set, the maximum value, length, or size of the input, depending on type.
+        _equals: If set, check if the value, length, or size of the input is equal to _equals, depending on type.
+    
+    Returns:
+        True if succeeded, raises CheckError if failed, containing failure message.
+    """
+    if type(item) is not _type:
+        raise CheckFailure("input failed type check: expected {0}, got {1}".format(_type, type(item)))
+    if _min is not None:
+        if type(item) in [int, float]:
+            if item < _min:
+                raise CheckFailure(
+                    "{0} input failed min check: expected value >= {1}, got {2}".format(_type, _min, item)
+                )
+        elif type(item) in [str, list, tuple]:
+            if len(item) < _min:
+                raise CheckFailure(
+                    "{0} input failed min check: expected length >= {1}, got {2}".format(_type, _min, len(item))
+                )
+        elif type(item) in [dict]:
+            if len(item.keys()) < _min:
+                raise CheckFailure(
+                    "{0} input failed min check: expected >= {1} keys, got {2}".format(_type, _min,
+                                                                                       len(item.keys()))
+                )
+    if _max is not None:
+        if type(item) in [int, float]:
+            if item > _max:
+                raise CheckFailure(
+                    "{0} input failed max check: expected value <= {1}, got {2}".format(_type, _min, item)
+                )
+        elif type(item) in [str, list, tuple]:
+            if len(item) > _max:
+                raise CheckFailure(
+                    "{0} input failed max check: expected length <= {1}, got {2}".format(_type, _min, len(item))
+                )
+        elif type(item) in [dict]:
+            if len(item.keys()) > _max:
+                raise CheckFailure(
+                    "{0} input failed max check: expected <= {1} keys, got {2}".format(_type, _min,
+                                                                                       len(item.keys()))
+                )
+    if _equals is not None:
+        if type(item) in [int, float]:
+            if item is not _equals:
+                raise CheckFailure(
+                    "{0} input failed equality check: expected value == {1}, got {2}".format(_type, _min, item)
+                )
+        elif type(item) in [str, list, tuple]:
+            if len(item) is not _equals:
+                raise CheckFailure(
+                    "{0} input failed equality check: expected length == {1}, got {2}".format(_type, _min,
+                                                                                              len(item))
+                )
+        elif type(item) in [dict]:
+            if len(item.keys()) is not _equals:
+                raise CheckFailure(
+                    "{0} input failed equality check: expected {1} keys, got {2}".format(_type, _min,
+                                                                                         len(item.keys()))
+                )
+    return True
+
+
 if __name__ == "__main__":
     # Set up the entry point.
     entry = _Driftwood()
 
-    # Make sure scripts have access to the base class.
+    # Make sure scripts have access to the base class, and place items in the global scope.
     import builtins
     builtins.Driftwood = entry
+    builtins.CHECK = _check
+    builtins.CheckFailure = CheckFailure
 
     # Handle shutting down gracefully on INT and TERM signals.
     def sigint_handler(signum, frame):
