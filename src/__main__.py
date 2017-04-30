@@ -114,6 +114,7 @@ class _Driftwood:
 
             running: Whether the mainloop should continue running. Set False to shut down the engine.
         """
+        # Instantiate subsystems and API.
         self.config = ConfigManager(self)
         self.log = LogManager(self)
         self.tick = TickManager(self)
@@ -137,7 +138,7 @@ class _Driftwood:
         # Space to store global temporary values that disappear on shutdown.
         self.vars = {}
 
-        # Are we going to continue running?
+        # True while running. If set back to false, the engine will shutdown at the end of the tick.
         self.running = False
 
         # Check for problems.
@@ -145,7 +146,7 @@ class _Driftwood:
             self.log.msg("WARNING", "Driftwood", "Very low tps values may cause unexpected behavior")
 
     def _console(self, evtype):
-        """Drop to a pdb console.
+        """Drop to a pdb console if the console key is pressed.
         """
         if evtype is self.input.ONDOWN:
             pdb.set_trace()
@@ -212,7 +213,8 @@ class _Driftwood:
 
     def _terminate(self):
         """Cleanup before shutdown. Here we tell all the relevant parts of the engine to free their resources
-        before being deleted. We do this because Python's __del__ method is nearly useless as a destructor.
+        before being deleted. We do this because Python's __del__ method is nearly useless as a destructor and we
+        are using C constructs that need to be freed manually.
         """
         self.log._terminate()
         self.audio._terminate()
@@ -224,8 +226,11 @@ class _Driftwood:
 
 
 class CheckFailure(Exception):
-    """This only needs to exist. It belongs to the global scope so is recognized anywhere.
+    """This exception is raised when a CHECK() fails.
+    
+    This only needs to exist. It belongs to the global scope so it's recognized anywhere.
     """
+    # Do nothing.
     pass
 
 
@@ -259,7 +264,7 @@ def _check(item, _type, _min=None, _max=None, _equals=None):
     ):
         raise CheckFailure("could not check input: cannot perform numeric checks on type {0}".format(type(item),
                                                                                                      _type))
-    
+
     # Type check.
     if type(item) is not _type:
         raise CheckFailure("{0} input failed type check: expected {1} instead".format(type(item), _type))
