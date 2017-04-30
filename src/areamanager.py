@@ -77,11 +77,12 @@ class AreaManager:
         # Ask the resource manager for the JSON map file.
         map_json = self.driftwood.resource.request_json(filename)
 
-        if map_json: # Did we successfully retrieve the map?
+        if map_json:  # Did we successfully retrieve the map?
             self.tilemap = tilemap.Tilemap(self.driftwood, self)
             self.filename = filename  # Set out current filename.
             if not self.tilemap._read(filename, map_json):  # Read the tilemap.
                 self.driftwood.log.msg("ERROR", "Area", "focus", "could not load tilemap", filename)
+                self.tilemap = None
                 return False
             self.driftwood.log.info("Area", "loaded", filename)
 

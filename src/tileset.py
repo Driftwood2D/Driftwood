@@ -97,7 +97,7 @@ class Tileset:
             # External tileset... there's a filename with another JSON
             tileset_filename = self.__resolve_path(tilemap_filename, tileset_json["source"])
             external_json = self.driftwood.resource.request_json(tileset_filename)
-            if not external_json and self.__prepare(tileset_filename, external_json, firstgid):
+            if not external_json or not self.__prepare(tileset_filename, external_json, firstgid):
                 self.driftwood.log.msg("ERROR", "Tileset", "load_tileset", "could not load tileset",
                                        tileset_filename)
                 return False
@@ -112,7 +112,6 @@ class Tileset:
         self.tileheight = tileset_json["tileheight"]
         self.width = self.imagewidth // self.tilewidth
         self.height = self.imageheight // self.tileheight
-        print(self.width)
         self.size = int(self.width * self.height)
         self.spacing = tileset_json["spacing"]
         self.range = [firstgid, firstgid - 1 + self.size]
