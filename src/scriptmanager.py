@@ -29,7 +29,6 @@
 import importlib.util
 import os
 import platform
-import sys
 import traceback
 import zipimport
 
