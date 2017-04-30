@@ -125,9 +125,12 @@ class Tilemap:
 
         self.__expand_properties()
 
+        # Call world's global on_enter handlers.
+        self.driftwood.script._call_global_triggers("on_enter")
+
         # Call the on_enter event if set.
-        if "on_load" in self.properties:
-            self.driftwood.script.call(*self.properties["on_load"].split(','))
+        if "on_enter" in self.properties:
+            self.driftwood.script.call(*self.properties["on_enter"].split(','))
 
         # Set the window title.
         if "title" in self.properties:

@@ -272,6 +272,9 @@ class Entity:
     def _do_exit(self):
         """Perform an exit to another area.
         """
+        # Call world's global on_exit handlers.
+        self.manager.driftwood.script._call_global_triggers("on_exit")
+
         # Call the on_exit event if set.
         if "on_exit" in self.manager.driftwood.area.tilemap.properties:
             args = self.manager.driftwood.area.tilemap.properties["on_exit"].split(',')
