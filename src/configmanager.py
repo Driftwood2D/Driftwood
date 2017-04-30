@@ -134,7 +134,7 @@ class ConfigManager:
         try:
             with open(self.__cmdline_args.config, 'r') as config:
                 self.__config = json.load(config)
-        except:
+        except Exception:
             print("Driftwood 2D\nStarting up...")
             print("[0] FATAL: Config: could not read config file")
             sys.exit(1)  # Fail.
@@ -151,7 +151,7 @@ class ConfigManager:
                     if type(sch) == bytes:
                         sch = sch.decode()
                     schema = json.loads(sch)
-        except:
+        except Exception:
             print("Driftwood 2D\nStarting up...")
             print("[0] FATAL: Config: could not load schema to validate config file")
             sys.exit(1)  # Fail.

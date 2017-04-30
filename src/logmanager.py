@@ -134,7 +134,7 @@ class LogManager:
         try:
             with open(self.driftwood.config["log"]["file"], "a+") as test:
                 return True
-        except:
+        except Exception:
             return False
 
     def _terminate(self):

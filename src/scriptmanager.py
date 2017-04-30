@@ -88,7 +88,7 @@ class ScriptManager:
             return None
         try:
             return getattr(self[filename], func)(*args)
-        except:
+        except Exception:
             self.driftwood.log.msg("ERROR", "Script", "call", "error from function", filename, func + "()",
                                    '\n'+traceback.format_exc().rstrip())
             return None
@@ -310,7 +310,7 @@ class ScriptManager:
                 self.driftwood.log.info("Script", "loaded", filename)
                 return True
 
-            except:
+            except Exception:
                 self.driftwood.log.msg("ERROR", "Script", "__load", "error from script", filename,
                                        '\n' + traceback.format_exc(1).rstrip())
                 return False
