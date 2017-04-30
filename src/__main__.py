@@ -237,7 +237,7 @@ def _check(item, _type, _min=None, _max=None, _equals=None):
     For integers and floats, the min, max, and equals checks work as one would expect. For strings, lists, and
     tuples, they compare length. For dicts they compare numbers of keys.
     
-    On failure, an CheckFailure will be raised. CheckFailure belongs to the global scope so all scripts
+    On failure, a CheckFailure will be raised. CheckFailure belongs to the global scope so all scripts
     know what it is.
     
     The correct way to use CHECK()s is to wrap them in a try/except clause and then catch CheckFailure. When
@@ -251,10 +251,10 @@ def _check(item, _type, _min=None, _max=None, _equals=None):
         _equals: If set, check if the value, length, or size of the input is equal to _equals, depending on type.
     
     Returns:
-        True if succeeded, raises CheckError if failed, containing failure message.
+        True if succeeded, raises CheckFailure if failed, containing failure message.
     """
     if type(item) is not _type:
-        raise CheckFailure("input failed type check: expected {0}, got {1}".format(_type, type(item)))
+        raise CheckFailure("{0} input failed type check: expected {1} instead".format(type(item), _type))
     if _min is not None:
         if type(item) in [int, float]:
             if item < _min:
