@@ -54,7 +54,7 @@ class AreaManager:
         self.driftwood = driftwood
 
         self.filename = ""
-        self.tilemap = tilemap.Tilemap(driftwood, self)
+        self.tilemap = None
         self.changed = False
         self.offset = [0, 0]
         self.refocused = False
@@ -78,6 +78,7 @@ class AreaManager:
         map_json = self.driftwood.resource.request_json(filename)
 
         if map_json: # Did we successfully retrieve the map?
+            self.tilemap = tilemap.Tilemap(self.driftwood, self)
             self.filename = filename  # Set out current filename.
             self.tilemap._read(filename, map_json)  # Read the tilemap. This should only be called from here.
             self.driftwood.log.info("Area", "loaded", filename)
@@ -97,7 +98,7 @@ class AreaManager:
             return True
 
         else:
-            self.driftwood.log.msg("ERROR", "Area", "focus", "no such area", filename)
+            self.driftwood.log.msg("ERROR", "Area", "focus", "could not load area", filename)
             return False
 
     def _blur(self):
@@ -110,6 +111,7 @@ class AreaManager:
                                        self.tilemap.properties["on_blur"])
                 return
             self.driftwood.script.call(*args)
+        self.tilemap = None
 
     def _tick(self, seconds_past):
         """Tick callback.
