@@ -27,6 +27,7 @@
 # **********
 
 import importlib.util
+import inspect
 import os
 import platform
 import sys
@@ -54,6 +55,8 @@ class ScriptManager:
 
         # Double dictionary of custom triggers mapped by name.
         self.custom_triggers = {}  # {name: {"event", "func", "nargs", "minargs"}}
+
+        self.global_triggers = {}
 
         # Dictionary of module instances mapped by filename.
         self.__modules = {}
@@ -164,6 +167,62 @@ class ScriptManager:
         # Failure.
         self.driftwood.log.msg("ERROR", "Script", "undefine", "no such trigger", name)
         return False
+
+    def register(self, event, func):
+        """Define a global trigger that is called everytime a particular type of event happens.
+
+        Args:
+            event: Type of event on which to activate the trigger. [on_enter, on_exit, on_focus, on_blur]
+            func: The function to be called. Must take no arguments.
+
+        Returns:
+            True if succeeded, False if failed.
+        """
+        # Perform checks on input.
+        if event not in ["on_enter", "on_exit", "on_focus", "on_blur"]:
+            self.driftwood.log.msg("ERROR", "Script", "register", "invalid event", event)
+            return False
+
+        if not callable(func):
+            self.driftwood.log.msg("ERROR", "Script", "register", "not callable", func)
+            return False
+
+        args, varargs, keywords, defaults = inspect.getargspec(func)
+        if not (args == [] and varargs is None and keywords is None and defaults is None):
+            self.driftwood.log.msg("ERROR", "Script", "register", "not nullary", func)
+            return False
+
+        # Insert the trigger.
+        if event not in self.global_triggers:
+            self.global_triggers[event] = []
+        self.global_triggers[event].append(func)
+        self.driftwood.log.info("Script", "registered", "{0} trigger \"{1}\"".format(event, func))
+        return True
+
+    def unregister(self, event, func):
+        """Undefine a global trigger that was defined earlier.
+
+        Args:
+            event: The global trigger the event was registered under.
+            func: The trigger to remove.
+
+        Returns:
+            True if succeeded, False if failed.
+        """
+        # Does this exist?
+        if event in self.global_triggers and func in self.global_triggers[event]:
+            self.global_triggers[event].remove(func)
+            self.driftwood.log.info("Script", "unregistered trigger", func)
+            return True
+
+        # Failure.
+        self.driftwood.log.msg("ERROR", "Script", "unregister", "no such trigger", func)
+        return False
+
+    def _call_global_triggers(self, event):
+        if event in self.global_triggers:
+            for func in self.global_triggers[event]:
+                func()
 
     def is_custom_trigger(self, property_name):
         return property_name in self.custom_triggers

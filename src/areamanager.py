@@ -85,6 +85,9 @@ class AreaManager:
             # We have moved areas.
             self.refocused = True
 
+            # Call world's global on_focus handlers.
+            self.driftwood.script._call_global_triggers("on_focus")
+
             # If there is an on_focus function defined for this map, call it.
             if "on_focus" in self.tilemap.properties:
                 args = self.tilemap.properties["on_focus"].split(',')
@@ -101,8 +104,12 @@ class AreaManager:
             return False
 
     def _blur(self):
-        """If there is an on_blur function defined for this map, call it. This is called when we leave an area.
+        """Call the global on_blur functions, and call the map's on_blur, if it has one. This is called when we leave
+        an area.
         """
+        # Call the world's global on_blur handlers.
+        self.driftwood.script._call_global_triggers("on_blur")
+
         if "on_blur" in self.tilemap.properties:
             args = self.tilemap.properties["on_blur"].split(',')
             if len(args) < 2:

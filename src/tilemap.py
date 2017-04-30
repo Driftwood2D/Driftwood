@@ -122,6 +122,9 @@ class Tilemap:
 
         self.__expand_properties()
 
+        # Call world's global on_enter handlers.
+        self.driftwood.script._call_global_triggers("on_load")
+
         # Call the on_enter event if set.
         if "on_load" in self.properties:
             self.driftwood.script.call(*self.properties["on_load"].split(','))
