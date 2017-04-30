@@ -253,60 +253,94 @@ def _check(item, _type, _min=None, _max=None, _equals=None):
     Returns:
         True if succeeded, raises CheckFailure if failed, containing failure message.
     """
+    # Check if we are trying to check min, max, or equality on an unsupported type.
+    if type(item) not in [int, float, str, list, tuple, dict] and (
+                        _min is not None or _max is not None or _equals is not None
+    ):
+        raise CheckFailure("could not check input: cannot perform numeric checks on type {0}".format(type(item),
+                                                                                                     _type))
+    
+    # Type check.
     if type(item) is not _type:
         raise CheckFailure("{0} input failed type check: expected {1} instead".format(type(item), _type))
+
+    # Minimum check.
     if _min is not None:
+        if type(_min) not in [int, float]:
+            # Bad argument.
+            raise CheckFailure("could not check input: illegal type {0} for _min argument".format(type(_min)))
         if type(item) in [int, float]:
+            # Check value.
             if item < _min:
                 raise CheckFailure(
                     "{0} input failed min check: expected value >= {1}, got {2}".format(_type, _min, item)
                 )
         elif type(item) in [str, list, tuple]:
+            # Check length.
             if len(item) < _min:
                 raise CheckFailure(
                     "{0} input failed min check: expected length >= {1}, got {2}".format(_type, _min, len(item))
                 )
         elif type(item) in [dict]:
+            # Check size.
             if len(item.keys()) < _min:
                 raise CheckFailure(
                     "{0} input failed min check: expected >= {1} keys, got {2}".format(_type, _min,
                                                                                        len(item.keys()))
                 )
+
+    # Maximum check.
     if _max is not None:
+        if type(_max) not in [int, float]:
+            # Bad argument.
+            raise CheckFailure("could not check input: illegal type {0} for _max argument".format(type(_max)))
         if type(item) in [int, float]:
+            # Check value.
             if item > _max:
                 raise CheckFailure(
                     "{0} input failed max check: expected value <= {1}, got {2}".format(_type, _min, item)
                 )
         elif type(item) in [str, list, tuple]:
+            # Check length.
             if len(item) > _max:
                 raise CheckFailure(
                     "{0} input failed max check: expected length <= {1}, got {2}".format(_type, _min, len(item))
                 )
         elif type(item) in [dict]:
+            # Check size.
             if len(item.keys()) > _max:
                 raise CheckFailure(
                     "{0} input failed max check: expected <= {1} keys, got {2}".format(_type, _min,
                                                                                        len(item.keys()))
                 )
+
+    # Equality check.
     if _equals is not None:
+        if type(_equals) not in [int, float]:
+            # Bad argument.
+            raise CheckFailure("could not check input: illegal type {0} for _equals argument".format(type(_equals)))
         if type(item) in [int, float]:
+            # Check value.
             if item is not _equals:
                 raise CheckFailure(
                     "{0} input failed equality check: expected value == {1}, got {2}".format(_type, _min, item)
                 )
         elif type(item) in [str, list, tuple]:
+            # Check length.
             if len(item) is not _equals:
                 raise CheckFailure(
                     "{0} input failed equality check: expected length == {1}, got {2}".format(_type, _min,
                                                                                               len(item))
                 )
         elif type(item) in [dict]:
+            # Check size.
             if len(item.keys()) is not _equals:
                 raise CheckFailure(
                     "{0} input failed equality check: expected {1} keys, got {2}".format(_type, _min,
                                                                                          len(item.keys()))
                 )
+
+    # Success.
     return True
 
 
