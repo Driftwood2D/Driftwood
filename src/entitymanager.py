@@ -91,7 +91,14 @@ class EntityManager:
 
         Returns: New entity if succeeded, None if failed.
         """
+        if not self.driftwood.area.tilemap:
+            self.driftwood.log.msg("ERROR", "Entity", "insert", "no area loaded")
+            return None
+
         data = self.driftwood.resource.request_json(filename)
+        if not data:
+            self.driftwood.log.msg("ERROR", "Entity", "insert", "could not get resource", filename)
+            return None
         schema = self.driftwood.resource.request_json("schema/entity.json")
 
         self.__last_eid += 1
@@ -101,7 +108,7 @@ class EntityManager:
         try:
             jsonschema.validate(data, schema)
         except jsonschema.ValidationError:
-            self.driftwood.log.msg("ERROR", "Entity", "insert", filename, "failed validation")
+            self.driftwood.log.msg("ERROR", "Entity", "insert", "failed validation", filename)
             traceback.print_exc(1, sys.stdout)
             sys.stdout.flush()
             return None

@@ -141,3 +141,4 @@ class Tileset:
             return os.path.normpath(os.path.dirname(base_filename) + os.path.sep + filename)
         else:
             return filename
+

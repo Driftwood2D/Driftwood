@@ -78,6 +78,7 @@ from audiomanager import AudioManager
 from widgetmanager import WidgetManager
 from scriptmanager import ScriptManager
 
+
 class _Driftwood:
     """The top-level base class
 
@@ -113,6 +114,7 @@ class _Driftwood:
 
             running: Whether the mainloop should continue running. Set False to shut down the engine.
         """
+        # Instantiate subsystems and API.
         self.config = ConfigManager(self)
         self.log = LogManager(self)
         self.tick = TickManager(self)
@@ -136,7 +138,7 @@ class _Driftwood:
         # Space to store global temporary values that disappear on shutdown.
         self.vars = {}
 
-        # Are we going to continue running?
+        # True while running. If set back to false, the engine will shutdown at the end of the tick.
         self.running = False
 
         # Check for problems.
@@ -144,7 +146,7 @@ class _Driftwood:
             self.log.msg("WARNING", "Driftwood", "Very low tps values may cause unexpected behavior")
 
     def _console(self, evtype):
-        """Drop to a pdb console.
+        """Drop to a pdb console if the console key is pressed.
         """
         if evtype is self.input.ONDOWN:
             pdb.set_trace()
@@ -211,7 +213,8 @@ class _Driftwood:
 
     def _terminate(self):
         """Cleanup before shutdown. Here we tell all the relevant parts of the engine to free their resources
-        before being deleted. We do this because Python's __del__ method is nearly useless as a destructor.
+        before being deleted. We do this because Python's __del__ method is nearly useless as a destructor and we
+        are using C constructs that need to be freed manually.
         """
         self.log._terminate()
         self.audio._terminate()
@@ -222,13 +225,139 @@ class _Driftwood:
         self.window._terminate()
 
 
+class CheckFailure(Exception):
+    """This exception is raised when a CHECK() fails.
+    
+    This only needs to exist. It belongs to the global scope so it's recognized anywhere.
+    """
+    # Do nothing.
+    pass
+
+
+def _check(item, _type, _min=None, _max=None, _equals=None):
+    """Check if an input matches type, min, max, and/or equality requirements.
+    
+    This function belongs to the global scope as CHECK().
+    
+    For integers and floats, the min, max, and equals checks work as one would expect. For strings, lists, and
+    tuples, they compare length. For dicts they compare numbers of keys.
+    
+    On failure, a CheckFailure will be raised. CheckFailure belongs to the global scope so all scripts
+    know what it is.
+    
+    The correct way to use CHECK()s is to wrap them in a try/except clause and then catch CheckFailure. When
+    caught, the text contents of the exception can be logged to give more information.
+    
+    Arguments:
+        item: Input to be checked.
+        _type: The type the input is expected to be.
+        _min: If set, the minimum value, length, or size of the input, depending on type.
+        _max: If set, the maximum value, length, or size of the input, depending on type.
+        _equals: If set, check if the value, length, or size of the input is equal to _equals, depending on type.
+    
+    Returns:
+        True if succeeded, raises CheckFailure if failed, containing failure message.
+    """
+    # Check if we are trying to check min, max, or equality on an unsupported type.
+    if type(item) not in [int, float, str, list, tuple, dict] and (
+                        _min is not None or _max is not None or _equals is not None
+    ):
+        raise CheckFailure("could not check input: cannot perform numeric checks on type {0}".format(type(item),
+                                                                                                     _type))
+
+    # Type check.
+    if type(item) is not _type:
+        raise CheckFailure("{0} input failed type check: expected {1} instead".format(type(item), _type))
+
+    # Minimum check.
+    if _min is not None:
+        if type(_min) not in [int, float]:
+            # Bad argument.
+            raise CheckFailure("could not check input: illegal type {0} for _min argument".format(type(_min)))
+        if type(item) in [int, float]:
+            # Check value.
+            if item < _min:
+                raise CheckFailure(
+                    "{0} input failed min check: expected value >= {1}, got {2}".format(_type, _min, item)
+                )
+        elif type(item) in [str, list, tuple]:
+            # Check length.
+            if len(item) < _min:
+                raise CheckFailure(
+                    "{0} input failed min check: expected length >= {1}, got {2}".format(_type, _min, len(item))
+                )
+        elif type(item) in [dict]:
+            # Check size.
+            if len(item.keys()) < _min:
+                raise CheckFailure(
+                    "{0} input failed min check: expected >= {1} keys, got {2}".format(_type, _min,
+                                                                                       len(item.keys()))
+                )
+
+    # Maximum check.
+    if _max is not None:
+        if type(_max) not in [int, float]:
+            # Bad argument.
+            raise CheckFailure("could not check input: illegal type {0} for _max argument".format(type(_max)))
+        if type(item) in [int, float]:
+            # Check value.
+            if item > _max:
+                raise CheckFailure(
+                    "{0} input failed max check: expected value <= {1}, got {2}".format(_type, _min, item)
+                )
+        elif type(item) in [str, list, tuple]:
+            # Check length.
+            if len(item) > _max:
+                raise CheckFailure(
+                    "{0} input failed max check: expected length <= {1}, got {2}".format(_type, _min, len(item))
+                )
+        elif type(item) in [dict]:
+            # Check size.
+            if len(item.keys()) > _max:
+                raise CheckFailure(
+                    "{0} input failed max check: expected <= {1} keys, got {2}".format(_type, _min,
+                                                                                       len(item.keys()))
+                )
+
+    # Equality check.
+    if _equals is not None:
+        if type(_equals) not in [int, float]:
+            # Bad argument.
+            raise CheckFailure("could not check input: illegal type {0} for _equals argument".format(type(_equals)))
+        if type(item) in [int, float]:
+            # Check value.
+            if item is not _equals:
+                raise CheckFailure(
+                    "{0} input failed equality check: expected value == {1}, got {2}".format(_type, _min, item)
+                )
+        elif type(item) in [str, list, tuple]:
+            # Check length.
+            if len(item) is not _equals:
+                raise CheckFailure(
+                    "{0} input failed equality check: expected length == {1}, got {2}".format(_type, _min,
+                                                                                              len(item))
+                )
+        elif type(item) in [dict]:
+            # Check size.
+            if len(item.keys()) is not _equals:
+                raise CheckFailure(
+                    "{0} input failed equality check: expected {1} keys, got {2}".format(_type, _min,
+                                                                                         len(item.keys()))
+                )
+
+    # Success.
+    return True
+
+
 if __name__ == "__main__":
     # Set up the entry point.
     entry = _Driftwood()
 
-    # Make sure scripts have access to the base class.
+    # Make sure scripts have access to the base class, and place items in the global scope.
     import builtins
     builtins.Driftwood = entry
+    builtins.CHECK = _check
+    builtins.CheckFailure = CheckFailure
 
     # Handle shutting down gracefully on INT and TERM signals.
     def sigint_handler(signum, frame):
