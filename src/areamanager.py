@@ -74,6 +74,13 @@ class AreaManager:
         Returns:
             True if succeeded, False if failed.
         """
+        # Input Check
+        try:
+            CHECK(filename, str)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Area", "focus", "bad argument", e)
+            return False
+
         # Ask the resource manager for the JSON map file.
         map_json = self.driftwood.resource.request_json(filename)
 

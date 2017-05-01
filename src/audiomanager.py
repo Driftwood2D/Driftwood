@@ -94,6 +94,16 @@ class AudioManager:
         Returns:
             Channel number if succeeded, None if failed.
         """
+        # Input Check
+        try:
+            CHECK(filename, str)
+            CHECK(volume, int)
+            CHECK(loop, int, _min=-1)
+            CHECK(fade, [int, float])
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Audio", "play_sfx", "bad argument", e)
+            return False
+
         # Give up if we didn't initialize properly.
         if False in self.__init_success:
             self.driftwood.log.msg("WARNING", "Audio", "play_sfx", "cannot play sfx due to initialization failure",
@@ -110,8 +120,10 @@ class AudioManager:
         if volume is not None:
             # Keep volume within bounds.
             if volume > 128:
+                self.driftwood.log.msg("WARNING", "Audio", "play_sfx", "volume is more than 128", volume)
                 volume = 128
             if volume < 0:
+                self.driftwood.log.msg("WARNING", "Audio", "play_sfx", "volume is less than 0", volume)
                 volume = 0
 
             # Set the volume.
@@ -143,12 +155,25 @@ class AudioManager:
         Returns:
             Integer volume if succeeded (average volume of sfx if -1 channel is passed), None if failed.
         """
+        # Input Check
+        try:
+            CHECK(channel, int)
+            if volume:
+                CHECK(volume, int)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Audio", "volume_sfx", "bad argument", e)
+            return False
+
         # Search for the sound effect.
         if channel in self.__sfx:
             if volume is not None:
                 # Keep volume within bounds.
                 if volume > 128:
                     volume = 128
+                    self.driftwood.log.msg("WARNING", "Audio", "volume_sfx", "volume is more than 128", volume)
+                if volume < 0:
+                    self.driftwood.log.msg("WARNING", "Audio", "volume_sfx", "volume is less than 0", volume)
+                    volume = 0
 
                 # Set the volume.
                 Mix_Volume(channel, volume)
@@ -170,6 +195,15 @@ class AudioManager:
         Returns:
             Integer volume if succeeded, None if failed.
         """
+        # Input Check
+        try:
+            CHECK(filename, str)
+            if volume:
+                CHECK(volume, int)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Audio", "volume_sfx_by_filename", "bad argument", e)
+            return False
+
         # Check for the sfx.
         for sfx in self.__sfx:
             if self.__sfx[sfx][0] == filename:
@@ -177,6 +211,12 @@ class AudioManager:
                     # Keep volume within bounds.
                     if volume > 128:
                         volume = 128
+                        self.driftwood.log.msg("WARNING", "Audio", "volume_sfx_by_filename",
+                                               "volume is more than 128", volume)
+                    if volume < 0:
+                        self.driftwood.log.msg("WARNING", "Audio", "volume_sfx_by_filename",
+                                               "volume is less than 0", volume)
+                        volume = 0
 
                     # Set the volume.
                     Mix_Volume(sfx, volume)
@@ -199,6 +239,14 @@ class AudioManager:
         Returns:
             True if succeeded, false if failed.
         """
+        # Input Check
+        try:
+            CHECK(channel, int)
+            CHECK(fade, [int, float], _min=0)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Audio", "stop_sfx", "bad argument", e)
+            return False
+
         if channel in self.__sfx:
             if Mix_Playing(channel):
                 if not fade:  # Stop channel.
@@ -223,6 +271,14 @@ class AudioManager:
         Returns:
             True if succeeded, false if failed.
         """
+        # Input Check
+        try:
+            CHECK(filename, str)
+            CHECK(fade, [int, float], _min=0)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Audio", "volume_sfx", "bad argument", e)
+            return False
+
         for sfx in self.__sfx:
             if self.__sfx[sfx][0] == filename:
                 if not Mix_Playing(sfx):
@@ -263,6 +319,17 @@ class AudioManager:
         Returns:
             True if succeeded, False if failed.
         """
+        # Input Check
+        try:
+            CHECK(filename, str)
+            if volume:
+                CHECK(volume, int)
+            CHECK(loop, int, _min=-1)
+            CHECK(fade, [int, float], _min=0)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Audio", "play_music", "bad argument", e)
+            return False
+
         # Give up if we didn't initialize properly.
         if 0 in self.__init_success:
             self.driftwood.log.msg("WARNING", "Audio", "play_music","cannot play music due to initialization failure",
@@ -295,7 +362,9 @@ class AudioManager:
             # Keep volume within bounds.
             if volume > 128:
                 volume = 128
+                self.driftwood.log.msg("WARNING", "Audio", "volume_sfx", "volume is more than 128", volume)
             if volume < 0:
+                self.driftwood.log.msg("WARNING", "Audio", "volume_sfx", "volume is less than 0", volume)
                 volume = 0
 
             # Set the volume.
@@ -316,12 +385,24 @@ class AudioManager:
         Returns:
             Integer volume if succeeded, None if failed.
         """
+        # Input Check
+        try:
+            if volume:
+                CHECK(volume, int)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Audio", "volume_music", "bad argument", e)
+            return False
+
         # Search for the sound effect.
         if self.playing_music:
             if volume is not None:
                 # Keep volume within bounds.
                 if volume > 128:
                     volume = 128
+                    self.driftwood.log.msg("WARNING", "Audio", "volume_sfx", "volume is more than 128", volume)
+                if volume < 0:
+                    self.driftwood.log.msg("WARNING", "Audio", "volume_sfx", "volume is less than 0", volume)
+                    volume = 0
 
                 # Set the volume.
                 Mix_VolumeMusic(volume)
@@ -341,6 +422,13 @@ class AudioManager:
         Returns:
             True if succeeded, False if failed.
         """
+        # Input Check
+        try:
+            CHECK(fade, [int, float], _min=0)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Audio", "stop_music", "bad argument", e)
+            return False
+
         if not self.__music:
             return False
 
