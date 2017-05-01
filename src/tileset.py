@@ -101,7 +101,7 @@ class Tileset:
                 self.driftwood.log.msg("ERROR", "Tileset", "load_tileset", "could not load tileset",
                                        tileset_filename)
                 return False
-            return self.__prepare(tilemap_filename, external_json, firstgid)
+            return True
 
     def __prepare(self, image_base_path, tileset_json, firstgid):
         """Load values into our tileset."""

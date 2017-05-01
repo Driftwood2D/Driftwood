@@ -87,7 +87,7 @@ class InputManager:
         """
         try:
             return SDL_GetKeyName(keysym).decode()
-        except Exception:
+        except:
             return None
 
     def keysym(self, keyname):
@@ -101,7 +101,7 @@ class InputManager:
         """
         try:
             return getattr(self.driftwood.keycode, self.driftwood.config["input"]["keybinds"][keyname])
-        except Exception:
+        except:
             return None
 
     def register(self, keyid, callback, throttle=0.0, delay=0.0, mod=False):

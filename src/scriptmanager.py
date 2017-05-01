@@ -310,7 +310,7 @@ class ScriptManager:
                 self.driftwood.log.info("Script", "loaded", filename)
                 return True
 
-            except Exception:
+            except:
                 self.driftwood.log.msg("ERROR", "Script", "__load", "error from script", filename,
                                        '\n' + traceback.format_exc(1).rstrip())
                 return False

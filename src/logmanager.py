@@ -73,7 +73,6 @@ class LogManager:
                 if not self.__check_suppress(chain, True):
                     self.driftwood.running = False
             return True
-
         return False
 
     def info(self, *chain):
@@ -87,10 +86,8 @@ class LogManager:
         """
         if not self.__check_suppress(chain):
             if self.driftwood.config["log"]["verbose"]:
-
                 self.__print(["INFO"] + list(chain))
                 return True
-
         return False
 
     def __print(self, chain):
@@ -134,7 +131,7 @@ class LogManager:
         try:
             with open(self.driftwood.config["log"]["file"], "a+") as test:
                 return True
-        except Exception:
+        except:
             return False
 
     def _terminate(self):

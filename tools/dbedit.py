@@ -131,7 +131,7 @@ class JZdb:
             else:
                 with open(self.filename, "rb") as test:
                     return True
-        except Exception:
+        except:
             return False
 
     def __load(self):
@@ -147,7 +147,7 @@ class JZdb:
                     return json.loads(zlib.decompress(dbcontents).decode())
                 else:
                     return {}
-        except Exception:
+        except:
             return None
 
 
@@ -236,7 +236,7 @@ if __name__ == "__main__":
         try:
             with open(db.filename, 'wb') as dbfile:
                 dbfile.write(zlib.compress(json.dumps(db.database).encode()))
-        except Exception:
+        except:
             print("FAILURE :: PUT :: {0}".format(args.put[0]))
             sys.exit(5)
 
@@ -253,7 +253,7 @@ if __name__ == "__main__":
         try:
             with open(db.filename, 'wb') as dbfile:
                 dbfile.write(zlib.compress(json.dumps(db.database).encode()))
-        except Exception:
+        except:
             print("FAILURE :: REMOVE :: {0}".format(args.put[0]))
             sys.exit(6)
 
