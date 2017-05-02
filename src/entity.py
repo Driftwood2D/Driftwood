@@ -515,8 +515,8 @@ class TileModeEntity(Entity):
         """
         # Input Check
         try:
-            CHECK(x, int, _min=0)
-            CHECK(y, int, _min=0)
+            CHECK(x, int, _min=-1, _max=1)
+            CHECK(y, int, _min=-1, _max=1)
             CHECK(dont_stop, bool)
             if stance:
                 CHECK(stance, str)
@@ -943,8 +943,8 @@ class PixelModeEntity(Entity):
         """
         # Input Check
         try:
-            CHECK(x, int, _min=0)
-            CHECK(y, int, _min=0)
+            CHECK(x, int, _min=-1, _max=1)
+            CHECK(y, int, _min=-1, _max=1)
             if facing:
                 CHECK(facing, str)
             if stance:
