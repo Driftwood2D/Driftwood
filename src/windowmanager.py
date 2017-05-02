@@ -170,6 +170,9 @@ class WindowManager:
         self.__setup_fps()
 
     def __setup_fps(self):
+        """Query SDL to determine our monitor's refresh rate. Use this to set the engine's ticks per second and maximum
+        frames per second if they're not alrady set.
+        """
         display = SDL_GetWindowDisplayIndex(self.window)
         display_mode = SDL_DisplayMode()
         SDL_GetCurrentDisplayMode(display, byref(display_mode))
