@@ -164,14 +164,19 @@
         "zoom": {
           "type": "integer",
           "minimum": 1
-        }
+        },
+	"maxfps": {
+          "type": "integer",
+          "minimum": 0
+	}
       },
       "required": [
         "title",
         "width",
         "height",
         "fullscreen",
-        "zoom"
+        "zoom",
+	"maxfps"
       ]
     }
   },

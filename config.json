@@ -48,6 +48,7 @@
     "width": 480,
     "height": 480,
     "fullscreen": false,
-    "zoom": 4
+    "zoom": 4,
+    "maxfps": 0
   }
 }

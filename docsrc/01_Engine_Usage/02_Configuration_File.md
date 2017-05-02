@@ -190,4 +190,4 @@ The value of "zoom" is the number of times to multiply the width of a pixel in-g
 
 ### maxfps
 
-The value of "maxfps" is the maximum frames per second the engine will display at. It also determines how many ticks the engine can perform per second. Each tick is a cycle of the engine in which things can happen.
+The value of "maxfps" is the maximum frames per second the engine will display at. It also determines how many ticks the engine can perform per second. Each tick is a cycle of the engine in which things can happen. A value of 0 means this value will be determined automatically based on your hardware.
