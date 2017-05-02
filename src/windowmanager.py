@@ -181,8 +181,6 @@ class WindowManager:
         if not refresh_rate:
             refresh_rate = 60
 
-        if "tps" not in self.driftwood.config["tick"]:
-            self.driftwood.config["tick"]["tps"] = refresh_rate
         if "maxfps" not in self.driftwood.config["window"]:
             self.driftwood.config["window"]["maxfps"] = refresh_rate
 

@@ -142,8 +142,8 @@ class _Driftwood:
         self.running = False
 
         # Check for problems.
-        if self.config["tick"]["tps"] < 10:
-            self.log.msg("WARNING", "Driftwood", "Very low tps values may cause unexpected behavior")
+        if self.config["window"]["maxfps"] < 10:
+            self.log.msg("WARNING", "Driftwood", "Very low fps values may cause unexpected behavior")
 
     def _console(self, evtype):
         """Drop to a pdb console if the console key is pressed.

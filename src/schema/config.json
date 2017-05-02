@@ -144,15 +144,6 @@
         "path"
       ]
     },
-    "tick": {
-      "type": "object",
-      "properties": {
-        "tps": {
-          "type": "number",
-          "minimum": 1
-        }
-      }
-    },
     "window": {
       "type": "object",
       "properties": {
