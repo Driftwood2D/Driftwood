@@ -54,16 +54,12 @@ Here is the configuration file that comes with this version of the engine:
       "test/"
     ]
   },
-  "tick": {
-    "tps": 60
-  },
   "window": {
     "title": "Driftwood 2D",
     "width": 480,
     "height": 480,
     "fullscreen": false,
-    "zoom": 4,
-    "maxfps": 60
+    "zoom": 4
   }
 }
 ```
@@ -170,7 +166,7 @@ The value of "path" (the subsection, not the section) is a comma-separated list 
 
 ## tick
 
-The "tick" section contains settings regarding engine ticks. Each tick is a cycle of the engine in which things can happen.
+The "tick" section is an optional section that you can add manually. It contains settings regarding engine ticks. Each tick is a cycle of the engine in which things can happen.
 
 ### tps
 
