@@ -151,10 +151,7 @@
           "type": "number",
           "minimum": 1
         }
-      },
-      "required": [
-        "tps"
-      ]
+      }
     },
     "window": {
       "type": "object",
@@ -199,7 +196,6 @@
     "audio",
     "log",
     "path",
-    "tick",
     "window"
   ]
 }

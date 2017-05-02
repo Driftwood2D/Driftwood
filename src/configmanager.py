@@ -174,6 +174,9 @@ class ConfigManager:
 
         print("Driftwood 2D\nStarting up...")
 
+        if "tick" not in self.__config:
+            self.__config["tick"] = {}
+
         # Read the rest of the command line arguments.
         if self.__cmdline_args.path:
             self.__config["path"]["path"] = self.__cmdline_args.path[0].split(',')

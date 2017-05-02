@@ -43,9 +43,6 @@
       "test/"
     ]
   },
-  "tick": {
-    "tps": 60
-  },
   "window": {
     "title": "Driftwood 2D",
     "width": 480,
