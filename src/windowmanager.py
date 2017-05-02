@@ -170,18 +170,18 @@ class WindowManager:
         self.__setup_fps()
 
     def __setup_fps(self):
-        """Query SDL to determine our monitor's refresh rate. Use this to set the engine's ticks per second and maximum
-        frames per second if they're not alrady set.
+        """Query SDL to determine our monitor's refresh rate. Use this to set the engine's maximum frames per second
+        if it's not alrady set.
         """
-        display = SDL_GetWindowDisplayIndex(self.window)
-        display_mode = SDL_DisplayMode()
-        SDL_GetCurrentDisplayMode(display, byref(display_mode))
-        refresh_rate = display_mode.refresh_rate
-
-        if not refresh_rate:
-            refresh_rate = 60
-
         if "maxfps" not in self.driftwood.config["window"]:
+            display = SDL_GetWindowDisplayIndex(self.window)
+            display_mode = SDL_DisplayMode()
+            SDL_GetCurrentDisplayMode(display, byref(display_mode))
+            refresh_rate = display_mode.refresh_rate
+
+            if not refresh_rate:
+                refresh_rate = 60
+
             self.driftwood.config["window"]["maxfps"] = refresh_rate
 
     def _terminate(self):
