@@ -26,9 +26,10 @@
 # IN THE SOFTWARE.
 # **********
 
+from ctypes import byref
+
 from sdl2 import *
 from sdl2.sdlimage import *
-
 
 class WindowManager:
     """The Window Manager
@@ -163,6 +164,19 @@ class WindowManager:
 
         # Pixelated goodness, like a rebel.
         SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, b"nearest")
+
+        # Since the computer might have multiple monitors, we can now look at the monitor our window is on for a
+        # singular TPS.
+        self.__setup_tps()
+
+    def __setup_tps(self):
+        if "tps" not in self.driftwood.config["tick"]:
+            display = SDL_GetWindowDisplayIndex(self.window)
+            display_mode = SDL_DisplayMode()
+            SDL_GetCurrentDisplayMode(display, byref(display_mode))
+            fps = display_mode.refresh_rate
+
+            self.driftwood.config["tick"]["tps"] = fps
 
     def _terminate(self):
         """Cleanup before deletion.
