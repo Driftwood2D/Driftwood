@@ -178,6 +178,9 @@ class WindowManager:
         SDL_GetCurrentDisplayMode(display, byref(display_mode))
         refresh_rate = display_mode.refresh_rate
 
+        if not refresh_rate:
+            refresh_rate = 60
+
         if "tps" not in self.driftwood.config["tick"]:
             self.driftwood.config["tick"]["tps"] = refresh_rate
         if "maxfps" not in self.driftwood.config["window"]:
