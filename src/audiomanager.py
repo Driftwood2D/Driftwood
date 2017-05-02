@@ -102,7 +102,7 @@ class AudioManager:
             CHECK(fade, [int, float])
         except CheckFailure as e:
             self.driftwood.log.msg("ERROR", "Audio", "play_sfx", "bad argument", e)
-            return False
+            return None
 
         # Give up if we didn't initialize properly.
         if False in self.__init_success:
@@ -162,7 +162,7 @@ class AudioManager:
                 CHECK(volume, int)
         except CheckFailure as e:
             self.driftwood.log.msg("ERROR", "Audio", "volume_sfx", "bad argument", e)
-            return False
+            return None
 
         # Search for the sound effect.
         if channel in self.__sfx:
@@ -202,7 +202,7 @@ class AudioManager:
                 CHECK(volume, int)
         except CheckFailure as e:
             self.driftwood.log.msg("ERROR", "Audio", "volume_sfx_by_filename", "bad argument", e)
-            return False
+            return None
 
         # Check for the sfx.
         for sfx in self.__sfx:
@@ -391,7 +391,7 @@ class AudioManager:
                 CHECK(volume, int)
         except CheckFailure as e:
             self.driftwood.log.msg("ERROR", "Audio", "volume_music", "bad argument", e)
-            return False
+            return None
 
         # Search for the sound effect.
         if self.playing_music:

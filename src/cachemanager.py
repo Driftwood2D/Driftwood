@@ -77,6 +77,14 @@ class CacheManager:
         Returns:
             True if succeeded, false if failed.
         """
+        # Input Check
+        try:
+            CHECK(filename, str)
+            CHECK(keep_for_ttl, bool)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Cache", "upload", "bad argument", e)
+            return False
+
         # If a previous version existed, clean it up properly.
         if filename in self.__cache:
             self.purge(filename)
@@ -99,6 +107,14 @@ class CacheManager:
         Returns:
             File contents if succeeded, None if failed.
         """
+        # Input Check
+        try:
+            CHECK(filename, str)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Cache", "download", "bad argument", e)
+            return None
+
+        # Download from the cache.
         if filename in self.__cache:
             self.__cache[filename]["timestamp"] = self.__now
             self.driftwood.log.info("Cache", "downloaded", filename)
@@ -115,6 +131,14 @@ class CacheManager:
         Returns:
             True
         """
+        # Input Check
+        try:
+            CHECK(filename, str)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Cache", "purge", "bad argument", e)
+            return None
+
+        # Purge the file from the cache.
         if filename in self.__cache:
             # If this file has a _terminate() function, be sure to call it first.
             if getattr(self.__cache[filename]["contents"], "_terminate", None):
