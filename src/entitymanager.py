@@ -91,6 +91,16 @@ class EntityManager:
 
         Returns: New entity if succeeded, None if failed.
         """
+        # Input Check
+        try:
+            CHECK(filename, str)
+            CHECK(layer, int, _min=0)
+            CHECK(x, int, _min=0)
+            CHECK(y, int, _min=0)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Entity", "insert", "bad argument", e)
+            return None
+
         if not self.driftwood.area.tilemap:
             self.driftwood.log.msg("ERROR", "Entity", "insert", "no area loaded")
             return None
@@ -166,6 +176,13 @@ class EntityManager:
 
         Returns: Entity class instance if succeeded, None if failed.
         """
+        # Input Check
+        try:
+            CHECK(eid, int, _min=0)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Entity", "entity", "bad argument", e)
+            return None
+
         if eid in self.entities:
             return self.entities[eid]
 
@@ -180,6 +197,14 @@ class EntityManager:
 
         Returns: Entity class instance if succeeded, None if failed.
         """
+        # Input Check
+        try:
+            CHECK(x, int, _min=0)
+            CHECK(y, int, _min=0)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Entity", "entity_at", "bad argument", e)
+            return None
+
         for eid in self.entities:
             if self.entities[eid].x == x and self.entities[eid].y == y:
                 return self.entities[eid]
@@ -193,6 +218,13 @@ class EntityManager:
 
         Returns: List of Entity class instances.
         """
+        # Input Check
+        try:
+            CHECK(layer, int, _min=0)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Entity", "layer", "bad argument", e)
+            return []
+
         ents = []
 
         for eid in self.entities:
@@ -211,6 +243,13 @@ class EntityManager:
         Returns:
             True if succeeded, False if failed.
         """
+        # Input Check
+        try:
+            CHECK(eid, int, _min=0)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Entity", "kill", "bad argument", e)
+            return False
+
         if eid in self.entities:
             if self.entities[eid]._on_kill:  # Call a function before killing the entity.
                 self.driftwood.script.call(self.entities[eid]._on_kill[0], self.entities[eid]._on_kill[1],
@@ -232,6 +271,13 @@ class EntityManager:
         Returns:
             True if succeeded, False if failed.
         """
+        # Input Check
+        try:
+            CHECK(filename, str)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Entity", "killall", "bad argument", e)
+            return False
+
         to_kill = []
 
         for eid in self.entities:
@@ -260,6 +306,13 @@ class EntityManager:
 
         Returns: Spritesheet class instance if succeeded, False if failed.
         """
+        # Input Check
+        try:
+            CHECK(filename, str)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Entity", "spritesheet", "bad argument", e)
+            return None
+
         for ss in self.spritesheets:
             if self.spritesheets[ss].filename == filename:
                 return self.spritesheets[ss]
@@ -272,8 +325,9 @@ class EntityManager:
         Args:
             a: First colliding entity.
             b: Second colliding entity or tile.
-
-
+        
+        Returns:
+            True
         """
         if self.collider:
             self.collider(a, b)

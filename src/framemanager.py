@@ -114,9 +114,19 @@ class FrameManager:
         Returns:
             True if succeeded, False if failed.
         """
+        # Input Check
+        try:
+            CHECK(width, int)
+            CHECK(height, int)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Frame", "prepare", "bad argument", e)
+            return False
+
+        # Clear backbuffer
         if self.__backbuffer:
             SDL_DestroyTexture(self.__backbuffer)
 
+        # Recreate backbuffer
         self.__backbuffer = SDL_CreateTexture(self.driftwood.window.renderer,
                                              SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET,
                                              width, height)
@@ -134,8 +144,16 @@ class FrameManager:
             tex: Use internal back buffer if None, otherwise SDL_Texture or filetype.ImageFile instance.
 
         Returns:
-            True
+            True if succeeded, False if failed.
         """
+        # Input Check
+        try:
+            if tex:
+                CHECK(tex, [SDL_Texture, filetype.ImageFile])
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Frame", "frame", "bad argument", e)
+            return False
+
         # Use our internal back buffer.
         if tex is None:
             self.__frontbuffer = self.__backbuffer
@@ -242,10 +260,21 @@ class FrameManager:
             srcrect: Source rectangle [x, y, w, h]
             dstrect: Destination rectangle [x, y, w, h]
             direct: Ignore the back buffer and copy directly onto the front buffer.
-        
         Returns:
             True if succeeded, False if failed.
         """
+        # Input Check
+        try:
+            CHECK(tex, SDL_Texture)
+            CHECK(srcrect, list, _equals=4)
+            CHECK(dstrect, list, _equals=4)
+            if direct:
+                CHECK(direct, bool)
+            # TODO: Check other arguments.
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Frame", "copy", "bad argument", e)
+            return False
+
         # We have to finish before we return.
         ret = True
 
@@ -344,10 +373,21 @@ class FrameManager:
             dstrect: Destination rectangle [x, y, w, h]
 
         Returns:
-            True
+            True if succeeded, False if failed.
         """
+        # Input Check
+        try:
+            CHECK(tex, SDL_Texture)
+            CHECK(srcrect, list, _equals=4)
+            CHECK(dstrect, list, _equals=4)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Frame", "overlay", "bad argument", e)
+            return False
+
         # Set up the rectangles.
         self.__overlay.append([tex, list(srcrect), list(dstrect)])
+
+        return True
 
     def _terminate(self):
         """Cleanup before deletion.
