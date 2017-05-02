@@ -156,7 +156,17 @@ class Entity:
 
         Args:
             stance: The name of the stance to set.
+        
+        Returns:
+            True if succeeded, False if failed.
         """
+        # Input Check
+        try:
+            CHECK(stance, str)
+        except CheckFailure as e:
+            self.manager.driftwood.log.msg("ERROR", "Entity", "set_stance", self.eid, "bad argument", e)
+            return False
+
         if stance not in self.__entity:
             # Fake!
             self.manager.driftwood.log.msg("ERROR", "Entity", "set_stance", self.eid, "no such stance", stance)
@@ -209,6 +219,8 @@ class Entity:
             self.manager.driftwood.tick.register(self.__next_member, delay=(1 / self.afps))
 
         self.manager.driftwood.area.changed = True
+
+        return True
 
     def _read(self, filename, data, eid):
         """Read the entity descriptor.
@@ -423,6 +435,17 @@ class TileModeEntity(Entity):
         Returns:
             True if succeeded, False if failed.
         """
+        # Input Check
+        try:
+            CHECK(layer, int, _min=0)
+            CHECK(x, int, _min=0)
+            CHECK(y, int, _min=0)
+            if area:
+                CHECK(area, str)
+        except CheckFailure as e:
+            self.manager.driftwood.log.msg("ERROR", "Entity", self.eid, "teleport", "bad argument", e)
+            return False
+
         tilemap = self.manager.driftwood.area.tilemap
 
         if area:
@@ -433,7 +456,8 @@ class TileModeEntity(Entity):
         if (((layer is not None) and (layer < 0 or len(tilemap.layers) <= layer)) or
                 (x is not None and x >= tilemap.width) or
                 (y is not None and y >= tilemap.height)):
-            self.manager.driftwood.log.msg("ERROR", "Entity", "teleport", "attempt to teleport to non-tile position")
+            self.manager.driftwood.log.msg("ERROR", "Entity", self.eid, "teleport",
+                                           "attempt to teleport to non-tile position")
             return False
 
         # Decide what to do with the layer.
@@ -472,23 +496,39 @@ class TileModeEntity(Entity):
 
         return True
 
-    def walk(self, x, y, dont_stop=False, stance=None, end_stance=None):
+    def walk(self, x, y, dont_stop=False, facing=None, stance=None, end_stance=None):
         """Walk the entity by one tile to a new position relative to its current
            position.
 
         Args:
             x: -1 for left, 1 for right, 0 for no x movement.
             y: -1 for up, 1 for down, 0 for no y movement.
-            dont_stop: Walk continuously, don't stop after one tile or pixel. Only stop when self.walk_state externally
-                set to Entity.WALKING_WANT_STOP.  Only has an effect if x or y is set.
+            dont_stop: Walk continuously, don't stop after one tile or pixel. 
+                Only stop when self.walk_state externally set to Entity.WALKING_WANT_STOP.
+                Only has an effect if x or y is set.
+            facing: Unused, needed for compatibility with pixel mode.
             stance: Set the stance we will assume when the walk occurs.
             end_stance: Set the stance we will assume if we stop after this walk.
 
         Returns: True if succeeded, false if failed (due to collision or already
                  busy walking).
         """
+        # Input Check
+        try:
+            CHECK(x, int, _min=0)
+            CHECK(y, int, _min=0)
+            CHECK(dont_stop, bool)
+            if stance:
+                CHECK(stance, str)
+            if end_stance:
+                CHECK(end_stance, str)
+        except CheckFailure as e:
+            self.manager.driftwood.log.msg("ERROR", "Entity", self.eid, "walk", "bad argument", e)
+            return False
+
         if x and y:  # We can't move in two directions at once!
-            self.manager.driftwood.log.msg("ERROR", "Entity", "walk", self.eid, "cannot move in two directions at once")
+            self.manager.driftwood.log.msg("ERROR", "Entity", self.eid, "walk",
+                                           "cannot move in two directions at once")
             return False
 
         self._next_stance = stance
@@ -534,9 +574,17 @@ class TileModeEntity(Entity):
 
         Returns: True if succeeded, False if failed.
         """
+        # Input Check
+        try:
+            if direction:
+                CHECK(direction, str)
+        except CheckFailure as e:
+            self.manager.driftwood.log.msg("ERROR", "Entity", self.eid, "interact", "bad argument", e)
+            return False
+
         if direction and direction not in ["left", "right", "up", "down", "under", "none"]:  # Illegal facing.
-            self.manager.driftwood.log.msg("ERROR", "Entity", "interact", self.eid, "no such direction for interaction",
-                                           direction)
+            self.manager.driftwood.log.msg("ERROR", "Entity", self.eid, "interact",
+                                           "no such direction for interaction", direction)
             return False
         elif direction is "none":
             return False
@@ -836,8 +884,20 @@ class PixelModeEntity(Entity):
         Returns:
             True if succeeded, False if failed.
         """
+        # Input Check
+        try:
+            CHECK(layer, int, _min=0)
+            CHECK(x, int, _min=0)
+            CHECK(y, int, _min=0)
+            CHECK(area, str)
+        except CheckFailure as e:
+            self.manager.driftwood.log.msg("ERROR", "Entity", self.eid, "teleport", "bad argument", e)
+            return False
+
+        # Get our tilemap.
         tilemap = self.manager.driftwood.area.tilemap
 
+        # We're going to another area.
         if area:
             self._next_area = [area, layer, x, y]
             return True
@@ -846,7 +906,8 @@ class PixelModeEntity(Entity):
         if (((layer is not None) and (layer < 0 or len(tilemap.layers) <= layer)) or
                 (x is not None and x >= tilemap.width) or
                 (y is not None and y >= tilemap.height)):
-            self.manager.driftwood.log.msg("ERROR", "Entity", "teleport", "attempt to teleport to non-tile position")
+            self.manager.driftwood.log.msg("ERROR", "Entity", self.eid, "teleport",
+                                           "attempt to teleport to non-tile position")
             return False
 
         if layer:
@@ -872,7 +933,7 @@ class PixelModeEntity(Entity):
         Args:
             x: -1 for left, 1 for right, 0 for no x movement.
             y: -1 for up, 1 for down, 0 for no y movement.
-            dont_stop: Unused, Needed for compatibility with turn mode.
+            dont_stop: Unused, Needed for compatibility with tile mode.
             facing: If set, which way to face for the purpose of interaction.
                 ["left", "right", "up", "down", "none"]
             stance: Set the stance we will assume when the walk occurs.
@@ -880,6 +941,20 @@ class PixelModeEntity(Entity):
 
         Returns: True if succeeded, false if failed (due to collision).
         """
+        # Input Check
+        try:
+            CHECK(x, int, _min=0)
+            CHECK(y, int, _min=0)
+            if facing:
+                CHECK(facing, str)
+            if stance:
+                CHECK(stance, str)
+            if end_stance:
+                CHECK(end_stance, str)
+        except CheckFailure as e:
+            self.manager.driftwood.log.msg("ERROR", "Entity", self.eid, "walk", "bad argument", e)
+            return False
+
         # Change weird values to 0.
         if not x or x not in [-1, 0, 1]:
             x = 0
@@ -907,7 +982,7 @@ class PixelModeEntity(Entity):
             if facing:
                 if facing not in ["left", "right", "up", "down", "none"
                                   ]:
-                    self.manager.driftwood.log.msg("ERROR", "Entity", "walk", "illegal facing")
+                    self.manager.driftwood.log.msg("ERROR", "Entity", self.eid, "walk", "illegal facing", facing)
                 else:
                     self.facing = facing
             else:
@@ -939,9 +1014,17 @@ class PixelModeEntity(Entity):
 
         Returns: True if succeeded, False if failed.
         """
+        # Input Check
+        try:
+            if direction:
+                CHECK(direction, str)
+        except CheckFailure as e:
+            self.manager.driftwood.log.msg("ERROR", "Entity", self.eid, "interact", "bad argument", e)
+            return False
+
         if direction and direction not in ["left", "right", "up", "down", "under", "none"]:  # Illegal facing.
-            self.manager.driftwood.log.msg("ERROR", "Entity", "interact", self.eid, "no such direction for interaction",
-                                           direction)
+            self.manager.driftwood.log.msg("ERROR", "Entity", self.eid, "interact",
+                                           "no such direction for interaction", direction)
             return False
         elif direction is "none":
             return False
