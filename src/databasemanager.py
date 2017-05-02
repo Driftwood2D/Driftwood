@@ -95,6 +95,13 @@ class DatabaseManager:
         Returns:
             True if succeeded, False if failed.
         """
+        # Input Check
+        try:
+            CHECK(filename, str)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Database", "open", "bad argument", e)
+            return None
+
         self.flush()  # Write the current database to disk first.
 
         filename = os.path.join(self.driftwood.config["database"]["root"], filename)
@@ -127,6 +134,14 @@ class DatabaseManager:
 
         Returns: Python object if succeeded, None if failed.
         """
+        # Input Check
+        try:
+            CHECK(key, str)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Cache", "get", "bad argument", e)
+            return None
+
+        # Get the key.
         if key in self.__database:
             self.driftwood.log.info("Database", "get", "\"{0}\"".format(key))
             return self.__database[key]
@@ -146,6 +161,13 @@ class DatabaseManager:
 
         Returns: True if succeeded, False if failed.
         """
+        # Input Check
+        try:
+            CHECK(key, str)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Cache", "put", "bad argument", e)
+            return None
+
         # Test if object is JSON serializable.
         try:
             ret = json.loads(obj)
@@ -168,6 +190,14 @@ class DatabaseManager:
 
         Returns: True if succeeded, False if failed.
         """
+        # Input Check
+        try:
+            CHECK(key, str)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Cache", "remove", "bad argument", e)
+            return None
+
+        # Remove the key.
         if key in self.__database:
             del self.__database[key]
             self.driftwood.log.info("Database", "remove", "\"{0}\"".format(key))
