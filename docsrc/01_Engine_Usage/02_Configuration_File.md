@@ -54,16 +54,12 @@ Here is the configuration file that comes with this version of the engine:
       "test/"
     ]
   },
-  "tick": {
-    "tps": 60
-  },
   "window": {
     "title": "Driftwood 2D",
     "width": 480,
     "height": 480,
     "fullscreen": false,
-    "zoom": 4,
-    "maxfps": 60
+    "zoom": 4
   }
 }
 ```
@@ -168,14 +164,6 @@ The value of "root" is a string. It contains the relative path (from the top dir
 
 The value of "path" (the subsection, not the section) is a comma-separated list of paths to packages, relative to the "root" directory. These packages are directories or zip files, and they are loaded on top of each other into the virtual filesystem in the order they are listed, replacing conflicting files from the ones preceding. This allows hotpatching. The "path" list must contain, at the very least, the relative path to the world package you are trying to load. See the [Data Path and Patching](Data_Path_and_Patching) section later in this chapter for more information.
 
-## tick
-
-The "tick" section contains settings regarding engine ticks. Each tick is a cycle of the engine in which things can happen.
-
-### tps
-
-The value of "tps" is the number of ticks per second the engine runs at. This is the engine's speed limit for processing data. Low numbers will greatly reduce CPU usage but cause stuttering, while high numbers will increase CPU usage and are probably not useful above the frames per second your eye can detect.
-
 ## window
 
 The "window" section contains settings relating to the game window and graphics. You might also call these the video settings.
@@ -202,4 +190,4 @@ The value of "zoom" is the number of times to multiply the width of a pixel in-g
 
 ### maxfps
 
-The value of "maxfps" is the maximum frames per second the engine will display at. Setting this number higher than the ticks per second ("tps" in the "tick" section) is meaningless.
+The value of "maxfps" is the maximum frames per second the engine will display at. It also determines how many ticks the engine can perform per second. Each tick is a cycle of the engine in which things can happen. A value of 0 means this value will be determined automatically based on your hardware.

@@ -43,15 +43,12 @@
       "test/"
     ]
   },
-  "tick": {
-    "tps": 60
-  },
   "window": {
     "title": "Driftwood 2D",
     "width": 480,
     "height": 480,
     "fullscreen": false,
     "zoom": 4,
-    "maxfps": 60
+    "maxfps": 0
   }
 }

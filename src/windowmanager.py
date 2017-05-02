@@ -26,9 +26,10 @@
 # IN THE SOFTWARE.
 # **********
 
+from ctypes import byref
+
 from sdl2 import *
 from sdl2.sdlimage import *
-
 
 class WindowManager:
     """The Window Manager
@@ -163,6 +164,25 @@ class WindowManager:
 
         # Pixelated goodness, like a rebel.
         SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, b"nearest")
+
+        # Since the computer might have multiple monitors, we can now look at the monitor our window is on for a
+        # singular FPS.
+        self.__setup_fps()
+
+    def __setup_fps(self):
+        """Query SDL to determine our monitor's refresh rate. Use this to set the engine's maximum frames per second
+        if it's not alrady set.
+        """
+        if self.driftwood.config["window"]["maxfps"] == 0:
+            display = SDL_GetWindowDisplayIndex(self.window)
+            display_mode = SDL_DisplayMode()
+            SDL_GetCurrentDisplayMode(display, byref(display_mode))
+            refresh_rate = display_mode.refresh_rate
+
+            if not refresh_rate:
+                refresh_rate = 60
+
+            self.driftwood.config["window"]["maxfps"] = refresh_rate
 
     def _terminate(self):
         """Cleanup before deletion.

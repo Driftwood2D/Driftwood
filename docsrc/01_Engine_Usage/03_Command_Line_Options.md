@@ -9,10 +9,10 @@ Running the engine with the "--help" option shows us what options are available:
 <pre>
 [myself@Linux Driftwood]$ bin/driftwood --help
 usage: driftwood [-h] [--path <name,...>] [--root <root>] [--db <database>]
-                 [--dbroot <root>] [--size <WxH>] [--tps <hertz>]
-                 [--ttl <seconds>] [--maxfps <fps>] [--mvol <0-128>]
-                 [--svol <0-128>] [--window | --fullscreen]
-                 [--quiet | --verbose] [--halt | --continue] [--version]
+                 [--dbroot <root>] [--size <WxH>] [--ttl <seconds>]
+                 [--maxfps <fps>] [--mvol <0-128>] [--svol <0-128>]
+                 [--window | --fullscreen] [--quiet | --verbose]
+                 [--halt | --continue] [--version]
                  [config]
 
 Driftwood 2D Alpha-0.0.6
@@ -27,7 +27,6 @@ optional arguments:
   --db <database>    set database to use
   --dbroot <root>    set database root
   --size <WxH>       set window dimensions
-  --tps <hertz>      set ticks-per-second
   --ttl <seconds>    set cache time-to-live
   --maxfps <fps>     set max fps
   --mvol <0-128>     set music volume
@@ -74,10 +73,6 @@ The "--dbroot" option is followed by the relative path (from the current working
 ### --size
 
 The "--size" option is followed by the dimensions (in format WxH) of the game window, or the maximum dimensions in fullscreen.
-
-### --tps
-
-The "--tps" option is followed by the number of ticks per second at which the engine will run. Each tick is a processing cycle of the engine. This will also limit your max fps.
 
 ### --ttl
 

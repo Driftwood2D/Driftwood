@@ -96,7 +96,6 @@ class ConfigManager:
         parser.add_argument("--dbroot", nargs=1, dest="dbroot", type=str, metavar="<root>",
                             help="set database root")
         parser.add_argument("--size", nargs=1, dest="size", type=str, metavar="<WxH>", help="set window dimensions")
-        parser.add_argument("--tps", nargs=1, dest="tps", type=int, metavar="<hertz>", help="set ticks-per-second")
         parser.add_argument("--ttl", nargs=1, dest="ttl", type=int, metavar="<seconds>", help="set cache time-to-live")
         parser.add_argument("--maxfps", nargs=1, dest="maxfps", type=int, metavar="<fps>", help="set max fps")
         parser.add_argument("--mvol", nargs=1, dest="mvol", type=int, metavar="<0-128>", help="set music volume")
@@ -190,9 +189,6 @@ class ConfigManager:
         if self.__cmdline_args.size:
             w, h = self.__cmdline_args.size[0].split('x')
             self.__config["window"]["width"], self.__config["window"]["height"] = int(w), int(h)
-
-        if self.__cmdline_args.tps:
-            self.__config["tick"]["tps"] = self.__cmdline_args.tps[0]
 
         if self.__cmdline_args.ttl:
             self.__config["cache"]["ttl"] = self.__cmdline_args.ttl[0]

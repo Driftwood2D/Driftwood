@@ -150,7 +150,7 @@ class TickManager:
         return True
 
     def _tick(self):
-        """Call all registered tick callbacks not currently delayed, and regulate tps.
+        """Call all registered tick callbacks not currently delayed, and regulate the number of ticks per second.
 
         Returns:
             True
@@ -189,7 +189,7 @@ class TickManager:
         """
         now = self._get_time()
         time_delta = now - self._most_recent_time
-        tick_duration = 1 / self.driftwood.config["tick"]["tps"]
+        tick_duration = 1 / self.driftwood.config["window"]["maxfps"]
         delay = tick_duration - time_delta
         return delay
 

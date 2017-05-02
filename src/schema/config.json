@@ -144,18 +144,6 @@
         "path"
       ]
     },
-    "tick": {
-      "type": "object",
-      "properties": {
-        "tps": {
-          "type": "number",
-          "minimum": 1
-        }
-      },
-      "required": [
-        "tps"
-      ]
-    },
     "window": {
       "type": "object",
       "properties": {
@@ -177,10 +165,10 @@
           "type": "integer",
           "minimum": 1
         },
-        "maxfps": {
+	"maxfps": {
           "type": "integer",
-          "minimum": 1
-        }
+          "minimum": 0
+	}
       },
       "required": [
         "title",
@@ -188,7 +176,7 @@
         "height",
         "fullscreen",
         "zoom",
-        "maxfps"
+	"maxfps"
       ]
     }
   },
@@ -199,7 +187,6 @@
     "audio",
     "log",
     "path",
-    "tick",
     "window"
   ]
 }
