@@ -166,17 +166,19 @@ class WindowManager:
         SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, b"nearest")
 
         # Since the computer might have multiple monitors, we can now look at the monitor our window is on for a
-        # singular TPS.
-        self.__setup_tps()
+        # singular FPS.
+        self.__setup_fps()
 
-    def __setup_tps(self):
+    def __setup_fps(self):
+        display = SDL_GetWindowDisplayIndex(self.window)
+        display_mode = SDL_DisplayMode()
+        SDL_GetCurrentDisplayMode(display, byref(display_mode))
+        refresh_rate = display_mode.refresh_rate
+
         if "tps" not in self.driftwood.config["tick"]:
-            display = SDL_GetWindowDisplayIndex(self.window)
-            display_mode = SDL_DisplayMode()
-            SDL_GetCurrentDisplayMode(display, byref(display_mode))
-            fps = display_mode.refresh_rate
-
-            self.driftwood.config["tick"]["tps"] = fps
+            self.driftwood.config["tick"]["tps"] = refresh_rate
+        if "maxfps" not in self.driftwood.config["window"]:
+            self.driftwood.config["window"]["maxfps"] = refresh_rate
 
     def _terminate(self):
         """Cleanup before deletion.
