@@ -260,6 +260,9 @@ class FrameManager:
             srcrect: Source rectangle [x, y, w, h]
             dstrect: Destination rectangle [x, y, w, h]
             direct: Ignore the back buffer and copy directly onto the front buffer.
+            alpha: (optional) An additional alpha value multiplied into the copy.
+            blendmode: (optional) Which SDL2 blend mode to use.
+            colormod: (optional) An additional color value multiplied into the copy.
         Returns:
             True if succeeded, False if failed.
         """
