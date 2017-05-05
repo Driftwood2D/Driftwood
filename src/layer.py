@@ -78,6 +78,14 @@ class Layer:
 
         Returns: Tile instance or None if out of bounds.
         """
+        # Input Check
+        try:
+            CHECK(x, int)
+            CHECK(y, int)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Layer", self.zpos, "tile", "bad argument", e)
+            return None
+
         if x < 0 or y < 0 or x >= self.tilemap.width or y >= self.tilemap.height:
             return None
 
@@ -98,6 +106,14 @@ class Layer:
 
         Returns: index of tile in tiles list if succeeded, None if failed.
         """
+        # Input Check
+        try:
+            CHECK(x, int)
+            CHECK(y, int)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Layer", self.zpos, "tile_index", "bad argument", e)
+            return None
+
         if int((y * self.tilemap.width) + x) < len(self.tiles):
             return int((y * self.tilemap.width) + x)
 

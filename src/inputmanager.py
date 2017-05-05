@@ -26,6 +26,8 @@
 # IN THE SOFTWARE.
 # **********
 
+import types
+
 from sdl2 import SDL_GetKeyName
 
 
@@ -85,6 +87,14 @@ class InputManager:
         Returns:
             Keyname if succeeded, None if failed.
         """
+        # Input Check
+        try:
+            CHECK(keysym, int, _min=0)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Input", "keyname", "bad argument", e)
+            return None
+
+        # Retrieve.
         try:
             return SDL_GetKeyName(keysym).decode()
         except:
@@ -99,6 +109,14 @@ class InputManager:
         Returns:
             Keysym if succeeded, None if failed.
         """
+        # Input Check
+        try:
+            CHECK(keyname, str)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Input", "keysym", "bad argument", e)
+            return None
+
+        # Retrieve
         try:
             return getattr(self.driftwood.keycode, self.driftwood.config["input"]["keybinds"][keyname])
         except:
@@ -121,6 +139,18 @@ class InputManager:
         Returns:
             True if succeeded, False if failed.
         """
+        # Input Check
+        try:
+            CHECK(keyid, [int, str], _min=0)
+            CHECK(callback, [types.FunctionType, types.MethodType])
+            CHECK(throttle, [int, float], _min=0)
+            CHECK(delay, [int, float], _min=0)
+            CHECK(mod, bool)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Input", "register", "bad argument", e)
+            return False
+
+        # Find keysym.
         if type(keyid) == int:
             keysym = keyid
         elif type(keyid) == str:
@@ -152,11 +182,20 @@ class InputManager:
         Returns:
             True if succeeded, False if failed.
         """
+        # Input Check
+        try:
+            CHECK(keysym, int, _min=0)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Input", "unregister", "bad argument", e)
+            return False
+
+        # Unregister.
         if keysym in self.__registry:
             del self.__registry[keysym]
             return True
         else:
-            self.driftwood.log.msg("WARNING", "InputManager", "unregister", "key not registered", self.keyname(keysym))
+            self.driftwood.log.msg("WARNING", "InputManager", "unregister", "key not registered",
+                                   self.keyname(keysym))
             return False
 
     def pressed(self, keysym):
@@ -165,6 +204,14 @@ class InputManager:
         Args:
             keysym: SDLKey for the keypress to check.
         """
+        # Input Check
+        try:
+            CHECK(keysym, int, _min=0)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Input", "pressed", "bad argument", e)
+            return False
+
+        # Is pressed.
         if keysym in self.__stack:
             return True
 

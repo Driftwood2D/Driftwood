@@ -261,7 +261,7 @@ class FrameManager:
             dstrect: Destination rectangle [x, y, w, h]
             direct: Ignore the back buffer and copy directly onto the front buffer.
             alpha: (optional) An additional alpha value multiplied into the copy.
-            blendmode: (optional) Which SDL2 blend mode to use.
+            blendmode: (optional) Which SDL2 blend mode to use. 
             colormod: (optional) An additional color value multiplied into the copy.
         Returns:
             True if succeeded, False if failed.
@@ -273,7 +273,9 @@ class FrameManager:
             CHECK(dstrect, list, _equals=4)
             if direct:
                 CHECK(direct, bool)
-            # TODO: Check other arguments.
+            CHECK(alpha, int)
+            CHECK(blendmode, int)
+            CHECK(colormod, int)
         except CheckFailure as e:
             self.driftwood.log.msg("ERROR", "Frame", "copy", "bad argument", e)
             return False
