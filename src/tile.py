@@ -125,6 +125,14 @@ class Tile:
     def offset(self, x, y):
         """Return the tile at this offset.
         """
+        # Input Check
+        try:
+            CHECK(x, int)
+            CHECK(y, int)
+        except CheckFailure as e:
+            self.tileset.driftwood.log.msg("ERROR", "Tile", [self.layer, self.pos], "offset", "bad argument", e)
+            return None
+
         return self.layer.tile(self.pos[0] + x, self.pos[1] + y)
 
     def setgid(self, gid, members=None, afps=None):  # TODO: Make sure the GID exists.
@@ -137,6 +145,17 @@ class Tile:
         Returns:
             True
         """
+        # Input Check
+        try:
+            CHECK(gid, int, _min=0)
+            if members is not None:
+                CHECK(members, list)
+            if afps is not None:
+                CHECK(afps, int, _min=0)
+        except CheckFailure as e:
+            self.tileset.driftwood.log.msg("ERROR", "Tile", [self.layer, self.pos], "setgid", "bad argument", e)
+            return None
+
         self.gid = gid
         self.localgid = self.gid - self.tileset.range[0]
 

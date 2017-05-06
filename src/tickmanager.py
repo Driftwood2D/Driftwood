@@ -26,8 +26,8 @@
 # IN THE SOFTWARE.
 # **********
 
+import types
 from inspect import signature
-from types import FunctionType, MethodType
 from sdl2 import SDL_Delay, SDL_GetTicks
 
 # Upper bound on latency we can handle from the OS when we expect to return from sleep, measured in seconds.
@@ -84,8 +84,15 @@ class TickManager:
         Returns:
             True if succeeded, False if failed.
         """
-        if not type(func) in [FunctionType, MethodType]:
-            print(str(type(func)))
+        # Input Check
+        try:
+            CHECK(func, [types.FunctionType, types.MethodType])
+            CHECK(delay, float, _min=0.0)
+            CHECK(once, bool)
+            CHECK(during_pause, bool)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Tick", "register", "bad argument", e)
+            return False
 
         for callback in self.__registry:
             if callback["function"] == func:
@@ -112,6 +119,13 @@ class TickManager:
         Returns:
             True if succeeded, False if failed.
         """
+        # Input Check
+        try:
+            CHECK(func, [types.FunctionType, types.MethodType])
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Tick", "unregister", "bad argument", e)
+            return False
+
         for n, callback in enumerate(self.__registry):
             if callback["function"] == func:
                 del self.__registry[n]
@@ -131,6 +145,13 @@ class TickManager:
         Returns:
             True if registered, False otherwise.
         """
+        # Input Check
+        try:
+            CHECK(func, [types.FunctionType, types.MethodType])
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Tick", "registered", "bad argument", e)
+            return False
+
         for callback in self.__registry:
             if callback["function"] == func:
                 return True

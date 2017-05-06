@@ -82,11 +82,20 @@ class Tileset:
         """Populate a Tileset with data from a Tiled map's tileset object.
 
         Args:
-            tileset_json: Tiled tileset JSON object
+            tilemap_filename: Filename to say is our filename.
+            tileset_json: Tiled tileset JSON object.
 
         Returns:
             True if everything was successful, False otherwise
         """
+        # Input Check
+        try:
+            CHECK(tilemap_filename, str)
+            CHECK(tileset_json, object)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Tileset", "load", "bad argument", e)
+            return None
+        
         # Regardless of whether this will be an internal or external tileset, the firstgid is always found here.
         firstgid = tileset_json["firstgid"]
 
