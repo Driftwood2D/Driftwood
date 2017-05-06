@@ -163,7 +163,7 @@ class LightManager:
             CHECK(lid, int, _min=0)
         except CheckFailure as e:
             self.driftwood.log.msg("ERROR", "Light", "light", "bad argument", e)
-            return False
+            return None
 
         if lid in self.lights:
             return self.lights[lid]
@@ -184,7 +184,7 @@ class LightManager:
             CHECK(y, int)
         except CheckFailure as e:
             self.driftwood.log.msg("ERROR", "Light", "light_at", "bad argument", e)
-            return False
+            return None
 
         for lid in self.lights:
             if self.lights[lid].x == x and self.lights[lid].y == y:
@@ -197,14 +197,14 @@ class LightManager:
         Args:
             l: The layer from which to list lights.
 
-        Returns: Tuple of Light class instances.
+        Returns: Tuple of Light class instances if succeeded, None if failed.
         """
         # Input Check
         try:
             CHECK(l, int, _min=0)
         except CheckFailure as e:
             self.driftwood.log.msg("ERROR", "Light", "layer", "bad argument", e)
-            return False
+            return None
 
         lights = []
 
@@ -227,7 +227,7 @@ class LightManager:
             CHECK(eid, int, _min=0)
         except CheckFailure as e:
             self.driftwood.log.msg("ERROR", "Light", "entity", "bad argument", e)
-            return False
+            return None
 
         for lid in self.lights:
             if self.lights[lid].entity == eid:

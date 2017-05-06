@@ -60,7 +60,7 @@ class LogManager:
         """Log a message.
 
         Args:
-            chain: A list of strings to be separated by colon-spaces and printed.
+            chain: A list of printable values to be separated by colon-spaces and printed.
 
         Returns:
             True if message was printed, false otherwise.
@@ -79,7 +79,7 @@ class LogManager:
         """Log an info message if verbosity is enabled.
 
         Args:
-            chain: A list of strings to be separated by colon-spaces and printed.
+            chain: A list of printable values to be separated by colon-spaces and printed.
 
         Returns:
             True if info was printed, false otherwise.

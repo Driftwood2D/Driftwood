@@ -84,6 +84,13 @@ class PathManager:
         Returns:
             Tuple of files inside the pathname.
         """
+        # Input Check
+        try:
+            CHECK(pathname, str)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Path", "examine", "bad argument", e)
+            return []
+
         filelist = []
 
         # Make sure we don't end in a slash.
@@ -148,10 +155,12 @@ class PathManager:
         Returns:
             True if succeeded, False if failed.
         """
-        if type(pathnames) is not list:
-            self.driftwood.log.msg("ERROR", "Path", "prepend", "not a list")
+        # Input Check
+        try:
+            CHECK(pathnames, list)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Path", "prepend", "bad argument", e)
             return False
-        pathnames = list(pathnames)
 
         for i in range(len(pathnames)):
             # Jail the pathname to root.
@@ -183,10 +192,12 @@ class PathManager:
         Returns:
             True if succeeded, False if failed.
         """
-        if type(pathnames) is not list:
-            self.driftwood.log.msg("ERROR", "Path", "append", "not a list")
+        # Input Check
+        try:
+            CHECK(pathnames, list)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Path", "append", "bad argument", e)
             return False
-        pathnames = list(pathnames)
 
         for i in range(len(pathnames)):
             # Jail the pathname to root.
@@ -214,10 +225,13 @@ class PathManager:
         Returns:
             True if succeeded, False if failed.
         """
-        if not pathnames:
-            self.driftwood.log.msg("WARNING", "Path", "remove", "attempt to remove nonexistent pathnames",
-                                   ', '.join(pathnames))
+        # Input Check
+        try:
+            CHECK(pathnames, list)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Path", "remove", "bad argument", e)
             return False
+
         pathnames = list(pathnames)
 
         for pn in pathnames:
@@ -227,6 +241,10 @@ class PathManager:
             # Remove.
             if pn in self.__path:
                 self.__path.remove(pn)
+            else:
+                self.driftwood.log.msg("WARNING", "Path", "remove", "attempt to remove nonexistent pathname",
+                                       pn)
+                return False
 
         self.driftwood.log.info("Path", "removed", ", ".join(pathnames))
 
@@ -247,6 +265,15 @@ class PathManager:
         Returns:
             The pathname which owns the filename, if any. Otherwise None.
         """
+        # Input Check
+        try:
+            CHECK(filename, str)
+            if pathname is not None:
+                CHECK(pathname, str)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Path", "find", "bad argument", e)
+            return None
+
         if pathname:
             if filename in self.examine(pathname):
                 return pathname
@@ -258,6 +285,13 @@ class PathManager:
     def find_script(self, filename):
         """Slightly less dumb hack to look for a compiled script if the uncompiled script cannot be found or vice versa.
         """
+        # Input Check
+        try:
+            CHECK(filename, str)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Path", "find_script", "bad argument", e)
+            return None
+
         ret = self.find(filename)
         if not ret:
             if filename.endswith('.py'):
