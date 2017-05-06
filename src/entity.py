@@ -440,7 +440,7 @@ class TileModeEntity(Entity):
             CHECK(layer, int, _min=0)
             CHECK(x, int, _min=0)
             CHECK(y, int, _min=0)
-            if area:
+            if area is not None:
                 CHECK(area, str)
         except CheckFailure as e:
             self.manager.driftwood.log.msg("ERROR", "Entity", self.eid, "teleport", "bad argument", e)
@@ -518,9 +518,9 @@ class TileModeEntity(Entity):
             CHECK(x, int, _min=-1, _max=1)
             CHECK(y, int, _min=-1, _max=1)
             CHECK(dont_stop, bool)
-            if stance:
+            if stance is not None:
                 CHECK(stance, str)
-            if end_stance:
+            if end_stance is not None:
                 CHECK(end_stance, str)
         except CheckFailure as e:
             self.manager.driftwood.log.msg("ERROR", "Entity", self.eid, "walk", "bad argument", e)
@@ -576,7 +576,7 @@ class TileModeEntity(Entity):
         """
         # Input Check
         try:
-            if direction:
+            if direction is not None:
                 CHECK(direction, str)
         except CheckFailure as e:
             self.manager.driftwood.log.msg("ERROR", "Entity", self.eid, "interact", "bad argument", e)
@@ -945,11 +945,11 @@ class PixelModeEntity(Entity):
         try:
             CHECK(x, int, _min=-1, _max=1)
             CHECK(y, int, _min=-1, _max=1)
-            if facing:
+            if facing is not None:
                 CHECK(facing, str)
-            if stance:
+            if stance is not None:
                 CHECK(stance, str)
-            if end_stance:
+            if end_stance is not None:
                 CHECK(end_stance, str)
         except CheckFailure as e:
             self.manager.driftwood.log.msg("ERROR", "Entity", self.eid, "walk", "bad argument", e)
@@ -1016,7 +1016,7 @@ class PixelModeEntity(Entity):
         """
         # Input Check
         try:
-            if direction:
+            if direction is not None:
                 CHECK(direction, str)
         except CheckFailure as e:
             self.manager.driftwood.log.msg("ERROR", "Entity", self.eid, "interact", "bad argument", e)

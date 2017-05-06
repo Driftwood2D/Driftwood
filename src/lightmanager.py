@@ -85,6 +85,21 @@ class LightManager:
 
         Returns: New light if succeeded, None if failed.
         """
+        # Input Check
+        try:
+            CHECK(filename, str)
+            CHECK(layer, int, _min=0)
+            CHECK(x, int)
+            CHECK(y, int)
+            CHECK(color, str, _equals=8)
+            CHECK(blend, bool)
+            if entity is not None:
+                CHECK(entity, int, _min=0)
+            CHECK(layermod, int)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Light", "insert", "bad argument", e)
+            return None
+
         # Try to request the lightmap image from the resource manager.
         lightmap = self.driftwood.resource.request_image(filename)
         if not lightmap:
@@ -143,6 +158,13 @@ class LightManager:
 
         Returns: Light class instance if succeeded, None if failed.
         """
+        # Input Check
+        try:
+            CHECK(lid, int, _min=0)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Light", "light", "bad argument", e)
+            return False
+
         if lid in self.lights:
             return self.lights[lid]
         return None
@@ -156,6 +178,14 @@ class LightManager:
 
         Returns: Light class instance if succeeded, None if failed.
         """
+        # Input Check
+        try:
+            CHECK(x, int)
+            CHECK(y, int)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Light", "light_at", "bad argument", e)
+            return False
+
         for lid in self.lights:
             if self.lights[lid].x == x and self.lights[lid].y == y:
                 return self.lights[lid]
@@ -169,6 +199,13 @@ class LightManager:
 
         Returns: Tuple of Light class instances.
         """
+        # Input Check
+        try:
+            CHECK(l, int, _min=0)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Light", "layer", "bad argument", e)
+            return False
+
         lights = []
 
         for lid in self.lights:
@@ -185,6 +222,13 @@ class LightManager:
 
         Returns: Light class instance if succeeded, None if failed.
         """
+        # Input Check
+        try:
+            CHECK(eid, int, _min=0)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Light", "entity", "bad argument", e)
+            return False
+
         for lid in self.lights:
             if self.lights[lid].entity == eid:
                 return self.lights[lid]
@@ -200,6 +244,16 @@ class LightManager:
 
         Returns: True if succeeded, False if failed.
         """
+        # Input Check
+        try:
+            CHECK(lid, int, _min=0)
+            CHECK(color, str, _equals=8)
+            if blend is not None:
+                CHECK(blend, bool)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Light", "set_color", "bad argument", e)
+            return False
+
         # Is it a real color?
         try:
             int(color, 16)
@@ -251,6 +305,13 @@ class LightManager:
         Returns:
             True if succeeded, False if failed.
         """
+        # Input Check
+        try:
+            CHECK(lid, int, _min=0)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Light", "kill", "bad argument", e)
+            return False
+
         if lid in self.lights:
             del self.lights[lid]
             self.driftwood.area.changed = True
@@ -268,6 +329,13 @@ class LightManager:
         Returns:
             True if succeeded, False if failed.
         """
+        # Input Check
+        try:
+            CHECK(file, str)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Light", "killall", "bad argument", e)
+            return False
+
         to_kill = []
 
         # Collect a list of lights to kill, searching by lightmap ImageFile.

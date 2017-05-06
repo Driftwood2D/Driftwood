@@ -148,7 +148,7 @@ class FrameManager:
         """
         # Input Check
         try:
-            if tex:
+            if tex is not None:
                 CHECK(tex, [SDL_Texture, filetype.ImageFile])
         except CheckFailure as e:
             self.driftwood.log.msg("ERROR", "Frame", "frame", "bad argument", e)
@@ -271,7 +271,7 @@ class FrameManager:
             CHECK(tex, SDL_Texture)
             CHECK(srcrect, list, _equals=4)
             CHECK(dstrect, list, _equals=4)
-            if direct:
+            if direct is not None:
                 CHECK(direct, bool)
             CHECK(alpha, int)
             CHECK(blendmode, int)

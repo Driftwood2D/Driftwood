@@ -158,7 +158,7 @@ class AudioManager:
         # Input Check
         try:
             CHECK(channel, int)
-            if volume:
+            if volume is not None:
                 CHECK(volume, int)
         except CheckFailure as e:
             self.driftwood.log.msg("ERROR", "Audio", "volume_sfx", "bad argument", e)
@@ -198,7 +198,7 @@ class AudioManager:
         # Input Check
         try:
             CHECK(filename, str)
-            if volume:
+            if volume is not None:
                 CHECK(volume, int)
         except CheckFailure as e:
             self.driftwood.log.msg("ERROR", "Audio", "volume_sfx_by_filename", "bad argument", e)
@@ -322,7 +322,7 @@ class AudioManager:
         # Input Check
         try:
             CHECK(filename, str)
-            if volume:
+            if volume is not None:
                 CHECK(volume, int)
             CHECK(loop, int, _min=-1)
             CHECK(fade, [int, float], _min=0)
@@ -387,7 +387,7 @@ class AudioManager:
         """
         # Input Check
         try:
-            if volume:
+            if volume is not None:
                 CHECK(volume, int)
         except CheckFailure as e:
             self.driftwood.log.msg("ERROR", "Audio", "volume_music", "bad argument", e)
