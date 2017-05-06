@@ -65,8 +65,15 @@ class ResourceManager:
             data: The data to inject.
 
         Returns:
-            True
+            True if succeeded, False if failed.
         """
+        # Input Check
+        try:
+            CHECK(filename, str)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Resource", "inject", "bad argument", e)
+            return False
+
         self.__injections[filename] = data
         if filename in self.driftwood.cache:
             del self.driftwood.cache[filename]
@@ -82,6 +89,13 @@ class ResourceManager:
         Returns:
             True if succeeded, False if failed.
         """
+        # Input Check
+        try:
+            CHECK(filename, str)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Resource", "uninject", "bad argument", e)
+            return False
+
         if filename in self.__injections:
             if filename in self.driftwood.cache:
                 del self.driftwood.cache[filename]
@@ -99,6 +113,13 @@ class ResourceManager:
         Returns:
             Dictionary of JSON data if succeeded, None if failed.
         """
+        # Input Check
+        try:
+            CHECK(filename, str)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Resource", "request_json", "bad argument", e)
+            return None
+
         if filename in self.driftwood.cache:
             return self.driftwood.cache[filename]
         data = self._request(filename, binary=False)
@@ -127,6 +148,14 @@ class ResourceManager:
         Returns:
             Audio filetype abstraction if succeeded, None if failed.
         """
+        # Input Check
+        try:
+            CHECK(filename, str)
+            CHECK(music, bool)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Resource", "request_audio", "bad argument", e)
+            return None
+
         if filename in self.driftwood.cache:
             return self.driftwood.cache[filename]
         data = self._request(filename, binary=True)
@@ -148,6 +177,14 @@ class ResourceManager:
         Returns:
             Font filetype abstraction if succeeded, None if failed.
         """
+        # Input Check
+        try:
+            CHECK(filename, str)
+            CHECK(ptsize, int, _min=1)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Resource", "request_font", "bad argument", e)
+            return None
+
         cache_name = filename + ":" + str(ptsize)
         if cache_name in self.driftwood.cache:
             return self.driftwood.cache[cache_name]
@@ -169,6 +206,13 @@ class ResourceManager:
         Returns:
             Image filetype abstraction if succeeded, None if failed.
         """
+        # Input Check
+        try:
+            CHECK(filename, str)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Resource", "request_image", "bad argument", e)
+            return None
+
         if filename in self.driftwood.cache:
             return self.driftwood.cache[filename]
         data = self._request(filename, binary=True)
@@ -181,8 +225,8 @@ class ResourceManager:
             return None
 
     def request_duplicate_image(self, filename):
-        """Retrieve an internal abstraction of an image file. This object will not be shared with any other consumers
-        so is free to be modified.
+        """Retrieve an internal abstraction of an image file. This object will not be shared with any other
+        consumers so is free to be modified.
 
         Args:
             filename: The filename of the image file to load.
@@ -190,6 +234,13 @@ class ResourceManager:
         Returns:
             Image filetype abstraction if succeeded, None if failed.
         """
+        # Input Check
+        try:
+            CHECK(filename, str)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Resource", "request_duplicate_image", "bad argument", e)
+            return None
+
         obj = None
 
         if filename in self.__duplicate_file_counts:
