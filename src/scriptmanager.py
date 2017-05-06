@@ -31,6 +31,7 @@ import inspect
 import os
 import platform
 import traceback
+import types
 import zipimport
 
 
@@ -84,8 +85,14 @@ class ScriptManager:
         Returns:
             Function return code if succeeded, None if failed.
         """
-        if self[filename] is None:
+        # Input Check
+        try:
+            CHECK(filename, str)
+            CHECK(func, str)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Script", "call", "bad argument", e)
             return None
+
         try:
             return getattr(self[filename], func)(*args)
         except Exception:
@@ -112,29 +119,25 @@ class ScriptManager:
         Returns:
             True if succeeded, False if failed.
         """
-        # Perform checks on input.
+        # Input Check
+        try:
+            CHECK(name, str)
+            CHECK(event, str)
+            CHECK(filename, str)
+            CHECK(func, str)
+            CHECK(nargs, int, _min=0)
+            if minargs is not None:
+                CHECK(minargs, int, _max=nargs)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Script", "define", "bad argument", e)
+            return False
+
         if name in self.custom_triggers:
             self.driftwood.log.msg("ERROR", "Script", "define", "already defined", name)
             return False
 
         if event not in ["on_tile", "on_layer", "on_enter", "on_exit", "on_focus", "on_blur"]:
             self.driftwood.log.msg("ERROR", "Script", "define", "invalid event", event)
-            return False
-
-        if not isinstance(filename, str):
-            self.driftwood.log.msg("ERROR", "Script", "define", "not a string", filename)
-            return False
-
-        if not isinstance(func, str):
-            self.driftwood.log.msg("ERROR", "Script", "define", "not a string", func)
-            return False
-
-        if nargs < 0:
-            self.driftwood.log.msg("ERROR", "Script", "define", "nargs is less than 0")
-            return False
-
-        if minargs and minargs > nargs:
-            self.driftwood.log.msg("ERROR", "Script", "define", "minargs is more than nargs")
             return False
 
         # Insert the trigger.
@@ -157,6 +160,13 @@ class ScriptManager:
         Returns:
             True if succeeded, False if failed.
         """
+        # Input Check
+        try:
+            CHECK(name, str)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Script", "undefine", "bad argument", e)
+            return False
+
         # Does this exist?
         if name in self.custom_triggers:
             del self.custom_triggers[name]
@@ -177,16 +187,20 @@ class ScriptManager:
         Returns:
             True if succeeded, False if failed.
         """
+        # Input Check
+        try:
+            CHECK(event, str)
+            CHECK(func, [types.FunctionType, types.MethodType])
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Script", "register", "bad argument", e)
+            return False
+
         # Perform checks on input.
         if event not in ["on_enter", "on_exit", "on_focus", "on_blur"]:
             self.driftwood.log.msg("ERROR", "Script", "register", "invalid event", event)
             return False
 
-        if not callable(func):
-            self.driftwood.log.msg("ERROR", "Script", "register", "not callable", func)
-            return False
-
-        args, varargs, keywords, defaults = inspect.getargspec(func)
+        args, varargs, keywords, defaults = inspect.getfullargspec(func)
         if not (args == [] and varargs is None and keywords is None and defaults is None):
             self.driftwood.log.msg("ERROR", "Script", "register", "not nullary", func)
             return False
@@ -208,6 +222,14 @@ class ScriptManager:
         Returns:
             True if succeeded, False if failed.
         """
+        # Input Check
+        try:
+            CHECK(event, str)
+            CHECK(func, [types.FunctionType, types.MethodType])
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Script", "unregister", "bad argument", e)
+            return False
+
         # Does this exist?
         if event in self.global_triggers and func in self.global_triggers[event]:
             self.global_triggers[event].remove(func)
@@ -218,15 +240,18 @@ class ScriptManager:
         self.driftwood.log.msg("ERROR", "Script", "unregister", "no such trigger", func)
         return False
 
-    def _call_global_triggers(self, event):
-        if event in self.global_triggers:
-            for func in self.global_triggers[event]:
-                func()
-
     def is_custom_trigger(self, property_name):
+        # Input Check
+        try:
+            CHECK(property_name, str)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Script", "is_custom_trigger", "bad argument", e)
+            return False
+
         return property_name in self.custom_triggers
 
     def lookup(self, property_name, property):
+        # TODO: Document
         if property_name in self.custom_triggers:
             custom_trigger = self.custom_triggers[property_name]
 
@@ -248,6 +273,11 @@ class ScriptManager:
             return event, filename + "," + func + "," + ",".join(args)
         else:
             return None
+
+    def _call_global_triggers(self, event):
+        if event in self.global_triggers:
+            for func in self.global_triggers[event]:
+                func()
 
     def _module(self, filename):
         """Return the module instance of a script, loading if not already loaded.
