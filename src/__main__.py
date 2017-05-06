@@ -354,14 +354,16 @@ def _check(item, _type, _min=None, _max=None, _equals=None):
 
 
 if __name__ == "__main__":
+    # Place certain items in the global scope.
+    import builtins
+    builtins.CHECK = _check
+    builtins.CheckFailure = CheckFailure
+
     # Set up the entry point.
     entry = _Driftwood()
 
-    # Make sure scripts have access to the base class, and place items in the global scope.
-    import builtins
+    # Make sure scripts have access to the base class by placing it in the global scope.
     builtins.Driftwood = entry
-    builtins.CHECK = _check
-    builtins.CheckFailure = CheckFailure
 
     # Handle shutting down gracefully on INT and TERM signals.
     def sigint_handler(signum, frame):
