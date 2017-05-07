@@ -30,7 +30,6 @@ import jsonschema
 import sys
 import traceback
 
-import entity
 from inputmanager import InputManager
 
 
@@ -341,3 +340,6 @@ class EntityManager:
             self.entities[entity]._terminate()
         self.entities = None
         self.spritesheets = None
+
+
+import entity
