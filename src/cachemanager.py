@@ -27,6 +27,9 @@
 # **********
 
 import gc
+from typing import Any, KeysView, Optional
+
+from __main__ import _Driftwood, CHECK, CheckFailure
 
 
 class CacheManager:
@@ -39,7 +42,7 @@ class CacheManager:
         driftwood: Base class instance.
     """
 
-    def __init__(self, driftwood):
+    def __init__(self, driftwood: _Driftwood):
         """CacheManager class initializer.
 
         Args:
@@ -54,19 +57,19 @@ class CacheManager:
         # Register the tick callback.
         self.driftwood.tick.register(self._tick, delay=float(self.driftwood.config["cache"]["ttl"]))
 
-    def __contains__(self, item):
+    def __contains__(self, item: str) -> bool:
         return item in self.__cache
 
-    def __getitem__(self, item):
+    def __getitem__(self, item: str) -> Any:
         return self.download(item)
 
-    def __delitem__(self, item):
+    def __delitem__(self, item: str) -> None:
         self.purge(item)
 
-    def __iter__(self):
+    def __iter__(self) -> KeysView:
         return self.__cache.keys()
 
-    def upload(self, filename, contents, keep_for_ttl=True):
+    def upload(self, filename: str, contents: Any, keep_for_ttl: bool=True) -> bool:
         """Upload a file into the cache.
 
         Args:
@@ -98,7 +101,7 @@ class CacheManager:
 
         return True
 
-    def download(self, filename):
+    def download(self, filename: str) -> Any:
         """Download a file from the cache if present, and update the timestamp.
 
         Args:
@@ -122,7 +125,7 @@ class CacheManager:
 
         return None
 
-    def purge(self, filename):
+    def purge(self, filename: str) -> Optional[bool]:
         """Purge a file from the cache.
 
         Args:
@@ -153,7 +156,7 @@ class CacheManager:
 
         return True
 
-    def flush(self):
+    def flush(self) -> bool:
         """Empty the cache.
 
         Returns:
@@ -165,7 +168,7 @@ class CacheManager:
 
         return True
 
-    def clean(self):
+    def clean(self) -> bool:
         """Perform garbage collection on expired files.
 
         Returns:
@@ -199,7 +202,7 @@ class CacheManager:
 
         return True
 
-    def _reverse_purge(self, inst):
+    def _reverse_purge(self, inst: Any) -> None:
         """Purge an item from the cache by checking if the passed instance is cached, rather than searching by
         filename.
         """
@@ -209,7 +212,7 @@ class CacheManager:
                 self.driftwood.log.info("Cache", "reverse-purged", items)
                 break
 
-    def _tick(self, seconds_past):
+    def _tick(self, seconds_past: float) -> None:
         self.__now += seconds_past
 
         self.clean()
