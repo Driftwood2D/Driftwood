@@ -27,9 +27,11 @@
 # **********
 
 from ctypes import byref
-from ctypes import c_int, c_ubyte
+from ctypes import c_ubyte
 from sdl2 import *
+from typing import List, Tuple, Union
 
+from __main__ import _Driftwood, CHECK, CheckFailure
 import filetype
 
 
@@ -47,7 +49,7 @@ class FrameManager:
         changed: Whether the frame has been changed. [STATE_NOTCHANGED, STATE_BACKBUFFER_NEEDS_UPDATE, STATE_CHANGED]
     """
 
-    def __init__(self, driftwood):
+    def __init__(self, driftwood: _Driftwood):
         """FrameManager class initializer.
 
         Initializes frame handling.
@@ -80,7 +82,7 @@ class FrameManager:
 
         self.changed = self.STATE_NOTCHANGED
 
-    def clear(self):
+    def clear(self) -> bool:
         """Clear the back buffer.
 
         Returns:
@@ -102,7 +104,7 @@ class FrameManager:
 
         return True
 
-    def prepare(self, width, height):
+    def prepare(self, width: int, height: int) -> bool:
         """Prepare and clear the back buffer.
 
         Set up our back buffer as a texture of the specified size. This also clears the back buffer.
@@ -137,7 +139,7 @@ class FrameManager:
 
         return True
 
-    def frame(self, tex=None):
+    def frame(self, tex: Union[SDL_Texture, filetype.ImageFile]=None) -> bool:
         """Replace the current frame with a texture or the internal back buffer, and adjust the viewport accordingly.
 
         Args:
@@ -250,7 +252,14 @@ class FrameManager:
 
         return True
 
-    def copy(self, tex, srcrect, dstrect, direct=False, alpha=None, blendmode=None, colormod=None):
+    def copy(self,
+             tex: SDL_Texture,
+             srcrect: List[int],
+             dstrect: List[int],
+             direct: bool=False,
+             alpha: int=None,
+             blendmode: int=None,
+             colormod: Tuple[int, int, int]=None) -> bool:
         """Copy a texture onto the back buffer.
         
         Copy the source rectangle from the texture tex to the destination rectangle in our back buffer.
@@ -275,7 +284,7 @@ class FrameManager:
                 CHECK(direct, bool)
             CHECK(alpha, int)
             CHECK(blendmode, int)
-            CHECK(colormod, int)
+            CHECK(colormod, list)
         except CheckFailure as e:
             self.driftwood.log.msg("ERROR", "Frame", "copy", "bad argument", e)
             return False
@@ -369,7 +378,7 @@ class FrameManager:
 
         return ret
 
-    def overlay(self, tex, srcrect, dstrect):
+    def overlay(self, tex: SDL_Texture, srcrect: List[int], dstrect: List[int]) -> bool:
         """Schedule to copy a texture directly onto the window, ignoring any frame or viewport calculations.
 
         Args:
@@ -394,7 +403,7 @@ class FrameManager:
 
         return True
 
-    def _terminate(self):
+    def _terminate(self) -> None:
         """Cleanup before deletion.
         """
         if self.__frontbuffer:
