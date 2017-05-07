@@ -60,23 +60,7 @@ if __name__ == "__main__":
         print("[0] FATAL: jsonschema required, module \"jsonschema\" not found")
         sys.exit(1)  # Fail.
 
-# Import manager classes.
-from configmanager import ConfigManager
-from logmanager import LogManager
-from tickmanager import TickManager
-from databasemanager import DatabaseManager
-from pathmanager import PathManager
-from cachemanager import CacheManager
-from resourcemanager import ResourceManager
-from inputmanager import InputManager
-from windowmanager import WindowManager
-from framemanager import FrameManager
-from entitymanager import EntityManager
-from lightmanager import LightManager
-from areamanager import AreaManager
-from audiomanager import AudioManager
-from widgetmanager import WidgetManager
-from scriptmanager import ScriptManager
+from typing import Any, List, Union
 
 
 class _Driftwood:
@@ -145,13 +129,13 @@ class _Driftwood:
         if self.config["window"]["maxfps"] < 10:
             self.log.msg("WARNING", "Driftwood", "Very low fps values may cause unexpected behavior")
 
-    def _console(self, evtype):
+    def _console(self, evtype: int) -> None:
         """Drop to a pdb console if the console key is pressed.
         """
         if evtype is self.input.ONDOWN:
             pdb.set_trace()
 
-    def _run(self):
+    def _run(self) -> int:
         """Perform startup procedures and enter the mainloop.
         """
         # Only run if not already running.
@@ -200,7 +184,7 @@ class _Driftwood:
             self._terminate()
             return 0
 
-    def __handle_pause(self, keyevent):
+    def __handle_pause(self, keyevent: int) -> None:
         """Check if we are shutting down, otherwise just pause.
         """
         if keyevent == InputManager.ONDOWN:
@@ -211,7 +195,7 @@ class _Driftwood:
             else:
                 self.tick.toggle_pause()
 
-    def _terminate(self):
+    def _terminate(self) -> None:
         """Cleanup before shutdown. Here we tell all the relevant parts of the engine to free their resources
         before being deleted. We do this because Python's __del__ method is nearly useless as a destructor and we
         are using C constructs that need to be freed manually.
@@ -234,7 +218,7 @@ class CheckFailure(Exception):
     pass
 
 
-def _check(item, _type, _min=None, _max=None, _equals=None):
+def CHECK(item: Any, _type: Union[type, List[type]], _min: float=None, _max: float=None, _equals: float=None) -> bool:
     """Check if an input matches type, min, max, and/or equality requirements.
     
     This function belongs to the global scope as CHECK().
@@ -266,7 +250,7 @@ def _check(item, _type, _min=None, _max=None, _equals=None):
                                                                                                      _type))
 
     # Type check.
-    if type(item) is not _type and (type(_type) in [list, tuple] and type(item) not in _type):
+    if type(item) is not _type and (type(_type) is list and type(item) not in _type):
         print(type(item) in _type)
         raise CheckFailure("input failed type check: {0}: expected {1} instead".format(type(item), _type))
 
@@ -353,10 +337,29 @@ def _check(item, _type, _min=None, _max=None, _equals=None):
     return True
 
 
+# Import manager classes.
+from configmanager import ConfigManager
+from logmanager import LogManager
+from tickmanager import TickManager
+from databasemanager import DatabaseManager
+from pathmanager import PathManager
+from cachemanager import CacheManager
+from resourcemanager import ResourceManager
+from inputmanager import InputManager
+from windowmanager import WindowManager
+from framemanager import FrameManager
+from entitymanager import EntityManager
+from lightmanager import LightManager
+from areamanager import AreaManager
+from audiomanager import AudioManager
+from widgetmanager import WidgetManager
+from scriptmanager import ScriptManager
+
+
 if __name__ == "__main__":
     # Place certain items in the global scope.
     import builtins
-    builtins.CHECK = _check
+    builtins.CHECK = CHECK
     builtins.CheckFailure = CheckFailure
 
     # Set up the entry point.
