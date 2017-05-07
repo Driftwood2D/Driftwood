@@ -32,7 +32,10 @@ import jsonschema
 import os
 import sys
 import traceback
+from typing import Any, ItemsView
 import zipfile
+
+from __main__ import _Driftwood
 
 VERSION = "Driftwood 2D Alpha-0.0.7"
 COPYRIGHT = "Copyright 2016-2017 Michael D. Reiley and Paul Merrill"
@@ -50,7 +53,7 @@ class ConfigManager:
         driftwood: Base class instance.
     """
 
-    def __init__(self, driftwood):
+    def __init__(self, driftwood: _Driftwood):
         """ConfigManager class initializer.
 
         Args:
@@ -65,22 +68,22 @@ class ConfigManager:
         self.__cmdline_args = self.__read_cmdline()
         self.__prepare_config()
 
-    def __contains__(self, item):
+    def __contains__(self, item: str) -> bool:
         if item in self.__config:
             return True
         return False
 
-    def __getitem__(self, item):
+    def __getitem__(self, item: str) -> Any:
         if self.__contains__(item):
             return self.__config[item]
         else:
             # This should be initialized by now.
             self.driftwood.log.msg("ERROR", "Config", "__getitem__", "no such entry", item)
 
-    def __iter__(self):
+    def __iter__(self) -> ItemsView:
         return self.__config.items()
 
-    def __read_cmdline(self):
+    def __read_cmdline(self) -> argparse.Namespace:
         """Read in command line options using ArgumentParser.
 
         Returns:
@@ -123,7 +126,7 @@ class ConfigManager:
 
         return parser.parse_args()
 
-    def __prepare_config(self):
+    def __prepare_config(self) -> None:
         """Prepare the configuration for use.
 
         Combine the command line arguments and the configuration file into the internal __config dictionary, favoring
