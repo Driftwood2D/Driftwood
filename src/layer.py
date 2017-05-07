@@ -26,7 +26,11 @@
 # IN THE SOFTWARE.
 # **********
 
+from typing import Dict, Optional
+
+from __main__ import _Driftwood, CHECK, CheckFailure
 import tile
+import tilemap
 
 
 class Layer:
@@ -40,7 +44,7 @@ class Layer:
         tiles: The list of Tile class instances for each tile.
     """
 
-    def __init__(self, driftwood, tilemap, layerdata, zpos):
+    def __init__(self, driftwood: _Driftwood, tilemap: 'tilemap.Tilemap', layerdata: dict, zpos: int):
         """Layer class initializer.
 
         Args:
@@ -62,14 +66,14 @@ class Layer:
 
         self.__prepare_layer()
 
-    def __getitem__(self, item):
+    def __getitem__(self, item: int) -> '_AbstractColumn':
         return _AbstractColumn(self, item)
 
-    def clear(self):
+    def clear(self) -> None:
         for tile in self.tiles:
             tile.unregister()
 
-    def tile(self, x, y):
+    def tile(self, x: int, y: int) -> Optional['tile.Tile']:
         """Retrieve a tile from the layer by its coordinates.
 
         Args:
@@ -97,7 +101,7 @@ class Layer:
                                    "tried to lookup nonexistent tile at", "{0}x{1}".format(x, y))
             return None
 
-    def tile_index(self, x, y):
+    def tile_index(self, x: int, y: int) -> Optional[int]:
         """Retrieve the index of a tile in the tiles list so you can modify it.
 
         Args:
@@ -122,7 +126,7 @@ class Layer:
                                    "tried to lookup nonexistent tile at", "{0}x{1}".format(x, y))
             return None
 
-    def _process_objects(self, objdata):
+    def _process_objects(self, objdata: dict) -> None:
         """Process and merge an object layer into the tile layer below.
 
         This method is marked private even though it's called from Tilemap, because it should not be called outside the
@@ -212,7 +216,7 @@ class Layer:
                         args[3] = int(args[3])
                         self.driftwood.entity.insert(*args)
 
-    def __expand_properties(self, properties):
+    def __expand_properties(self, properties: Dict[str, str]) -> None:
         new_props = {}
         old_props = []
 
@@ -229,7 +233,7 @@ class Layer:
         for prop in old_props:
             del properties[prop]
 
-    def __prepare_layer(self):
+    def __prepare_layer(self) -> None:
         # Set layer properties if present.
         if "properties" in self.__layer:
             self.properties = self.__layer["properties"]
@@ -248,7 +252,7 @@ class Layer:
             else:
                 self.tiles.append(tile.Tile(self, seq, None, None))
 
-    def _terminate(self):
+    def _terminate(self) -> None:
         """Cleanup before deletion.
         """
         for tile in self.tiles:
@@ -257,9 +261,9 @@ class Layer:
 
 
 class _AbstractColumn:
-    def __init__(self, layer, x):
+    def __init__(self, layer: Layer, x: int):
         self.__layer = layer
         self.__x = x
 
-    def __getitem__(self, item):
+    def __getitem__(self, item: int) -> Optional['tile.Tile']:
         return self.__layer.tile(self.__x, item)
