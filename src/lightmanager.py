@@ -26,9 +26,16 @@
 # **********
 
 from sdl2 import *
+from typing import ItemsView, List, Optional
 
+from __main__ import _Driftwood, CHECK, CheckFailure
+import entity
 import filetype
 import light
+
+# Keep a reference to the light module, which is overridden by the LightManager.light function later in the file.
+# It is only overridden while inside type annotations.
+_light = light
 
 
 class LightManager:
@@ -42,7 +49,7 @@ class LightManager:
         lights: The dictionary of Light class instances for each light. Stored by lid.
     """
 
-    def __init__(self, driftwood):
+    def __init__(self, driftwood: _Driftwood):
         """LightManager class initializer.
 
         Args:
@@ -54,21 +61,31 @@ class LightManager:
 
         self.__last_lid = -1
 
-    def __contains__(self, lid):
+    def __contains__(self, lid: int) -> bool:
         if self.light(lid):
             return True
         return False
 
-    def __getitem__(self, lid):
+    def __getitem__(self, lid) -> Optional[light.Light]:
         return self.light(lid)
 
-    def __delitem__(self, lid):
+    def __delitem__(self, lid) -> bool:
         return self.kill(lid)
 
-    def __iter__(self):
+    def __iter__(self) -> ItemsView:
         return self.lights.items()
 
-    def insert(self, filename, layer, x, y, w, h, color="FFFFFFFF", blend=False, entity=None, layermod=0):
+    def insert(self,
+               filename: str,
+               layer: int,
+               x: int,
+               y: int,
+               w: int,
+               h: int,
+               color: str="FFFFFFFF",
+               blend: bool=False,
+               entity: entity.Entity=None,
+               layermod=0) -> Optional[int]:
         """Create and insert a new light into the area.
 
         Args:
@@ -150,7 +167,7 @@ class LightManager:
 
         return self.lights[lid]
 
-    def light(self, lid):
+    def light(self, lid: int) -> Optional[light.Light]:
         """Retrieve a light by lid.
 
         Args:
@@ -169,7 +186,7 @@ class LightManager:
             return self.lights[lid]
         return None
 
-    def light_at(self, x, y):
+    def light_at(self, x: int, y: int) -> Optional[_light.Light]:
         """Retrieve a light by pixel coordinate.
 
         Args:
@@ -191,7 +208,7 @@ class LightManager:
                 return self.lights[lid]
         return None
 
-    def layer(self, l):
+    def layer(self, l: int) -> Optional[List[_light.Light]]:
         """Retrieve a list of lights on the specified layer.
 
         Args:
@@ -214,7 +231,7 @@ class LightManager:
 
         return lights
 
-    def entity(self, eid):
+    def entity(self, eid: int) -> Optional[_light.Light]:
         """Retrieve a light by the entity it is bound to.
 
         Args:
@@ -234,7 +251,7 @@ class LightManager:
                 return self.lights[lid]
         return None
 
-    def set_color(self, lid, color, blend=None):
+    def set_color(self, lid: int, color: str, blend: bool=None) -> bool:
         """Update the color, alpha, and blending of an existing light.
 
         Args:
@@ -296,7 +313,7 @@ class LightManager:
 
         return False
 
-    def kill(self, lid):
+    def kill(self, lid: int) -> bool:
         """Kill a light by lid.
 
         Args:
@@ -320,7 +337,7 @@ class LightManager:
         self.driftwood.log.msg("WARNING", "Light", "kill", "attempt to kill nonexistent light", lid)
         return False
 
-    def killall(self, file):
+    def killall(self, file: str) -> bool:
         """Kill all lights by filename or lightmap.
 
         Args:
@@ -362,7 +379,7 @@ class LightManager:
         self.driftwood.log.msg("WARNING", "Entity", "killall", "attempt to kill nonexistent lights", file)
         return False
 
-    def reset(self):
+    def reset(self) -> bool:
         """Reset the lights.
 
         Returns: True
