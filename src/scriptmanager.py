@@ -251,7 +251,20 @@ class ScriptManager:
         return property_name in self.custom_triggers
 
     def lookup(self, property_name, property):
-        # TODO: Document
+        """Attempt to decode a custom map trigger into a normal map trigger.
+
+        Args:
+            property_name: Name of the custom trigger.
+            property: Comma separated string which contains a list of arguments for the trigger.
+
+        Returns:
+            None, if there is no custom trigger with a name of property_name.
+            Otherwise, a string that mimics the appearance of a normal Tiled map trigger.
+
+        See also:
+            define()
+            undefine()
+        """
         if property_name in self.custom_triggers:
             custom_trigger = self.custom_triggers[property_name]
 
