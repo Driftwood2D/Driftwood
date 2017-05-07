@@ -27,6 +27,9 @@
 # **********
 
 import sys
+from typing import Any, List
+
+from __main__ import _Driftwood
 
 
 class LogManager:
@@ -38,7 +41,7 @@ class LogManager:
         driftwood: Base class instance.
     """
 
-    def __init__(self, driftwood):
+    def __init__(self, driftwood: _Driftwood):
         """LogManager class initializer.
 
         Args:
@@ -56,7 +59,7 @@ class LogManager:
                 self.__file = open(self.driftwood.config["log"]["file"], "a+")
                 self.__file.write("Starting up...\n")
 
-    def msg(self, *chain):
+    def msg(self, *chain: Any) -> bool:
         """Log a message.
 
         Args:
@@ -65,8 +68,15 @@ class LogManager:
         Returns:
             True if message was printed, false otherwise.
         """
+        chain = list(chain)
+
+        # Convert everything to strings.
+        for c in range(len(chain)):
+            if type(chain[c]) != str:
+                chain[c] = str(chain[c])
+
         if not self.__check_suppress(chain):
-            self.__print(list(chain))
+            self.__print(chain)
             # Die on non-info (error or warning) messages.
             if self.driftwood.config["log"]["halt"]:
                 # Or not if we suppressed halting on this message.
@@ -75,7 +85,7 @@ class LogManager:
             return True
         return False
 
-    def info(self, *chain):
+    def info(self, *chain: Any):
         """Log an info message if verbosity is enabled.
 
         Args:
@@ -84,25 +94,25 @@ class LogManager:
         Returns:
             True if info was printed, false otherwise.
         """
-        if not self.__check_suppress(chain):
-            if self.driftwood.config["log"]["verbose"]:
-                self.__print(["INFO"] + list(chain))
-                return True
-        return False
-
-    def __print(self, chain):
-        """Format and print the string.
-
-        Args:
-            chain: A list of strings to be separated by colon-spaces and printed.
-        """
+        chain = list(chain)
 
         # Convert everything to strings.
         for c in range(len(chain)):
             if type(chain[c]) != str:
                 chain[c] = str(chain[c])
 
-        # Print it.
+        if not self.__check_suppress(chain):
+            if self.driftwood.config["log"]["verbose"]:
+                self.__print(["INFO"] + chain)
+                return True
+        return False
+
+    def __print(self, chain: List[str]) -> None:
+        """Format and print the string.
+
+        Args:
+            chain: A list of strings to be separated by colon-spaces and printed.
+        """
         ticks = "[{0}] ".format(self.driftwood.tick.count)
         line = ticks + ": ".join(chain)
         print(line)
@@ -110,7 +120,7 @@ class LogManager:
             self.__file.write(line+'\n')
         sys.stdout.flush()
 
-    def __check_suppress(self, chain, halt=False):
+    def __check_suppress(self, chain: List[str], halt: bool=False) -> bool:
         """Checks whether or not the chain matches a suppression rule.
         """
         if halt:
@@ -125,7 +135,7 @@ class LogManager:
                 return True
         return False
 
-    def __test_file_open(self):
+    def __test_file_open(self) -> bool:
         """Test if we can create or open the log file.
         """
         try:
@@ -134,7 +144,7 @@ class LogManager:
         except:
             return False
 
-    def _terminate(self):
+    def _terminate(self) -> None:
         """Cleanup before deletion.
         """
         if self.__file:
