@@ -32,7 +32,10 @@ import os
 import platform
 import traceback
 import types
+from typing import Any, Callable, Optional, Tuple
 import zipimport
+
+from __main__ import _Driftwood, CHECK, CheckFailure
 
 
 class ScriptManager:
@@ -45,7 +48,7 @@ class ScriptManager:
         driftwood: Base class instance.
     """
 
-    def __init__(self, driftwood):
+    def __init__(self, driftwood: _Driftwood):
         """ScriptManager class initializer.
 
         Args:
@@ -61,16 +64,16 @@ class ScriptManager:
         # Dictionary of module instances mapped by filename.
         self.__modules = {}
 
-    def __contains__(self, item):
+    def __contains__(self, item: str) -> bool:
         return self._module(item) is not None
 
-    def __getitem__(self, item):
+    def __getitem__(self, item: str) -> Any:
         if self._module(item) is not None:
             return self._module(item)
         self.driftwood.log.msg("ERROR", "Script", "no such module", item)
         return None
 
-    def call(self, filename, func, *args):
+    def call(self, filename: str, func: str, *args: Any) -> Any:
         """Call a function from a script, loading if not already loaded.
 
         Usually you just want to run "Driftwood.script[path].function(args)". This wraps around that, and is cleaner
@@ -100,7 +103,7 @@ class ScriptManager:
                                    '\n'+traceback.format_exc().rstrip())
             return None
 
-    def define(self, name, event, filename, func, nargs, minargs=None):
+    def define(self, name: str, event: str, filename: str, func: str, nargs: int, minargs: int=None) -> bool:
         """Define a custom trigger that can be called directly from a map property.
 
         Ex. A trigger named "mytrigger" of type "on_tile" with 4 arguments can be called when the player steps onto
@@ -151,7 +154,7 @@ class ScriptManager:
         self.driftwood.log.info("Script", "defined", "{0} trigger \"{1}\"".format(event, name))
         return True
 
-    def undefine(self, name):
+    def undefine(self, name: str) -> bool:
         """Undefine a custom trigger that was defined earlier.
         
         Args:
@@ -177,7 +180,7 @@ class ScriptManager:
         self.driftwood.log.msg("ERROR", "Script", "undefine", "no such trigger", name)
         return False
 
-    def register(self, event, func):
+    def register(self, event: str, func: Callable[[], None]) -> bool:
         """Define a global trigger that is called everytime a particular type of event happens.
 
         Args:
@@ -212,7 +215,7 @@ class ScriptManager:
         self.driftwood.log.info("Script", "registered", "{0} trigger \"{1}\"".format(event, func))
         return True
 
-    def unregister(self, event, func):
+    def unregister(self, event: str, func: Callable[[], None]) -> bool:
         """Undefine a global trigger that was defined earlier.
 
         Args:
@@ -240,7 +243,7 @@ class ScriptManager:
         self.driftwood.log.msg("ERROR", "Script", "unregister", "no such trigger", func)
         return False
 
-    def is_custom_trigger(self, property_name):
+    def is_custom_trigger(self, property_name: str) -> bool:
         # Input Check
         try:
             CHECK(property_name, str)
@@ -250,7 +253,7 @@ class ScriptManager:
 
         return property_name in self.custom_triggers
 
-    def lookup(self, property_name, property):
+    def lookup(self, property_name: str, property: str) -> Optional[Tuple[str, str]]:
         """Attempt to decode a custom map trigger into a normal map trigger.
 
         Args:
@@ -287,12 +290,17 @@ class ScriptManager:
         else:
             return None
 
-    def _call_global_triggers(self, event):
+    def _call_global_triggers(self, event: str) -> None:
         if event in self.global_triggers:
             for func in self.global_triggers[event]:
                 func()
 
-    def _module(self, filename):
+    # _module() returns an Any rather than Optional[module] because the latter results in a NameError.
+    #
+    # Python user bjs says:
+    # "there is a module type in python but i have a feeling that [forgetting to allow it in type annotations] was a
+    # oversight when the typehint / typechecking peps were being written"
+    def _module(self, filename: str) -> Any:
         """Return the module instance of a script, loading if not already loaded.
 
         This method is not crash-safe. If you call a method in a module you got from this function, errors will
@@ -312,7 +320,7 @@ class ScriptManager:
         else:
             return None
 
-    def __convert_path(self, filename):
+    def __convert_path(self, filename: str) -> str:
         """Get around a documented zipimport flaw.
 
         Args:
@@ -322,7 +330,7 @@ class ScriptManager:
         cpath[-1] = os.path.splitext(cpath[-1])[0]
         return os.sep.join(cpath)  # [1:]
 
-    def __load(self, filename):
+    def __load(self, filename: str) -> bool:
         """Load a script.
 
         Args:
