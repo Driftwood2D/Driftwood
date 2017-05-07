@@ -29,7 +29,10 @@
 import json
 import os
 import sys
+from typing import Any, Optional
 import zlib
+
+from __main__ import _Driftwood, CHECK, CheckFailure
 
 
 class DatabaseManager:
@@ -43,7 +46,7 @@ class DatabaseManager:
         filename: Filename of the database.
     """
 
-    def __init__(self, driftwood):
+    def __init__(self, driftwood: _Driftwood):
         """DatabaseManager class initializer.
 
         Args:
@@ -70,21 +73,21 @@ class DatabaseManager:
 
         self.driftwood.tick.register(self._tick, during_pause=True)
 
-    def __contains__(self, item):
+    def __contains__(self, item: str) -> bool:
         if item in self.__database:
             return True
         return False
 
-    def __getitem__(self, item):
+    def __getitem__(self, item: str) -> Any:
         return self.get(item)
 
-    def __setitem__(self, item, obj):
+    def __setitem__(self, item: str, obj: Any) -> None:
         self.put(item, obj)
 
-    def __delitem__(self, item):
+    def __delitem__(self, item: str) -> None:
         self.remove(item)
 
-    def open(self, filename):
+    def open(self, filename: str) -> Optional[bool]:
         """Opens a new database and closes the current one.
         
         If opening the new database fails, the old one stays loaded.
@@ -124,7 +127,7 @@ class DatabaseManager:
         self.driftwood.log.info("Database", "open", self.filename)
         return True  # Success
 
-    def get(self, key):
+    def get(self, key: str) -> Any:
         """Get an object by key (name).
 
         Retrieve an object from the database by its key.
@@ -150,7 +153,7 @@ class DatabaseManager:
             self.driftwood.log.msg("ERROR", "Database", "get", "no such key", "\"{0}\"".format(key))
             return None
 
-    def put(self, key, obj):
+    def put(self, key: str, obj: Any) -> Optional[bool]:
         """Put an object by key (name).
 
         Create or update a key with a new object.
@@ -180,7 +183,7 @@ class DatabaseManager:
         self.driftwood.log.info("Database", "put", "\"{0}\"".format(key))
         return True
 
-    def remove(self, key):
+    def remove(self, key: str) -> Optional[bool]:
         """Remove a key.
 
         Removes a key and its object from the database.
@@ -207,7 +210,7 @@ class DatabaseManager:
             self.driftwood.log.msg("ERROR", "Database", "remove", "no such key", "\"{0}\"".format(key))
             return False
 
-    def flush(self):
+    def flush(self) -> bool:
         """Force the database to write to disk now.
         
         Returns:
@@ -218,7 +221,7 @@ class DatabaseManager:
         self.driftwood.log.info("Database", "flush", self.filename)
         return True
 
-    def __test_db_dir(self):
+    def __test_db_dir(self) -> bool:
         """Test if we can create or open the database directory.
         """
         db_dir_path = self.driftwood.config["database"]["root"]
@@ -241,7 +244,7 @@ class DatabaseManager:
 
         return True
 
-    def __test_db_open(self):
+    def __test_db_open(self) -> bool:
         """Test if we can create or open the database file.
         """
         try:
@@ -250,7 +253,7 @@ class DatabaseManager:
         except:
             return False
 
-    def __load(self):
+    def __load(self) -> Optional[dict]:
         """Load the database file from disk.
         """
         if not self.__test_db_open():
@@ -266,7 +269,7 @@ class DatabaseManager:
         except:
             return None
 
-    def _tick(self, seconds_past):
+    def _tick(self, seconds_past: float) -> None:
         """Tick callback.
         
         If there have been any changes to the database in memory, write them to disk.
@@ -280,8 +283,8 @@ class DatabaseManager:
                 sys.exit(1)
             self.__changed = False
 
-    def _terminate(self):
+    def _terminate(self) -> None:
         """Cleanup before deletion.
         """
         # Make sure we write to disk.
-        self._tick(None)
+        self._tick(0.0)
