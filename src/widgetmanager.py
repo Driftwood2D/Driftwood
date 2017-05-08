@@ -134,8 +134,8 @@ class WidgetManager:
         Args:
             imagefile: If set, filename of the image file to use as a background.
             parent: If set, the wid of the parent container.
-            x: The x position of the container on the window.
-            y: The y position of the container on the window.
+            x: The x position of the container on the window. Center if -1.
+            y: The y position of the container on the window. Center if -1.
             width: The width of the container.
             height: The height of the container.
             active: Whether to make the widget active right away.
@@ -149,8 +149,8 @@ class WidgetManager:
                 CHECK(imagefile, str)
             if parent:
                 CHECK(parent, int, _min=0)
-            CHECK(x, int, _min=0)
-            CHECK(y, int, _min=0)
+            CHECK(x, int, _min=-1)
+            CHECK(y, int, _min=-1)
             CHECK(width, int, _min=0)
             CHECK(height, int, _min=0)
             CHECK(active, bool)
@@ -218,8 +218,8 @@ class WidgetManager:
             CHECK(ptsize, int, _min=1)
             if parent:
                 CHECK(parent, int, _min=0)
-            CHECK(x, _min=0)
-            CHECK(y, _min=0)
+            CHECK(x, int, _min=-1)
+            CHECK(y, int, _min=-1)
             CHECK(width, int, _min=-1)
             CHECK(height, int, _min=-1)
             CHECK(color, str, _equals=8)
