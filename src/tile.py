@@ -26,7 +26,11 @@
 # IN THE SOFTWARE.
 # **********
 
-import copy
+from typing import List, Optional
+
+from __main__ import CHECK, CheckFailure
+import layer
+import tileset
 
 
 class Tile:
@@ -49,7 +53,7 @@ class Tile:
             present mapped to a list containing the destination [area, layer, x, y].
     """
 
-    def __init__(self, layer, seq, tileset, gid):
+    def __init__(self, layer: layer.Layer, seq: int, tileset: Optional[tileset.Tileset], gid: Optional[int]):
         """Tile class initializer.
 
         Args:
@@ -106,23 +110,23 @@ class Tile:
             if self.afps:
                 self.layer.tilemap.area.driftwood.tick.register(self.__next_member, delay=(1 / self.afps))
 
-    def srcrect(self):
+    def srcrect(self) -> List[int]:
         """Return an (x, y, w, h) srcrect for the current graphic frame of the tile.
         """
         if self.members:
             current_member = self.members[self.__cur_member]
             if current_member is not -1:
-                return (((current_member * self.tileset.tilewidth) % self.tileset.imagewidth),
-                        ((current_member * self.tileset.tilewidth) // self.tileset.imagewidth) * self.tileset.tileheight,
-                        self.tileset.tilewidth, self.tileset.tileheight)
-        return 0, 0, 0, 0
+                return [(current_member * self.tileset.tilewidth) % self.tileset.imagewidth,
+                        current_member * self.tileset.tilewidth // self.tileset.imagewidth * self.tileset.tileheight,
+                        self.tileset.tilewidth, self.tileset.tileheight]
+        return [0, 0, 0, 0]
 
-    def dstrect(self):
+    def dstrect(self) -> List[int]:
         """Return a copy of our (x, y, w, h) dstrect so that external operations don't change our local variable.
         """
-        return copy.copy(self.__dstrect)
+        return list(self.__dstrect)
 
-    def offset(self, x, y):
+    def offset(self, x, y) -> Optional['Tile']:
         """Return the tile at this offset.
         """
         # Input Check
@@ -135,7 +139,7 @@ class Tile:
 
         return self.layer.tile(self.pos[0] + x, self.pos[1] + y)
 
-    def setgid(self, gid, members=None, afps=None):  # TODO: Make sure the GID exists.
+    def setgid(self, gid: int, members: List[int]=None, afps: int=None) -> Optional[bool]:
         """Helper function to change the tile graphic or animation.
         
         gid: The primary graphic ID to set.
@@ -145,6 +149,8 @@ class Tile:
         Returns:
             True
         """
+        # TODO: Make sure the GID exists.
+
         # Input Check
         try:
             CHECK(gid, int, _min=0)
@@ -173,17 +179,17 @@ class Tile:
 
         return True
 
-    def __next_member(self, seconds_past):
+    def __next_member(self, seconds_past: float) -> None:
         if self.members:
             self.__cur_member = (self.__cur_member + 1) % len(self.members)
             self.layer.tilemap.area.changed = True
 
-    def unregister(self):
+    def unregister(self) -> None:
         driftwood = self.layer.tilemap.area.driftwood
         if driftwood.tick.registered(self.__next_member):
             driftwood.tick.unregister(self.__next_member)
 
-    def _terminate(self):
+    def _terminate(self) -> None:
         """Cleanup before deletion.
         """
         self.unregister()
