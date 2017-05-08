@@ -99,7 +99,7 @@ class Tileset:
         except CheckFailure as e:
             self.driftwood.log.msg("ERROR", "Tileset", "load", "bad argument", e)
             return None
-        
+
         # Regardless of whether this will be an internal or external tileset, the firstgid is always found here.
         firstgid = tileset_json["firstgid"]
 
