@@ -29,6 +29,9 @@
 import types
 from inspect import signature
 from sdl2 import SDL_Delay, SDL_GetTicks
+from typing import Any, Callable
+
+from __main__ import _Driftwood, CHECK, CheckFailure
 
 # Upper bound on latency we can handle from the OS when we expect to return from sleep, measured in seconds.
 WAKE_UP_LATENCY = 5.0 / 1000.0
@@ -41,14 +44,14 @@ class TickManager:
 
     Attributes:
         driftwood: Base class instance.
+        count: Number of ticks since engine start.
     """
 
-    def __init__(self, driftwood):
+    def __init__(self, driftwood: _Driftwood):
         """TickManager class initializer.
 
         Args:
             driftwood: Base class instance.
-            count: Number of ticks since engine start.
         """
         self.driftwood = driftwood
         self.count = 0
@@ -68,7 +71,12 @@ class TickManager:
 
         self.paused = False
 
-    def register(self, func, delay=0.0, once=False, during_pause=False, message=None):
+    def register(self,
+                 func: Callable,
+                 delay: float=0.0,
+                 once: bool=False,
+                 during_pause: bool=False,
+                 message: Any=None) -> bool:
         """Register a tick callback, with an optional delay between calls.
 
         Each tick callback must take either no arguments or one argument, for which seconds since its last call will be
@@ -110,7 +118,7 @@ class TickManager:
         self.driftwood.log.info("Tick", "registered callback", func.__name__)
         return True
 
-    def unregister(self, func):
+    def unregister(self, func: Callable) -> bool:
         """Unregister a tick callback.
 
         Args:
@@ -136,7 +144,7 @@ class TickManager:
                                func.__name__)
         return False
 
-    def registered(self, func):
+    def registered(self, func: Any) -> bool:
         """Check if a function is registered.
 
         Args:
@@ -158,7 +166,7 @@ class TickManager:
 
         return False
 
-    def toggle_pause(self):
+    def toggle_pause(self) -> bool:
         """Toggle a pause in most registered ticks.
 
         During this time, only ticks with during_pause set to true will get called.  All gameplay ticks *should* have
@@ -170,7 +178,7 @@ class TickManager:
         self.paused = not self.paused
         return True
 
-    def _tick(self):
+    def _tick(self) -> bool:
         """Call all registered tick callbacks not currently delayed, and regulate the number of ticks per second.
 
         Returns:
@@ -200,12 +208,13 @@ class TickManager:
 
         return True
 
-    def _get_time(self):
+    @staticmethod
+    def _get_time() -> float:
         """Returns the number of seconds since the program start.
         """
         return float(SDL_GetTicks()) / 1000.0
 
-    def _get_delay(self):
+    def _get_delay(self) -> float:
         """Return delay (in seconds) until the next scheduled game tick.
         """
         now = self._get_time()
@@ -214,7 +223,7 @@ class TickManager:
         delay = tick_duration - time_delta
         return delay
 
-    def __call_callback(self, callback, current_second):
+    def __call_callback(self, callback: Callable, current_second: float) -> None:
         """Call a registered tick callback if it is time.  Update the callback's state for future ticks.
 
         Args:
