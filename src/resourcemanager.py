@@ -30,8 +30,10 @@ import json
 import os
 import sys
 import traceback
+from typing import Any, Optional
 import zipfile
 
+from __main__ import _Driftwood, CHECK, CheckFailure
 import filetype
 
 
@@ -44,7 +46,7 @@ class ResourceManager:
         driftwood: Base class instance.
     """
 
-    def __init__(self, driftwood):
+    def __init__(self, driftwood: _Driftwood):
         """ResourceManager class initializer.
 
         Args:
@@ -54,7 +56,7 @@ class ResourceManager:
         self.__injections = {}
         self.__duplicate_file_counts = {}
 
-    def inject(self, filename, data):
+    def inject(self, filename: str, data: Any) -> bool:
         """Inject data to be retrieved later by a fake filename.
 
         This is checked before the filesystem and invalidates the cache, so if you overwrite an existing filename you
@@ -80,7 +82,7 @@ class ResourceManager:
         self.driftwood.log.info("Resource", "injected", filename)
         return True
 
-    def uninject(self, filename):
+    def uninject(self, filename: str) -> bool:
         """Delete injected data.
 
         Args:
@@ -104,7 +106,7 @@ class ResourceManager:
         self.driftwood.log.msg("ERROR", "Resource", "uninject", "no such file", filename)
         return False
 
-    def request_json(self, filename):
+    def request_json(self, filename) -> Optional[Any]:
         """Retrieve a dictionary of JSON data.
 
         Args:
@@ -138,7 +140,7 @@ class ResourceManager:
             self.driftwood.cache.upload(filename, None)
             return None
 
-    def request_audio(self, filename, music=False):
+    def request_audio(self, filename: str, music: bool=False) -> Optional[filetype.AudioFile]:
         """Retrieve an internal abstraction of an audio file.
 
         Args:
@@ -167,7 +169,7 @@ class ResourceManager:
             self.driftwood.cache.upload(filename, None)
             return None
 
-    def request_font(self, filename, ptsize):
+    def request_font(self, filename: str, ptsize: int) -> Optional[filetype.FontFile]:
         """Retrieve an internal abstraction of a font file.
 
         Args:
@@ -197,7 +199,7 @@ class ResourceManager:
             self.driftwood.cache.upload(cache_name, None)
             return None
 
-    def request_image(self, filename):
+    def request_image(self, filename: str) -> Optional[filetype.ImageFile]:
         """Retrieve an internal abstraction of an image file.
 
         Args:
@@ -224,7 +226,7 @@ class ResourceManager:
             self.driftwood.cache.upload(filename, None)
             return None
 
-    def request_duplicate_image(self, filename):
+    def request_duplicate_image(self, filename: str) -> Optional[filetype.ImageFile]:
         """Retrieve an internal abstraction of an image file. This object will not be shared with any other
         consumers so is free to be modified.
 
@@ -258,7 +260,7 @@ class ResourceManager:
 
         return obj
 
-    def _request(self, filename, binary=False):
+    def _request(self, filename: str, binary: bool=False) -> Optional[bytes]:
         """Retrieve the contents of a file.
 
         Args:

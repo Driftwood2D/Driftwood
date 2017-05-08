@@ -28,7 +28,10 @@
 # A big thank-you to Lazy Foo's SDL_Audio tutorial. It would've taken me a lot longer to build this without such clear
 # instruction. Link: <http://lazyfoo.net/SDL_tutorials/lesson11/>
 
+from typing import Optional
 from sdl2.sdlmixer import *
+
+from __main__ import _Driftwood, CHECK, CheckFailure
 
 
 class AudioManager:
@@ -42,7 +45,7 @@ class AudioManager:
             playing_sfx: Whether we are currently playing sfx or not.
     """
 
-    def __init__(self, driftwood):
+    def __init__(self, driftwood: _Driftwood):
         self.driftwood = driftwood
 
         self.playing_music = False
@@ -72,7 +75,7 @@ class AudioManager:
 
         # Did we succeed?
         if Mix_Init(init_flags) & init_flags != init_flags:
-            self.driftwood.log.msg("ERROR", "Audio", "__init__","failed to initialize audio format support",
+            self.driftwood.log.msg("ERROR", "Audio", "__init__", "failed to initialize audio format support",
                                    str(Mix_GetError()))
         else:
             self.driftwood.log.info("Audio", "initialized mixer audio format support",
@@ -82,7 +85,7 @@ class AudioManager:
         # Register the cleanup function.
         self.driftwood.tick.register(self._cleanup, delay=0.01, during_pause=True)
 
-    def play_sfx(self, filename, volume=None, loop=0, fade=0.0):
+    def play_sfx(self, filename: str, volume: int=None, loop: int=0, fade: float=0.0) -> Optional[int]:
         """Load and play a sound effect from an audio file.
 
         Args:
@@ -111,8 +114,11 @@ class AudioManager:
             return None
 
         # Load the sound effect.
-        sfx_temp = [filename, None]
-        sfx_temp[1] = self.driftwood.resource.request_audio(filename, False)
+        sfx_temp = [
+            filename,
+            self.driftwood.resource.request_audio(filename, False)
+        ]
+
         if not sfx_temp[1]:
             self.driftwood.log.msg("ERROR", "Audio", "play_sfx", "could not load sfx", filename)
             return None
@@ -145,7 +151,7 @@ class AudioManager:
 
         return channel
 
-    def volume_sfx(self, channel, volume=None):
+    def volume_sfx(self, channel: int, volume: int=None) -> Optional[int]:
         """Get or adjust the volume of a sound effect channel.
 
         Args:
@@ -185,7 +191,7 @@ class AudioManager:
                                channel)
         return None
 
-    def volume_sfx_by_filename(self, filename, volume=None):
+    def volume_sfx_by_filename(self, filename: str, volume: int=None) -> Optional[int]:
         """Get or adjust the volume of all currently playing instances of the named sound effect.
 
         Args:
@@ -229,7 +235,7 @@ class AudioManager:
                                "cannot adjust volume for nonexistent instances of sfx", filename)
         return None
 
-    def stop_sfx(self, channel, fade=0.0):
+    def stop_sfx(self, channel: int, fade: float=0.0) -> bool:
         """Stop a sound effect. Requires the sound effect's channel number from play_sfx()'s return code.
 
         Args:
@@ -261,7 +267,7 @@ class AudioManager:
                                channel)
         return False
 
-    def stop_sfx_by_filename(self, filename, fade=0.0):
+    def stop_sfx_by_filename(self, filename: str, fade: float=0.0) -> bool:
         """Stop all currently playing instances of the named sound effect.
 
         Args:
@@ -296,7 +302,7 @@ class AudioManager:
                                filename)
         return False
 
-    def stop_all_sfx(self):
+    def stop_all_sfx(self) -> bool:
         """Stop all currently playing sound effects.
 
         Returns:
@@ -307,7 +313,7 @@ class AudioManager:
         self.__sfx = {}
         return True
 
-    def play_music(self, filename, volume=None, loop=0, fade=0.0):
+    def play_music(self, filename: str, volume: int=None, loop: int=0, fade: float=0.0) -> bool:
         """Load and play music from an audio file. Also stops and unloads any previously loaded music.
 
         Args:
@@ -332,7 +338,7 @@ class AudioManager:
 
         # Give up if we didn't initialize properly.
         if 0 in self.__init_success:
-            self.driftwood.log.msg("WARNING", "Audio", "play_music","cannot play music due to initialization failure",
+            self.driftwood.log.msg("WARNING", "Audio", "play_music", "cannot play music due to initialization failure",
                                    filename)
             return False
 
@@ -356,7 +362,7 @@ class AudioManager:
 
         if result == -1:
             self.driftwood.log.msg("WARNING", "Audio", "play_music", "could not play music")
-            return
+            return False
 
         if volume is not None:
             # Keep volume within bounds.
@@ -376,7 +382,7 @@ class AudioManager:
 
         return True
 
-    def volume_music(self, volume=None):
+    def volume_music(self, volume: int=None) -> Optional[int]:
         """Get or adjust the volume of the currently playing music.
 
         Args:
@@ -413,7 +419,7 @@ class AudioManager:
         self.driftwood.log.msg("WARNING", "Audio", "volume_music", "cannot adjust volume for nonexistent music")
         return None
 
-    def stop_music(self, fade=0.0):
+    def stop_music(self, fade: float=0.0) -> bool:
         """Stop and unload any currently loaded music.
 
         Args:
@@ -443,7 +449,7 @@ class AudioManager:
 
         return True
 
-    def _cleanup(self, seconds_past):
+    def _cleanup(self, seconds_past: float) -> None:
         # Tick callback to clean up files we're done with.
         if self.__music and not Mix_PlayingMusic():
             self.__music = None
@@ -458,7 +464,7 @@ class AudioManager:
         except RuntimeError:
             pass
 
-    def _terminate(self):
+    def _terminate(self) -> None:
         """Prepare for shutdown.
         """
         self.stop_music()

@@ -27,8 +27,11 @@
 # **********
 
 import types
+from typing import Callable, Optional, Union
 
 from sdl2 import SDL_GetKeyName
+
+from __main__ import _Driftwood, CHECK, CheckFailure
 
 
 class InputManager:
@@ -43,7 +46,7 @@ class InputManager:
 
     ONDOWN, ONREPEAT, ONUP = range(3)
 
-    def __init__(self, driftwood):
+    def __init__(self, driftwood: _Driftwood):
         """InputManager class initializer.
 
         Args:
@@ -64,21 +67,18 @@ class InputManager:
         # Register the tick callback.
         self.driftwood.tick.register(self._tick, during_pause=True)
 
-    def __contains__(self, item):
+    def __contains__(self, item: int) -> bool:
         if item in self.__registry:
             return True
         return False
 
-    def __getitem__(self, item):
-        return self.__registry[item][0]
-
-    def __setitem__(self, item, value):
+    def __setitem__(self, item: Union[int, str], value: Callable) -> None:
         self.register(item, value)
 
-    def __delitem__(self, item):
+    def __delitem__(self, item: int) -> None:
         self.unregister(item)
 
-    def keyname(self, keysym):
+    def keyname(self, keysym: int) -> Optional[str]:
         """Return a string naming a keysym. The up arrow key returns "Up," etc.
 
         Args:
@@ -100,7 +100,7 @@ class InputManager:
         except:
             return None
 
-    def keysym(self, keyname):
+    def keysym(self, keyname: str) -> Optional[int]:
         """Return a keysym for the named keybinding.
 
         Args:
@@ -122,7 +122,12 @@ class InputManager:
         except:
             return None
 
-    def register(self, keyid, callback, throttle=0.0, delay=0.0, mod=False):
+    def register(self,
+                 keyid: Union[int, str],
+                 callback: Callable,
+                 throttle: float=0.0,
+                 delay: float=0.0,
+                 mod: bool=False) -> bool:
         """Register an input callback.
 
         The callback function will receive a call every tick that the key is on top of the input stack. (the key which
@@ -173,7 +178,7 @@ class InputManager:
 
         return True
 
-    def unregister(self, keysym):
+    def unregister(self, keysym: int) -> bool:
         """Unregister an input callback.
 
         Args:
@@ -198,7 +203,7 @@ class InputManager:
                                    self.keyname(keysym))
             return False
 
-    def pressed(self, keysym):
+    def pressed(self, keysym: int) -> bool:
         """Check if a key is currently being pressed.
 
         Args:
@@ -217,7 +222,7 @@ class InputManager:
 
         return False
 
-    def _key_down(self, keysym):
+    def _key_down(self, keysym: int) -> None:
         """Push a keypress onto the input stack if not present.
 
         Args:
@@ -235,7 +240,7 @@ class InputManager:
             # self.driftwood.log.msg("WARNING", "InputManager", "key_down", "key already down", self.keyname(keysym))
             pass
 
-    def _key_up(self, keysym):
+    def _key_up(self, keysym: int) -> None:
         """Remove a keypress from the input stack if present.
 
         Args:
@@ -255,7 +260,7 @@ class InputManager:
                 self.__registry[keysym]["repeats"] = 0
                 self.__registry[keysym]["callback"](InputManager.ONUP)
 
-    def _tick(self, seconds_past):
+    def _tick(self, seconds_past: float) -> None:
         """Tick callback.
 
         If there is a keypress on top of the stack and it maps to a callback in the registry, call it. Also pass the

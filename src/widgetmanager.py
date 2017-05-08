@@ -26,10 +26,13 @@
 # IN THE SOFTWARE.
 # **********
 
+from typing import ItemsView, Optional
+
 from sdl2 import *
 from sdl2.ext import *
 from sdl2.sdlttf import *
 
+from __main__ import _Driftwood
 import widget
 
 
@@ -44,7 +47,7 @@ class WidgetManager:
         selected: Whether or not this widget is the selected widget. ex. a selected button in a UI menu.
     """
 
-    def __init__(self, driftwood):
+    def __init__(self, driftwood: _Driftwood):
         self.driftwood = driftwood
 
         self.widgets = {}
@@ -58,21 +61,21 @@ class WidgetManager:
 
         self.__prepare()
 
-    def __contains__(self, wid):
+    def __contains__(self, wid: int) -> bool:
         if self.widget(wid):
             return True
         return False
 
-    def __getitem__(self, wid):
+    def __getitem__(self, wid: int) -> Optional[widget.Widget]:
         return self.widget(wid)
 
-    def __delitem__(self, wid):
+    def __delitem__(self, wid) -> bool:
         return self.kill(wid)
 
-    def __iter__(self):
+    def __iter__(self) -> ItemsView:
         return self.widgets.items()
 
-    def select(self, wid):
+    def select(self, wid: int) -> bool:
         """Select the specified widget. Previously selected widget is released.
 
         An example is selecting a button in a menu or selecting a text input box, out of the other widgets on screen.
@@ -92,7 +95,7 @@ class WidgetManager:
         self.selected = wid
         return True
 
-    def release(self):
+    def release(self) -> bool:
         """Release the currently selected widget so that no widgets are selected.
 
         Returns:
@@ -105,7 +108,14 @@ class WidgetManager:
         self.selected = None
         return True
 
-    def container(self, imagefile=None, parent=None, x=0, y=0, width=0, height=0, active=True):
+    def container(self,
+                  imagefile: str=None,
+                  parent: int=None,
+                  x: int=0,
+                  y: int=0,
+                  width: int=0,
+                  height: int=0,
+                  active: bool=True) -> Optional[int]:
         """Create a new container widget.
 
         A container widget can have a background image, and other widgets can be contained by it. Widgets in a container
@@ -148,8 +158,17 @@ class WidgetManager:
 
         return new_widget.wid
 
-    def text(self, contents, fontfile, ptsize, parent=None, x=0, y=0, width=-1, height=-1, color="000000FF",
-             active=True):
+    def text(self,
+             contents: str,
+             fontfile: int,
+             ptsize: int,
+             parent: int=None,
+             x: int=0,
+             y: int=0,
+             width: int=-1,
+             height: int=-1,
+             color: str="000000FF",
+             active: bool=True):
         """Create a new text widget.
 
             A text widget puts text on the screen. It cannot have a background image, but can have a color.
@@ -190,7 +209,7 @@ class WidgetManager:
 
         return new_widget.wid
 
-    def activate(self, wid):
+    def activate(self, wid: int) -> bool:
         """Activate a widget. This widget becomes visible.
         
         Args:
@@ -203,7 +222,7 @@ class WidgetManager:
         self.driftwood.log.msg("ERROR", "Widget", "activate", "attempt to activate nonexistent widget", wid)
         return False
 
-    def deactivate(self, wid):
+    def deactivate(self, wid: int) -> bool:
         """Deactivate a widget. This widget becomes invisible.
 
         Args:
@@ -216,7 +235,7 @@ class WidgetManager:
         self.driftwood.log.msg("ERROR", "Widget", "deactivate", "attempt to deactivate nonexistent widget", wid)
         return False
 
-    def kill(self, wid):
+    def kill(self, wid: int) -> bool:
         """Kill a widget.
 
         Args:
@@ -231,7 +250,7 @@ class WidgetManager:
         self.driftwood.log.msg("ERROR", "Widget", "kill", "attempt to kill nonexistent widget", wid)
         return False
 
-    def widget(self, wid):
+    def widget(self, wid: int) -> Optional[widget.Widget]:
         """Get a widget by widget id.
 
         Args:
@@ -241,7 +260,7 @@ class WidgetManager:
             return self.widgets[wid]
         return None
 
-    def reset(self):
+    def reset(self) -> bool:
         """Destroy all widgets.
         """
         for widget in self.widgets:
@@ -251,7 +270,7 @@ class WidgetManager:
         self.selected = None
         return True
 
-    def _draw_widgets(self):
+    def _draw_widgets(self) -> None:
         """Copy the widgets into FrameManager. This is signaled by AreaManager once the area is drawn."""
         for wid in sorted(self.widgets.keys()):
             if self.widgets[wid].active and self.widgets[wid].srcrect():  # It's visible, draw it.
@@ -270,7 +289,7 @@ class WidgetManager:
                         if type(r) is int and r < 0:
                             self.driftwood.log.msg("ERROR", "Widget", "_draw_widgets", "SDL", SDL_GetError())
 
-    def __prepare(self):
+    def __prepare(self) -> None:
         """Initialize some things we need to get started.
         """
         if TTF_Init() < 0:
@@ -279,7 +298,7 @@ class WidgetManager:
         self.__uifactory = UIFactory(self.__spritefactory)
         self.__uiprocessor = UIProcessor()
 
-    def _terminate(self):
+    def _terminate(self) -> None:
         """Cleanup before deletion.
         """
         for widget in self.widgets:

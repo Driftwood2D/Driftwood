@@ -26,8 +26,10 @@
 # IN THE SOFTWARE.
 # **********
 
-from ctypes import byref, c_int
+from ctypes import byref
 from sdl2 import *
+
+import entitymanager
 
 
 class Spritesheet:
@@ -43,7 +45,7 @@ class Spritesheet:
         imageheight: Height of the sprite sheet in pixels.
     """
 
-    def __init__(self, entitymanager, filename):
+    def __init__(self, entitymanager: 'entitymanager.EntityManager', filename: str):
         """Spritesheet class initializer.
 
         Args:
@@ -61,7 +63,7 @@ class Spritesheet:
 
         self.__prepare_spritesheet()
 
-    def __prepare_spritesheet(self):
+    def __prepare_spritesheet(self) -> None:
         self.image = self.__resource.request_image(self.filename)
         self.texture = self.image.texture
 

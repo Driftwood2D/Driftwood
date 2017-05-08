@@ -28,6 +28,7 @@
 
 from sdl2 import *
 
+from __main__ import _Driftwood, CHECK, CheckFailure
 import tilemap
 
 
@@ -45,7 +46,7 @@ class AreaManager:
         refocused: Whether we have gone to a new area since last checked.
     """
 
-    def __init__(self, driftwood):
+    def __init__(self, driftwood: _Driftwood):
         """AreaManager class initializer.
 
         Args:
@@ -61,11 +62,11 @@ class AreaManager:
 
         self.driftwood.tick.register(self._tick)
 
-    def register(self):
+    def register(self) -> None:
         """Register our tick callback."""
         self.driftwood.tick.register(self._tick)
 
-    def focus(self, filename):
+    def focus(self, filename: str) -> bool:
         """Load and make active a new area.
 
         Args:
@@ -114,7 +115,7 @@ class AreaManager:
             self.driftwood.log.msg("ERROR", "Area", "focus", "could not load area", filename)
             return False
 
-    def _blur(self):
+    def _blur(self) -> None:
         """Call the global on_blur functions, and call the map's on_blur, if it has one. This is called when we leave
         an area.
         """
@@ -130,7 +131,7 @@ class AreaManager:
             self.driftwood.script.call(*args)
         self.tilemap = None
 
-    def _tick(self, seconds_past):
+    def _tick(self, seconds_past: float) -> None:
         """Tick callback.
         """
         if self.changed:  # TODO: Only redraw portions that have changed.
@@ -143,7 +144,7 @@ class AreaManager:
             self.__build_frame()
             self.changed = False
 
-    def __build_frame(self):
+    def __build_frame(self) -> None:
         """Build the frame and pass to WindowManager.
 
         For every tile and entity in each layer, copy its graphic onto the frame, then give the frame to WindowManager
@@ -204,8 +205,10 @@ class AreaManager:
                     # Clip entities so they don't appear outside the area.
                     clip_left = 0 if arearect[0] <= dstrect[0] else arearect[0] - dstrect[0]
                     clip_top = 0 if arearect[1] <= dstrect[1] else arearect[1] - dstrect[1]
-                    clip_right = 0 if dstrect[0] + dstrect[2] <= arearect[2] else (dstrect[0] + dstrect[2]) - arearect[2]
-                    clip_bot = 0 if dstrect[1] + dstrect[3] <= arearect[3] else (dstrect[1] + dstrect[3]) - arearect[3]
+                    clip_right = 0 if dstrect[0] + dstrect[2] <= arearect[2] \
+                        else (dstrect[0] + dstrect[2]) - arearect[2]
+                    clip_bot = 0 if dstrect[1] + dstrect[3] <= arearect[3] \
+                        else (dstrect[1] + dstrect[3]) - arearect[3]
 
                     srcrect[0] += clip_left
                     dstrect[0] += clip_left
@@ -234,8 +237,10 @@ class AreaManager:
                         # Clip entities so they don't appear outside the area.
                         clip_left = 0 if arearect[0] <= dstrect[0] else arearect[0] - dstrect[0]
                         clip_top = 0 if arearect[1] <= dstrect[1] else arearect[1] - dstrect[1]
-                        clip_right = 0 if dstrect[0] + dstrect[2] <= arearect[2] else (dstrect[0] + dstrect[2]) - arearect[2]
-                        clip_bot = 0 if dstrect[1] + dstrect[3] <= arearect[3] else (dstrect[1] + dstrect[3]) - arearect[3]
+                        clip_right = 0 if dstrect[0] + dstrect[2] <= arearect[2] \
+                            else (dstrect[0] + dstrect[2]) - arearect[2]
+                        clip_bot = 0 if dstrect[1] + dstrect[3] <= arearect[3] \
+                            else (dstrect[1] + dstrect[3]) - arearect[3]
 
                         srcrect[0] += clip_left
                         dstrect[0] += clip_left

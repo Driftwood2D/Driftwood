@@ -29,9 +29,15 @@
 import jsonschema
 import sys
 import traceback
+from typing import ItemsView, List, Optional
 
+from __main__ import _Driftwood, CHECK, CheckFailure
 import entity
-from inputmanager import InputManager
+import spritesheet
+
+# Keep a reference to the entity module, which is overridden by the EntityManager.entity function later in the file.
+# It is only overridden while inside type annotations.
+_entity = entity
 
 
 class EntityManager:
@@ -49,7 +55,7 @@ class EntityManager:
         spritesheets: The dictionary of Spritesheet class instances for each sprite sheet. Sorted by filename.
     """
 
-    def __init__(self, driftwood):
+    def __init__(self, driftwood: _Driftwood):
         """EntityManager class initializer.
 
         Args:
@@ -66,21 +72,21 @@ class EntityManager:
 
         self.__last_eid = -1
 
-    def __contains__(self, eid):
+    def __contains__(self, eid: int) -> bool:
         if self.entity(eid):
             return True
         return False
 
-    def __getitem__(self, eid):
+    def __getitem__(self, eid: int) -> Optional[entity.Entity]:
         return self.entity(eid)
 
-    def __delitem__(self, eid):
+    def __delitem__(self, eid: int) -> bool:
         return self.kill(eid)
 
-    def __iter__(self):
+    def __iter__(self) -> ItemsView:
         return self.entities.items()
 
-    def insert(self, filename, layer, x, y):
+    def insert(self, filename: str, layer: int, x: int, y: int) -> Optional[entity.Entity]:
         """Insert an entity at a position in the area.
 
         Args:
@@ -168,7 +174,7 @@ class EntityManager:
 
         return self.entities[eid]
 
-    def entity(self, eid):
+    def entity(self, eid: int) -> Optional[entity.Entity]:
         """Retrieve an entity by eid.
 
         Args:
@@ -188,7 +194,7 @@ class EntityManager:
 
         return None
 
-    def entity_at(self, x, y):
+    def entity_at(self, x: int, y: int) -> Optional[_entity.Entity]:
         """Retrieve an entity by pixel coordinate.
 
         Args:
@@ -210,7 +216,7 @@ class EntityManager:
                 return self.entities[eid]
         return None
 
-    def layer(self, layer):
+    def layer(self, layer: int) -> List[int]:
         """Retrieve a list of entities on a certain layer.
 
         Args:
@@ -234,7 +240,7 @@ class EntityManager:
         # Put them in order of eid so they don't switch around if we iterate them.
         return sorted(ents, key=lambda by_eid: by_eid.eid)
 
-    def kill(self, eid):
+    def kill(self, eid: int) -> bool:
         """Kill an entity by eid.
 
         Args:
@@ -262,7 +268,7 @@ class EntityManager:
         self.driftwood.log.msg("WARNING", "Entity", "kill", "attempt to kill nonexistent entity", eid)
         return False
 
-    def killall(self, filename):
+    def killall(self, filename: str) -> bool:
         """Kill all entities by filename.
 
         Args:
@@ -298,7 +304,7 @@ class EntityManager:
         self.driftwood.log.msg("WARNING", "Entity", "killall", "attempt to kill nonexistent entities", filename)
         return False
 
-    def spritesheet(self, filename):
+    def spritesheet(self, filename: spritesheet.Spritesheet) -> Optional[bool]:
         """Retrieve a sprite sheet by its filename.
 
         Args:
@@ -319,7 +325,7 @@ class EntityManager:
 
         return False
 
-    def collision(self, a, b):
+    def collision(self, a: _entity.Entity, b: _entity.Entity) -> bool:
         """Notify the collision callback, if set, that entity "a" has collided with entity or tile "b".
 
         Args:
@@ -334,10 +340,10 @@ class EntityManager:
 
         return True
 
-    def _terminate(self):
+    def _terminate(self) -> None:
         """Cleanup before deletion.
         """
-        for entity in self.entities:
-            self.entities[entity]._terminate()
+        for eid in self.entities:
+            self.entities[eid]._terminate()
         self.entities = None
         self.spritesheets = None

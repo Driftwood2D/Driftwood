@@ -28,7 +28,10 @@
 
 import os
 import platform
+from typing import List, Optional
 import zipfile
+
+from __main__ import _Driftwood, CHECK, CheckFailure
 
 
 class PathManager:
@@ -44,7 +47,7 @@ class PathManager:
         driftwood: Base class instance.
     """
 
-    def __init__(self, driftwood):
+    def __init__(self, driftwood: _Driftwood):
         """PathManager class initializer.
 
         Args:
@@ -66,16 +69,16 @@ class PathManager:
         else:
             self.rebuild()
 
-    def __contains__(self, item):
+    def __contains__(self, item: str) -> bool:
         if self.find(item):
             return True
         return False
 
-    def __getitem__(self, item):
+    def __getitem__(self, item: str) -> Optional[str]:
         if self.__contains__(item):
             return self.find(item)
 
-    def examine(self, pathname):
+    def examine(self, pathname: str) -> List[str]:
         """Examine a directory or zip archive pathname and return the list of filenames therein.
 
         Args:
@@ -115,9 +118,9 @@ class PathManager:
         except:
             self.driftwood.log.msg("ERROR", "Path", "examine", "could not examine pathname", pathname)
 
-        return tuple(filelist)
+        return filelist
 
-    def rebuild(self):
+    def rebuild(self) -> bool:
         """Rebuild the vfs.
 
         Rebuild the virtual filesystem from the path list, and make sure the base module is at the top.
@@ -143,7 +146,7 @@ class PathManager:
 
         return True
 
-    def prepend(self, pathnames):
+    def prepend(self, pathnames: List[str]) -> bool:
         """Prepend pathnames to the path list.
 
         Prepend additional pathnames to the path list, preserving their order. If any of the pathnames already exist,
@@ -180,7 +183,7 @@ class PathManager:
 
         return True
 
-    def append(self, pathnames):
+    def append(self, pathnames: List[str]) -> bool:
         """Append pathnames to the path list.
 
         Append additional pathnames to the path list, preserving their order. If any of the pathnames already exist,
@@ -216,7 +219,7 @@ class PathManager:
 
         return True
 
-    def remove(self, pathnames):
+    def remove(self, pathnames: List[str]) -> bool:
         """Remove pathnames from the path list if present.
 
         Args:
@@ -252,7 +255,7 @@ class PathManager:
 
         return True
 
-    def find(self, filename, pathname=None):
+    def find(self, filename: str, pathname: str=None) -> Optional[str]:
         """Find a filename's pathname.
 
         Return the pathname which owns the filename, if present. If pathname is set, check that specific pathname for
@@ -282,7 +285,7 @@ class PathManager:
         else:
             return None
 
-    def find_script(self, filename):
+    def find_script(self, filename: str) -> Optional[str]:
         """Slightly less dumb hack to look for a compiled script if the uncompiled script cannot be found or vice versa.
         """
         # Input Check

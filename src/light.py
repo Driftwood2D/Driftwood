@@ -25,6 +25,12 @@
 # IN THE SOFTWARE.
 # **********
 
+from typing import Tuple
+
+import entity
+import filetype
+import lightmanager
+
 
 class Light:
     """This class represents a light.
@@ -32,7 +38,20 @@ class Light:
     Attributes:
         Same as __init__ args.
     """
-    def __init__(self, manager, lid, lightmap, layer, x, y, w, h, alpha, blendmode, colormod, entity, layermod):
+    def __init__(self,
+                 manager: 'lightmanager.LightManager',
+                 lid: int,
+                 lightmap: filetype.ImageFile,
+                 layer: int,
+                 x: int,
+                 y: int,
+                 w: int,
+                 h: int,
+                 alpha: int,
+                 blendmode: int,
+                 colormod: Tuple[int, int, int],
+                 entity: entity.Entity,
+                 layermod: int):
         """Light class initializer.
 
         Args:
@@ -66,9 +85,9 @@ class Light:
         self.entity = entity
 
         if entity is not None:
-            self.manager.driftwood.tick.register(self._track_entity, message=[entity, layermod])
+            self.manager.driftwood.tick.register(self._track_entity, message=(entity, layermod))
 
-    def _track_entity(self, seconds_past, msg):
+    def _track_entity(self, seconds_past: float, msg: Tuple[entity.Entity, int]) -> None:
         """Follow an entity's position.
         """
         try:  # Avoid strange timing anomaly.

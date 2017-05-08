@@ -32,6 +32,8 @@ from sdl2.sdlimage import *
 from sdl2.sdlmixer import *
 from sdl2.sdlttf import *
 
+from __main__ import _Driftwood
+
 
 class AudioFile:
     """This class represents and abstracts a single OGG Vorbis audio file.
@@ -40,7 +42,7 @@ class AudioFile:
         audio: The SDL_mixer audio handle.
     """
 
-    def __init__(self, driftwood, data, music=False):
+    def __init__(self, driftwood: _Driftwood, data: bytes, music: bool=False):
         self.driftwood = driftwood
 
         self.audio = None
@@ -49,7 +51,7 @@ class AudioFile:
 
         self.__load(self.__data)
 
-    def __load(self, data):
+    def __load(self, data: bytes) -> None:
         """Load the audio data with SDL_Mixer.
         """
         if data:
@@ -61,7 +63,7 @@ class AudioFile:
             if not self.audio:
                 self.driftwood.log.msg("ERROR", "AudioFile", "__load", "SDL_Mixer", SDL_GetError())
 
-    def _terminate(self):
+    def _terminate(self) -> None:
         """Cleanup before deletion.
         """
         if self.audio:
@@ -82,7 +84,7 @@ class FontFile:
         font: The SDL_ttf font handle.
         ptsize: The size of the font in pt.
     """
-    def __init__(self, driftwood, data, ptsize):
+    def __init__(self, driftwood: _Driftwood, data: bytes, ptsize: int):
         """FontFile class initializer.
         """
         self.driftwood = driftwood
@@ -93,7 +95,7 @@ class FontFile:
 
         self.__load(self.__data)
 
-    def __load(self, data):
+    def __load(self, data: bytes) -> None:
         """Load the font data with SDL_TTF.
         """
         if data:
@@ -101,7 +103,7 @@ class FontFile:
             if not self.font:
                 self.driftwood.log.msg("ERROR", "FontFile", "__load", "SDL_TTF", TTF_GetError())
 
-    def _terminate(self):
+    def _terminate(self) -> None:
         """Cleanup before deletion.
         """
         if self.font:
@@ -119,7 +121,7 @@ class ImageFile:
         texture: An SDL texture containing the image.
     """
 
-    def __init__(self, driftwood, data, renderer):
+    def __init__(self, driftwood: _Driftwood, data: bytes, renderer: SDL_Renderer):
         """ImageFile class initializer.
         """
         self.driftwood = driftwood
@@ -136,7 +138,7 @@ class ImageFile:
         SDL_QueryTexture(self.texture, None, None, byref(tw), byref(th))
         self.width, self.height = tw.value, th.value
 
-    def __load(self, data):
+    def __load(self, data: bytes) -> None:
         """Load the image data with SDL_Image.
         """
         if data:
@@ -148,7 +150,7 @@ class ImageFile:
             if not self.texture:
                 self.driftwood.log.msg("ERROR", "ImageFile", "__load", "SDL_Image", IMG_GetError())
 
-    def _terminate(self):
+    def _terminate(self) -> None:
         """Cleanup before deletion.
         """
         if not self.surface and not self.texture:
