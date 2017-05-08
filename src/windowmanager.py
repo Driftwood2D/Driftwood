@@ -27,9 +27,12 @@
 # **********
 
 from ctypes import byref
+from typing import List
 
 from sdl2 import *
 from sdl2.sdlimage import *
+
+from __main__ import _Driftwood
 
 class WindowManager:
     """The Window Manager
@@ -42,7 +45,7 @@ class WindowManager:
         renderer: The SDL Renderer attached to the window.
     """
 
-    def __init__(self, driftwood):
+    def __init__(self, driftwood: _Driftwood):
         """WindowManager class initializer.
 
         Initializes SDL, and creates a window and a renderer.
@@ -66,7 +69,7 @@ class WindowManager:
         self.driftwood.tick.register(self._tick, delay=1.0 / self.driftwood.config["window"]["maxfps"],
                                      during_pause=True)
 
-    def title(self, title):
+    def title(self, title: str) -> bool:
         """Set the window title.
 
         Args:
@@ -78,7 +81,7 @@ class WindowManager:
         SDL_SetWindowTitle(self.window, title.encode())
         return True
 
-    def refresh(self, area=False):
+    def refresh(self, area: bool=False) -> bool:
         """Force the window to redraw.
 
         Args:
@@ -92,13 +95,13 @@ class WindowManager:
             self.driftwood.area.changed = True
         return True
 
-    def resolution(self, width=None, height=None):
+    def resolution(self, width: int=None, height: int=None) -> List[int]:
         """Set or query the logical resolution of the window. This is different from the window dimensions.
-        
+
         Args:
             width: If set, the new logical width.
             height: If set, the new logical height.
-        
+
         Returns: A tuple containing the new resolution.
         """
         if width:
@@ -108,7 +111,7 @@ class WindowManager:
 
         return [self.__logical_width, self.__logical_height]
 
-    def _tick(self, seconds_past):
+    def _tick(self, seconds_past: float) -> None:
         """Tick callback which refreshes the renderer.
         """
         if self.driftwood.frame.changed:
@@ -127,7 +130,7 @@ class WindowManager:
 
             SDL_RenderPresent(self.renderer)
 
-    def __prepare(self):
+    def __prepare(self) -> None:
         """Prepare the window for use.
 
         Create a new window and renderer with the configured settings.
@@ -169,7 +172,7 @@ class WindowManager:
         # singular FPS.
         self.__setup_fps()
 
-    def __setup_fps(self):
+    def __setup_fps(self) -> None:
         """Query SDL to determine our monitor's refresh rate. Use this to set the engine's maximum frames per second
         if it's not alrady set.
         """
@@ -184,7 +187,7 @@ class WindowManager:
 
             self.driftwood.config["window"]["maxfps"] = refresh_rate
 
-    def _terminate(self):
+    def _terminate(self) -> None:
         """Cleanup before deletion.
         """
         SDL_DestroyRenderer(self.renderer)
