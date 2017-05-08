@@ -27,6 +27,10 @@
 # **********
 
 import os
+from typing import Optional
+
+from __main__ import _Driftwood, CHECK, CheckFailure
+import tilemap
 
 
 class Tileset:
@@ -52,7 +56,7 @@ class Tileset:
         tileproperties: A dictionary containing mappings of tile GIDs to properties that apply to that GID.
     """
 
-    def __init__(self, driftwood, tilemap):
+    def __init__(self, driftwood: _Driftwood, tilemap: 'tilemap.Tilemap'):
         """Tileset class initializer.
 
         Args:
@@ -78,7 +82,7 @@ class Tileset:
         self.properties = {}
         self.tileproperties = {}
 
-    def load(self, tilemap_filename, tileset_json):
+    def load(self, tilemap_filename: str, tileset_json: dict) -> Optional[bool]:
         """Populate a Tileset with data from a Tiled map's tileset object.
 
         Args:
@@ -112,7 +116,7 @@ class Tileset:
                 return False
             return True
 
-    def __prepare(self, image_base_path, tileset_json, firstgid):
+    def __prepare(self, image_base_path: str, tileset_json: dict, firstgid: int) -> bool:
         """Load values into our tileset."""
         self.name = tileset_json["name"]
         self.imagewidth = tileset_json["imagewidth"]
@@ -143,7 +147,7 @@ class Tileset:
             return False
 
     @staticmethod
-    def __resolve_path(base_filename, filename):
+    def __resolve_path(base_filename: str, filename: str) -> str:
         """Determine the location of a file that was defined relative to another"""
         if os.path.dirname(base_filename):
             return os.path.normpath(os.path.dirname(base_filename) + os.path.sep + filename)
