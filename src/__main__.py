@@ -32,7 +32,7 @@ import sys
 import time
 
 VCUR = sys.version_info
-VREQ = [3, 6, 0]
+VREQ = [3, 5, 0]
 
 # We have to do this here before we start pulling in nonexistent imports.
 if __name__ == "__main__":
