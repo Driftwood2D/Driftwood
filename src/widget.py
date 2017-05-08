@@ -27,14 +27,18 @@
 # **********
 
 from ctypes import byref, c_int
+from typing import List, Optional
 
 from sdl2 import *
 from sdl2.sdlttf import *
 
+import filetype
+import widgetmanager
+
 
 class Widget:
     """This parent class represents a widget. It is subclassed by one of the widget types.
-    
+
     Attributes:
         manager: Link back to the WidgetManager.
         wid: Widget id of this widget.
@@ -50,7 +54,14 @@ class Widget:
         
     """
 
-    def __init__(self, manager, wid, parent, x, y, width, height):
+    def __init__(self,
+                 manager: 'widgetmanager.WidgetManager',
+                 wid: int,
+                 parent: Optional[int],
+                 x: int,
+                 y: int,
+                 width: int,
+                 height: int):
         self.manager = manager
         self.wid = wid
 
@@ -64,33 +75,41 @@ class Widget:
         self.height = height
         self.parent = parent
 
-    def dstrect(self):
+    def dstrect(self) -> List[int]:
         """Return the destination rectangle for drawing the widget.
         """
-        return self.realx, self.realy, self.width, self.height
+        return [self.realx, self.realy, self.width, self.height]
 
 
 class ContainerWidget(Widget):
     """This subclass represents a Container widget.
-    
+
     Attributes:
         image: The graphic for the container, if it has one.
         contains: List of widgets contained by this container.
     """
-    def __init__(self, manager, wid, parent, image, x, y, width, height):
+    def __init__(self,
+                 manager: 'widgetmanager.WidgetManager',
+                 wid: int,
+                 parent: Optional[int],
+                 image: filetype.ImageFile,
+                 x: int,
+                 y: int,
+                 width: int,
+                 height: int):
         super(ContainerWidget, self).__init__(manager, wid, parent, x, y, width, height)
 
         self.image = image
         self.contains = []
 
-    def srcrect(self):
+    def srcrect(self) -> Optional[List[int]]:
         """Return the source rectangle for the widget graphic, if it has one.
         """
         if self.image:
-            return 0, 0, self.image.width, self.image.height
+            return [0, 0, self.image.width, self.image.height]
         return None
 
-    def _prepare(self):
+    def _prepare(self) -> Optional[bool]:
         # Center if not in a container.
         if self.parent is None:
             window_logical_width, window_logical_height = self.manager.driftwood.window.resolution()
@@ -128,7 +147,7 @@ class ContainerWidget(Widget):
 
 class TextWidget(Widget):
     """This subclass represents a text widget.
-    
+
     Attributes:
         contents: The text content of the widget.
         font: FontFile for the font being used.
@@ -138,7 +157,18 @@ class TextWidget(Widget):
         textheight: The height of the text in pixels.
         texture: A texture containing the rendered graphic for the text.
     """
-    def __init__(self, manager, wid, parent, contents, font, ptsize, x, y, width, height, color):
+    def __init__(self,
+                 manager: 'widgetmanager.WidgetManager',
+                 wid: int,
+                 parent: int,
+                 contents: str,
+                 font: filetype.FontFile,
+                 ptsize: int,
+                 x: int,
+                 y: int,
+                 width: int,
+                 height: int,
+                 color: str):
         super(TextWidget, self).__init__(manager, wid, parent, x, y, width, height)
 
         self.contents = contents
@@ -149,12 +179,12 @@ class TextWidget(Widget):
         self.textheight = None
         self.texture = None
 
-    def srcrect(self):
+    def srcrect(self) -> Optional[List[int]]:
         if self.texture:
-            return 0, 0, self.textwidth, self.textheight
+            return [0, 0, self.textwidth, self.textheight]
         return None
 
-    def _prepare(self):
+    def _prepare(self) -> Optional[bool]:
         # Get text width and height.
         tw, th = c_int(), c_int()
         TTF_SizeText(self.font.font, self.contents.encode(), byref(tw), byref(th))
@@ -220,7 +250,7 @@ class TextWidget(Widget):
 
         return True
 
-    def _terminate(self):
+    def _terminate(self) -> None:
         """Cleanup before deletion.
         """
         if self.texture:
