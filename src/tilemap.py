@@ -26,6 +26,8 @@
 # IN THE SOFTWARE.
 # **********
 
+from __main__ import _Driftwood
+import areamanager
 import layer
 import tileset
 
@@ -46,7 +48,7 @@ class Tilemap:
         tilesets: The list of Tileset class instances for each tileset.
     """
 
-    def __init__(self, driftwood, area):
+    def __init__(self, driftwood: _Driftwood, area: 'areamanager.AreaManager'):
         """Tilemap class initializer.
 
         Args:
@@ -69,26 +71,26 @@ class Tilemap:
         # This contains the JSON of the Tiled map.
         self.__tilemap = {}
 
-    def __contains__(self, item):
+    def __contains__(self, item) -> bool:
         if len(self.layers) > item:
             return True
         return False
 
-    def __getitem__(self, item):
+    def __getitem__(self, item) -> 'layer.Layer':
         if len(self.layers) > item:
             return self.layers[item]
 
-    def new_layer(self):
+    def new_layer(self) -> int:
         """Create a new virtual tile layer.
 
         Returns:
             Layer z position.
         """
         fakedata = {"data": [0] * (self.width * self.height)}
-        self.layers.append(layer.Layer(self, fakedata, len(self.layers)))
+        self.layers.append(layer.Layer(self.driftwood, self, fakedata, len(self.layers)))
         return self.layers[-1].zpos
 
-    def _read(self, filename, data):
+    def _read(self, filename: str, data: dict) -> bool:
         """Read and abstract a Tiled map.
 
         Reads the JSON Tiled map and processes its information into useful abstractions. This method is marked private
@@ -171,7 +173,7 @@ class Tilemap:
 
         return True
 
-    def __expand_properties(self):
+    def __expand_properties(self) -> None:
         new_props = {}
         old_props = []
 
@@ -188,7 +190,7 @@ class Tilemap:
         for prop in old_props:
             del self.properties[prop]
 
-    def _terminate(self):
+    def _terminate(self) -> None:
         """Cleanup before deletion.
         """
         for t in range(len(self.tilesets)):
