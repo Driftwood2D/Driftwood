@@ -216,7 +216,7 @@ class EntityManager:
                 return self.entities[eid]
         return None
 
-    def layer(self, layer: int) -> List[int]:
+    def layer(self, layer: int) -> List[_entity.Entity]:
         """Retrieve a list of entities on a certain layer.
 
         Args:
