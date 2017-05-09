@@ -8,7 +8,7 @@ def init():
     Driftwood.area.focus("blue1.json")
 
     # Play placeholder music.
-    Driftwood.audio.play_music("A_Travellers_Tale.oga", loop=-1)
+    Driftwood.audio.play_music("A_Travellers_Tale.oga", loop=None)
 
     # Insert the player entity.
     player = Driftwood.entity.insert("player.json", layer=1, x=16*4, y=16*8)

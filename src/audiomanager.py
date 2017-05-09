@@ -85,13 +85,13 @@ class AudioManager:
         # Register the cleanup function.
         self.driftwood.tick.register(self._cleanup, delay=0.01, during_pause=True)
 
-    def play_sfx(self, filename: str, volume: int=None, loop: int=0, fade: float=0.0) -> Optional[int]:
+    def play_sfx(self, filename: str, volume: int=None, loop: Optional[int]=0, fade: float=0.0) -> Optional[int]:
         """Load and play a sound effect from an audio file.
 
         Args:
             filename: Filename of the sound effect.
             volume: Overrides the sfx_volume in the config for this sound effect. 0-128
-            loop: Number of times to loop the audio. 0 for none, -1 for infinite.
+            loop: Number of times to loop the audio. 0 for none, None for infinite.
             fade: If set, number of seconds to fade in sfx.
 
         Returns:
@@ -101,7 +101,8 @@ class AudioManager:
         try:
             CHECK(filename, str)
             CHECK(volume, int)
-            CHECK(loop, int, _min=-1)
+            if loop is not None:
+                CHECK(loop, int, _min=0)
             CHECK(fade, [int, float])
         except CheckFailure as e:
             self.driftwood.log.msg("ERROR", "Audio", "play_sfx", "bad argument", e)
@@ -137,6 +138,9 @@ class AudioManager:
         else:
             Mix_VolumeChunk(sfx_temp[1].audio, self.driftwood.config["audio"]["sfx_volume"])
 
+        if loop is None:
+            loop = -1
+
         if not fade:  # Play the sound effect.
             channel = Mix_PlayChannel(-1, sfx_temp[1].audio, loop)
         else:  # Fade in sound effect.
@@ -151,27 +155,31 @@ class AudioManager:
 
         return channel
 
-    def volume_sfx(self, channel: int, volume: int=None) -> Optional[int]:
+    def volume_sfx(self, channel: Optional[int], volume: int=None) -> Optional[int]:
         """Get or adjust the volume of a sound effect channel.
 
         Args:
-            channel: Audio channel of the sound effect whose volume to adjust or query. -1 adjusts all channels.
+            channel: Audio channel of the sound effect whose volume to adjust or query. None adjusts all channels.
             volume: Optional, sets a new volume. Integer between 0 and 128, or no volume to just query.
 
         Returns:
-            Integer volume if succeeded (average volume of sfx if -1 channel is passed), None if failed.
+            Integer volume if succeeded (average volume of sfx if no channel is passed), None if failed.
         """
         # Input Check
         try:
-            CHECK(channel, int)
+            if channel is not None:
+                CHECK(channel, int)
             if volume is not None:
                 CHECK(volume, int)
         except CheckFailure as e:
             self.driftwood.log.msg("ERROR", "Audio", "volume_sfx", "bad argument", e)
             return None
 
+        if channel is None:
+            channel = -1
+
         # Search for the sound effect.
-        if channel in self.__sfx:
+        if channel == -1 or channel in self.__sfx:
             if volume is not None:
                 # Keep volume within bounds.
                 if volume > 128:
@@ -313,13 +321,13 @@ class AudioManager:
         self.__sfx = {}
         return True
 
-    def play_music(self, filename: str, volume: int=None, loop: int=0, fade: float=0.0) -> bool:
+    def play_music(self, filename: str, volume: int=None, loop: Optional[int]=0, fade: float=0.0) -> bool:
         """Load and play music from an audio file. Also stops and unloads any previously loaded music.
 
         Args:
             filename: Filename of the music.
             volume: Overrides the music_volume in the config for this music. 0-128
-            loop: Number of times to loop the audio. 0 for none, -1 for infinite.
+            loop: Number of times to loop the audio. 0 for none, None for infinite.
             fade: If set, number of seconds to fade in music.
 
         Returns:
@@ -330,7 +338,8 @@ class AudioManager:
             CHECK(filename, str)
             if volume is not None:
                 CHECK(volume, int)
-            CHECK(loop, int, _min=-1)
+            if loop is not None:
+                CHECK(loop, int, _min=-1)
             CHECK(fade, [int, float], _min=0)
         except CheckFailure as e:
             self.driftwood.log.msg("ERROR", "Audio", "play_music", "bad argument", e)
@@ -354,6 +363,9 @@ class AudioManager:
         # Stop any currently playing music.
         if Mix_PlayingMusic():
             self.stop_music()
+
+        if loop is None:
+            loop = -1
 
         if not fade:  # Play the music.
             result = Mix_PlayMusic(self.__music.audio, loop)
