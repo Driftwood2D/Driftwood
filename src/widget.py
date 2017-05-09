@@ -88,13 +88,14 @@ class ContainerWidget(Widget):
         image: The graphic for the container, if it has one.
         contains: List of widgets contained by this container.
     """
+
     def __init__(self,
                  manager: 'widgetmanager.WidgetManager',
                  wid: int,
                  parent: Optional[int],
                  image: filetype.ImageFile,
-                 x: int,
-                 y: int,
+                 x: Optional[int],
+                 y: Optional[int],
                  width: int,
                  height: int):
         super(ContainerWidget, self).__init__(manager, wid, parent, x, y, width, height)
@@ -113,10 +114,10 @@ class ContainerWidget(Widget):
         # Center if not in a container.
         if self.parent is None:
             window_logical_width, window_logical_height = self.manager.driftwood.window.resolution()
-            if self.x == -1:
+            if self.x is None:
                 self.x = (window_logical_width - self.width) // 2
                 self.realx = self.x
-            if self.y == -1:
+            if self.y is None:
                 self.y = (window_logical_height - self.height) // 2
                 self.realy = self.y
 
@@ -126,12 +127,12 @@ class ContainerWidget(Widget):
             container.contains.append(self.wid)
             if container.realx and container.realy:  # Set the adjusted x and y.
                 # Either center or place in a defined position.
-                if self.x == -1:
+                if self.x is None:
                     self.realx = container.realx + (container.width - self.width) // 2
                 else:
                     self.realx += container.realx
 
-                if self.y == -1:
+                if self.y is None:
                     self.realy = container.realy + (container.height - self.height) // 2
                 else:
                     self.realy += container.realy
@@ -157,6 +158,7 @@ class TextWidget(Widget):
         textheight: The height of the text in pixels.
         texture: A texture containing the rendered graphic for the text.
     """
+
     def __init__(self,
                  manager: 'widgetmanager.WidgetManager',
                  wid: int,
@@ -164,10 +166,10 @@ class TextWidget(Widget):
                  contents: str,
                  font: filetype.FontFile,
                  ptsize: int,
-                 x: int,
-                 y: int,
-                 width: int,
-                 height: int,
+                 x: Optional[int],
+                 y: Optional[int],
+                 width: Optional[int],
+                 height: Optional[int],
                  color: str):
         super(TextWidget, self).__init__(manager, wid, parent, x, y, width, height)
 
@@ -191,18 +193,18 @@ class TextWidget(Widget):
         self.textwidth, self.textheight = tw.value, th.value
 
         # Set width and height if not overridden.
-        if self.width == -1:
+        if self.width is None:
             self.width = tw.value
-        if self.height == -1:
+        if self.height is None:
             self.height = th.value
 
         # Center if not in a container.
         if self.parent is None:
             window_logical_width, window_logical_height = self.manager.driftwood.window.resolution()
-            if self.x == -1:
+            if self.x is None:
                 self.x = (window_logical_width - self.width) // 2
                 self.realx = self.x
-            if self.y == -1:
+            if self.y is None:
                 self.y = (window_logical_height - self.height) // 2
                 self.realy = self.y
 
@@ -212,12 +214,12 @@ class TextWidget(Widget):
             container.contains.append(self.wid)
             if container.realx and container.realy:  # Set the adjusted x and y.
                 # Either center or place in a defined position.
-                if self.x == -1:
+                if self.x is None:
                     self.realx = container.realx + (container.width - self.width) // 2
                 else:
                     self.realx += container.realx
 
-                if self.y == -1:
+                if self.y is None:
                     self.realy = container.realy + (container.height - self.height) // 2
                 else:
                     self.realy += container.realy

@@ -111,8 +111,8 @@ class WidgetManager:
     def container(self,
                   imagefile: str=None,
                   parent: int=None,
-                  x: int=0,
-                  y: int=0,
+                  x: int=None,
+                  y: int=None,
                   width: int=0,
                   height: int=0,
                   active: bool=True) -> Optional[int]:
@@ -126,8 +126,8 @@ class WidgetManager:
         Args:
             imagefile: If set, filename of the image file to use as a background.
             parent: If set, the wid of the parent container.
-            x: The x position of the container on the window.
-            y: The y position of the container on the window.
+            x: The x position of the container on the window. Center if None.
+            y: The y position of the container on the window. Center if None.
             width: The width of the container.
             height: The height of the container.
             active: Whether to make the widget active right away.
@@ -163,10 +163,10 @@ class WidgetManager:
              fontfile: int,
              ptsize: int,
              parent: int=None,
-             x: int=0,
-             y: int=0,
-             width: int=-1,
-             height: int=-1,
+             x: int=None,
+             y: int=None,
+             width: int=None,
+             height: int=None,
              color: str="000000FF",
              active: bool=True):
         """Create a new text widget.
@@ -178,10 +178,10 @@ class WidgetManager:
                 fontfile: Filename of the font to render the text with.
                 ptsize: The point size of the text.
                 parent: If set, the wid of the parent container.
-                x: The x position of the text on the window. Center if -1.
-                y: The y position of the text on the window. Center if -1.
-                width: The width of the text. If -1 don't alter it.
-                height: The height of the container. If -1 don't alter it.
+                x: The x position of the text on the window. Center if None.
+                y: The y position of the text on the window. Center if None.
+                width: The width of the text. If None don't alter it.
+                height: The height of the container. If None don't alter it.
                 color: The color and alpha to draw the text in.
                 active: Whether to make the widget active right away.
 
