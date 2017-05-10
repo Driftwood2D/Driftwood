@@ -86,6 +86,13 @@ class WidgetManager:
         Returns:
             True if succeeded, False if failed.
         """
+        # Input Check
+        try:
+            CHECK(wid, int, _min=0)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Widget", "select", "bad argument", e)
+            return False
+
         if wid not in self.widgets:
             self.driftwood.log.msg("ERROR", "Widget", "select", "Cannot select nonexistent widget", wid)
             return False
@@ -118,16 +125,17 @@ class WidgetManager:
                   active: bool=True) -> Optional[int]:
         """Create a new container widget.
 
-        A container widget can have a background image, and other widgets can be contained by it. Widgets in a container
-        are drawn together and the container's x and y positions are added to the widget's x and y positions.
+        A container widget can have a background image, and other widgets can be contained by it. Widgets in a
+        container are drawn together and the container's x and y positions are added to the widget's x and y
+        positions.
         
         All widgets except for text widgets are containers.
 
         Args:
             imagefile: If set, filename of the image file to use as a background.
             parent: If set, the wid of the parent container.
-            x: The x position of the container on the window.
-            y: The y position of the container on the window.
+            x: The x position of the container on the window. Center if -1.
+            y: The y position of the container on the window. Center if -1.
             width: The width of the container.
             height: The height of the container.
             active: Whether to make the widget active right away.
@@ -135,6 +143,21 @@ class WidgetManager:
         Returns:
             Widget ID of the new container widget if succeeded, None if failed.
         """
+        # Input Check
+        try:
+            if imagefile:
+                CHECK(imagefile, str)
+            if parent:
+                CHECK(parent, int, _min=0)
+            CHECK(x, int, _min=-1)
+            CHECK(y, int, _min=-1)
+            CHECK(width, int, _min=0)
+            CHECK(height, int, _min=0)
+            CHECK(active, bool)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Widget", "container", "bad argument", e)
+            return None
+
         self.__last_wid += 1
 
         if imagefile:  # It has a background.
@@ -160,7 +183,7 @@ class WidgetManager:
 
     def text(self,
              contents: str,
-             fontfile: int,
+             fontfile: str,
              ptsize: int,
              parent: int=None,
              x: int=0,
@@ -188,6 +211,23 @@ class WidgetManager:
             Returns:
                 Widget ID of the new text widget if succeeded, None if failed.
         """
+        # Input Check
+        try:
+            CHECK(contents, str)
+            CHECK(fontfile, str)
+            CHECK(ptsize, int, _min=1)
+            if parent:
+                CHECK(parent, int, _min=0)
+            CHECK(x, int, _min=-1)
+            CHECK(y, int, _min=-1)
+            CHECK(width, int, _min=-1)
+            CHECK(height, int, _min=-1)
+            CHECK(color, str, _equals=8)
+            CHECK(active, bool)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Widget", "text", "bad argument", e)
+            return None
+
         self.__last_wid += 1
 
         font = self.driftwood.resource.request_font(fontfile, ptsize)
@@ -214,7 +254,17 @@ class WidgetManager:
         
         Args:
             wid: Widget id of widget to activate.
+        
+        Returns:
+            True if succeeded, False if failed.
         """
+        # Input Check
+        try:
+            CHECK(wid, int, _min=0)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Widget", "activate", "bad argument", e)
+            return False
+
         if wid in self.widgets:
             self.widgets[wid].active = True
             self.driftwood.area.changed = True
@@ -227,7 +277,17 @@ class WidgetManager:
 
         Args:
             wid: Widget id of widget to deactivate.
+        
+        Returns:
+            True if succeeded, False if failed.
         """
+        # Input Check
+        try:
+            CHECK(wid, int, _min=0)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Widget", "deactivate", "bad argument", e)
+            return False
+
         if wid in self.widgets:
             self.widgets[wid].active = False
             self.driftwood.area.changed = False
@@ -240,7 +300,17 @@ class WidgetManager:
 
         Args:
             wid: Widget id of widget to kill.
+        
+        Returns:
+            True if succeeded, False if failed.
         """
+        # Input Check
+        try:
+            CHECK(wid, int, _min=0)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Widget", "kill", "bad argument", e)
+            return False
+
         if wid in self.widgets:
             if getattr(self.widgets[wid], "_terminate", None):
                 self.widgets[wid]._terminate()
@@ -255,7 +325,17 @@ class WidgetManager:
 
         Args:
             wid: The widget id of the widget to return.
+        
+        Returns:
+            Widget instance if succeeded, None if failed.
         """
+        # Input Check
+        try:
+            CHECK(wid, int, _min=0)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Widget", "widget", "bad argument", e)
+            return False
+
         if wid in self.widgets:
             return self.widgets[wid]
         return None
