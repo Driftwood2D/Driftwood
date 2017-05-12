@@ -145,9 +145,9 @@ class WidgetManager:
         """
         # Input Check
         try:
-            if imagefile:
+            if imagefile is not None:
                 CHECK(imagefile, str)
-            if parent:
+            if parent is not None:
                 CHECK(parent, int, _min=0)
             CHECK(x, int, _min=-1)
             CHECK(y, int, _min=-1)
@@ -216,7 +216,7 @@ class WidgetManager:
             CHECK(contents, str)
             CHECK(fontfile, str)
             CHECK(ptsize, int, _min=1)
-            if parent:
+            if parent is not None:
                 CHECK(parent, int, _min=0)
             CHECK(x, int, _min=-1)
             CHECK(y, int, _min=-1)
