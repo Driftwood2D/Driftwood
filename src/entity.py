@@ -442,9 +442,12 @@ class TileModeEntity(Entity):
         """
         # Input Check
         try:
-            CHECK(layer, int, _min=0)
-            CHECK(x, int, _min=0)
-            CHECK(y, int, _min=0)
+            if layer is not None:
+                CHECK(layer, int, _min=0)
+            if x is not None:
+                CHECK(x, int, _min=0)
+            if y is not None:
+                CHECK(y, int, _min=0)
             if area is not None:
                 CHECK(area, str)
         except CheckFailure as e:
@@ -897,9 +900,12 @@ class PixelModeEntity(Entity):
         """
         # Input Check
         try:
-            CHECK(layer, int, _min=0)
-            CHECK(x, int, _min=0)
-            CHECK(y, int, _min=0)
+            if layer is not None:
+                CHECK(layer, int, _min=0)
+            if x is not None:
+                CHECK(x, int, _min=0)
+            if y is not None:
+                CHECK(y, int, _min=0)
             CHECK(area, str)
         except CheckFailure as e:
             self.manager.driftwood.log.msg("ERROR", "Entity", self.eid, "teleport", "bad argument", e)
