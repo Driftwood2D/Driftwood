@@ -8,6 +8,6 @@ def setup():
     else:
         Driftwood.script["rumble.py"].constant_rumble(10, 3)
 
-    h = Driftwood.widget.container(x=-1, y=-1, width=80, height=80)
+    h = Driftwood.widget.container(x=None, y=None, width=80, height=80)
     Driftwood.widget.text("Test Text", "pf_arma_five.ttf", 16, parent=h,
-                          x=-1, y=-1, width=-1, height=-1, color="0000FFFF", active=True)
+                          x=None, y=None, width=None, height=None, color="0000FFFF", active=True)
