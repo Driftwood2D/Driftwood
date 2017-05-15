@@ -78,7 +78,8 @@ class WidgetManager:
     def select(self, wid: int) -> bool:
         """Select the specified widget. Previously selected widget is released.
 
-        An example is selecting a button in a menu or selecting a text input box, out of the other widgets on screen.
+        An example is selecting a button in a menu or selecting a text input box, out of the other widgets on
+        screen.
 
         Args:
              wid: Widget ID of the widget to select.
@@ -115,14 +116,14 @@ class WidgetManager:
         self.selected = None
         return True
 
-    def container(self,
-                  imagefile: str=None,
-                  parent: int=None,
-                  x: int=None,
-                  y: int=None,
-                  width: int=0,
-                  height: int=0,
-                  active: bool=True) -> Optional[int]:
+    def insert_container(self,
+                         imagefile: str=None,
+                         parent: int=None,
+                         x: int=None,
+                         y: int=None,
+                         width: int=0,
+                         height: int=0,
+                         active: bool=True) -> Optional[int]:
         """Create a new container widget.
 
         A container widget can have a background image, and other widgets can be contained by it. Widgets in a
@@ -149,8 +150,10 @@ class WidgetManager:
                 CHECK(imagefile, str)
             if parent is not None:
                 CHECK(parent, int, _min=0)
-            CHECK(x, int, _min=-1)
-            CHECK(y, int, _min=-1)
+            if x is not None:
+                CHECK(x, int, _min=-1)
+            if y is not None:
+                CHECK(y, int, _min=-1)
             CHECK(width, int, _min=0)
             CHECK(height, int, _min=0)
             CHECK(active, bool)
@@ -181,17 +184,17 @@ class WidgetManager:
 
         return new_widget.wid
 
-    def text(self,
-             contents: str,
-             fontfile: str,
-             ptsize: int,
-             parent: int=None,
-             x: int=None,
-             y: int=None,
-             width: int=None,
-             height: int=None,
-             color: str="000000FF",
-             active: bool=True):
+    def insert_text(self,
+                    contents: str,
+                    fontfile: str,
+                    ptsize: int,
+                    parent: int=None,
+                    x: int=None,
+                    y: int=None,
+                    width: int=None,
+                    height: int=None,
+                    color: str="000000FF",
+                    active: bool=True):
         """Create a new text widget.
 
             A text widget puts text on the screen. It cannot have a background image, but can have a color.
@@ -218,10 +221,14 @@ class WidgetManager:
             CHECK(ptsize, int, _min=1)
             if parent is not None:
                 CHECK(parent, int, _min=0)
-            CHECK(x, int, _min=-1)
-            CHECK(y, int, _min=-1)
-            CHECK(width, int, _min=-1)
-            CHECK(height, int, _min=-1)
+            if x is not None:
+                CHECK(x, int, _min=-1)
+            if y is not None:
+                CHECK(y, int, _min=-1)
+            if width is not None:
+                CHECK(width, int, _min=-1)
+            if height is not None:
+                CHECK(height, int, _min=-1)
             CHECK(color, str, _equals=8)
             CHECK(active, bool)
         except CheckFailure as e:

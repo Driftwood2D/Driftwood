@@ -121,9 +121,9 @@ class WindowManager:
         # Input Check
         try:
             if width is not None:
-            	CHECK(width, int, _min=1)
+                CHECK(width, int, _min=1)
             if height is not None:
-            	CHECK(height, int, _min=1)
+                CHECK(height, int, _min=1)
         except CheckFailure as e:
             self.driftwood.log.msg("ERROR", "Window", "title", "bad argument", e)
             return [self.__logical_width, self.__logical_height]
