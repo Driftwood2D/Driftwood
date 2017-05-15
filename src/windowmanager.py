@@ -76,8 +76,15 @@ class WindowManager:
             title: The new title to be set.
 
         Returns:
-            True
+            True if succeeded, False if failed.
         """
+        # Input Check
+        try:
+            CHECK(title, str)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Window", "title", "bad argument", e)
+            return False
+        
         SDL_SetWindowTitle(self.window, title.encode())
         return True
 
@@ -88,8 +95,15 @@ class WindowManager:
             area: Whether to mark the area changed as well.
 
         Returns:
-            True
+            True if succeeded, False if failed.
         """
+        # Input Check
+        try:
+            CHECK(area, bool)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Window", "refresh", "bad argument", e)
+            return False
+
         self.driftwood.frame.changed = self.driftwood.frame.STATE_CHANGED
         if area:
             self.driftwood.area.changed = True
@@ -104,6 +118,16 @@ class WindowManager:
 
         Returns: A tuple containing the new resolution.
         """
+        # Input Check
+        try:
+            if width is not None:
+            	CHECK(width, int, _min=1)
+            if height is not None:
+            	CHECK(height, int, _min=1)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Window", "title", "bad argument", e)
+            return [self.__logical_width, self.__logical_height]
+
         if width:
             self.__logical_width = width
         if height:

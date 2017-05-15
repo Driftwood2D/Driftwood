@@ -1150,6 +1150,8 @@ class PixelModeEntity(Entity):
         if self.tile != prev_tile:  # We must be on a new tile now.
             self.__arrive_at_tile()
 
+        self.manager.driftwood.area.changed = True
+
     def __can_walk(self, x: int, y: int, absolute: bool=False) -> bool:
         """Check if nothing is preventing us from walking in this direction.
         """
