@@ -291,9 +291,9 @@ class InputManager:
                     # Update number of times called.
                     mod_callback["repeats"] += 1
 
-            # Call the handler if set.
-            if self.handler:
-                self.handler(mod_key)
+                # Call the handler if set.
+                if self.handler:
+                    self.handler(mod_key)
 
         if self.__stack:
             # The user's current (or latest, if multiple ongoing,) keydown.
