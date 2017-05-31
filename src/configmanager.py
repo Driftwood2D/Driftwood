@@ -37,7 +37,7 @@ import zipfile
 
 from __main__ import _Driftwood
 
-VERSION = "Driftwood 2D Alpha-0.0.7"
+VERSION = "Driftwood 2D Alpha-0.0.8"
 COPYRIGHT = "Copyright 2016-2017 Michael D. Reiley and Paul Merrill"
 
 
