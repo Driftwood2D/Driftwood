@@ -100,7 +100,7 @@ class LightManager:
             entity: If set, eid of entity to track the light to. Disabled if None.
             layermod: Integer to add to the layer the light is drawn on when tracking an entity.
 
-        Returns: New light if succeeded, None if failed.
+        Returns: Light ID of new light if succeeded, None if failed.
         """
         # Input Check
         try:
@@ -165,7 +165,7 @@ class LightManager:
         # The area has changed because we added a light.
         self.driftwood.area.changed = True
 
-        return self.lights[lid]
+        return lid
 
     def light(self, lid: int) -> Optional[light.Light]:
         """Retrieve a light by lid.

@@ -95,7 +95,7 @@ class EntityManager:
             x: x-coordinate of insertion.
             y: y-coordinate of insertion.
 
-        Returns: New entity if succeeded, None if failed.
+        Returns: Entity ID of new entity if succeeded, None if failed.
         """
         # Input Check
         try:
@@ -172,7 +172,7 @@ class EntityManager:
         if data["init"]["on_kill"]:
             self.entities[eid]._on_kill = data["init"]["on_kill"].split(',')
 
-        return self.entities[eid]
+        return eid
 
     def entity(self, eid: int) -> Optional[entity.Entity]:
         """Retrieve an entity by eid.
