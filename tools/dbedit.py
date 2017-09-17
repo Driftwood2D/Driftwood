@@ -1,6 +1,6 @@
 #!/bin/env python3
 #################################
-# JSON//zlib Database Editor    #
+# UBJSON Database Editor        #
 # dbedit.py                     #
 # Copyright 2017 Michael Reiley #
 #################################
@@ -26,35 +26,32 @@
 # **********
 
 import argparse
-import json
 import os
 import sys
-import zlib
+import ubjson
 
 
-VERSION = "JSON//zlib Database Editor for Driftwood v0.1.0"
+VERSION = "Universal Binary JSON Database Editor for Driftwood v0.2.0"
 COPYRIGHT = "Copyright 2017 Michael D. Reiley"
 
 
-class JZdb:
-    """JSON//zlib Database Editor
+class UBJdb:
+    """Universal Binary JSON Database Editor
 
-    A simple on-disk flat file database for storing key/object pairs, using JSON and zlib.
-
-    JZdb:
-        zlib[json] (simple!)
+    A simple on-disk flat file database for storing key/object pairs, using Universal Binary JSON.
+    <https://ubjson.org/>
 
     Attributes:
         filename: Filename of the database.
         makenew: Whether to make a database if one does not exist.
     """
     def __init__(self, filename, makenew=False):
-        """JZdb class constructor.
+        """UBJdb class constructor.
 
         Args:
             filename: Filename of the database to use.
 
-        Returns: JZdb instance if succeeded, None if failed.
+        Returns: UBJdb instance if succeeded, None if failed.
         """
 
         self.filename = filename
@@ -95,11 +92,11 @@ class JZdb:
 
         Returns: True if succeeded, False if failed.
         """
-        # Test if object is JSON serializable.
+        # Test if object is UBJSON serializable.
         try:
-            ret = json.loads(obj)
+            ret = ubjson.dumpb(obj.encode())
 
-        except json.JSONDecodeError:
+        except ubjson.decoder.DecoderException:
             return False
 
         self.database[key] = obj
@@ -144,7 +141,7 @@ class JZdb:
             with open(self.filename, 'rb') as dbfile:
                 dbcontents = dbfile.read()
                 if len(dbcontents):
-                    return json.loads(zlib.decompress(dbcontents).decode())
+                    return ubjson.loadb(dbcontents)
                 else:
                     return {}
         except:
@@ -163,10 +160,10 @@ if __name__ == "__main__":
 
     group = parser.add_mutually_exclusive_group()
     group.add_argument("--list", action="store_true", dest="list", help="list key names")
-    group.add_argument("--dump", action="store_true", dest="dump", help="dump json data")
-    group.add_argument("--get", nargs=1, dest="get", type=str, metavar="<key>", help="get json object by key")
+    group.add_argument("--dump", action="store_true", dest="dump", help="dump ubjson data")
+    group.add_argument("--get", nargs=1, dest="get", type=str, metavar="<key>", help="get ubjson object by key")
     group.add_argument("--put", nargs=2, dest="put", type=str, metavar=("<key>", "<object|->"),
-                       help="put json object by key, \'-\' to read stdin")
+                       help="put ubjson object by key, \'-\' to read stdin")
     group.add_argument("--remove", nargs=1, dest="remove", type=str, metavar="<key>", help="remove key")
 
     parser.add_argument("--quiet", action="store_true", dest="quiet", help="do not print failure messages")
@@ -187,11 +184,11 @@ if __name__ == "__main__":
         print("{0}: error: filename and option required".format(os.path.basename(__file__)))
         sys.exit(0)
 
-    # Initialize JZdb
+    # Initialize UBJdb
     if args.put:  # We don't create a new database unless using --put.
-        db = JZdb(args.filename, True)
+        db = UBJdb(args.filename, True)
     else:
-        db = JZdb(args.filename)
+        db = UBJdb(args.filename)
     if not db or db.fail:
         if not args.quiet:
             print("FAILURE :: OPEN :: {0}".format(args.filename))
@@ -235,7 +232,7 @@ if __name__ == "__main__":
 
         try:
             with open(db.filename, 'wb') as dbfile:
-                dbfile.write(zlib.compress(json.dumps(db.database).encode()))
+                dbfile.write(ubjson.dumpb(db.database))
         except:
             print("FAILURE :: PUT :: {0}".format(args.put[0]))
             sys.exit(5)
@@ -252,7 +249,7 @@ if __name__ == "__main__":
 
         try:
             with open(db.filename, 'wb') as dbfile:
-                dbfile.write(zlib.compress(json.dumps(db.database).encode()))
+                dbfile.write(ubjson.dumpb(db.database))
         except:
             print("FAILURE :: REMOVE :: {0}".format(args.put[0]))
             sys.exit(6)

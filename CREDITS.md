@@ -57,6 +57,10 @@ are attributed in the distributions of the below mentioned primary dependencies.
 * License: <https://pysdl2.readthedocs.io/en/rel_0_9_5/copying.html>
 * URI: <https://pysdl2.readthedocs.io/>
 
+### py-ubjson
+* Copyright 2015-2017 Iotic Labs Ltd
+* License: <https://www.apache.org/licenses/LICENSE-2.0>
+* URI: <https://pypi.python.org/pypi/py-ubjson>
 
 ## Sound Effects
 

@@ -26,11 +26,10 @@
 # IN THE SOFTWARE.
 # **********
 
-import json
 import os
 import sys
 from typing import Any, Optional
-import zlib
+import ubjson
 
 from __main__ import _Driftwood, CHECK, CheckFailure
 
@@ -38,7 +37,7 @@ from __main__ import _Driftwood, CHECK, CheckFailure
 class DatabaseManager:
     """The Database Manager
 
-    Stores and retrieves named objects through a zlib-compressed JSON file.
+    Stores and retrieves named objects through a Universal Binary JSON file.
     Any object type supported by JSON may be stored.
 
     Attributes:
@@ -173,8 +172,8 @@ class DatabaseManager:
 
         # Test if object is JSON serializable.
         try:
-            ret = json.loads(obj)
-        except json.JSONDecodeError:
+            ret = ubjson.dumpb(obj.encode())
+        except ubjson.decoder.DecoderException:
             self.driftwood.log.msg("ERROR", "Database", "put", "bad object type for key", "\"{0}\"".format(key))
             return False
 
@@ -263,7 +262,7 @@ class DatabaseManager:
             with open(self.filename, 'rb') as dbfile:
                 dbcontents = dbfile.read()
                 if len(dbcontents):
-                    return json.loads(zlib.decompress(dbcontents).decode())
+                    return ubjson.loadb(dbcontents)
                 else:
                     return {}
         except:
@@ -277,7 +276,7 @@ class DatabaseManager:
         if self.__changed:
             try:
                 with open(self.filename, 'wb') as dbfile:
-                    dbfile.write(zlib.compress(json.dumps(self.__database).encode()))
+                    dbfile.write(ubjson.dumpb(self.__database))
             except:
                 self.driftwood.log.msg("FATAL", "Database", "_tick", "cannot write database to disk", self.filename)
                 sys.exit(1)

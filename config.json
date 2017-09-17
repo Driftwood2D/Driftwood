@@ -1,7 +1,7 @@
 {
   "database": {
     "root": "db/",
-    "name": "test.db"
+    "name": "test.ubj"
   },
   "cache": {
     "ttl": 300

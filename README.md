@@ -36,3 +36,4 @@ Current features include:
 * Python >= 3.5.0
 * Python jsonschema <https://pypi.python.org/pypi/jsonschema>
 * Python PySDL2 <https://pypi.python.org/pypi/PySDL2/>
+* Python ubjson <https://pypi.python.org/pypi/py-ubjson>
