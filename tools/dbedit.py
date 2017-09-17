@@ -26,6 +26,7 @@
 # **********
 
 import argparse
+import json
 import os
 import sys
 import ubjson
@@ -92,14 +93,18 @@ class UBJdb:
 
         Returns: True if succeeded, False if failed.
         """
-        # Test if object is UBJSON serializable.
+        # Test if this is a dict or another object.
         try:
-            ret = ubjson.dumpb(obj.encode())
+            ret = json.loads(obj)
+        except json.JSONDecodeError:
 
-        except ubjson.decoder.DecoderException:
-            return False
+            # It's another object, but is it serializable?
+            try:
+                ret = json.dumps(obj)
+            except TypeError:
+                return False
 
-        self.database[key] = obj
+        self.database[key] = ret
         return True
 
     def remove(self, key):
@@ -203,7 +208,7 @@ if __name__ == "__main__":
     # --dump
     if args.dump:
         for key in db.database.keys():
-            print(key+' := '+db.database[key])
+            print(key+' := '+str(db.database[key]))
 
     # --get
     if args.get:

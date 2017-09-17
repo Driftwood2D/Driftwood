@@ -26,6 +26,7 @@
 # IN THE SOFTWARE.
 # **********
 
+import json
 import os
 import sys
 from typing import Any, Optional
@@ -170,14 +171,19 @@ class DatabaseManager:
             self.driftwood.log.msg("ERROR", "Cache", "put", "bad argument", e)
             return None
 
-        # Test if object is JSON serializable.
+        # Test if this is a dict or another object.
         try:
-            ret = ubjson.dumpb(obj.encode())
-        except ubjson.decoder.DecoderException:
-            self.driftwood.log.msg("ERROR", "Database", "put", "bad object type for key", "\"{0}\"".format(key))
-            return False
+            ret = json.loads(obj)
+        except json.JSONDecodeError:
 
-        self.__database[key] = obj
+            # It's another object, but is it serializable?
+            try:
+                ret = json.dumps(obj)
+            except TypeError:
+                self.driftwood.log.msg("ERROR", "Database", "put", "bad object type for key", "\"{0}\"".format(key))
+                return False
+
+        self.__database[key] = ret
         self.__changed = True
         self.driftwood.log.info("Database", "put", "\"{0}\"".format(key))
         return True
