@@ -1,7 +1,7 @@
 {
   "database": {
     "root": "db/",
-    "name": "test.ubj"
+    "name": "default.ubj"
   },
   "cache": {
     "ttl": 300
@@ -40,7 +40,7 @@
   "path": {
     "root": "data/",
     "path": [
-      "test/"
+      "blue/"
     ]
   },
   "window": {

@@ -93,12 +93,12 @@ class UBJdb:
 
         Returns: True if succeeded, False if failed.
         """
-        # Test if this is a dict or another object.
+        # Test if this is a dict or another kind of object.
         try:
             ret = json.loads(obj)
         except json.JSONDecodeError:
 
-            # It's another object, but is it serializable?
+            # It's another kind of object, but is it serializable?
             try:
                 ret = json.dumps(obj)
             except TypeError:
