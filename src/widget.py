@@ -216,11 +216,15 @@ class TextWidget(Widget):
                 # Either center or place in a defined position.
                 if self.x is None:
                     self.realx = container.realx + (container.width - self.width) // 2
+                elif self.realx is None:
+                    self.realx = self.x + container.realx
                 else:
                     self.realx += container.realx
 
                 if self.y is None:
                     self.realy = container.realy + (container.height - self.height) // 2
+                elif self.realy is None:
+                    self.realy = self.y + container.realy
                 else:
                     self.realy += container.realy
 
