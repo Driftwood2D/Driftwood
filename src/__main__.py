@@ -26,6 +26,7 @@
 # IN THE SOFTWARE.
 # **********
 
+import os
 import pdb
 import signal
 import sys
@@ -45,6 +46,8 @@ if __name__ == "__main__":
 
     # Try to import PySDL2.
     try:
+        if os.name == 'nt':  # Add the current directory to the SDL2 DLL search path on Windows.
+            os.environ["PYSDL2_DLL_PATH"] = os.getcwd()
         from sdl2 import *
         import sdl2.ext as sdl2ext
     except ImportError:
