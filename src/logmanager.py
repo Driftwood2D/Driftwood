@@ -127,12 +127,13 @@ class LogManager:
             check = self.driftwood.config["log"]["suppress_halt"]
         else:
             check = self.driftwood.config["log"]["suppress"]
-        for supp in check:
-            if supp[0] == chain[0] and len(chain) >= len(supp):
-                for n, s in enumerate(supp):
-                    if s and s != chain[n]:
-                        return False
-                return True
+        if chain:
+            for supp in check:
+                if supp[0] == chain[0] and len(chain) >= len(supp):
+                    for n, s in enumerate(supp):
+                        if s and s != chain[n]:
+                            return False
+                    return True
         return False
 
     def __test_file_open(self) -> bool:
