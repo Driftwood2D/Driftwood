@@ -324,9 +324,9 @@ class AreaManager:
         # intersection with a set of four inequalities, all of which must be true for the intersection to occur.
         # --------------------------------------------------------------------------------------------------------
         # viewport_left_bound < tile_right_bound
-        # tile_left_bound < viewport_right_bound
         # viewport_top_bound < tile_bottom_bound
-        # viewport_bottom_bound < tile_top_bound
+        # tile_left_bound < viewport_right_bound
+        # tile_top_bound < viewport_bottom_bound
 
         # The following equations hold. (Unit of measurement is pixels.)
         # --------------------------------------------------------------
