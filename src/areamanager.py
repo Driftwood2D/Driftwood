@@ -150,24 +150,43 @@ class AreaManager:
         For every tile and entity in each layer, copy its graphic onto the frame, then give the frame to WindowManager
         for display.
         """
-        # Start with the bottom layer and work up.
-        for l in range(len(self.tilemap.layers)):
-            # Draw each tile in the layer into its position.
-            for t in range(self.tilemap.width * self.tilemap.height):
-                # Retrieve data about the tile.
-                tile = self.tilemap.layers[l].tiles[t]
+        tilemap = self.tilemap
+        tilewidth = tilemap.tilewidth
+        tileheight = tilemap.tileheight
+        offset = self.offset
 
-                # This is a dummy tile, don't draw it.
-                if not tile.tileset and not tile.gid:
+        # Start with the bottom layer and work up.
+        for l in range(len(tilemap.layers)):
+            layer = tilemap.layers[l]
+
+            srcrect = [-1, -1, tilewidth, tileheight]
+            dstrect = [-1, -1, tilewidth, tileheight]
+
+            # Draw each tile in the layer into its position.
+            for t in range(tilemap.width * tilemap.height):
+                # Retrieve data about the tile.
+                tile = layer.tiles[t]
+                tileset = tile.tileset
+
+                if not tileset and not tile.gid:
+                    # This is a dummy tile, don't draw it.
+                    continue
+
+                member = tile.members[tile._Tile__cur_member]
+
+                if member == -1:
+                    # This tile is invisible at this point in its animation, don't draw it.
                     continue
 
                 # Get the source and destination rectangles needed by SDL_RenderCopy.
-                srcrect = tile.srcrect()
-                dstrect = tile.dstrect()
-                dstrect[0] += self.offset[0]
-                dstrect[1] += self.offset[1]
+                srcrect[0] = member % tileset.width * tilewidth
+                srcrect[1] = member // tileset.width * tileheight
+
+                dstrect[0] = tile.pos[0] * tilewidth + offset[0]
+                dstrect[1] = tile.pos[1] * tileheight + offset[1]
+
                 # Copy the tile onto our frame.
-                r = self.driftwood.frame.copy(tile.tileset.texture, srcrect, dstrect)
+                r = self.driftwood.frame.copy(tileset.texture, srcrect, dstrect)
                 if r < 0:
                     self.driftwood.log.msg("ERROR", "Area", "__build_frame", "SDL", SDL_GetError())
 
