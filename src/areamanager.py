@@ -26,10 +26,19 @@
 # IN THE SOFTWARE.
 # **********
 
+import math
 from sdl2 import *
 
 from __main__ import _Driftwood, CHECK, CheckFailure
 import tilemap
+
+
+def int_greater_than(x: float) -> int:
+    return math.ceil(x + 0.001)
+
+
+def int_smaller_than(x: float) -> int:
+    return math.floor(x - 0.001)
 
 
 class AreaManager:
@@ -150,26 +159,49 @@ class AreaManager:
         For every tile and entity in each layer, copy its graphic onto the frame, then give the frame to WindowManager
         for display.
         """
+        tilemap = self.tilemap
+        tilewidth = tilemap.tilewidth
+        tileheight = tilemap.tileheight
+        offset = self.offset
+
+        # Find the tiles that will show up if we draw them.
+        x_begin, x_end, y_begin, y_end = self.calculate_visible_tile_bounds()
+
         # Start with the bottom layer and work up.
-        for l in range(len(self.tilemap.layers)):
+        for l in range(len(tilemap.layers)):
+            layer = tilemap.layers[l]
+
+            srcrect = [-1, -1, tilewidth, tileheight]
+            dstrect = [-1, -1, tilewidth, tileheight]
+
             # Draw each tile in the layer into its position.
-            for t in range(self.tilemap.width * self.tilemap.height):
-                # Retrieve data about the tile.
-                tile = self.tilemap.layers[l].tiles[t]
+            for y in range(y_begin, y_end + 1):
+                for x in range(x_begin, x_end + 1):
+                    # Retrieve data about the tile.
+                    tile = layer.tiles[y * tilemap.width + x]
+                    tileset = tile.tileset
 
-                # This is a dummy tile, don't draw it.
-                if not tile.tileset and not tile.gid:
-                    continue
+                    if not tileset and not tile.gid:
+                        # This is a dummy tile, don't draw it.
+                        continue
 
-                # Get the source and destination rectangles needed by SDL_RenderCopy.
-                srcrect = tile.srcrect()
-                dstrect = tile.dstrect()
-                dstrect[0] += self.offset[0]
-                dstrect[1] += self.offset[1]
-                # Copy the tile onto our frame.
-                r = self.driftwood.frame.copy(tile.tileset.texture, srcrect, dstrect)
-                if r < 0:
-                    self.driftwood.log.msg("ERROR", "Area", "__build_frame", "SDL", SDL_GetError())
+                    member = tile.members[tile._Tile__cur_member]
+
+                    if member == -1:
+                        # This tile is invisible at this point in its animation, don't draw it.
+                        continue
+
+                    # Get the source and destination rectangles needed by SDL_RenderCopy.
+                    srcrect[0] = member % tileset.width * tilewidth
+                    srcrect[1] = member // tileset.width * tileheight
+
+                    dstrect[0] = x * tilewidth + offset[0]
+                    dstrect[1] = y * tileheight + offset[1]
+
+                    # Copy the tile onto our frame.
+                    r = self.driftwood.frame.copy(tileset.texture, srcrect, dstrect)
+                    if r < 0:
+                        self.driftwood.log.msg("ERROR", "Area", "__build_frame", "SDL", SDL_GetError())
 
             # Draw the lights onto the layer.
             for light in self.driftwood.light.layer(l):
@@ -265,3 +297,67 @@ class AreaManager:
 
         # Tell FrameManager to publish the finished frame.
         self.driftwood.frame.frame(None)
+
+    def calculate_visible_tile_bounds(self) -> [int]:
+        tilemap = self.tilemap
+        tilewidth = tilemap.tilewidth
+        tileheight = tilemap.tileheight
+        offset = self.offset
+        viewport_width, viewport_height = self.driftwood.window.resolution()
+
+        if self.driftwood.frame._frame is None:
+            # We need to know the size of the viewport to perform this calculation. Since that information is not
+            # available, give a conservative answer and say that all tiles are visible.
+            x_begin = 0
+            y_begin = 0
+            x_end = tilemap.height - 1
+            y_end = tilemap.width - 1
+
+            return x_begin, x_end, y_begin, y_end
+
+        viewport_left_bound = -self.driftwood.frame._frame[2].x
+        viewport_top_bound = -self.driftwood.frame._frame[2].y
+        viewport_right_bound = viewport_left_bound + viewport_width - 1
+        viewport_bottom_bound = viewport_top_bound + viewport_height - 1
+
+        # A tile will show up onscreen when it intersects the viewport rectangle. We can express the state of this
+        # intersection with a set of four inequalities, all of which must be true for the intersection to occur.
+        # --------------------------------------------------------------------------------------------------------
+        # viewport_left_bound < tile_right_bound
+        # viewport_top_bound < tile_bottom_bound
+        # tile_left_bound < viewport_right_bound
+        # tile_top_bound < viewport_bottom_bound
+
+        # The following equations hold. (Unit of measurement is pixels.)
+        # --------------------------------------------------------------
+        # tile_left_bound   =  tile_x_pos      * tilewidth  + offset[0]
+        # tile_top_bound    =  tile_y_pos      * tileheight + offset[1]
+        # tile_right_bound  = (tile_x_pos + 1) * tilewidth  + offset[0] - 1
+        # tile_bottom_bound = (tile_y_pos + 1) * tileheight + offset[1] - 1
+
+        # Substitute the equations into the inequalities.
+        # -----------------------------------------------
+        # viewport_left_bound < (tile_x_pos + 1) * tilewidth  + offset[0] - 1
+        # viewport_top_bound  < (tile_y_pos + 1) * tileheight + offset[1] - 1
+        # tile_x_pos * tilewidth  + offset[0] < viewport_right_bound
+        # tile_y_pos * tileheight + offset[1] < viewport_bottom_bound
+
+        # Solve for tile_x_pos and tile_y_pos.
+        # ------------------------------------
+        # (viewport_left_bound - offset[0] + 1) / tilewidth  - 1 < tile_x_pos
+        # (viewport_top_bound  - offset[1] + 1) / tileheight - 1 < tile_y_pos
+        # tile_x_pos < (viewport_right_bound  - offset[0]) / tilewidth
+        # tile_y_pos < (viewport_bottom_bound - offset[1]) / tileheight
+
+        # We can now compute the minimum and maximum X and Y coordinates for visible tiles.
+        x_begin = int_greater_than((viewport_left_bound - offset[0] + 1) / tilewidth - 1)
+        y_begin = int_greater_than((viewport_top_bound - offset[1] + 1) / tileheight - 1)
+        x_end = int_smaller_than((viewport_right_bound - offset[0]) / tilewidth)
+        y_end = int_smaller_than((viewport_bottom_bound - offset[1]) / tileheight)
+
+        x_begin = max(0, x_begin)
+        y_begin = max(0, y_begin)
+        x_end = min(x_end, tilemap.height - 1)
+        y_end = min(y_end, tilemap.width - 1)
+
+        return x_begin, x_end, y_begin, y_end

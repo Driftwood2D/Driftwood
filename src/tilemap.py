@@ -140,6 +140,11 @@ class Tilemap:
 
         # Build the tileset abstractions.
         for tileset_json in self.__tilemap["tilesets"]:
+            if tileset_json["tilewidth"] != self.tilewidth or \
+               tileset_json["tileheight"] != self.tileheight:
+                # Tilemaps and tilesets must have the equal tile widths and heights.
+                return False
+
             ts = tileset.Tileset(self.driftwood, self)
             if not ts.load(filename, tileset_json):
                 return False  # There is no way we can continue without our tilesets.
