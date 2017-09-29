@@ -31,9 +31,9 @@ import sys
 import traceback
 from typing import ItemsView, List, Optional
 
-from __main__ import _Driftwood, CHECK, CheckFailure
 import entity
 import spritesheet
+
 
 # Keep a reference to the entity module, which is overridden by the EntityManager.entity function later in the file.
 # It is only overridden while inside type annotations.
@@ -55,7 +55,7 @@ class EntityManager:
         spritesheets: The dictionary of Spritesheet class instances for each sprite sheet. Sorted by filename.
     """
 
-    def __init__(self, driftwood: _Driftwood):
+    def __init__(self, driftwood):
         """EntityManager class initializer.
 
         Args:

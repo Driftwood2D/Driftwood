@@ -29,8 +29,6 @@
 import sys
 from typing import Any, List
 
-from __main__ import _Driftwood
-
 
 class LogManager:
     """The Log Manager
@@ -41,7 +39,7 @@ class LogManager:
         driftwood: Base class instance.
     """
 
-    def __init__(self, driftwood: _Driftwood):
+    def __init__(self, driftwood):
         """LogManager class initializer.
 
         Args:

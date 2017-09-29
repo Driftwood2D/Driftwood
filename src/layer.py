@@ -28,7 +28,6 @@
 
 from typing import Dict, Optional
 
-from __main__ import _Driftwood, CHECK, CheckFailure
 import tile
 import tilemap
 
@@ -44,7 +43,7 @@ class Layer:
         tiles: The list of Tile class instances for each tile.
     """
 
-    def __init__(self, driftwood: _Driftwood, tilemap: 'tilemap.Tilemap', layerdata: dict, zpos: int):
+    def __init__(self, driftwood, tilemap: 'tilemap.Tilemap', layerdata: dict, zpos: int):
         """Layer class initializer.
 
         Args:

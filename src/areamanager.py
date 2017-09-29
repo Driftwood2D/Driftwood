@@ -29,16 +29,15 @@
 import math
 from sdl2 import *
 
-from __main__ import _Driftwood, CHECK, CheckFailure
 import tilemap
 
 
 def int_greater_than(x: float) -> int:
-    return math.ceil(x + 0.001)
+    return int(math.ceil(x + 0.001))
 
 
 def int_smaller_than(x: float) -> int:
-    return math.floor(x - 0.001)
+    return int(math.floor(x - 0.001))
 
 
 class AreaManager:
@@ -55,7 +54,7 @@ class AreaManager:
         refocused: Whether we have gone to a new area since last checked.
     """
 
-    def __init__(self, driftwood: _Driftwood):
+    def __init__(self, driftwood):
         """AreaManager class initializer.
 
         Args:

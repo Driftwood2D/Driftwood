@@ -28,10 +28,9 @@
 
 import types
 from inspect import signature
-from sdl2 import SDL_Delay, SDL_GetTicks
 from typing import Any, Callable
 
-from __main__ import _Driftwood, CHECK, CheckFailure
+from sdl2 import SDL_Delay, SDL_GetTicks
 
 # Upper bound on latency we can handle from the OS when we expect to return from sleep, measured in seconds.
 WAKE_UP_LATENCY = 5.0 / 1000.0
@@ -47,7 +46,7 @@ class TickManager:
         count: Number of ticks since engine start.
     """
 
-    def __init__(self, driftwood: _Driftwood):
+    def __init__(self, driftwood):
         """TickManager class initializer.
 
         Args:

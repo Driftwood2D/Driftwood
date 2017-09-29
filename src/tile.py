@@ -28,7 +28,6 @@
 
 from typing import List, Optional
 
-from __main__ import CHECK, CheckFailure
 import layer
 import tileset
 

@@ -29,7 +29,6 @@
 import os
 from typing import Optional
 
-from __main__ import _Driftwood, CHECK, CheckFailure
 import tilemap
 
 
@@ -56,7 +55,7 @@ class Tileset:
         tileproperties: A dictionary containing mappings of tile GIDs to properties that apply to that GID.
     """
 
-    def __init__(self, driftwood: _Driftwood, tilemap: 'tilemap.Tilemap'):
+    def __init__(self, driftwood, tilemap: 'tilemap.Tilemap'):
         """Tileset class initializer.
 
         Args:

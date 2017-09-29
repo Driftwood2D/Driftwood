@@ -30,10 +30,9 @@ import json
 import os
 import sys
 import traceback
-from typing import Any, Optional
 import zipfile
+from typing import Any, Optional
 
-from __main__ import _Driftwood, CHECK, CheckFailure
 import filetype
 
 
@@ -46,7 +45,7 @@ class ResourceManager:
         driftwood: Base class instance.
     """
 
-    def __init__(self, driftwood: _Driftwood):
+    def __init__(self, driftwood):
         """ResourceManager class initializer.
 
         Args:

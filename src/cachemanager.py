@@ -29,8 +29,6 @@
 import gc
 from typing import Any, KeysView, Optional
 
-from __main__ import _Driftwood, CHECK, CheckFailure
-
 
 class CacheManager:
     """The Cache Manager
@@ -42,7 +40,7 @@ class CacheManager:
         driftwood: Base class instance.
     """
 
-    def __init__(self, driftwood: _Driftwood):
+    def __init__(self, driftwood):
         """CacheManager class initializer.
 
         Args:

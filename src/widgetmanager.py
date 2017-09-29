@@ -32,7 +32,6 @@ from sdl2 import *
 from sdl2.ext import *
 from sdl2.sdlttf import *
 
-from __main__ import _Driftwood
 import widget
 
 
@@ -47,7 +46,7 @@ class WidgetManager:
         selected: Whether or not this widget is the selected widget. ex. a selected button in a UI menu.
     """
 
-    def __init__(self, driftwood: _Driftwood):
+    def __init__(self, driftwood):
         self.driftwood = driftwood
 
         self.widgets = {}

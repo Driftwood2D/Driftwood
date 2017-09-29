@@ -31,8 +31,6 @@ from typing import Callable, Optional, Union
 
 from sdl2 import SDL_GetKeyName
 
-from __main__ import _Driftwood, CHECK, CheckFailure
-
 
 class InputManager:
     """The Input Manager
@@ -46,7 +44,7 @@ class InputManager:
 
     ONDOWN, ONREPEAT, ONUP = range(3)
 
-    def __init__(self, driftwood: _Driftwood):
+    def __init__(self, driftwood):
         """InputManager class initializer.
 
         Args:

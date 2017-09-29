@@ -32,7 +32,6 @@ from typing import List
 from sdl2 import *
 from sdl2.sdlimage import *
 
-from __main__ import _Driftwood
 
 class WindowManager:
     """The Window Manager
@@ -45,7 +44,7 @@ class WindowManager:
         renderer: The SDL Renderer attached to the window.
     """
 
-    def __init__(self, driftwood: _Driftwood):
+    def __init__(self, driftwood):
         """WindowManager class initializer.
 
         Initializes SDL, and creates a window and a renderer.

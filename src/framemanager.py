@@ -31,7 +31,6 @@ from ctypes import c_ubyte
 from sdl2 import *
 from typing import List, Tuple, Union
 
-from __main__ import _Driftwood, CHECK, CheckFailure
 import filetype
 
 
@@ -49,7 +48,7 @@ class FrameManager:
         changed: Whether the frame has been changed. [STATE_NOTCHANGED, STATE_BACKBUFFER_NEEDS_UPDATE, STATE_CHANGED]
     """
 
-    def __init__(self, driftwood: _Driftwood):
+    def __init__(self, driftwood):
         """FrameManager class initializer.
 
         Initializes frame handling.

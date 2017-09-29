@@ -26,12 +26,10 @@
 # IN THE SOFTWARE.
 # **********
 
-from typing import List, Optional, Union
-
-from __main__ import _Driftwood, CHECK, CheckFailure
 import entitymanager
 import spritesheet
 import tile
+from typing import List, Optional, Union
 
 
 class Entity:

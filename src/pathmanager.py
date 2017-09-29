@@ -28,10 +28,8 @@
 
 import os
 import platform
-from typing import List, Optional
 import zipfile
-
-from __main__ import _Driftwood, CHECK, CheckFailure
+from typing import List, Optional
 
 
 class PathManager:
@@ -47,7 +45,7 @@ class PathManager:
         driftwood: Base class instance.
     """
 
-    def __init__(self, driftwood: _Driftwood):
+    def __init__(self, driftwood):
         """PathManager class initializer.
 
         Args:

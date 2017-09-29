@@ -25,10 +25,10 @@
 # IN THE SOFTWARE.
 # **********
 
-from sdl2 import *
 from typing import ItemsView, List, Optional
 
-from __main__ import _Driftwood, CHECK, CheckFailure
+from sdl2 import *
+
 import entity
 import filetype
 import light
@@ -49,7 +49,7 @@ class LightManager:
         lights: The dictionary of Light class instances for each light. Stored by lid.
     """
 
-    def __init__(self, driftwood: _Driftwood):
+    def __init__(self, driftwood):
         """LightManager class initializer.
 
         Args:

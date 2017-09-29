@@ -26,7 +26,6 @@
 # IN THE SOFTWARE.
 # **********
 
-from __main__ import _Driftwood
 import areamanager
 import layer
 import tileset
@@ -48,7 +47,7 @@ class Tilemap:
         tilesets: The list of Tileset class instances for each tileset.
     """
 
-    def __init__(self, driftwood: _Driftwood, area: 'areamanager.AreaManager'):
+    def __init__(self, driftwood, area: 'areamanager.AreaManager'):
         """Tilemap class initializer.
 
         Args:

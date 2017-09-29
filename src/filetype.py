@@ -32,8 +32,6 @@ from sdl2.sdlimage import *
 from sdl2.sdlmixer import *
 from sdl2.sdlttf import *
 
-from __main__ import _Driftwood
-
 
 class AudioFile:
     """This class represents and abstracts a single OGG Vorbis audio file.
@@ -42,7 +40,7 @@ class AudioFile:
         audio: The SDL_mixer audio handle.
     """
 
-    def __init__(self, driftwood: _Driftwood, data: bytes, music: bool=False):
+    def __init__(self, driftwood, data: bytes, music: bool=False):
         self.driftwood = driftwood
 
         self.audio = None
@@ -84,7 +82,7 @@ class FontFile:
         font: The SDL_ttf font handle.
         ptsize: The size of the font in pt.
     """
-    def __init__(self, driftwood: _Driftwood, data: bytes, ptsize: int):
+    def __init__(self, driftwood, data: bytes, ptsize: int):
         """FontFile class initializer.
         """
         self.driftwood = driftwood
@@ -121,7 +119,7 @@ class ImageFile:
         texture: An SDL texture containing the image.
     """
 
-    def __init__(self, driftwood: _Driftwood, data: bytes, renderer: SDL_Renderer):
+    def __init__(self, driftwood, data: bytes, renderer: SDL_Renderer):
         """ImageFile class initializer.
         """
         self.driftwood = driftwood

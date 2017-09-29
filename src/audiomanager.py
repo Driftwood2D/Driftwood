@@ -28,10 +28,8 @@
 # A big thank-you to Lazy Foo's SDL_Audio tutorial. It would've taken me a lot longer to build this without such clear
 # instruction. Link: <http://lazyfoo.net/SDL_tutorials/lesson11/>
 
-from typing import Optional
 from sdl2.sdlmixer import *
-
-from __main__ import _Driftwood, CHECK, CheckFailure
+from typing import Optional
 
 
 class AudioManager:
@@ -45,7 +43,7 @@ class AudioManager:
             playing_sfx: Whether we are currently playing sfx or not.
     """
 
-    def __init__(self, driftwood: _Driftwood):
+    def __init__(self, driftwood):
         self.driftwood = driftwood
 
         self.playing_music = False
