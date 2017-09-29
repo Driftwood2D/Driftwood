@@ -68,9 +68,13 @@ class ScriptManager:
         return self._module(item) is not None
 
     def __getitem__(self, item: str) -> Any:
-        if self._module(item) is not None:
-            return self._module(item)
-        self.driftwood.log.msg("ERROR", "Script", "no such module", item)
+        ret = self._module(item)
+        if ret not in [None, False]:
+            return ret
+        elif ret is False:
+            self.driftwood.log.msg("ERROR", "Script", "no such module", item)
+        else:
+            self.driftwood.log.msg("ERROR", "Script", "error from module", item)
         return None
 
     def call(self, filename: str, func: str, *args: Any) -> Any:
@@ -310,15 +314,15 @@ class ScriptManager:
         Args:
             filename: Filename of the python script whose module instance should be returned.
 
-        Returns: Python module instance if succeeded, None if failed.
+        Returns: Python module instance if succeeded, False if nonexistent, or None if error.
         """
         if filename not in self.__modules:
-            self.__load(filename)
+            ret = self.__load(filename)
 
         if filename in self.__modules:
             return self.__modules[filename]
-        else:
-            return None
+
+        return ret
 
     def __convert_path(self, filename: str) -> str:
         """Get around a documented zipimport flaw.
@@ -364,7 +368,7 @@ class ScriptManager:
             except:
                 self.driftwood.log.msg("ERROR", "Script", "__load", "error from script", filename,
                                        '\n' + traceback.format_exc(1).rstrip())
-                return False
+                return None
 
         else:
             self.driftwood.log.msg("ERROR", "Script", "__load", "no such script", filename)
