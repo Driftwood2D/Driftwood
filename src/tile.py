@@ -52,6 +52,9 @@ class Tile:
             present mapped to a list containing the destination [area, layer, x, y].
     """
 
+    __slots__ = ["layer", "seq", "tileset", "gid", "localgid", "members", "afps", "pos", "properties", "nowalk",
+                 "exits", "__dstrect", "__cur_member"]
+
     def __init__(self, layer: layer.Layer, seq: int, tileset: Optional[tileset.Tileset], gid: Optional[int]):
         """Tile class initializer.
 
