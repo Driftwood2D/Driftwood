@@ -27,21 +27,11 @@
 
 # Driftwood STDLib widget functions.
 
-import jinja2
-import json
-
 
 def load(filename, vars={}):
-    data = Driftwood.resource.request_raw(filename)
-    if not data:
+    descriptor = Driftwood.resource.request_json(filename, True, vars)
+    if not descriptor:
         return None
-
-    # Render the widget template.
-    template_loader = jinja2.DictLoader({filename: data})
-    template_env = jinja2.Environment(loader=template_loader)
-    template = template_env.get_template(filename)
-    descriptor_text = template.render(vars)
-    descriptor = json.loads(descriptor_text)
 
     # Read the widget.
     if "container" in descriptor:
