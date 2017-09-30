@@ -28,24 +28,39 @@
 # Driftwood STDLib widget functions.
 
 
-def load(filename, vars={}):
-    descriptor = Driftwood.resource.request_json(filename, True, vars)
-    if not descriptor:
+def load(filename, template_vars={}):
+    """Widget Tree Loader
+
+    Loads a Jinja2 templated JSON descriptor file (a "widget tree") which defines one or more widgets to place on
+    the screen.
+    """
+    tree = Driftwood.resource.request_json(filename, True, template_vars)
+    if not tree:
         return None
 
-    # Read the widget.
-    if "container" in descriptor:
-        c = descriptor["container"]
-        wc = Driftwood.widget.insert_container(
-            imagefile=c["image"], x=c["x"], y=c["y"], width=c["width"], height=c["height"]
+    for branch in tree:
+        # Read the widget tree, one base branch at a time.
+        __read_branch(None, branch)
+
+
+def __read_branch(parent, branch):
+    """Recursively read and process widget tree branches."""
+    if branch["type"] == "container":
+        # Insert a container.
+        c = Driftwood.widget.insert_container(
+            imagefile=branch["image"], parent=parent, x=branch["x"], y=branch["y"], width=branch["width"],
+            height=branch["height"]
         )
 
-        if "members" in c:
-            members = c["members"]
+        if "branches" in branch:
+            # There are more branches. Recurse them.
+            for b in branch["branches"]:
+                __read_branch(c, b)
 
-            for m in members:
-                if "text" in m:
-                    t = m["text"]
-                    wt = Driftwood.widget.insert_text(
-                        t["contents"], t["font"], t["size"], parent=wc, x=t["x"], y=t["y"], width=t["width"],
-                        height=t["height"], color=t["color"], active=True)
+    elif branch["type"] == "text":
+        # Insert a textbox.
+        t = Driftwood.widget.insert_text(
+            branch["contents"], branch["font"], branch["size"], parent=parent, x=branch["x"],
+            y=branch["y"], width=branch["width"], height=branch["height"], color=branch["color"],
+            active=True
+        )
