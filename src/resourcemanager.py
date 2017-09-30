@@ -123,7 +123,7 @@ class ResourceManager:
 
         if filename in self.driftwood.cache:
             return self.driftwood.cache[filename]
-        data = self._request(filename, binary=False)
+        data = self.request_raw(filename, binary=False)
         if data:
             if type(data) == bytes:
                 data = data.decode()
@@ -159,7 +159,7 @@ class ResourceManager:
 
         if filename in self.driftwood.cache:
             return self.driftwood.cache[filename]
-        data = self._request(filename, binary=True)
+        data = self.request_raw(filename, binary=True)
         if data:
             obj = filetype.AudioFile(self.driftwood, data, music)
             self.driftwood.cache.upload(filename, obj)
@@ -189,7 +189,7 @@ class ResourceManager:
         cache_name = filename + ":" + str(ptsize)
         if cache_name in self.driftwood.cache:
             return self.driftwood.cache[cache_name]
-        data = self._request(filename, binary=True)
+        data = self.request_raw(filename, binary=True)
         if data:
             obj = filetype.FontFile(self.driftwood, data, ptsize)
             self.driftwood.cache.upload(cache_name, obj)
@@ -216,7 +216,7 @@ class ResourceManager:
 
         if filename in self.driftwood.cache:
             return self.driftwood.cache[filename]
-        data = self._request(filename, binary=True)
+        data = self.request_raw(filename, binary=True)
         if data:
             obj = filetype.ImageFile(self.driftwood, data, self.driftwood.window.renderer)
             self.driftwood.cache.upload(filename, obj)
@@ -251,7 +251,7 @@ class ResourceManager:
 
         cache_name = "{} duplicate {}".format(filename, self.__duplicate_file_counts[filename])
 
-        data = self._request(filename, binary=True)
+        data = self.request_raw(filename, binary=True)
         if data:
             obj = filetype.ImageFile(self.driftwood, data, self.driftwood.window.renderer)
             if obj:
@@ -259,8 +259,8 @@ class ResourceManager:
 
         return obj
 
-    def _request(self, filename: str, binary: bool=False) -> Optional[bytes]:
-        """Retrieve the contents of a file.
+    def request_raw(self, filename: str, binary: bool=False) -> Optional[bytes]:
+        """Retrieve the raw contents of a file.
 
         Args:
             filename: Filename of the file to read.
@@ -293,9 +293,9 @@ class ResourceManager:
                 return contents
 
             except:
-                self.driftwood.log.msg("ERROR", "Resource", "_request", "could not read file", filename)
+                self.driftwood.log.msg("ERROR", "Resource", "request_raw", "could not read file", filename)
                 return None
 
         else:
-            self.driftwood.log.msg("ERROR", "Resource", "_request", "no such file", filename)
+            self.driftwood.log.msg("ERROR", "Resource", "request_raw", "no such file", filename)
             return None

@@ -8,7 +8,7 @@
     "members": [
       {
         "text": {
-          "contents": "text contents",
+          "contents": "{{ contents }}",
           "font": "pf_arma_five.ttf",
           "size": 8,
           "x": null,
