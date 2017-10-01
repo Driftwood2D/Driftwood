@@ -40,11 +40,15 @@ def load(filename, template_vars={}):
     """
     tree = Driftwood.resource.request_json(filename, True, template_vars)
     if not tree:
-        return None
+        Driftwood.log.msg("WARNING", "sdtlib", "widget", "load", "Failed to read widget tree")
+        return False
 
     for branch in tree:
         # Read the widget tree, one base branch at a time.
-        __read_branch(None, branch)
+        if not __read_branch(None, branch):
+            Driftwood.log.msg("WARNING", "sdtlib", "widget", "load", "Failed to read widget tree branch")
+
+    return True
 
 
 def __read_branch(parent, branch):
@@ -60,8 +64,11 @@ def __read_branch(parent, branch):
             parent=parent,
             active=True
         )
+        if not c:
+            Driftwood.log.msg("WARNING", "sdtlib", "widget", "__read_branch", "Failed to prepare container widget")
+            return False
 
-        if "members" in branch:
+        if branch["type"] == "container" and "members" in branch:
             # There are more branches. Recurse them.
             for b in branch["members"]:
                 __read_branch(c, b)
@@ -80,6 +87,11 @@ def __read_branch(parent, branch):
             parent=parent,
             active=True
         )
+        if not t:
+            Driftwood.log.msg("WARNING", "sdtlib", "widget", "__read_branch", "Failed to prepare text widget")
+            return False
+
+    return True
 
 
 def __gp(branch, prop, fallback):
