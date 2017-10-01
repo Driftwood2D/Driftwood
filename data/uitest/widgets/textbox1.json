@@ -2,11 +2,11 @@
   {
     "type": "container",
     "image": "textbox.png",
-    "x": null,
-    "y": null,
+    "x": 0,
+    "y": 0,
     "width": 144,
     "height": 48,
-    "branches": [
+    "members": [
       {
         "type": "text",
         "contents": "{{ contents }}",

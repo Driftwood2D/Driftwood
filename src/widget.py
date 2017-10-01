@@ -116,16 +116,16 @@ class ContainerWidget(Widget):
             window_logical_width, window_logical_height = self.manager.driftwood.window.resolution()
             if self.x is None:
                 self.x = (window_logical_width - self.width) // 2
-                self.realx = self.x
+            self.realx = self.x
             if self.y is None:
                 self.y = (window_logical_height - self.height) // 2
-                self.realy = self.y
+            self.realy = self.y
 
         # Register and center if in a container.
         elif type(self.manager.widgets[self.parent]) is ContainerWidget:
             container = self.manager.widgets[self.parent]
             container.contains.append(self.wid)
-            if container.realx and container.realy:  # Set the adjusted x and y.
+            if container.realx is not None and container.realy is not None:  # Set the adjusted x and y.
                 # Either center or place in a defined position.
                 if self.x is None:
                     self.realx = container.realx + (container.width - self.width) // 2
@@ -203,16 +203,16 @@ class TextWidget(Widget):
             window_logical_width, window_logical_height = self.manager.driftwood.window.resolution()
             if self.x is None:
                 self.x = (window_logical_width - self.width) // 2
-                self.realx = self.x
+            self.realx = self.x
             if self.y is None:
                 self.y = (window_logical_height - self.height) // 2
-                self.realy = self.y
+            self.realy = self.y
 
         # Register and center if in a container.
         elif type(self.manager.widgets[self.parent]) is ContainerWidget:
             container = self.manager.widgets[self.parent]
             container.contains.append(self.wid)
-            if container.realx and container.realy:  # Set the adjusted x and y.
+            if container.realx is not None and container.realy is not None:  # Set the adjusted x and y.
                 # Either center or place in a defined position.
                 if self.x is None:
                     self.realx = container.realx + (container.width - self.width) // 2

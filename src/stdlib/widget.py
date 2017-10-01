@@ -52,9 +52,9 @@ def __read_branch(parent, branch):
             height=branch["height"]
         )
 
-        if "branches" in branch:
+        if "members" in branch:
             # There are more branches. Recurse them.
-            for b in branch["branches"]:
+            for b in branch["members"]:
                 __read_branch(c, b)
 
     elif branch["type"] == "text":

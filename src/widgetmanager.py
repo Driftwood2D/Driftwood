@@ -150,9 +150,9 @@ class WidgetManager:
             if parent is not None:
                 CHECK(parent, int, _min=0)
             if x is not None:
-                CHECK(x, int, _min=-1)
+                CHECK(x, int, _min=0)
             if y is not None:
-                CHECK(y, int, _min=-1)
+                CHECK(y, int, _min=0)
             CHECK(width, int, _min=0)
             CHECK(height, int, _min=0)
             CHECK(active, bool)
