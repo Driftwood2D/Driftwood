@@ -28,6 +28,7 @@
 # Driftwood STDLib widget private functions and variables.
 
 
+# Properties to check for while preprocessing.
 widget_preprocessing_properties = {
     "text": [
         "wrap",
@@ -35,6 +36,7 @@ widget_preprocessing_properties = {
     ]
 }
 
+# Properties to check for while postprocessing.
 widget_postprocessing_properties = {
     "any": [
         "top", "bottom", "left", "right",
@@ -42,8 +44,25 @@ widget_postprocessing_properties = {
 }
 
 
-def read_branch(parent, branch):
+def read_branch(parent, branch, template_vars={}):
     """Recursively read and process widget tree branches."""
+    if "include" in branch:
+        # Replace this branch with an included tree.
+        if "vars" in branch:
+            # We are overlaying variables.
+            branch = include(branch["include"], {**template_vars, **branch["vars"]})
+        else:
+            branch = include(branch["include"], template_vars)
+        if not branch:
+            return False
+
+    if type(branch) == list:
+        # This is a list of branches.
+        for b in branch:
+            if not(read_branch(parent, b, template_vars)):
+                Driftwood.log.msg("WARNING", "sdtlib", "widget", "load", "Failed to read widget tree branch")
+        return True
+
     if branch["type"] == "container":
         # Insert a container.
         c = Driftwood.widget.insert_container(
@@ -55,14 +74,16 @@ def read_branch(parent, branch):
             parent=parent,
             active=True
         )
-        if not c:
+        if c is None:
             Driftwood.log.msg("WARNING", "sdtlib", "widget", "read_branch", "Failed to prepare container widget")
             return False
 
         if branch["type"] == "container" and "members" in branch:
             # There are more branches. Recurse them.
             for b in branch["members"]:
-                read_branch(c, b)
+                if not(read_branch(c, b, template_vars)):
+                    Driftwood.log.msg("WARNING", "sdtlib", "widget", "load", "Failed to read widget tree branch")
+            return True
 
     elif branch["type"] == "text":
         # Insert a textbox.
@@ -78,7 +99,7 @@ def read_branch(parent, branch):
             parent=parent,
             active=True
         )
-        if not t:
+        if t is None:
             Driftwood.log.msg("WARNING", "sdtlib", "widget", "read_branch", "Failed to prepare text widget")
             return False
 
@@ -97,3 +118,14 @@ def gp(branch, prop, fallback):
         return branch[prop]
     else:
         return fallback
+
+
+def include(filename, template_vars={}):
+    """Include branches from another file.
+    """
+    tree = Driftwood.resource.request_json(filename, True, template_vars)
+    if not tree:
+        Driftwood.log.msg("WARNING", "sdtlib", "widget", "load", "Failed to read widget include", filename)
+        return None
+
+    return tree

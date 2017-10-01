@@ -1,0 +1,11 @@
+{
+  "type": "text",
+  "contents": "{{ contents }}",
+  "font": "pf_arma_five.ttf",
+  "size": 8,
+  "x": null,
+  "y": null,
+  "width": null,
+  "height": null,
+  "color": "000000FF"
+}
