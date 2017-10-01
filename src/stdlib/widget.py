@@ -42,12 +42,16 @@ def load(filename, template_vars={}):
     """
     tree = Driftwood.resource.request_json(filename, True, template_vars)
     if not tree:
-        Driftwood.log.msg("WARNING", "sdtlib", "widget", "load", "Failed to read widget tree")
+        Driftwood.log.msg("WARNING", "sdtlib", "widget", "load", "Failed to read widget tree", filename)
         return False
+
+    # Allow single branches or lists of branches. Our code reads lists.
+    if type(tree) is dict:
+        tree = [tree]
 
     for branch in tree:
         # Read the widget tree, one base branch at a time.
-        if not __.read_branch(None, branch):
+        if not __.read_branch(None, branch, template_vars):
             Driftwood.log.msg("WARNING", "sdtlib", "widget", "load", "Failed to read widget tree branch")
 
     return True
