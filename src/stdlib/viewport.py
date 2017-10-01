@@ -27,7 +27,7 @@
 
 # Driftwood STDLib viewport functions.
 
-import random
+__ = Driftwood.script["stdlib/__viewport.py"]
 
 
 def zoom(amount):
@@ -56,38 +56,19 @@ def rumble(rate, intensity, duration=None):
         Function to end the rumble.
     """
     end_rumble()
-    __cancel_end_rumble_tick()
+    __.cancel_end_rumble_tick()
 
-    Driftwood.tick.register(__rumble_callback, delay=1.0/rate, message=intensity)
+    Driftwood.tick.register(__.rumble_callback, delay=1.0/rate, message=intensity)
     Driftwood.vars["rumbling"] = True
 
     if duration:
-        Driftwood.tick.register(__end_rumble_tick, delay=duration, once=True)
+        Driftwood.tick.register(__.end_rumble_tick, delay=duration, once=True)
         Driftwood.vars["will_end_rumbling"] = True
-
-
-def __rumble_callback(seconds_past, intensity):
-    Driftwood.area.offset = [
-        random.randint(intensity * -1, intensity),
-        random.randint(intensity * -1, intensity)
-    ]
-    Driftwood.area.changed = True
 
 
 def end_rumble():
     if "rumbling" in Driftwood.vars and Driftwood.vars["rumbling"]:
-        Driftwood.tick.unregister(__rumble_callback)
+        Driftwood.tick.unregister(__.rumble_callback)
         Driftwood.area.offset = [0, 0]
         Driftwood.area.changed = True
         Driftwood.vars["rumbling"] = False
-
-
-def __end_rumble_tick():
-    end_rumble()
-    Driftwood.vars["will_end_rumbling"] = False
-
-
-def __cancel_end_rumble_tick():
-    if "will_end_rumbling" in Driftwood.vars and Driftwood.vars["will_end_rumbling"]:
-        Driftwood.tick.unregister(__end_rumble_tick)
-        Driftwood.vars["will_end_rumbling"] = False

@@ -1,6 +1,6 @@
 ####################################
 # Driftwood 2D Game Dev. Suite     #
-# stdlib/widget.py                 #
+# stdlib/__viewport.py             #
 # Copyright 2017 Michael D. Reiley #
 # & Paul Merrill                   #
 ####################################
@@ -25,29 +25,25 @@
 # IN THE SOFTWARE.
 # **********
 
-# Driftwood STDLib widget functions.
+# Driftwood STDLib viewport private functions and variables.
 
-__ = Driftwood.script["stdlib/__widget.py"]
+import random
 
 
-def load(filename, template_vars={}):
-    """Widget Tree Loader
+def rumble_callback(seconds_past, intensity):
+    Driftwood.area.offset = [
+        random.randint(intensity * -1, intensity),
+        random.randint(intensity * -1, intensity)
+    ]
+    Driftwood.area.changed = True
 
-    Loads and inserts a Jinja2 templated JSON descriptor file (a "widget tree") which defines one or more
-    widgets to place on the screen.
 
-    Args:
-        * filename: Filename of the widget tree to load and insert.
-        * template_vars: A dictionary of variables to apply to the Jinja2 template.
-    """
-    tree = Driftwood.resource.request_json(filename, True, template_vars)
-    if not tree:
-        Driftwood.log.msg("WARNING", "sdtlib", "widget", "load", "Failed to read widget tree")
-        return False
+def end_rumble_tick():
+    end_rumble()
+    Driftwood.vars["will_end_rumbling"] = False
 
-    for branch in tree:
-        # Read the widget tree, one base branch at a time.
-        if not __.read_branch(None, branch):
-            Driftwood.log.msg("WARNING", "sdtlib", "widget", "load", "Failed to read widget tree branch")
 
-    return True
+def cancel_end_rumble_tick():
+    if "will_end_rumbling" in Driftwood.vars and Driftwood.vars["will_end_rumbling"]:
+        Driftwood.tick.unregister(end_rumble_tick)
+        Driftwood.vars["will_end_rumbling"] = False

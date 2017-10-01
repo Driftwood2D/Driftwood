@@ -27,10 +27,7 @@
 
 # Driftwood STDLib lighting functions.
 
-import copy
-import random
-
-from sdl2 import *
+__ = Driftwood.script["stdlib/__light.py"]
 
 
 def area(filename, color="FFFFFFFF", blend=False):
@@ -114,7 +111,7 @@ def flicker(lid, rx, ry, ralpha, rate, duration=None):
     oy = Driftwood.light.light(lid).y
     oalpha = Driftwood.light.light(lid).alpha
 
-    fc = Driftwood.script["stdlib/helper.py"].copy_function(__flicker_callback)
+    fc = Driftwood.script["stdlib/helper.py"].copy_function(__.flicker_callback)
     fc.active = True
     fc.lid = lid
 
@@ -127,49 +124,9 @@ def flicker(lid, rx, ry, ralpha, rate, duration=None):
     Driftwood.tick.register(fc, delay=1.0/rate, message=[lid, rx, ry, ralpha, fc])
 
     if duration:
-        Driftwood.tick.register(__end_flicker, delay=duration, once=True, message=fc)
+        Driftwood.tick.register(__.end_flicker, delay=duration, once=True, message=fc)
 
     return True
-
-
-def __flicker_callback(seconds_past, msg):
-    lid, rx, ry, ralpha, fc = msg
-    if not Driftwood.light.light(lid):
-        fc.active = False
-        __remove_flicker(fc)
-        return
-    ox, oy, oalpha = copy.deepcopy(Driftwood.vars["stdlib_light_flicker_originals"+str(lid)])
-    ox += random.randint(rx * -1, rx)
-    oy += random.randint(ry * -1, ry)
-    oalpha += random.randint(ralpha * -1, ralpha)
-    if oalpha > 255:
-        oalpha = 255
-    if oalpha < 0:
-        oalpha = 0
-    Driftwood.light.light(lid).x = ox
-    Driftwood.light.light(lid).y = oy
-    Driftwood.light.light(lid).alpha = oalpha
-    Driftwood.area.changed = True
-
-
-def __end_flicker(seconds_past, msg):
-    fc = msg
-    lid = fc.lid
-
-    __remove_flicker(fc)
-
-    if fc.active:
-        fc.active = False
-
-        Driftwood.light.light(lid).x = Driftwood.vars["stdlib_light_flicker_originals"+str(lid)][0]
-        Driftwood.light.light(lid).y = Driftwood.vars["stdlib_light_flicker_originals"+str(lid)][1]
-        Driftwood.light.light(lid).alpha = Driftwood.vars["stdlib_light_flicker_originals"+str(lid)][2]
-        Driftwood.area.changed = True
-
-
-def __remove_flicker(fc):
-    Driftwood.tick.unregister(fc)
-    Driftwood.vars["stdlib_light_flickers"].discard(fc)
 
 
 def reset_flickers():
@@ -177,4 +134,4 @@ def reset_flickers():
         fcs = Driftwood.vars["stdlib_light_flickers"]
         while len(fcs) > 0:
             fc = fcs.pop()
-            __end_flicker(None, fc)
+            __.end_flicker(None, fc)
