@@ -31,8 +31,12 @@
 def load(filename, template_vars={}):
     """Widget Tree Loader
 
-    Loads a Jinja2 templated JSON descriptor file (a "widget tree") which defines one or more widgets to place on
-    the screen.
+    Loads and inserts a Jinja2 templated JSON descriptor file (a "widget tree") which defines one or more
+    widgets to place on the screen.
+
+    Args:
+        * filename: Filename of the widget tree to load and insert.
+        * template_vars: A dictionary of variables to apply to the Jinja2 template.
     """
     tree = Driftwood.resource.request_json(filename, True, template_vars)
     if not tree:
@@ -48,8 +52,13 @@ def __read_branch(parent, branch):
     if branch["type"] == "container":
         # Insert a container.
         c = Driftwood.widget.insert_container(
-            imagefile=branch["image"], parent=parent, x=branch["x"], y=branch["y"], width=branch["width"],
-            height=branch["height"]
+            imagefile=__gp(branch, "image", None),
+            x=__gp(branch, "x", None),
+            y=__gp(branch, "y", None),
+            width=__gp(branch, "width", 0),
+            height=__gp(branch, "height", 0),
+            parent=parent,
+            active=True
         )
 
         if "members" in branch:
@@ -60,7 +69,24 @@ def __read_branch(parent, branch):
     elif branch["type"] == "text":
         # Insert a textbox.
         t = Driftwood.widget.insert_text(
-            branch["contents"], branch["font"], branch["size"], parent=parent, x=branch["x"],
-            y=branch["y"], width=branch["width"], height=branch["height"], color=branch["color"],
+            contents=branch["contents"],
+            fontfile=branch["font"],
+            ptsize=branch["size"],
+            x=__gp(branch, "x", None),
+            y=__gp(branch, "y", None),
+            width=__gp(branch, "width", None),
+            height=__gp(branch, "height", None),
+            color=__gp(branch, "color", "000000FF"),
+            parent=parent,
             active=True
         )
+
+
+def __gp(branch, prop, fallback):
+    """Get Property
+
+    Helper function to get a property from a branch, or return the fallback value if it doesn't exist."""
+    if prop in branch:
+        return branch[prop]
+    else:
+        return fallback
