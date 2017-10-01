@@ -35,7 +35,7 @@ def flicker_callback(seconds_past, msg):
     lid, rx, ry, ralpha, fc = msg
     if not Driftwood.light.light(lid):
         fc.active = False
-        __remove_flicker(fc)
+        remove_flicker(fc)
         return
     ox, oy, oalpha = copy.deepcopy(Driftwood.vars["stdlib_light_flicker_originals"+str(lid)])
     ox += random.randint(rx * -1, rx)
@@ -55,7 +55,7 @@ def end_flicker(seconds_past, msg):
     fc = msg
     lid = fc.lid
 
-    __remove_flicker(fc)
+    remove_flicker(fc)
 
     if fc.active:
         fc.active = False
