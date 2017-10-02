@@ -40,7 +40,7 @@ def load(filename, template_vars={}):
         * filename: Filename of the widget tree to load and insert.
         * template_vars: A dictionary of variables to apply to the Jinja2 template.
     """
-    tree = Driftwood.resource.request_json(filename, True, template_vars)
+    tree = Driftwood.resource.request_template(filename, template_vars)
     if not tree:
         Driftwood.log.msg("WARNING", "sdtlib", "widget", "load", "Failed to read widget tree", filename)
         return False

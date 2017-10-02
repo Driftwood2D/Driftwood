@@ -106,13 +106,11 @@ class ResourceManager:
         self.driftwood.log.msg("ERROR", "Resource", "uninject", "no such file", filename)
         return False
 
-    def request_json(self, filename: str, template: bool=False, template_vars: dict={}) -> Optional[Any]:
+    def request_json(self, filename: str) -> Optional[Any]:
         """Retrieve a dictionary of JSON data.
 
         Args:
             filename: The filename of the JSON file to load.
-            template: Whether or not the file is a Jinja2 template.
-            template_vars: A dictionary of variables to apply to the template.
 
         Returns:
             Dictionary of JSON data if succeeded, None if failed.
@@ -130,17 +128,6 @@ class ResourceManager:
         if data:
             if type(data) == bytes:
                 data = data.decode()
-            if template:
-                # Render the template.
-                try:
-                    template_loader = jinja2.DictLoader({filename: data})
-                    template_env = jinja2.Environment(loader=template_loader)
-                    template = template_env.get_template(filename)
-                    data = template.render(template_vars)
-                except jinja2.exceptions.TemplateError:
-                    self.driftwood.log.msg("ERROR", "Resource", "request_json", "template error", filename)
-                    traceback.print_exc(1, sys.stdout)
-                    return None
             try:
                 obj = json.loads(data)
             except json.decoder.JSONDecodeError:
@@ -152,6 +139,76 @@ class ResourceManager:
         else:
             self.driftwood.cache.upload(filename, None)
             return None
+
+    def request_template(self, filename: str, template_vars: dict={}) -> Optional[Any]:
+        """Retrieve a Jinja2-templated JSON file.
+
+        Args:
+            filename: The filename of the Jinja2-templated JSON file to load.
+            template_vars: A dictionary of variables to apply to the template.
+
+        Returns:
+            Dictionary of JSON data if succeeded, None if failed.
+        """
+        # Input Check
+        try:
+            CHECK(filename, str)
+            CHECK(template_vars, dict)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Resource", "request_template", "bad argument", e)
+            return None
+
+        if filename in self.driftwood.cache:
+            # Get the template from the cache.
+            template = self.driftwood.cache[filename]
+            try:
+                # Render the template.
+                data = template.render(template_vars)
+            except jinja2.exceptions.TemplateError:
+                self.driftwood.log.msg("ERROR", "Resource", "request_template", "could not render", filename)
+                traceback.print_exc(1, sys.stdout)
+                return None
+        else:
+            # Load the file from disk.
+            data = self.request_raw(filename, binary=False)
+            if not data:
+                # Failure.
+                self.driftwood.cache.upload(filename, None)
+                return None
+
+            # Success.
+            if type(data) == bytes:
+                data = data.decode()
+
+            # Create a template.
+            try:
+                template_loader = jinja2.DictLoader({filename: data})
+                template_env = jinja2.Environment(loader=template_loader)
+                template = template_env.get_template(filename)
+            except jinja2.exceptions.TemplateError:
+                self.driftwood.log.msg("ERROR", "Resource", "request_template", "malformed template", filename)
+                traceback.print_exc(1, sys.stdout)
+                return None
+
+            # Upload the template.
+            self.driftwood.cache.upload(filename, template)
+
+            # Render the template.
+            try:
+                data = template.render(template_vars)
+            except jinja2.exceptions.TemplateError:
+                self.driftwood.log.msg("ERROR", "Resource", "request_template", "could not render", filename)
+                traceback.print_exc(1, sys.stdout)
+                return None
+
+        # Load the rendered JSON.
+        try:
+            obj = json.loads(data)
+        except json.decoder.JSONDecodeError:
+            self.driftwood.log.msg("ERROR", "Resource", "request_template", "malformed json", filename)
+            traceback.print_exc(1, sys.stdout)
+            return None
+        return obj
 
     def request_audio(self, filename: str, music: bool=False) -> Optional[filetype.AudioFile]:
         """Retrieve an internal abstraction of an audio file.

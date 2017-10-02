@@ -123,7 +123,7 @@ def gp(branch, prop, fallback):
 def include(filename, template_vars={}):
     """Include branches from another file.
     """
-    tree = Driftwood.resource.request_json(filename, True, template_vars)
+    tree = Driftwood.resource.request_template(filename, template_vars)
     if not tree:
         Driftwood.log.msg("WARNING", "sdtlib", "widget", "load", "Failed to read widget include", filename)
         return None
