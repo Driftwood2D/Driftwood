@@ -86,8 +86,8 @@ class EntityManager:
     def __iter__(self) -> ItemsView:
         return self.entities.items()
 
-    def insert(self, filename: str, layer: int, x: int, y: int) -> Optional[entity.Entity]:
-        """Insert an entity at a position in the area.
+    def insert(self, filename: str, layer: int, x: int, y: int, template_vars: dict={}) -> Optional[entity.Entity]:
+        """Insert an entity at a position in the area. Supports Jinja2.
 
         Args:
             filename: Filename of the JSON entity descriptor.
@@ -111,7 +111,7 @@ class EntityManager:
             self.driftwood.log.msg("ERROR", "Entity", "insert", "no area loaded")
             return None
 
-        data = self.driftwood.resource.request_json(filename)
+        data = self.driftwood.resource.request_template(filename, template_vars)
         if not data:
             self.driftwood.log.msg("ERROR", "Entity", "insert", "could not get resource", filename)
             return None
