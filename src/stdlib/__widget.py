@@ -117,7 +117,7 @@ def process_text(parent, branch):
             fontfile=branch["font"],
             ptsize=branch["size"],
             x=gp(branch, "x", None),
-            y=(branch["y"] + n*textheight + n*gp(branch, "line-spacing", 0)),
+            y=int((branch["y"] + n*textheight*gp(branch, "line-height", 1.0) + n*gp(branch, "line-spacing", 0))),
             width=gp(branch, "width", None),
             height=gp(branch, "height", None),
             color=gp(branch, "color", "000000FF"),

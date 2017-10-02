@@ -4,4 +4,4 @@ def test():
     #                             width=None, height=None, color="000000FF", active=True)
 
     Driftwood.script["stdlib/widget.py"].load("widgets/textbox1.json",
-                                              {"contents": ["This is a textbox", "with two lines."]})
+                                              {"contents": ["This is a textbox", "with three", "lines."]})
