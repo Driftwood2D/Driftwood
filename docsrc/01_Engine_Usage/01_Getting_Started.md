@@ -14,6 +14,8 @@ Before we start, you should make sure you have the following software installed.
 * [Python >= 3.5.0](https://www.python.org/) (Any version 3.5.0 or greater will work.)
 * [Python jsonschema](https://pypi.python.org/pypi/jsonschema)
 * [Python PySDL2](https://pypi.python.org/pypi/PySDL2/)
+* [Python ubjson](https://pypi.python.org/pypi/py-ubjson)
+* [Python Jinja2](http://jinja.pocoo.org/)
 
 
 ## Directory Structure

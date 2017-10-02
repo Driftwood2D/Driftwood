@@ -21,8 +21,10 @@ Current features include:
 * Configurable input handling
 * Timed callbacks
 * Lightmaps
+* Graphical occlusion
 * Rudimentary database for saving data between plays
 * Simple widgets with TTF font support
+* JSON widget building language supporting Jinja2 templating
 * Fully scriptable in Python 3
 * Developer console accessible during runtime
 
@@ -39,3 +41,4 @@ Current features include:
 * Python jsonschema <https://pypi.python.org/pypi/jsonschema>
 * Python PySDL2 <https://pypi.python.org/pypi/PySDL2/>
 * Python ubjson <https://pypi.python.org/pypi/py-ubjson>
+* Python Jinja2 <http://jinja.pocoo.org/>

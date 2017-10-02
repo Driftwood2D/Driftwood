@@ -1,4 +1,4 @@
-# Driftwood 2D - Alpha-0.0.8
+# Driftwood 2D - Alpha-0.0.9
 
 * Copyright (c) 2014 PariahSoft LLC (Abandoned)
 * Copyright (c) 2016-2017 Michael D. Reiley and Paul Merrill
@@ -35,4 +35,6 @@ The engine loads a world package made of images, sounds, maps, descriptive files
 * Python >= 3.5.0
 * Python jsonschema (https://pypi.python.org/pypi/jsonschema)
 * Python PySDL2 (https://pypi.python.org/pypi/PySDL2/)
+* Python ubjson (https://pypi.python.org/pypi/py-ubjson)
+* Python Jinja2 (http://jinja.pocoo.org/)
 

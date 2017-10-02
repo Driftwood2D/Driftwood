@@ -47,20 +47,25 @@ are attributed in the distributions of the below mentioned primary dependencies.
 * License: <https://hg.libsdl.org/SDL_ttf/file/tip/COPYING.txt>
 * URI: <https://www.libsdl.org/projects/SDL_ttf/>
 
-### jsonschema
+### Python jsonschema
 * Copyright 2013 Julian Berman
 * License: <https://raw.githubusercontent.com/Julian/jsonschema/master/COPYING>
 * URI: <https://pypi.python.org/pypi/jsonschema>
 
-### PySDL2
+### Python PySDL2
 * Copyright 2012-2014 Marcus von Appen
 * License: <https://pysdl2.readthedocs.io/en/rel_0_9_5/copying.html>
 * URI: <https://pysdl2.readthedocs.io/>
 
-### py-ubjson
+### Python ubjson
 * Copyright 2015-2017 Iotic Labs Ltd
 * License: <https://www.apache.org/licenses/LICENSE-2.0>
 * URI: <https://pypi.python.org/pypi/py-ubjson>
+
+### Python Jinja2
+* Copyright 2009-2017 Jinja Team
+* License: <https://raw.githubusercontent.com/pallets/jinja/master/LICENSE>
+* URI: <http://jinja.pocoo.org/>
 
 ## Sound Effects
 
