@@ -129,7 +129,7 @@ class ResourceManager:
             if type(data) == bytes:
                 data = data.decode()
             try:
-                obj = json.loads(data)
+                obj = json.loads(data, strict=False)
             except json.decoder.JSONDecodeError:
                 self.driftwood.log.msg("ERROR", "Resource", "request_json", "malformed json", filename)
                 traceback.print_exc(1, sys.stdout)
@@ -184,6 +184,7 @@ class ResourceManager:
             try:
                 template_loader = jinja2.DictLoader({filename: data})
                 template_env = jinja2.Environment(loader=template_loader)
+                template_env.filters = {"json": lambda a: json.dumps(a)}
                 template = template_env.get_template(filename)
             except jinja2.exceptions.TemplateError:
                 self.driftwood.log.msg("ERROR", "Resource", "request_template", "malformed template", filename)
@@ -203,7 +204,7 @@ class ResourceManager:
 
         # Load the rendered JSON.
         try:
-            obj = json.loads(data)
+            obj = json.loads(data, strict=False)
         except json.decoder.JSONDecodeError:
             self.driftwood.log.msg("ERROR", "Resource", "request_template", "malformed json", filename)
             traceback.print_exc(1, sys.stdout)

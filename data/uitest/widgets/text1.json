@@ -1,7 +1,8 @@
 {
   "type": "text",
-  "contents": "{{ contents }}",
+  "contents": {{contents|json}},
   "font": "pf_arma_five.ttf",
+  "line-spacing": -4,
   "size": 8,
   "x": null,
   "y": null,
