@@ -27,8 +27,6 @@
 
 # Driftwood STDLib widget functions.
 
-__ = Driftwood.script["stdlib/__widget.py"]
-
 
 def load(filename, template_vars={}):
     """Widget Tree Loader
@@ -51,7 +49,7 @@ def load(filename, template_vars={}):
 
     for branch in tree:
         # Read the widget tree, one base branch at a time.
-        if not __.read_branch(None, branch, template_vars):
+        if not Driftwood.script["stdlib/__widget.py"].read_branch(None, branch, template_vars):
             Driftwood.log.msg("WARNING", "sdtlib", "widget", "load", "Failed to read widget tree branch")
 
     return True

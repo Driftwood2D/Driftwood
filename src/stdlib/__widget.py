@@ -28,7 +28,7 @@
 # Driftwood STDLib widget private functions and variables.
 
 
-# Properties to check for while preprocessing.
+# Properties to check for while pre-processing.
 widget_preprocessing_properties = {
     "text": [
         "wrap",
@@ -36,7 +36,7 @@ widget_preprocessing_properties = {
     ]
 }
 
-# Properties to check for while postprocessing.
+# Properties to check for while post-processing.
 widget_postprocessing_properties = {
     "any": [
         "top", "bottom", "left", "right",
@@ -104,6 +104,10 @@ def read_branch(parent, branch, template_vars={}):
             return False
 
     return True
+
+
+def pre_process():
+    pass
 
 
 def post_process():

@@ -27,8 +27,6 @@
 
 # Driftwood STDLib viewport functions.
 
-__ = Driftwood.script["stdlib/__viewport.py"]
-
 
 def zoom(amount):
     """Zoom the window.
@@ -56,19 +54,20 @@ def rumble(rate, intensity, duration=None):
         Function to end the rumble.
     """
     end_rumble()
-    __.cancel_end_rumble_tick()
+    Driftwood.script["stdlib/__viewport.py"].cancel_end_rumble_tick()
 
-    Driftwood.tick.register(__.rumble_callback, delay=1.0/rate, message=intensity)
+    Driftwood.tick.register(Driftwood.script["stdlib/__viewport.py"].rumble_callback, delay=1.0/rate,
+                            message=intensity)
     Driftwood.vars["rumbling"] = True
 
     if duration:
-        Driftwood.tick.register(__.end_rumble_tick, delay=duration, once=True)
+        Driftwood.tick.register(Driftwood.script["stdlib/__viewport.py"].end_rumble_tick, delay=duration, once=True)
         Driftwood.vars["will_end_rumbling"] = True
 
 
 def end_rumble():
     if "rumbling" in Driftwood.vars and Driftwood.vars["rumbling"]:
-        Driftwood.tick.unregister(__.rumble_callback)
+        Driftwood.tick.unregister(Driftwood.script["stdlib/__viewport.py"].rumble_callback)
         Driftwood.area.offset = [0, 0]
         Driftwood.area.changed = True
         Driftwood.vars["rumbling"] = False

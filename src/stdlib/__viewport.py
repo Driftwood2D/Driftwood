@@ -39,7 +39,7 @@ def rumble_callback(seconds_past, intensity):
 
 
 def end_rumble_tick():
-    end_rumble()
+    Driftwood.script["stdlib/viewport.py"].end_rumble()
     Driftwood.vars["will_end_rumbling"] = False
 
 

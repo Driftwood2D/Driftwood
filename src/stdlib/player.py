@@ -27,8 +27,6 @@
 
 # Driftwood STDLib Player functions.
 
-__ = Driftwood.script["stdlib/__player.py"]
-
 
 def set_player(ent):
     """Set the entity "ent" as the player character.
@@ -43,13 +41,13 @@ def set_four_way_walk_keybinds():
     if not Driftwood.entity.player:
         return False
     
-    Driftwood.input.register("up", __.four_way_keybind_move_up)
-    Driftwood.input.register("down", __.four_way_keybind_move_down)
-    Driftwood.input.register("left", __.four_way_keybind_move_left)
-    Driftwood.input.register("right", __.four_way_keybind_move_right)
+    Driftwood.input.register("up", Driftwood.script["stdlib/__player.py"].four_way_keybind_move_up)
+    Driftwood.input.register("down", Driftwood.script["stdlib/__player.py"].four_way_keybind_move_down)
+    Driftwood.input.register("left", Driftwood.script["stdlib/__player.py"].four_way_keybind_move_left)
+    Driftwood.input.register("right", Driftwood.script["stdlib/__player.py"].four_way_keybind_move_right)
 
-    Driftwood.input.register("interact", __.default_keybind_interact)
-    Driftwood.input.register("face", __.default_keybind_face)
+    Driftwood.input.register("interact", Driftwood.script["stdlib/__player.py"].default_keybind_interact)
+    Driftwood.input.register("face", Driftwood.script["stdlib/__player.py"].default_keybind_face)
     
     return True
 
@@ -64,12 +62,12 @@ def set_eight_way_walk_keybinds():
 
     player._move_keys_active = [0, 0, 0, 0]
 
-    Driftwood.input.register("up", __.eight_way_keybind_move_up)
-    Driftwood.input.register("down", __.eight_way_keybind_move_down)
-    Driftwood.input.register("left", __.eight_way_keybind_move_left)
-    Driftwood.input.register("right", __.eight_way_keybind_move_right)
+    Driftwood.input.register("up", Driftwood.script["stdlib/__player.py"].eight_way_keybind_move_up)
+    Driftwood.input.register("down", Driftwood.script["stdlib/__player.py"].eight_way_keybind_move_down)
+    Driftwood.input.register("left", Driftwood.script["stdlib/__player.py"].eight_way_keybind_move_left)
+    Driftwood.input.register("right", Driftwood.script["stdlib/__player.py"].eight_way_keybind_move_right)
 
-    Driftwood.input.register("interact", __.default_keybind_interact)
-    Driftwood.input.register("face", __.default_keybind_face)
+    Driftwood.input.register("interact", Driftwood.script["stdlib/__player.py"].default_keybind_interact)
+    Driftwood.input.register("face", Driftwood.script["stdlib/__player.py"].default_keybind_face)
 
     return True

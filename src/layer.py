@@ -58,10 +58,10 @@ class Layer:
         self.zpos = zpos
         self.properties = {}
 
-        self.tiles = []
+        self.tiles = _TileLoader(driftwood, self)
 
         # This contains the JSON of the layer.
-        self.__layer = layerdata
+        self._layer = layerdata
 
         self.__prepare_layer()
 
@@ -70,7 +70,7 @@ class Layer:
 
     def clear(self) -> None:
         for tile in self.tiles:
-            tile.unregister()
+            self.tiles[tile].unregister()
 
     def tile(self, x: int, y: int) -> Optional['tile.Tile']:
         """Retrieve a tile from the layer by its coordinates.
@@ -234,35 +234,60 @@ class Layer:
 
     def __prepare_layer(self) -> None:
         # Set layer properties if present.
-        if "properties" in self.__layer:
-            self.properties = self.__layer["properties"]
-
-        # Iterate through the tile graphic IDs.
-        for seq, gid in enumerate(self.__layer["data"]):
-            # Does this tile actually exist?
-            if gid:
-                # Find which tileset the tile's graphic is in.
-                for ts in self.tilemap.tilesets:
-                    if gid in range(*ts.range):
-                        # Create the Tile instance for this tile.
-                        self.tiles.append(tile.Tile(self, seq, ts, gid))
-
-            # No tile, here create a dummy tile.
-            else:
-                self.tiles.append(tile.Tile(self, seq, None, None))
+        if "properties" in self._layer:
+            self.properties = self._layer["properties"]
 
     def _terminate(self) -> None:
         """Cleanup before deletion.
         """
         for tile in self.tiles:
-            tile._terminate()
+            self.tiles[tile]._terminate()
         self.tiles = []
 
 
 class _AbstractColumn:
     def __init__(self, layer: Layer, x: int):
-        self.__layer = layer
+        self._layer = layer
         self.__x = x
 
     def __getitem__(self, item: int) -> Optional['tile.Tile']:
-        return self.__layer.tile(self.__x, item)
+        return self._layer.tile(self.__x, item)
+
+
+class _TileLoader:
+    """Tile Loader
+
+    Implements lazy map loading by reading and caching each individual tile as needed.
+    """
+    def __init__(self, driftwood, layer):
+        self.driftwood = driftwood
+        self.__tiles = {}
+        self.__layer = layer
+
+    def __getitem__(self, item: int) -> Optional['tile.Tile']:
+        return self.__get(item)
+
+    def __len__(self) -> int:
+        return self.__layer.tilemap.width * self.__layer.tilemap.height
+
+    def __get(self, seq: int) -> Optional['tile.Tile']:
+        if seq in self.__tiles:
+            return self.__tiles[seq]
+        else:
+            # Iterate through the tile graphic IDs.
+
+            # Does this tile actually exist?
+            layer = self.__layer
+            gid = layer._layer["data"][seq]
+            if gid:
+                # Find which tileset the tile's graphic is in.
+                for ts in layer.tilemap.tilesets:
+                    if gid in range(*ts.range):
+                        # Create the Tile instance for this tile.
+                        self.__tiles[seq] = tile.Tile(layer, seq, ts, gid)
+
+            # No tile, here create a dummy tile.
+            else:
+                self.__tiles[seq] = tile.Tile(layer, seq, None, None)
+
+            return self.__tiles[seq]

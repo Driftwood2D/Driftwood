@@ -27,8 +27,6 @@
 
 # Driftwood STDLib lighting functions.
 
-__ = Driftwood.script["stdlib/__light.py"]
-
 
 def area(filename, color="FFFFFFFF", blend=False):
     """Convenience function to apply a lightmap over an entire area.
@@ -111,7 +109,7 @@ def flicker(lid, rx, ry, ralpha, rate, duration=None):
     oy = Driftwood.light.light(lid).y
     oalpha = Driftwood.light.light(lid).alpha
 
-    fc = Driftwood.script["stdlib/helper.py"].copy_function(__.flicker_callback)
+    fc = Driftwood.script["stdlib/helper.py"].copy_function(Driftwood.script["stdlib/__light.py"].flicker_callback)
     fc.active = True
     fc.lid = lid
 
@@ -124,7 +122,7 @@ def flicker(lid, rx, ry, ralpha, rate, duration=None):
     Driftwood.tick.register(fc, delay=1.0/rate, message=[lid, rx, ry, ralpha, fc])
 
     if duration:
-        Driftwood.tick.register(__.end_flicker, delay=duration, once=True, message=fc)
+        Driftwood.tick.register(Driftwood.script["stdlib/__light.py"].end_flicker, delay=duration, once=True, message=fc)
 
     return True
 
@@ -134,4 +132,4 @@ def reset_flickers():
         fcs = Driftwood.vars["stdlib_light_flickers"]
         while len(fcs) > 0:
             fc = fcs.pop()
-            __.end_flicker(None, fc)
+            Driftwood.script["stdlib/__light.py"].end_flicker(None, fc)
