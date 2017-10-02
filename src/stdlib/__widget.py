@@ -30,7 +30,7 @@
 import ast
 from ctypes import byref, c_int
 
-from sdl2.sdlttf import TTF_SizeText
+from sdl2.sdlttf import TTF_SizeUTF8
 
 
 def read_branch(parent, branch, template_vars={}):
@@ -95,9 +95,30 @@ def process_text(parent, branch):
         Driftwood.log.msg("WARNING", "stdlib", "widget", "process_text", "Text contents must be string or list")
         return False
 
-    # Find text proportions.
     tw, th = c_int(), c_int()
-    TTF_SizeText(Driftwood.resource.request_font(branch["font"], branch["size"]).font, contents[0].encode(),
+
+    # Wrap text.
+    if "wrap" in branch:
+        wrapped_contents = []
+        for n in range(len(contents)):
+            current = contents[n]
+            while current:
+                for p in reversed(range(len(current))):
+                    if p:
+                        TTF_SizeUTF8(Driftwood.resource.request_font(branch["font"], branch["size"]).font,
+                                     current[:p].encode(), byref(tw), byref(th))
+                    if tw.value > branch["wrap"]:
+                        continue
+                    if p:
+                        wrapped_contents.append(current[:p])
+                        current = current[p:]
+                    else:
+                        current = ""
+                    break
+        contents = wrapped_contents
+
+    # Find text proportions.
+    TTF_SizeUTF8(Driftwood.resource.request_font(branch["font"], branch["size"]).font, contents[0].encode(),
                  byref(tw), byref(th))
     textheight = th.value
     totalheight = th.value * len(contents)
@@ -127,6 +148,8 @@ def process_text(parent, branch):
         if t is None:
             Driftwood.log.msg("WARNING", "stdlib", "widget", "process_text", "Failed to prepare text widget")
             return False
+
+    return True
 
 
 def gp(branch, prop, fallback):

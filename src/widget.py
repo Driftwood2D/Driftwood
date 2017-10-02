@@ -189,7 +189,7 @@ class TextWidget(Widget):
     def _prepare(self) -> Optional[bool]:
         # Get text width and height.
         tw, th = c_int(), c_int()
-        TTF_SizeText(self.font.font, self.contents.encode(), byref(tw), byref(th))
+        TTF_SizeUTF8(self.font.font, self.contents.encode(), byref(tw), byref(th))
         self.textwidth, self.textheight = tw.value, th.value
 
         # Set width and height if not overridden.
