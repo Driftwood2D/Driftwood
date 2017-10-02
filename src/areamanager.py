@@ -356,7 +356,7 @@ class AreaManager:
 
         x_begin = max(0, x_begin)
         y_begin = max(0, y_begin)
-        x_end = min(x_end, tilemap.height - 1)
-        y_end = min(y_end, tilemap.width - 1)
+        x_end = min(x_end, tilemap.width - 1)
+        y_end = min(y_end, tilemap.height - 1)
 
         return x_begin, x_end, y_begin, y_end
