@@ -257,7 +257,8 @@ class _AbstractColumn:
 class _TileLoader:
     """Tile Loader
 
-    Implements lazy map loading by reading and caching each individual tile as needed.
+    Implements lazy map loading by reading and caching each individual tile as needed. This class pretends to be a
+    list.
     """
     def __init__(self, driftwood, layer):
         self.driftwood = driftwood
@@ -265,26 +266,43 @@ class _TileLoader:
         self.__layer = layer
 
     def __getitem__(self, item: int) -> Optional['tile.Tile']:
+        # Returns a tile by its sequence number.
         return self.__get(item)
 
     def __len__(self) -> int:
+        # Returns the total size in tiles of the tilemap.
         return self.__layer.tilemap.width * self.__layer.tilemap.height
 
+    def __iter__(self):
+        # Allow us to be iterated like a list. This will necessarily load all tiles and is not recommended.
+        for seq in range(self.__len__()):
+            return self.__get(seq)
+
     def __get(self, seq: int) -> Optional['tile.Tile']:
+        # Get a tile by its sequence number, loading if not loaded.
         if seq in self.__tiles:
+            # Already loaded. Return the cached tile.
             return self.__tiles[seq]
+
         else:
             # Iterate through the tile graphic IDs.
-
-            # Does this tile actually exist?
             layer = self.__layer
             gid = layer._layer["data"][seq]
+
+            # Does this tile actually exist?
             if gid:
                 # Find which tileset the tile's graphic is in.
                 for ts in layer.tilemap.tilesets:
                     if gid in range(*ts.range):
                         # Create the Tile instance for this tile.
                         self.__tiles[seq] = tile.Tile(layer, seq, ts, gid)
+                        break  # Stop searching.
+
+                if not self.__tiles[seq]:
+                    # We found nothing. Set nothing.
+                    self.driftwood.log.msg("WARNING", "Layer", layer.zpos, "_TileReader", "Orphan gid", gid,
+                                           "for tile", seq)
+                    self.__tiles[seq] = tile.Tile(layer, seq, None, None)
 
             # No tile, here create a dummy tile.
             else:
