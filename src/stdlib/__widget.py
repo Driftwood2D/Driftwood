@@ -27,7 +27,6 @@
 
 # Driftwood STDLib widget private functions and variables.
 
-import ast
 from ctypes import byref, c_int
 
 from sdl2.sdlttf import TTF_SizeUTF8
@@ -49,7 +48,7 @@ def read_branch(parent, branch, template_vars={}):
         # This is a list of branches.
         for b in branch:
             if not(read_branch(parent, b, template_vars)):
-                Driftwood.log.msg("WARNING", "stdlib", "widget", "load", "Failed to read widget tree branch")
+                Driftwood.log.msg("WARNING", "stdlib", "__widget", "load", "Failed to read widget tree branch")
         return True
 
     if branch["type"] == "container":
@@ -64,14 +63,14 @@ def read_branch(parent, branch, template_vars={}):
             active=True
         )
         if c is None:
-            Driftwood.log.msg("WARNING", "stdlib", "widget", "read_branch", "Failed to prepare container widget")
+            Driftwood.log.msg("WARNING", "stdlib", "__widget", "read_branch", "Failed to prepare container widget")
             return False
 
         if branch["type"] == "container" and "members" in branch:
             # There are more branches. Recurse them.
             for b in branch["members"]:
                 if not(read_branch(c, b, template_vars)):
-                    Driftwood.log.msg("WARNING", "stdlib", "widget", "load", "Failed to read widget tree branch")
+                    Driftwood.log.msg("WARNING", "stdlib", "__widget", "load", "Failed to read widget tree branch")
             return True
 
     elif branch["type"] == "text":
@@ -92,7 +91,7 @@ def process_text(parent, branch):
     elif type(branch["contents"]) is list:
         contents = branch["contents"]
     else:
-        Driftwood.log.msg("WARNING", "stdlib", "widget", "process_text", "Text contents must be string or list")
+        Driftwood.log.msg("WARNING", "stdlib", "__widget", "process_text", "Text contents must be string or list")
         return False
 
     tw, th = c_int(), c_int()
@@ -101,20 +100,27 @@ def process_text(parent, branch):
     if "wrap" in branch:
         wrapped_contents = []
         for n in range(len(contents)):
+            # Go through each existing line separately.
             current = contents[n]
             while current:
                 for p in reversed(range(len(current))):
+                    # Slice back through the line in reverse until it's small enough.
                     if p:
                         TTF_SizeUTF8(Driftwood.resource.request_font(branch["font"], branch["size"]).font,
                                      current[:p].encode(), byref(tw), byref(th))
                     if tw.value > branch["wrap"]:
+                        # Segment is not small enough yet.
                         continue
                     if p:
-                        wrapped_contents.append(current[:p])
+                        # Append the small-enough line segment to the new list of lines and cut it off of what's
+                        # left to be processed.
+                        wrapped_contents.append(current[:p].lstrip())
                         current = current[p:]
                     else:
+                        # We are done.
                         current = ""
                     break
+        # Replace contents with wrapped contents.
         contents = wrapped_contents
 
     # Find text proportions.
@@ -125,15 +131,13 @@ def process_text(parent, branch):
 
     # Calculate positions.
     if branch["y"] is None:
-        if parent is not None:
-            branch["y"] = (Driftwood.widget[parent].height - totalheight) // 2
-        else:
-            branch["y"] = (self.manager.driftwood.window.resolution()[1] - totalheight) // 2
+        branch["y"] = (Driftwood.widget[parent].height - totalheight) // 2
 
     # Place lines of text.
+    t = []
     for n in range(len(contents)):
         # Insert a textbox.
-        t = Driftwood.widget.insert_text(
+        t.append(Driftwood.widget.insert_text(
             contents=contents[n],
             fontfile=branch["font"],
             ptsize=branch["size"],
@@ -144,10 +148,49 @@ def process_text(parent, branch):
             color=gp(branch, "color", "000000FF"),
             parent=parent,
             active=True
-        )
-        if t is None:
-            Driftwood.log.msg("WARNING", "stdlib", "widget", "process_text", "Failed to prepare text widget")
+        ))
+        if t[-1] is None:
+            Driftwood.log.msg("WARNING", "stdlib", "__widget", "process_text", "Failed to prepare text widget")
             return False
+
+        if not postprocess_text(t, branch):
+            Driftwood.log.msg("WARNING", "stdlib", "__widget", "process_text", "Failed to postprocess text widgets",
+                              t)
+            return False
+
+    return True
+
+
+def postprocess_text(widgets, branch):
+    # Collect some needed information.
+    w = Driftwood.widget[widgets[0]]
+    lheight = int(w.height*gp(branch, "line-height", 1.0))
+    lspacing = gp(branch, "line-spacing", 0)
+    sep = lheight + lspacing
+
+    # Work through the list of widgets in this branch.
+    for seq, wid in enumerate(widgets):
+        w = Driftwood.widget[wid]
+        parent = Driftwood.widget[w.parent]
+
+        # Justify text.
+        if "justify" in branch:
+            if branch["justify"] == "left":
+                w.x = 0
+                w.realx = parent.realx
+            elif branch["justify"] == "right":
+                w.x = parent.width - w.width
+                w.realx = parent.realx + parent.width - w.width
+            elif branch["justify"] == "top":
+                w.y = 0 + sep*seq
+                w.realy = parent.realy + sep*seq
+            elif branch["justify"] == "bottom":
+                w.y = parent.height - w.height - (len(widgets)-1-seq)*sep
+                w.realy = parent.realy + parent.height - w.height - (len(widgets)-1-seq)*sep
+            else:
+                Driftwood.log.msg("WARNING", "stdlib", "__widget", "postprocess_text",
+                                  "\"justify\" must be one of left, right, top, or bottom.")
+                return False
 
     return True
 
@@ -167,7 +210,7 @@ def include(filename, template_vars={}):
     """
     tree = Driftwood.resource.request_template(filename, template_vars)
     if not tree:
-        Driftwood.log.msg("WARNING", "stdlib", "widget", "load", "Failed to read widget include", filename)
+        Driftwood.log.msg("WARNING", "stdlib", "__widget", "load", "Failed to read widget include", filename)
         return None
 
     return tree

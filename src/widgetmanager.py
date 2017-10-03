@@ -59,6 +59,7 @@ class WidgetManager:
         self.__uiprocessor = None  # The sdlext ui processor.
 
         self.__prepare()
+        self.__insert_root_widget()
 
     def __contains__(self, wid: int) -> bool:
         if self.widget(wid):
@@ -175,7 +176,10 @@ class WidgetManager:
 
         ret = new_widget._prepare()
         if ret is None:
-            self.driftwood.log.msg("ERROR", "Widget", "container", "could not create container widget")
+            if new_widget.wid is 0:
+                self.driftwood.log.msg("ERROR", "Widget", "container", "could not create root widget")
+            else:
+                self.driftwood.log.msg("ERROR", "Widget", "container", "could not create container widget")
             return None
 
         if active:  # Do we activate it to be drawn/used?
@@ -241,6 +245,8 @@ class WidgetManager:
             self.driftwood.log.msg("ERROR", "Widget", "container", "no such font", fontfile)
             return None
 
+        if parent is None:
+            parent = 0
         new_widget = widget.TextWidget(self, self.__last_wid, parent, contents, font, ptsize, x, y, width, height,
                                        color)
         self.widgets[self.__last_wid] = new_widget
@@ -312,9 +318,9 @@ class WidgetManager:
         """
         # Input Check
         try:
-            CHECK(wid, int, _min=0)
+            CHECK(wid, int, _min=1)
         except CheckFailure as e:
-            self.driftwood.log.msg("ERROR", "Widget", "kill", "bad argument", e)
+            self.driftwood.log.msg("ERROR", "Widget", "kill", "cannot kill root widget")
             return False
 
         if wid in self.widgets:
@@ -354,6 +360,7 @@ class WidgetManager:
                 self.widgets[widget]._terminate()
         self.widgets = {}
         self.selected = None
+        self.__insert_root_widget()
         return True
 
     def _draw_widgets(self) -> None:
@@ -383,6 +390,23 @@ class WidgetManager:
         self.__spritefactory = SpriteFactory(sprite_type=TEXTURE, renderer=self.driftwood.window.renderer)
         self.__uifactory = UIFactory(self.__spritefactory)
         self.__uiprocessor = UIProcessor()
+
+    def __insert_root_widget(self) -> None:
+        """Insert the root widget, which is the parent of parentless widgets.
+        """
+        if 0 in self.widgets:
+            # The root widget exists already for some reason. Kill it.
+            self.driftwood.log.msg("WARNING", "Widget", "Root widget exists early")
+            if getattr(self.widgets[0], "_terminate", None):
+                self.widgets[0]._terminate()
+            del self.widgets[0]
+            self.driftwood.area.changed = True
+
+        # Our size is the window resolution.
+        resx, resy = self.driftwood.window.resolution()
+
+        # Create the root widget.
+        self.insert_container(imagefile=None, parent=0, x=0, y=0, width=resx, height=resy, active=True)
 
     def _terminate(self) -> None:
         """Cleanup before deletion.
