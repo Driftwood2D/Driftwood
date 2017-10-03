@@ -5,6 +5,7 @@
   "line-spacing": -8,
   "line-height": 1.8,
   "justify": "top",
+  "right": 20,
   "wrap": 110,
   "size": 8,
   "x": null,

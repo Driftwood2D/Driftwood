@@ -94,6 +94,7 @@ def process_text(parent, branch):
         Driftwood.log.msg("WARNING", "stdlib", "__widget", "process_text", "Text contents must be string or list")
         return False
 
+    font = Driftwood.resource.request_font(branch["font"], branch["size"]).font
     tw, th = c_int(), c_int()
 
     # Wrap text.
@@ -106,8 +107,7 @@ def process_text(parent, branch):
                 for p in reversed(range(len(current))):
                     # Slice back through the line in reverse until it's small enough.
                     if p:
-                        TTF_SizeUTF8(Driftwood.resource.request_font(branch["font"], branch["size"]).font,
-                                     current[:p].encode(), byref(tw), byref(th))
+                        TTF_SizeUTF8(font, current[:p].encode(), byref(tw), byref(th))
                     if tw.value > branch["wrap"]:
                         # Segment is not small enough yet.
                         continue
@@ -124,7 +124,7 @@ def process_text(parent, branch):
         contents = wrapped_contents
 
     # Find text proportions.
-    TTF_SizeUTF8(Driftwood.resource.request_font(branch["font"], branch["size"]).font, contents[0].encode(),
+    TTF_SizeUTF8(font, contents[0].encode(),
                  byref(tw), byref(th))
     textheight = th.value
     totalheight = th.value * len(contents)
@@ -192,6 +192,12 @@ def postprocess_text(widgets, branch):
                                   "\"justify\" must be one of left, right, top, or bottom.")
                 return False
 
+        # Align text.
+        #if "left" in branch:
+        #    diff = w.realx - parent.realx - branch["left"]
+        #    w.x = branch["left"]
+        #    w.realx -= diff
+        
     return True
 
 
