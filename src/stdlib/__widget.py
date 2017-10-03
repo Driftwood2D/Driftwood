@@ -114,7 +114,7 @@ def process_text(parent, branch):
                     if p:
                         # Append the small-enough line segment to the new list of lines and cut it off of what's
                         # left to be processed.
-                        wrapped_contents.append(current[:p].lstrip())
+                        wrapped_contents.append(current[:p].strip())
                         current = current[p:]
                     else:
                         # We are done.
@@ -174,30 +174,30 @@ def postprocess_text(widgets, branch):
         parent = Driftwood.widget[w.parent]
 
         # Justify text.
-        if "justify" in branch:
-            if branch["justify"] == "left":
-                w.x = 0
-                w.realx = parent.realx
-            elif branch["justify"] == "right":
-                w.x = parent.width - w.width
-                w.realx = parent.realx + parent.width - w.width
-            elif branch["justify"] == "top":
-                w.y = 0 + sep*seq
-                w.realy = parent.realy + sep*seq
-            elif branch["justify"] == "bottom":
-                w.y = parent.height - w.height - (len(widgets)-1-seq)*sep
-                w.realy = parent.realy + parent.height - w.height - (len(widgets)-1-seq)*sep
-            else:
+        if "align" in branch:
+            found = False
+            if "left" in branch["align"] and type(branch["align"]["left"]) is int:
+                w.x = branch["align"]["left"]
+                w.realx = branch["align"]["left"] + parent.realx
+                found = True
+            if "right" in branch["align"] and type(branch["align"]["right"]) is int:
+                w.x = parent.width - w.width - branch["align"]["right"]
+                w.realx = parent.realx + parent.width - w.width - branch["align"]["right"]
+                found = True
+            if "top" in branch["align"] and type(branch["align"]["top"]) is int:
+                w.y = branch["align"]["top"] + sep*seq
+                w.realy = branch["align"]["top"] + parent.realy + sep*seq
+                found = True
+            if "bottom" in branch["align"] and type(branch["align"]["bottom"]) is int:
+                w.y = parent.height - w.height - (len(widgets)-1-seq)*sep - branch["align"]["bottom"]
+                w.realy = parent.realy + parent.height - w.height - (len(widgets)-1-seq)*sep - \
+                          branch["align"]["bottom"]
+                found = True
+            if not found:
                 Driftwood.log.msg("WARNING", "stdlib", "__widget", "postprocess_text",
-                                  "\"justify\" must be one of left, right, top, or bottom.")
+                                  "\"align\" property contains incorrect values")
                 return False
 
-        # Align text.
-        #if "left" in branch:
-        #    diff = w.realx - parent.realx - branch["left"]
-        #    w.x = branch["left"]
-        #    w.realx -= diff
-        
     return True
 
 
