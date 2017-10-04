@@ -10,8 +10,10 @@
     "members": [
       {
         "type": "text",
-        "contents": "Small box.",
+        "contents": "This is a smaller box than textbox1.",
         "font": "pf_arma_five.ttf",
+        "line-height": 0.8,
+        "wrap": 78,
         "size": 8,
         "x": null,
         "y": null,

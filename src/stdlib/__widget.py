@@ -140,14 +140,22 @@ def process_text(parent, branch):
 
     # Place lines of text.
     t = []
+
     for n in range(len(contents)):
+        # Check if wrapping put us in an impossible position.
+        tmpy = int((branch["y"] + n * textheight * gp(branch, "line-height", 1.0)
+                    + n * gp(branch, "line-spacing", 0)))
+        if tmpy < 0:
+            tmpy = 0
+            Driftwood.log.msg("WARNING", "stdlib", "__widget", "process_text", "text wrapped to negative position")
+
         # Insert a textbox.
         t.append(Driftwood.widget.insert_text(
             contents=contents[n],
             fontfile=branch["font"],
             ptsize=branch["size"],
             x=gp(branch, "x", None),
-            y=int((branch["y"] + n*textheight*gp(branch, "line-height", 1.0) + n*gp(branch, "line-spacing", 0))),
+            y=tmpy,
             width=gp(branch, "width", None),
             height=gp(branch, "height", None),
             color=gp(branch, "color", "000000FF"),
