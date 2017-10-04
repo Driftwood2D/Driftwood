@@ -9,17 +9,11 @@
     "align": {"top": 10},
     "members": [
       {
-        "type": "text",
-        "contents": "This is a smaller box than textbox1.",
-        "font": "pf_arma_five.ttf",
-        "line-height": 0.8,
-        "wrap": 78,
-        "size": 8,
-        "x": null,
-        "y": null,
-        "width": null,
-        "height": null,
-        "color": "000000FF"
+        "include": "widgets/text1.template.json",
+        "vars": {
+          "contents": "This replaces the text in the function call.",
+          "wrap": 78
+        }
       }
     ]
   }

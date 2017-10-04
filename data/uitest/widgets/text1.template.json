@@ -2,10 +2,16 @@
   "type": "text",
   "contents": {{contents|json}},
   "font": "pf_arma_five.ttf",
-  "line-spacing": -8,
-  "line-height": 1.8,
-  "align": {"left": 8, "top": 4},
-  "wrap": 110,
+  {% if line_spacing is defined %}
+    "line-spacing": {{line_spacing}},
+  {% endif%}
+  {% if line_height is defined %}
+    "line-height": {{line_height}},
+  {% endif%}
+  "align": {"left": 8, "top": 2},
+  {% if wrap is defined %}
+    "wrap": {{wrap}},
+  {% endif%}
   "size": 8,
   "x": null,
   "y": null,

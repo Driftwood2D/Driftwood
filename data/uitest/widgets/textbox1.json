@@ -9,7 +9,11 @@
     "align": {"bottom": 10},
     "members": [
       {
-        "include": "widgets/text1.template.json"
+        "include": "widgets/text1.template.json",
+        "vars": {
+          "line-spacing": -8,
+          "line-height": 1.8
+        }
       }
     ]
   }
