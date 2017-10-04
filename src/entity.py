@@ -220,6 +220,8 @@ class Entity:
         # Schedule animation.
         if self.afps:
             self.manager.driftwood.tick.register(self.__next_member, delay=(1 / self.afps))
+        elif self.manager.driftwood.tick.registered(self.__next_member):
+            self.manager.driftwood.tick.unregister(self.__next_member)
 
         self.manager.driftwood.area.changed = True
 
