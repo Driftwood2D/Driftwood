@@ -28,6 +28,7 @@
 
 import pdb
 import time
+import inspect
 from typing import Any, Union, List
 
 from sdl2 import *
@@ -241,7 +242,6 @@ def CHECK(item: Any, _type: Union[type, List[type]], _min: float = None, _max: f
 
     # Type check.
     if type(item) is not _type and (type(_type) is list and type(item) not in _type):
-        print(type(item) in _type)
         raise CheckFailure("input failed type check: {0}: expected {1} instead".format(type(item), _type))
 
     # Minimum check.

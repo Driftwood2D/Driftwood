@@ -27,7 +27,7 @@
 # **********
 
 from ctypes import byref
-from typing import List
+from typing import List, Optional
 
 from sdl2 import *
 from sdl2.sdlimage import *
@@ -108,7 +108,7 @@ class WindowManager:
             self.driftwood.area.changed = True
         return True
 
-    def resolution(self, width: int=None, height: int=None) -> List[int]:
+    def resolution(self, width: int=None, height: int=None) -> Optional[List[int]]:
         """Set or query the logical resolution of the window. This is different from the window dimensions.
 
         Args:
@@ -125,12 +125,16 @@ class WindowManager:
                 CHECK(height, int, _min=1)
         except CheckFailure as e:
             self.driftwood.log.msg("ERROR", "Window", "title", "bad argument", e)
-            return [self.__logical_width, self.__logical_height]
+            return None
 
         if width:
             self.__logical_width = width
         if height:
             self.__logical_height = height
+
+        if width or height:
+            if "widget" in dir(self.driftwood):
+                self.driftwood.widget.reset()
 
         return [self.__logical_width, self.__logical_height]
 

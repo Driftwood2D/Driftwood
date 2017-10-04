@@ -52,7 +52,7 @@ class WidgetManager:
         self.widgets = {}
         self.selected = None
 
-        self.__last_wid = -1
+        self.__last_wid = 0
 
         self.__spritefactory = None  # The sdlext sprite factory.
         self.__uifactory = None  # The sdlext ui factory.
@@ -150,6 +150,8 @@ class WidgetManager:
                 CHECK(imagefile, str)
             if parent is not None:
                 CHECK(parent, int, _min=0)
+            else:
+                parent = 0
             if x is not None:
                 CHECK(x, int, _min=0)
             if y is not None:
@@ -224,6 +226,8 @@ class WidgetManager:
             CHECK(ptsize, int, _min=1)
             if parent is not None:
                 CHECK(parent, int, _min=0)
+            else:
+                parent = 0
             if x is not None:
                 CHECK(x, int, _min=-1)
             if y is not None:
@@ -245,8 +249,6 @@ class WidgetManager:
             self.driftwood.log.msg("ERROR", "Widget", "container", "no such font", fontfile)
             return None
 
-        if parent is None:
-            parent = 0
         new_widget = widget.TextWidget(self, self.__last_wid, parent, contents, font, ptsize, x, y, width, height,
                                        color)
         self.widgets[self.__last_wid] = new_widget
@@ -346,7 +348,7 @@ class WidgetManager:
             CHECK(wid, int, _min=0)
         except CheckFailure as e:
             self.driftwood.log.msg("ERROR", "Widget", "widget", "bad argument", e)
-            return False
+            return None
 
         if wid in self.widgets:
             return self.widgets[wid]
@@ -394,19 +396,14 @@ class WidgetManager:
     def __insert_root_widget(self) -> None:
         """Insert the root widget, which is the parent of parentless widgets.
         """
-        if 0 in self.widgets:
-            # The root widget exists already for some reason. Kill it.
-            self.driftwood.log.msg("WARNING", "Widget", "Root widget exists early")
-            if getattr(self.widgets[0], "_terminate", None):
-                self.widgets[0]._terminate()
-            del self.widgets[0]
-            self.driftwood.area.changed = True
-
         # Our size is the window resolution.
-        resx, resy = self.driftwood.window.resolution()
+        res = self.driftwood.window.resolution()
 
         # Create the root widget.
-        self.insert_container(imagefile=None, parent=0, x=0, y=0, width=resx, height=resy, active=True)
+        self.widgets[0] = widget.ContainerWidget(manager=self.driftwood, wid=0, parent=0, image=None,
+                                                 x=0, y=0, width=res[0], height=res[1])
+        self.widgets[0]._prepare()
+        self.widgets[0].active = True
 
     def _terminate(self) -> None:
         """Cleanup before deletion.

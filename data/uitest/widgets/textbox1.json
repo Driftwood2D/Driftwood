@@ -6,6 +6,7 @@
     "y": null,
     "width": 144,
     "height": 48,
+    "align": {"bottom": 10},
     "members": [
       {
         "include": "widgets/text1.json"

@@ -65,12 +65,17 @@ def read_branch(parent, branch, template_vars={}):
         if c is None:
             Driftwood.log.msg("WARNING", "stdlib", "__widget", "read_branch", "Failed to prepare container widget")
             return False
+        if not postprocess_container(c, branch):
+            Driftwood.log.msg("WARNING", "stdlib", "__widget", "process_container",
+                              "Failed to postprocess text widgets", c)
+            return False
 
         if branch["type"] == "container" and "members" in branch:
             # There are more branches. Recurse them.
             for b in branch["members"]:
                 if not(read_branch(c, b, template_vars)):
                     Driftwood.log.msg("WARNING", "stdlib", "__widget", "load", "Failed to read widget tree branch")
+                    return False
             return True
 
     elif branch["type"] == "text":
@@ -197,6 +202,38 @@ def postprocess_text(widgets, branch):
                 Driftwood.log.msg("WARNING", "stdlib", "__widget", "postprocess_text",
                                   "\"align\" property contains incorrect values")
                 return False
+
+    return True
+
+
+def postprocess_container(widget, branch):
+    # Collect some needed information.
+    w = Driftwood.widget[widget]
+    parent = Driftwood.widget[w.parent]
+
+    # Justify container.
+    if "align" in branch:
+        found = False
+        if "left" in branch["align"] and type(branch["align"]["left"]) is int:
+            w.x = branch["align"]["left"]
+            w.realx = branch["align"]["left"] + parent.realx
+            found = True
+        if "right" in branch["align"] and type(branch["align"]["right"]) is int:
+            w.x = parent.width - w.width - branch["align"]["right"]
+            w.realx = parent.realx + parent.width - w.width - branch["align"]["right"]
+            found = True
+        if "top" in branch["align"] and type(branch["align"]["top"]) is int:
+            w.y = branch["align"]["top"]
+            w.realy = branch["align"]["top"] + parent.realy
+            found = True
+        if "bottom" in branch["align"] and type(branch["align"]["bottom"]) is int:
+            w.y = parent.height - w.height  - branch["align"]["bottom"]
+            w.realy = parent.realy + parent.height - w.height - branch["align"]["bottom"]
+            found = True
+        if not found:
+            Driftwood.log.msg("WARNING", "stdlib", "__widget", "postprocess_container",
+                              "\"align\" property contains incorrect values")
+            return False
 
     return True
 

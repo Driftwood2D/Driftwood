@@ -111,8 +111,14 @@ class ContainerWidget(Widget):
         return None
 
     def _prepare(self) -> Optional[bool]:
+        if self.wid == 0:
+            self.x = 0
+            self.realx = 0
+            self.y = 0
+            self.realy = 0
+
         # Center if not in a container.
-        if self.parent is None:
+        elif self.parent == 0:
             window_logical_width, window_logical_height = self.manager.driftwood.window.resolution()
             if self.x is None:
                 self.x = (window_logical_width - self.width) // 2
@@ -199,7 +205,7 @@ class TextWidget(Widget):
             self.height = th.value
 
         # Center if not in a container.
-        if self.parent is None:
+        if self.parent == 0:
             window_logical_width, window_logical_height = self.manager.driftwood.window.resolution()
             if self.x is None:
                 self.x = (window_logical_width - self.width) // 2
@@ -227,6 +233,7 @@ class TextWidget(Widget):
                     self.realy = self.y + container.realy
                 else:
                     self.realy += container.realy
+
 
         # Fake container.
         else:
