@@ -2,7 +2,7 @@ def init():
     """Called on engine start.
     """
     # Set the logical resolution of the window.
-    Driftwood.window.resolution(120, 120)
+    Driftwood.window.resize(120, 120)
 
     # Load the area.
     Driftwood.area.focus("blue1.json")

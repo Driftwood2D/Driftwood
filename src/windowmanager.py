@@ -108,35 +108,41 @@ class WindowManager:
             self.driftwood.area.changed = True
         return True
 
-    def resolution(self, width: int=None, height: int=None) -> Optional[List[int]]:
-        """Set or query the logical resolution of the window. This is different from the window dimensions.
+    def resolution(self) -> List[int]:
+        """Query the logical resolution of the window. This is different from the window dimensions.
+
+        Returns: A tuple containing the resolution.
+        """
+        return [self.__logical_width, self.__logical_height]
+
+    def resize(self, width: int, height: int) -> bool:
+        """Change the logical resolution of the window.
+
+        Warning: This will also reset WidgetManager.
 
         Args:
-            width: If set, the new logical width.
-            height: If set, the new logical height.
+            width: The new logical width.
+            height: The new logical height.
 
-        Returns: A tuple containing the new resolution.
+        Returns: True if succeeded, False if failed.
         """
         # Input Check
         try:
-            if width is not None:
-                CHECK(width, int, _min=1)
-            if height is not None:
-                CHECK(height, int, _min=1)
+            CHECK(width, int, _min=1)
+            CHECK(height, int, _min=1)
         except CheckFailure as e:
             self.driftwood.log.msg("ERROR", "Window", "resolution", "bad argument", e)
-            return None
+            return False
 
-        if width:
-            self.__logical_width = width
-        if height:
-            self.__logical_height = height
+        # Set the new resolution.
+        self.__logical_width = width
+        self.__logical_height = height
 
-        if width or height:
-            if "widget" in dir(self.driftwood):
-                self.driftwood.widget.reset()
+        # If WidgetManager is initialized yet, reset it.
+        if "widget" in dir(self.driftwood):
+            self.driftwood.widget.reset()
 
-        return [self.__logical_width, self.__logical_height]
+        return True
 
     def _tick(self, seconds_past: float) -> None:
         """Tick callback which refreshes the renderer.
