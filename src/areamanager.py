@@ -295,7 +295,7 @@ class AreaManager:
                         self.driftwood.log.msg("ERROR", "Area", "__build_frame", "SDL", SDL_GetError())
 
         # Tell FrameManager to publish the finished frame.
-        self.driftwood.frame.frame(None)
+        self.driftwood.frame.frame()
 
     def calculate_visible_tile_bounds(self) -> [int]:
         tilemap = self.tilemap

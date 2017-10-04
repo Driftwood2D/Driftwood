@@ -66,7 +66,7 @@ class FrameManager:
         self.STATE_NOTCHANGED, self.STATE_CHANGED = range(2)
 
         self.driftwood = driftwood
-        self._frame = None  # [self.__frontbuffer, srcrect, dstrect]
+        self._frame = None  # [self.__backbuffer, srcrect, dstrect]
 
         # Offset at which to draw the viewport.
         self.offset = [0, 0]
@@ -75,7 +75,6 @@ class FrameManager:
         self.centering = True
 
         self.__imagefile = None
-        self.__frontbuffer = None
         self.__backbuffer = None
         self.__overlay = []
 
@@ -138,43 +137,19 @@ class FrameManager:
 
         return True
 
-    def frame(self, tex: Union[SDL_Texture, filetype.ImageFile]=None) -> bool:
-        """Replace the current frame with a texture or the internal back buffer, and adjust the viewport accordingly.
+    def resize(self):
+        pass
 
-        Args:
-            tex: Use internal back buffer if None, otherwise SDL_Texture or filetype.ImageFile instance.
+    def frame(self) -> bool:
+        """Replace the current frame with the internal back buffer, and adjust the viewport accordingly.
 
         Returns:
             True if succeeded, False if failed.
         """
-        # Input Check
-        try:
-            if tex is not None:
-                CHECK(tex, [SDL_Texture, filetype.ImageFile])
-        except CheckFailure as e:
-            self.driftwood.log.msg("ERROR", "Frame", "frame", "bad argument", e)
-            return False
-
-        # Use our internal back buffer.
-        if tex is None:
-            self.__frontbuffer = self.__backbuffer
-
-        # Prevent this ImageFile (probably from a script) from losing scope and taking our texture with it.
-        elif isinstance(tex, filetype.ImageFile):
-            self.__imagefile = tex
-            if self.__frontbuffer and self.__imagefile.texture is not self.__frontbuffer:
-                SDL_DestroyTexture(self.__frontbuffer)
-            self.__frontbuffer = self.__imagefile.texture
-
-        # It's just an ordinary texture, probably passed from the engine code.
-        else:
-            if self.__frontbuffer and self.__frontbuffer is not tex:
-                SDL_DestroyTexture(self.__frontbuffer)
-            self.__frontbuffer = tex
 
         # Get texture width and height.
         tw, th = c_int(), c_int()
-        SDL_QueryTexture(self.__frontbuffer, None, None, byref(tw), byref(th))
+        SDL_QueryTexture(self.__backbuffer, None, None, byref(tw), byref(th))
         tw, th = tw.value, th.value
 
         # Both the dstrect and the window size are measured in logical
@@ -234,7 +209,7 @@ class FrameManager:
         dstrect.y += self.offset[1]
 
         # Adjust and copy the frame onto the viewport.
-        self._frame = [self.__frontbuffer, srcrect, dstrect]
+        self._frame = [self.__backbuffer, srcrect, dstrect]
 
         # Tell WidgetManager it should draw the widgets now.
         self.driftwood.widget._draw_widgets()
@@ -243,7 +218,7 @@ class FrameManager:
         for overlay in self.__overlay:
             overlay[2][0] -= dstrect.x
             overlay[2][1] -= dstrect.y
-            self.copy(*overlay, True)
+            self.copy(*overlay)
         self.__overlay = []  # These should only be texture references.
 
         # Mark the frame changed.
@@ -255,7 +230,6 @@ class FrameManager:
              tex: SDL_Texture,
              srcrect: List[int],
              dstrect: List[int],
-             direct: bool=False,
              alpha: int=None,
              blendmode: int=None,
              colormod: Tuple[int, int, int]=None) -> bool:
@@ -267,7 +241,6 @@ class FrameManager:
             tex: Texture to copy.
             srcrect: Source rectangle [x, y, w, h]
             dstrect: Destination rectangle [x, y, w, h]
-            direct: Ignore the back buffer and copy directly onto the front buffer.
             alpha: (optional) An additional alpha value multiplied into the copy.
             blendmode: (optional) Which SDL2 blend mode to use. 
             colormod: (optional) An additional color value multiplied into the copy.
@@ -279,8 +252,6 @@ class FrameManager:
             CHECK(tex, SDL_Texture)
             CHECK(srcrect, list, _equals=4)
             CHECK(dstrect, list, _equals=4)
-            if direct is not None:
-                CHECK(direct, bool)
             CHECK(alpha, int)
             CHECK(blendmode, int)
             CHECK(colormod, list)
@@ -297,10 +268,7 @@ class FrameManager:
         src.x, src.y, src.w, src.h = srcrect
         dst.x, dst.y, dst.w, dst.h = dstrect
 
-        if direct:
-            r = SDL_SetRenderTarget(self.driftwood.window.renderer, self.__frontbuffer)
-        else:  # Tell SDL to render to our back buffer instead of the window's frame.
-            r = SDL_SetRenderTarget(self.driftwood.window.renderer, self.__backbuffer)
+        r = SDL_SetRenderTarget(self.driftwood.window.renderer, self.__backbuffer)
         if type(r) is int and r < 0:
             self.driftwood.log.msg("ERROR", "Frame", "copy", "SDL", SDL_GetError())
             ret = False
@@ -405,12 +373,8 @@ class FrameManager:
     def _terminate(self) -> None:
         """Cleanup before deletion.
         """
-        if self.__frontbuffer:
-            SDL_DestroyTexture(self.__frontbuffer)
-            self.__frontbuffer = None
         if self.__backbuffer:
             SDL_DestroyTexture(self.__backbuffer)
             self.__backbuffer = None
         if self._frame:
-            SDL_DestroyTexture(self._frame[0])
             self._frame = None
