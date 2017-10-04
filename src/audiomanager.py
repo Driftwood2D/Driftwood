@@ -288,7 +288,7 @@ class AudioManager:
             CHECK(filename, str)
             CHECK(fade, [int, float], _min=0)
         except CheckFailure as e:
-            self.driftwood.log.msg("ERROR", "Audio", "volume_sfx", "bad argument", e)
+            self.driftwood.log.msg("ERROR", "Audio", "stop_sfx_by_filename", "bad argument", e)
             return False
 
         for sfx in self.__sfx:
@@ -378,9 +378,9 @@ class AudioManager:
             # Keep volume within bounds.
             if volume > 128:
                 volume = 128
-                self.driftwood.log.msg("WARNING", "Audio", "volume_sfx", "volume is more than 128", volume)
+                self.driftwood.log.msg("WARNING", "Audio", "play_music", "volume is more than 128", volume)
             if volume < 0:
-                self.driftwood.log.msg("WARNING", "Audio", "volume_sfx", "volume is less than 0", volume)
+                self.driftwood.log.msg("WARNING", "Audio", "play_music", "volume is less than 0", volume)
                 volume = 0
 
             # Set the volume.
@@ -415,9 +415,9 @@ class AudioManager:
                 # Keep volume within bounds.
                 if volume > 128:
                     volume = 128
-                    self.driftwood.log.msg("WARNING", "Audio", "volume_sfx", "volume is more than 128", volume)
+                    self.driftwood.log.msg("WARNING", "Audio", "volume_music", "volume is more than 128", volume)
                 if volume < 0:
-                    self.driftwood.log.msg("WARNING", "Audio", "volume_sfx", "volume is less than 0", volume)
+                    self.driftwood.log.msg("WARNING", "Audio", "volume_music", "volume is less than 0", volume)
                     volume = 0
 
                 # Set the volume.

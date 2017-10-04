@@ -376,7 +376,7 @@ class LightManager:
         # Did we succeed?
         if to_kill:
             return True
-        self.driftwood.log.msg("WARNING", "Entity", "killall", "attempt to kill nonexistent lights", file)
+        self.driftwood.log.msg("WARNING", "Light", "killall", "attempt to kill nonexistent lights", file)
         return False
 
     def reset(self) -> bool:

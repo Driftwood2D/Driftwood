@@ -48,7 +48,8 @@ def read_branch(parent, branch, template_vars={}):
         # This is a list of branches.
         for b in branch:
             if not(read_branch(parent, b, template_vars)):
-                Driftwood.log.msg("WARNING", "stdlib", "__widget", "load", "Failed to read widget tree branch")
+                Driftwood.log.msg("WARNING", "stdlib", "__widget", "read_branch",
+                                  "Failed to read widget tree branch")
         return True
 
     if branch["type"] == "container":
@@ -63,24 +64,28 @@ def read_branch(parent, branch, template_vars={}):
             active=True
         )
         if c is None:
-            Driftwood.log.msg("WARNING", "stdlib", "__widget", "read_branch", "Failed to prepare container widget")
+            Driftwood.log.msg("WARNING", "stdlib", "__widget", "read_branch", "failed to prepare container widget")
             return False
         if not postprocess_container(c, branch):
-            Driftwood.log.msg("WARNING", "stdlib", "__widget", "process_container",
-                              "Failed to postprocess text widgets", c)
+            Driftwood.log.msg("WARNING", "stdlib", "__widget", "read_branch",
+                              "Failed to post-process container widget", c)
             return False
 
         if branch["type"] == "container" and "members" in branch:
             # There are more branches. Recurse them.
             for b in branch["members"]:
                 if not(read_branch(c, b, template_vars)):
-                    Driftwood.log.msg("WARNING", "stdlib", "__widget", "load", "Failed to read widget tree branch")
+                    Driftwood.log.msg("WARNING", "stdlib", "__widget", "read_branch",
+                                      "failed to read widget tree branch")
                     return False
             return True
 
     elif branch["type"] == "text":
         # Process and insert a text widget.
-        process_text(parent, branch)
+        if not process_text(parent, branch):
+            Driftwood.log.msg("WARNING", "stdlib", "__widget", "read_branch",
+                              "Failed to process text widgets")
+            return False
 
     return True
 
@@ -96,7 +101,7 @@ def process_text(parent, branch):
     elif type(branch["contents"]) is list:
         contents = branch["contents"]
     else:
-        Driftwood.log.msg("WARNING", "stdlib", "__widget", "process_text", "Text contents must be string or list")
+        Driftwood.log.msg("WARNING", "stdlib", "__widget", "process_text", "text contents must be string or list")
         return False
 
     font = Driftwood.resource.request_font(branch["font"], branch["size"]).font
@@ -163,11 +168,11 @@ def process_text(parent, branch):
             active=True
         ))
         if t[-1] is None:
-            Driftwood.log.msg("WARNING", "stdlib", "__widget", "process_text", "Failed to prepare text widget")
+            Driftwood.log.msg("WARNING", "stdlib", "__widget", "process_text", "failed to prepare text widget")
             return False
 
         if not postprocess_text(t, branch):
-            Driftwood.log.msg("WARNING", "stdlib", "__widget", "process_text", "Failed to postprocess text widgets",
+            Driftwood.log.msg("WARNING", "stdlib", "__widget", "process_text", "failed to postprocess text widgets",
                               t)
             return False
 
@@ -261,7 +266,7 @@ def include(filename, template_vars={}):
     """
     tree = Driftwood.resource.request_template(filename, template_vars)
     if not tree:
-        Driftwood.log.msg("WARNING", "stdlib", "__widget", "load", "Failed to read widget include", filename)
+        Driftwood.log.msg("WARNING", "stdlib", "__widget", "load", "failed to read widget include", filename)
         return None
 
     return tree

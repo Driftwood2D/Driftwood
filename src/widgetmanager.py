@@ -66,7 +66,7 @@ class WidgetManager:
             return True
         return False
 
-    def __getitem__(self, wid: int) -> Optional[widget.Widget]:
+    def __getitem__(self, wid: int) -> Optional['widget.Widget']:
         return self.widget(wid)
 
     def __delitem__(self, wid) -> bool:
@@ -160,7 +160,7 @@ class WidgetManager:
             CHECK(height, int, _min=0)
             CHECK(active, bool)
         except CheckFailure as e:
-            self.driftwood.log.msg("ERROR", "Widget", "container", "bad argument", e)
+            self.driftwood.log.msg("ERROR", "Widget", "insert_container", "bad argument", e)
             return None
 
         self.__last_wid += 1
@@ -168,7 +168,7 @@ class WidgetManager:
         if imagefile:  # It has a background.
             image = self.driftwood.resource.request_image(imagefile)
             if not image:
-                self.driftwood.log.msg("ERROR", "Widget", "container", "no such image", imagefile)
+                self.driftwood.log.msg("ERROR", "Widget", "insert_ontainer", "no such image", imagefile)
                 return None
         else:
             image = None
@@ -179,9 +179,9 @@ class WidgetManager:
         ret = new_widget._prepare()
         if ret is None:
             if new_widget.wid is 0:
-                self.driftwood.log.msg("ERROR", "Widget", "container", "could not create root widget")
+                self.driftwood.log.msg("ERROR", "Widget", "insert_container", "could not create root widget")
             else:
-                self.driftwood.log.msg("ERROR", "Widget", "container", "could not create container widget")
+                self.driftwood.log.msg("ERROR", "Widget", "insert_container", "could not create container widget")
             return None
 
         if active:  # Do we activate it to be drawn/used?
@@ -239,14 +239,14 @@ class WidgetManager:
             CHECK(color, str, _equals=8)
             CHECK(active, bool)
         except CheckFailure as e:
-            self.driftwood.log.msg("ERROR", "Widget", "text", "bad argument", e)
+            self.driftwood.log.msg("ERROR", "Widget", "insert_text", "bad argument", e)
             return None
 
         self.__last_wid += 1
 
         font = self.driftwood.resource.request_font(fontfile, ptsize)
         if not font:
-            self.driftwood.log.msg("ERROR", "Widget", "container", "no such font", fontfile)
+            self.driftwood.log.msg("ERROR", "Widget", "insert_text", "no such font", fontfile)
             return None
 
         new_widget = widget.TextWidget(self, self.__last_wid, parent, contents, font, ptsize, x, y, width, height,
@@ -255,7 +255,7 @@ class WidgetManager:
 
         ret = new_widget._prepare()
         if ret is None:
-            self.driftwood.log.msg("ERROR", "Widget", "text", "could not create text widget")
+            self.driftwood.log.msg("ERROR", "Widget", "insert_text", "could not create text widget")
             return None
 
         if active:  # Do we activate it to be drawn/used?
@@ -322,7 +322,7 @@ class WidgetManager:
         try:
             CHECK(wid, int, _min=1)
         except CheckFailure as e:
-            self.driftwood.log.msg("ERROR", "Widget", "kill", "cannot kill root widget")
+            self.driftwood.log.msg("ERROR", "Widget", "kill", "bad argument", e)
             return False
 
         if wid in self.widgets:

@@ -124,7 +124,7 @@ class WindowManager:
             if height is not None:
                 CHECK(height, int, _min=1)
         except CheckFailure as e:
-            self.driftwood.log.msg("ERROR", "Window", "title", "bad argument", e)
+            self.driftwood.log.msg("ERROR", "Window", "resolution", "bad argument", e)
             return None
 
         if width:

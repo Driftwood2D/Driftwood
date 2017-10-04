@@ -283,10 +283,10 @@ class ScriptManager:
 
             if minargs is not None:
                 if args < minargs:
-                    self.driftwood.log.msg("ERROR", "Tilemap", "read", property_name, "too few args")
+                    self.driftwood.log.msg("ERROR", "Script", "lookup", property_name, "too few args")
                     return None
             elif nargs != len(args):
-                self.driftwood.log.msg("ERROR", "Tilemap", "read", property_name, "incorrect number of args")
+                self.driftwood.log.msg("ERROR", "Script", "lookup", property_name, "incorrect number of args")
                 return None
             return event, filename + "," + func + "," + ",".join(args)
         else:
