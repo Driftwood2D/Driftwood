@@ -28,7 +28,6 @@
 
 import pdb
 import time
-import inspect
 from typing import Any, Union, List
 
 from sdl2 import *
