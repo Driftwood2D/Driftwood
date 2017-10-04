@@ -38,10 +38,12 @@ def load(filename, template_vars={}):
         * filename: Filename of the widget tree to load and insert.
         * template_vars: A dictionary of variables to apply to the Jinja2 template.
     """
+    widget_list = []
+
     tree = Driftwood.resource.request_template(filename, template_vars)
     if not tree:
         Driftwood.log.msg("WARNING", "sdtlib", "widget", "load", "Failed to read widget tree", filename)
-        return False
+        return None
 
     # Allow single branches or lists of branches. Our code reads lists.
     if type(tree) is dict:
@@ -49,7 +51,11 @@ def load(filename, template_vars={}):
 
     for branch in tree:
         # Read the widget tree, one base branch at a time.
-        if not Driftwood.script["stdlib/__widget.py"].read_branch(None, branch, template_vars):
+        res = Driftwood.script["stdlib/__widget.py"].read_branch(None, branch, template_vars)
+        if res is None:
             Driftwood.log.msg("WARNING", "sdtlib", "widget", "load", "Failed to read widget tree branch")
+            return None
+        widget_list.append(res)
 
-    return True
+    # Return a list of IDs of all widgets that were constructed.
+    return list(Driftwood.script["stdlib/__widget.py"].flatten(widget_list))

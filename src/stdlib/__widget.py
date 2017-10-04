@@ -27,6 +27,7 @@
 
 # Driftwood STDLib widget private functions and variables.
 
+import collections
 from ctypes import byref, c_int
 
 from sdl2.sdlttf import TTF_SizeUTF8
@@ -34,6 +35,8 @@ from sdl2.sdlttf import TTF_SizeUTF8
 
 def read_branch(parent, branch, template_vars={}):
     """Recursively read and process widget tree branches."""
+    widget_list = []
+
     if "include" in branch:
         # Replace this branch with an included tree.
         if "vars" in branch:
@@ -42,15 +45,18 @@ def read_branch(parent, branch, template_vars={}):
         else:
             branch = include(branch["include"], template_vars)
         if not branch:
-            return False
+            return None
 
     if type(branch) == list:
         # This is a list of branches.
         for b in branch:
-            if not(read_branch(parent, b, template_vars)):
+            res = read_branch(parent, b, template_vars)
+            if res is None:
                 Driftwood.log.msg("WARNING", "stdlib", "__widget", "read_branch",
                                   "Failed to read widget tree branch")
-        return True
+                return None
+            widget_list.append(res)
+        return widget_list
 
     if branch["type"] == "container":
         # Insert a container.
@@ -65,29 +71,36 @@ def read_branch(parent, branch, template_vars={}):
         )
         if c is None:
             Driftwood.log.msg("WARNING", "stdlib", "__widget", "read_branch", "failed to prepare container widget")
-            return False
+            return None
         if not postprocess_container(c, branch):
             Driftwood.log.msg("WARNING", "stdlib", "__widget", "read_branch",
                               "Failed to post-process container widget", c)
-            return False
+            return None
+        widget_list.append(c)
 
         if branch["type"] == "container" and "members" in branch:
             # There are more branches. Recurse them.
             for b in branch["members"]:
-                if not(read_branch(c, b, template_vars)):
+                res = read_branch(c, b, template_vars)
+                if res is None:
                     Driftwood.log.msg("WARNING", "stdlib", "__widget", "read_branch",
                                       "failed to read widget tree branch")
-                    return False
-            return True
+                    return None
+                widget_list.append(res)
+        return widget_list
 
     elif branch["type"] == "text":
         # Process and insert a text widget.
-        if not process_text(parent, branch):
+        res = process_text(parent, branch)
+        if res is None:
             Driftwood.log.msg("WARNING", "stdlib", "__widget", "read_branch",
                               "Failed to process text widgets")
-            return False
+            return None
 
-    return True
+        widget_list.append(res)
+        return widget_list
+
+    return None
 
 
 def process_text(parent, branch):
@@ -102,7 +115,7 @@ def process_text(parent, branch):
         contents = branch["contents"]
     else:
         Driftwood.log.msg("WARNING", "stdlib", "__widget", "process_text", "text contents must be string or list")
-        return False
+        return None
 
     font = Driftwood.resource.request_font(branch["font"], branch["size"]).font
     tw, th = c_int(), c_int()
@@ -169,14 +182,14 @@ def process_text(parent, branch):
         ))
         if t[-1] is None:
             Driftwood.log.msg("WARNING", "stdlib", "__widget", "process_text", "failed to prepare text widget")
-            return False
+            return None
 
         if not postprocess_text(t, branch):
             Driftwood.log.msg("WARNING", "stdlib", "__widget", "process_text", "failed to postprocess text widgets",
                               t)
-            return False
+            return None
 
-    return True
+    return t
 
 
 def postprocess_text(widgets, branch):
@@ -270,3 +283,12 @@ def include(filename, template_vars={}):
         return None
 
     return tree
+
+
+def flatten(l):
+    """https://stackoverflow.com/questions/2158395/flatten-an-irregular-list-of-lists/2158532#2158532"""
+    for el in l:
+        if isinstance(el, collections.Iterable) and not isinstance(el, (str, bytes)):
+            yield from flatten(el)
+        else:
+            yield el
