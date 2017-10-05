@@ -24,7 +24,7 @@ Current features include:
 * Graphical occlusion
 * Rudimentary database for saving data between plays
 * Simple widgets with TTF font support
-* JSON widget building language supporting Jinja2 templating
+* Powerful entity and widget description in JSON with Jinja2
 * Fully scriptable in Python 3
 * Developer console accessible during runtime
 

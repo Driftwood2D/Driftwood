@@ -20,9 +20,12 @@ The engine loads a world package made of images, sounds, maps, descriptive files
 * Configurable input handling
 * Timed callbacks
 * Lightmaps
+* Graphical occlusion
 * Rudimentary database for saving data between plays
 * Simple widgets with TTF font support
+* Powerful entity and widget description in JSON with Jinja2
 * Fully scriptable in Python 3
+* Developer console accessible during runtime
 
 ...and more on the way!
 
