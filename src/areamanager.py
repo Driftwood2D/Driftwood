@@ -32,8 +32,8 @@ from sdl2 import *
 import tilemap
 
 
-def int_greater_than(x: float) -> int:
-    return int(math.ceil(x + 0.001))
+def int_greater_than_or_equal_to(x: float) -> int:
+    return int(math.ceil(x))
 
 
 def int_smaller_than(x: float) -> int:
@@ -301,18 +301,19 @@ class AreaManager:
         tilewidth = tilemap.tilewidth
         tileheight = tilemap.tileheight
         offset = self.offset
+
         viewport_width, viewport_height = self.driftwood.window.resolution()
 
         viewport_left_bound = -self.driftwood.frame._frame[2].x
         viewport_top_bound = -self.driftwood.frame._frame[2].y
-        viewport_right_bound = viewport_left_bound + viewport_width - 1
-        viewport_bottom_bound = viewport_top_bound + viewport_height - 1
+        viewport_right_bound = viewport_left_bound + viewport_width
+        viewport_bottom_bound = viewport_top_bound + viewport_height
 
         # A tile will show up onscreen when it intersects the viewport rectangle. We can express the state of this
         # intersection with a set of four inequalities, all of which must be true for the intersection to occur.
         # --------------------------------------------------------------------------------------------------------
-        # viewport_left_bound < tile_right_bound
-        # viewport_top_bound < tile_bottom_bound
+        # viewport_left_bound <= tile_right_bound
+        # viewport_top_bound <= tile_bottom_bound
         # tile_left_bound < viewport_right_bound
         # tile_top_bound < viewport_bottom_bound
 
@@ -325,21 +326,22 @@ class AreaManager:
 
         # Substitute the equations into the inequalities.
         # -----------------------------------------------
-        # viewport_left_bound < (tile_x_pos + 1) * tilewidth  + offset[0] - 1
-        # viewport_top_bound  < (tile_y_pos + 1) * tileheight + offset[1] - 1
+        # viewport_left_bound <= (tile_x_pos + 1) * tilewidth  + offset[0] - 1
+        # viewport_top_bound  <= (tile_y_pos + 1) * tileheight + offset[1] - 1
         # tile_x_pos * tilewidth  + offset[0] < viewport_right_bound
         # tile_y_pos * tileheight + offset[1] < viewport_bottom_bound
 
         # Solve for tile_x_pos and tile_y_pos.
         # ------------------------------------
-        # (viewport_left_bound - offset[0] + 1) / tilewidth  - 1 < tile_x_pos
-        # (viewport_top_bound  - offset[1] + 1) / tileheight - 1 < tile_y_pos
+        # (viewport_left_bound - offset[0] + 1) / tilewidth  - 1 <= tile_x_pos
+        # (viewport_top_bound  - offset[1] + 1) / tileheight - 1 <= tile_y_pos
         # tile_x_pos < (viewport_right_bound  - offset[0]) / tilewidth
         # tile_y_pos < (viewport_bottom_bound - offset[1]) / tileheight
 
         # We can now compute the minimum and maximum X and Y coordinates for visible tiles.
-        x_begin = int_greater_than((viewport_left_bound - offset[0] + 1) / tilewidth - 1)
-        y_begin = int_greater_than((viewport_top_bound - offset[1] + 1) / tileheight - 1)
+
+        x_begin = int_greater_than_or_equal_to((viewport_left_bound - offset[0] + 1) / tilewidth - 1)
+        y_begin = int_greater_than_or_equal_to((viewport_top_bound - offset[1] + 1) / tileheight - 1)
         x_end = int_smaller_than((viewport_right_bound - offset[0]) / tilewidth)
         y_end = int_smaller_than((viewport_bottom_bound - offset[1]) / tileheight)
 
