@@ -137,16 +137,11 @@ class FrameManager:
 
         return True
 
-    def resize(self):
-        pass
+    def calc_rects(self) -> None:
+        """Calculate the srcrect and dstrect for copying the back buffer onto the window's renderer.
 
-    def frame(self) -> bool:
-        """Replace the current frame with the internal back buffer, and adjust the viewport accordingly.
-
-        Returns:
-            True if succeeded, False if failed.
+        Can be run after a world update but before drawing starts for a frame.
         """
-
         # Get texture width and height.
         tw, th = c_int(), c_int()
         SDL_QueryTexture(self.__backbuffer, None, None, byref(tw), byref(th))
@@ -211,14 +206,27 @@ class FrameManager:
         # Adjust and copy the frame onto the viewport.
         self._frame = [self.__backbuffer, srcrect, dstrect]
 
+    def finish_frame(self) -> bool:
+        """Draw the last components of a frame, including widgets and overlays.
+
+        Requires that calc_rects have already been called for the frame.
+
+        Returns:
+            True if succeeded, False if failed.
+        """
         # Tell WidgetManager it should draw the widgets now.
         self.driftwood.widget._draw_widgets()
+
+        dstrect = self._frame[2]
 
         # Draw overlays, taking into account the viewport position.
         for overlay in self.__overlay:
             overlay[2][0] -= dstrect.x
             overlay[2][1] -= dstrect.y
-            self.copy(*overlay)
+            ok = self.copy(*overlay)
+            if not ok:
+                self.__overlay = []
+                return False
         self.__overlay = []  # These should only be texture references.
 
         # Mark the frame changed.

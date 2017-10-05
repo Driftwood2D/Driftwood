@@ -149,7 +149,9 @@ class AreaManager:
                 self.refocused = False
             else:
                 self.driftwood.frame.clear()
+            self.driftwood.frame.calc_rects()
             self.__build_frame()
+            self.driftwood.frame.finish_frame()
             self.changed = False
 
     def __build_frame(self) -> None:
@@ -294,25 +296,12 @@ class AreaManager:
                     if r < 0:
                         self.driftwood.log.msg("ERROR", "Area", "__build_frame", "SDL", SDL_GetError())
 
-        # Tell FrameManager to publish the finished frame.
-        self.driftwood.frame.frame()
-
     def calculate_visible_tile_bounds(self) -> [int]:
         tilemap = self.tilemap
         tilewidth = tilemap.tilewidth
         tileheight = tilemap.tileheight
         offset = self.offset
         viewport_width, viewport_height = self.driftwood.window.resolution()
-
-        if self.driftwood.frame._frame is None:
-            # We need to know the size of the viewport to perform this calculation. Since that information is not
-            # available, give a conservative answer and say that all tiles are visible.
-            x_begin = 0
-            y_begin = 0
-            x_end = tilemap.height - 1
-            y_end = tilemap.width - 1
-
-            return x_begin, x_end, y_begin, y_end
 
         viewport_left_bound = -self.driftwood.frame._frame[2].x
         viewport_top_bound = -self.driftwood.frame._frame[2].y
