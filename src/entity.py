@@ -1114,8 +1114,6 @@ class PixelModeEntity(Entity):
             self.set_stance(self._end_stance)
         self._clipped = [None, None]  # Reset the clip check.
 
-        self.manager.driftwood.tick.unregister(self._process_walk)
-
     def _reset_walk(self) -> None:
         """Stop walking. Here for compatibility.
         """
@@ -1128,6 +1126,7 @@ class PixelModeEntity(Entity):
         if not self.walking or not self.__can_walk(*self.walking) or self._face_key_active:
             self._do_take_exit()
             self._walk_stop()
+            self.manager.driftwood.tick.unregister(self._process_walk)
             return
 
         prev_tile = self.tile
