@@ -36,7 +36,7 @@ import zipfile
 from typing import Any, ItemsView
 
 
-VERSION = "Driftwood 2D Alpha-0.0.9"
+VERSION = "Driftwood 2D Alpha-0.0.10"
 COPYRIGHT = "Copyright 2016-2017 Michael D. Reiley and Paul Merrill"
 
 

@@ -22,6 +22,7 @@ Current features include:
 * Timed callbacks
 * Lightmaps
 * Graphical occlusion
+* Lazy map loading
 * Rudimentary database for saving data between plays
 * Simple widgets with TTF font support
 * Powerful entity and widget description in JSON with Jinja2

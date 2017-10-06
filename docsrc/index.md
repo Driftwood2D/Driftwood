@@ -1,4 +1,4 @@
-# Driftwood 2D - Alpha-0.0.9
+# Driftwood 2D - Alpha-0.0.10
 
 * Copyright (c) 2014 PariahSoft LLC (Abandoned)
 * Copyright (c) 2016-2017 Michael D. Reiley and Paul Merrill
@@ -21,6 +21,7 @@ The engine loads a world package made of images, sounds, maps, descriptive files
 * Timed callbacks
 * Lightmaps
 * Graphical occlusion
+* Lazy map loading
 * Rudimentary database for saving data between plays
 * Simple widgets with TTF font support
 * Powerful entity and widget description in JSON with Jinja2
