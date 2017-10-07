@@ -94,7 +94,8 @@ class InputManager:
 
         # Retrieve.
         try:
-            return SDL_GetKeyName(keysym).decode()
+            # TODO: This does not work as we expected. A single character is usually returned.
+            return SDL_GetKeyName(keysym).decode().replace("SDLK_", '')
         except:
             return None
 
@@ -116,7 +117,7 @@ class InputManager:
 
         # Retrieve
         try:
-            return getattr(self.driftwood.keycode, self.driftwood.config["input"]["keybinds"][keyname])
+            return getattr(self.driftwood.keycode, "SDLK_"+self.driftwood.config["input"]["keybinds"][keyname])
         except:
             return None
 
