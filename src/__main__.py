@@ -30,8 +30,6 @@ import os
 import signal
 import sys
 
-import driftwood
-
 VCUR = sys.version_info
 VREQ = [3, 5, 0]
 
@@ -63,8 +61,9 @@ if __name__ == "__main__":
         print("[0] FATAL: jsonschema required, module \"jsonschema\" not found")
         sys.exit(1)  # Fail.
 
+    # Import main class.
+    import driftwood
 
-if __name__ == "__main__":
     # Place certain items in the global scope.
     import builtins
     builtins.CHECK = driftwood.CHECK
