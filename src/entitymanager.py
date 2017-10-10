@@ -33,6 +33,7 @@ from typing import ItemsView, List, Optional
 
 import entity
 import spritesheet
+from __schema__ import _SCHEMA
 
 
 # Keep a reference to the entity module, which is overridden by the EntityManager.entity function later in the file.
@@ -115,7 +116,7 @@ class EntityManager:
         if not data:
             self.driftwood.log.msg("ERROR", "Entity", "insert", "could not get resource", filename)
             return None
-        schema = self.driftwood.resource.request_json("schema/entity.json")
+        schema = _SCHEMA["entity"]
 
         self.__last_eid += 1
         eid = self.__last_eid

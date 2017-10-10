@@ -58,7 +58,9 @@ class PathManager:
         self.__root = self.driftwood.config["path"]["root"]  # Path root.
         if not self.__root.endswith('/'):  # Another stupid Windows hack.
             self.__root += '/'
-        self.__path = [self.driftwood.config.selfpath]  # Start with base module.
+
+        self.__common = os.path.join(self.__root, "__common__/")
+        self.__path = [self.__common]  # Start with base module.
 
         if self.driftwood.config["path"]["path"]:
             # Start with the configured path.
@@ -121,18 +123,16 @@ class PathManager:
     def rebuild(self) -> bool:
         """Rebuild the vfs.
 
-        Rebuild the virtual filesystem from the path list, and make sure the base module is at the top.
+        Rebuild the virtual filesystem from the path list, and make sure the common package is at the top.
 
         Returns:
             True
         """
-        basepath = self.driftwood.config.selfpath
-
-        # If the base module is missing, put it back at the top.
-        if self.__path[0] != basepath:
-            if basepath in self.__path:
-                self.__path.remove(basepath)
-            self.__path.insert(0, basepath)
+        # If the common package is missing, put it back at the top.
+        if self.__path[0] != self.__common:
+            if self.__common in self.__path:
+                self.__path.remove(self.__common)
+            self.__path.insert(0, self.__common)
 
         # Scan all pathnames for the files they contain and rebuild the vfs.
         for pathname in self.__path:

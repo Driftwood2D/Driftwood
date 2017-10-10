@@ -29,11 +29,11 @@
 import argparse
 import json
 import jsonschema
-import os
 import sys
 import traceback
-import zipfile
 from typing import Any, ItemsView
+
+from __schema__ import _SCHEMA
 
 
 VERSION = "Driftwood 2D Alpha-0.0.10"
@@ -59,8 +59,6 @@ class ConfigManager:
             driftwood: Base class instance.
         """
         self.driftwood = driftwood  # A link back to the top-level base class.
-
-        self.selfpath = os.path.dirname(os.path.realpath(__file__))  # Path to ourselves.
 
         self.__config_file = ""
         self.__config = {}
@@ -140,22 +138,7 @@ class ConfigManager:
             print("[0] FATAL: Config: could not read config file")
             sys.exit(1)  # Fail.
 
-        # Try to load the schema for validation.
-        try:
-            if os.path.isdir(self.selfpath):  # This is a directory.
-                with open(os.path.join(self.selfpath, "schema/config.json")) as sch:
-                    schema = json.load(sch)
-
-            else:  # This is hopefully a zip archive.
-                with zipfile.ZipFile(self.selfpath, 'r') as zf:
-                    sch = zf.read("schema/config.json")
-                    if type(sch) == bytes:
-                        sch = sch.decode()
-                    schema = json.loads(sch)
-        except:
-            print("Driftwood 2D\nStarting up...")
-            print("[0] FATAL: Config: could not load schema to validate config file")
-            sys.exit(1)  # Fail.
+        schema = _SCHEMA["config"]
 
         # Attempt to validate against the schema.
         try:
