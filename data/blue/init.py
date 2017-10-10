@@ -12,5 +12,3 @@ def init():
 
     # Insert the player entity.
     player = Driftwood.entity.insert("player.json", layer=1, x=16*4, y=16*8)
-
-    print(Driftwood.input.keyname(600))
