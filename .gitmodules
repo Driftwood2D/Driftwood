@@ -10,3 +10,7 @@
 	path = data/uitest
 	url = https://github.com/driftwoodwg/uitest
 	branch = master
+[submodule "docsrc"]
+	path = docsrc
+	url = https://github.com/driftwoodwg/docsrc
+	branch = master
