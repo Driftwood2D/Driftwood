@@ -1,8 +1,8 @@
 ####################################
 # Driftwood 2D Game Dev. Suite     #
 # __schema__.py                    #
-# Copyright 2017 Michael D. Reiley #
-# & Paul Merrill                   #
+# Copyright 2014-2017              #
+# Michael D. Reiley & Paul Merrill #
 ####################################
 
 # **********

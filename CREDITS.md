@@ -7,9 +7,9 @@ are attributed in the distributions of the below mentioned primary dependencies.
 ## Driftwood 2D
 
 ### Copyright (c) 2014:
-* PariahSoft LLC (Abandoned to 2016 copyright holders on 10/06/2016)
+* PariahSoft LLC (Abandoned unconditionally to current copyright holders on 10/06/2016)
 
-### Copyright (c) 2016-2017:
+### Copyright (c) 2014-2017:
 * Michael D. Reiley
 * Paul Merrill
 

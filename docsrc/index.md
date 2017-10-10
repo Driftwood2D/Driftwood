@@ -1,7 +1,6 @@
 # Driftwood 2D - Alpha-0.0.10
 
-* Copyright (c) 2014 PariahSoft LLC (Abandoned)
-* Copyright (c) 2016-2017 Michael D. Reiley and Paul Merrill
+* Copyright (c) 2014-2017 Michael D. Reiley and Paul Merrill
 * Released under the MIT license.
 
 The Driftwood 2D Tiling Game Engine and Development Suite is a game engine and related set of tools designed for the purpose of allowing a novice to develop a fully featured tile-based 2D game. Driftwood 2D is currently undergoing heavy alpha-stage development and should not be considered stable. API changes will occur frequently at this stage. However, it is currently suitable for making very simple exploration-style games.

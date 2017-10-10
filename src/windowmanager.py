@@ -1,9 +1,8 @@
 ####################################
 # Driftwood 2D Game Dev. Suite     #
 # windowmanager.py                 #
-# Copyright 2014 PariahSoft LLC    #
-# Copyright 2017 Michael D. Reiley #
-# & Paul Merrill                   #
+# Copyright 2014-2017              #
+# Michael D. Reiley & Paul Merrill #
 ####################################
 
 # **********
