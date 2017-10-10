@@ -6,3 +6,7 @@
 	path = data/blue
 	url = https://github.com/driftwoodwg/blue
 	branch = master
+[submodule "data/uitest"]
+	path = data/uitest
+	url = https://github.com/driftwoodwg/uitest
+	branch = master
