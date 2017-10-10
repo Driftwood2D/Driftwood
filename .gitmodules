@@ -1,0 +1,4 @@
+[submodule "data/__common__/stdlib"]
+	path = data/__common__/stdlib
+	url = https://github.com/driftwoodwg/stdlib
+	branch = master
