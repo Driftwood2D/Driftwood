@@ -53,11 +53,16 @@ class InputManager:
 
         self.handler = None
 
-        # {keysym: {callback, throttle, delay, last_called, repeats, mod}}
-        self.__registry = {}
+        self.__current_context = None
 
-        self.__stack = []
-        self.__modifier_stack = []
+        self.__contexts = {
+            None: {
+                # {keysym: {callback, throttle, delay, last_called, repeats, mod}}
+                "registry": {},
+                "stack": [],
+                "modifier_stack": []
+            }
+        }
 
         self.__now = 0.0
 
@@ -65,7 +70,7 @@ class InputManager:
         self.driftwood.tick.register(self._tick, during_pause=True)
 
     def __contains__(self, item: int) -> bool:
-        if item in self.__registry:
+        if item in self.__fetch("registry"):
             return True
         return False
 
@@ -165,7 +170,7 @@ class InputManager:
         if delay == 0.0:
             delay = throttle
 
-        self.__registry[keysym] = {
+        self.__contexts[self.__current_context]["registry"][keysym] = {
             "callback": callback,
             "throttle": throttle,
             "delay": delay,
@@ -193,8 +198,8 @@ class InputManager:
             return False
 
         # Unregister.
-        if keysym in self.__registry:
-            del self.__registry[keysym]
+        if keysym in self.__fetch("registry"):
+            del self.__contexts[self.__current_context]["registry"][keysym]
             return True
         else:
             self.driftwood.log.msg("WARNING", "InputManager", "unregister", "key not registered",
@@ -215,10 +220,29 @@ class InputManager:
             return False
 
         # Is pressed.
-        if keysym in self.__stack:
+        if keysym in self.__fetch("stack"):
             return True
 
         return False
+
+    def context(self, name: str=None) -> str:
+        """Check or change the current context.
+
+        Args:
+            name: If set, name of the context to switch to.
+
+        Returns:
+            Current context.
+        """
+        self.__current_context = name
+        if name not in self.__contexts:
+            self.__contexts[name] = {
+                # {keysym: {callback, throttle, delay, last_called, repeats, mod}}
+                "registry": {},
+                "stack": [],
+                "modifier_stack": []
+            }
+        return name
 
     def _key_down(self, keysym: int) -> None:
         """Push a keypress onto the input stack if not present.
@@ -226,13 +250,13 @@ class InputManager:
         Args:
             keysym: SDLKey for the key which was pressed.
         """
-        if keysym not in self.__stack:
-            if keysym in self.__registry and not self.__registry[keysym]["mod"]:
-                self.__stack.insert(0, keysym)
-                self.__registry[keysym]["callback"](InputManager.ONDOWN)
-            elif keysym in self.__registry:
-                self.__modifier_stack.insert(0, keysym)
-                self.__registry[keysym]["callback"](InputManager.ONDOWN)
+        if keysym not in self.__fetch("stack"):
+            if keysym in self.__fetch("registry") and not self.__fetch("registry")[keysym]["mod"]:
+                self.__contexts[self.__current_context]["stack"].insert(0, keysym)
+                self.__fetch("registry")[keysym]["callback"](InputManager.ONDOWN)
+            elif keysym in self.__fetch("registry"):
+                self.__contexts[self.__current_context]["modifier_stack"].insert(0, keysym)
+                self.__fetch("registry")[keysym]["callback"](InputManager.ONDOWN)
         else:
             # SDL2 gives us key-repeat events so this is actually okay.
             # self.driftwood.log.msg("WARNING", "InputManager", "key_down", "key already down", self.keyname(keysym))
@@ -245,18 +269,18 @@ class InputManager:
             keysym: SDLKey for the key which was released.
         """
         found = False
-        if keysym in self.__stack:
-            self.__stack.remove(keysym)
+        if keysym in self.__fetch("stack"):
+            self.__contexts[self.__current_context]["stack"].remove(keysym)
             found = True
-        elif keysym in self.__modifier_stack:
-            self.__modifier_stack.remove(keysym)
+        elif keysym in self.__fetch("modifier_stack"):
+            self.__contexts[self.__current_context]["modifier_stack"].remove(keysym)
             found = True
 
         if found:
             # Set the key callback as not called yet.
-            if keysym in self.__registry:
-                self.__registry[keysym]["repeats"] = 0
-                self.__registry[keysym]["callback"](InputManager.ONUP)
+            if keysym in self.__fetch("registry"):
+                self.__fetch("registry")[keysym]["repeats"] = 0
+                self.__fetch("registry")[keysym]["callback"](InputManager.ONUP)
 
     def _tick(self, seconds_past: float) -> None:
         """Tick callback.
@@ -269,9 +293,9 @@ class InputManager:
         self.__now += seconds_past
 
         # TODO: Remove duplicate code.
-        if self.__modifier_stack:
-            for mod_key in self.__modifier_stack:
-                mod_callback = self.__registry[mod_key]
+        if self.__fetch("modifier_stack"):
+            for mod_key in self.__fetch("modifier_stack"):
+                mod_callback = self.__fetch("registry")[mod_key]
 
                 # Have we waited long enough between calls?
                 if mod_callback["repeats"] == 0:
@@ -293,14 +317,14 @@ class InputManager:
                 if self.handler:
                     self.handler(mod_key)
 
-        if self.__stack:
+        if self.__fetch("stack"):
             # The user's current (or latest, if multiple ongoing,) keydown.
-            top_key = self.__stack[0]
+            top_key = self.__fetch("stack")[0]
 
             # Is the keypress in the registry?
-            if top_key in self.__registry:
+            if top_key in self.__fetch("registry"):
                 # The callback entry for the top_key.
-                top_callback = self.__registry[top_key]
+                top_callback = self.__fetch("registry")[top_key]
 
                 # Have we waited long enough between calls?
                 if top_callback["repeats"] == 0:
@@ -321,3 +345,7 @@ class InputManager:
             # Call the handler if set.
             if self.handler:
                 self.handler(top_key)
+
+    def __fetch(self, key):
+        """Fetch data from the current context."""
+        return self.__contexts[self.__current_context][key]
