@@ -135,12 +135,12 @@ class ContainerWidget(Widget):
                 if self.x is None:
                     self.realx = container.realx + (container.width - self.width) // 2
                 else:
-                    self.realx += container.realx
+                    self.realx = self.x + container.realx
 
                 if self.y is None:
                     self.realy = container.realy + (container.height - self.height) // 2
                 else:
-                    self.realy += container.realy
+                    self.realy = self.y + container.realy
 
         # Fake container.
         else:

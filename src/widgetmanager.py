@@ -167,7 +167,7 @@ class WidgetManager:
         if imagefile:  # It has a background.
             image = self.driftwood.resource.request_image(imagefile)
             if not image:
-                self.driftwood.log.msg("ERROR", "Widget", "insert_ontainer", "no such image", imagefile)
+                self.driftwood.log.msg("ERROR", "Widget", "insert_container", "no such image", imagefile)
                 return None
         else:
             image = None
