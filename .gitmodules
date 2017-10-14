@@ -1,16 +1,16 @@
 [submodule "data/__common__/stdlib"]
 	path = data/__common__/stdlib
-	url = https://github.com/driftwoodwg/stdlib
+	url = https://github.com/Driftwood2D/stdlib
 	branch = master
 [submodule "data/blue"]
 	path = data/blue
-	url = https://github.com/driftwoodwg/blue
+	url = https://github.com/Driftwood2D/blue
 	branch = master
 [submodule "data/uitest"]
 	path = data/uitest
-	url = https://github.com/driftwoodwg/uitest
+	url = https://github.com/Driftwood2D/uitest
 	branch = master
 [submodule "docsrc"]
 	path = docsrc
-	url = https://github.com/driftwoodwg/docsrc
+	url = https://github.com/Driftwood2D/docsrc
 	branch = master
