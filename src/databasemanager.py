@@ -168,19 +168,14 @@ class DatabaseManager:
             self.driftwood.log.msg("ERROR", "Cache", "put", "bad argument", e)
             return None
 
-        # Test if this is a dict or another kind of object.
+        # Is it serializable?
         try:
-            ret = json.loads(obj)
-        except json.JSONDecodeError:
+            ret = json.dumps(obj)
+        except TypeError:
+            self.driftwood.log.msg("ERROR", "Database", "put", "bad object type for key", "\"{0}\"".format(key))
+            return False
 
-            # It's another kind of object, but is it serializable?
-            try:
-                ret = json.dumps(obj)
-            except TypeError:
-                self.driftwood.log.msg("ERROR", "Database", "put", "bad object type for key", "\"{0}\"".format(key))
-                return False
-
-        self.__database[key] = ret
+        self.__database[key] = obj
         self.__changed = True
         self.driftwood.log.info("Database", "put", "\"{0}\"".format(key))
         return True
