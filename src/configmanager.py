@@ -159,7 +159,20 @@ class ConfigManager:
 
         # Read the rest of the command line arguments.
         if self.__cmdline_args.path:
-            self.__config["path"]["path"] = self.__cmdline_args.path[0].split(',')
+            cpath = self.__cmdline_args.path[0]
+            if cpath.startswith(',') and cpath.endswith(','):
+                # Illegal option. Ignore this.
+                pass
+            elif cpath.startswith(','):
+                # Append this to the config file's path.
+                self.__config["path"]["path"] += cpath.split(',')[1:]
+            elif cpath.endswith(','):
+                # Prepend this to the config file's path.
+                self.__config["path"]["path"] = cpath.split(',')[:-1] + self.__config["path"]["path"]
+            else:
+                # Replace the config file's path.
+                self.__config["path"]["path"] = cpath.split(',')
+            print(self.__config["path"]["path"])
 
         if self.__cmdline_args.root:
             self.__config["path"]["root"] = self.__cmdline_args.root[0]
