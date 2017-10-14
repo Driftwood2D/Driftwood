@@ -172,7 +172,6 @@ class ConfigManager:
             else:
                 # Replace the config file's path.
                 self.__config["path"]["path"] = cpath.split(',')
-            print(self.__config["path"]["path"])
 
         if self.__cmdline_args.root:
             self.__config["path"]["root"] = self.__cmdline_args.root[0]
