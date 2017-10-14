@@ -74,8 +74,8 @@ if __name__ == "__main__":
     # Make sure scripts have access to the base class by placing it in the global scope.
     builtins.Driftwood = entry
     
-    # Underscore is a shortcut for "Driftwood.script".
-    builtins._ = entry.script
+    # Underscore is a shortcut for "Driftwood.vars".
+    builtins._ = entry.vars
 
     # Handle shutting down gracefully on INT and TERM signals.
     def sigint_handler(signum, frame):

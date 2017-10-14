@@ -14,3 +14,6 @@
 	path = docsrc
 	url = https://github.com/Driftwood2D/docsrc
 	branch = master
+[submodule "data/__common__/Folkdance"]
+	path = data/__common__/Folkdance
+	url = https://github.com/Driftwood2D/Folkdance
