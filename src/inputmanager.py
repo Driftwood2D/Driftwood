@@ -232,8 +232,9 @@ class InputManager:
             name: If set, name of the context to switch to.
 
         Returns:
-            Current context.
+            Previous context (or current context if unchanged.)
         """
+        oldcontext = self.__current_context
         self.__current_context = name
         if name not in self.__contexts:
             self.__contexts[name] = {
@@ -242,7 +243,7 @@ class InputManager:
                 "stack": [],
                 "modifier_stack": []
             }
-        return name
+        return oldcontext
 
     def _key_down(self, keysym: int) -> None:
         """Push a keypress onto the input stack if not present.
