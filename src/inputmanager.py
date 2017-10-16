@@ -56,7 +56,7 @@ class InputManager:
         self.__current_context = None
 
         self.__contexts = {
-            None: {
+            None: {  # None is the default context populated on engine start.
                 # {keysym: {callback, throttle, delay, last_called, repeats, mod}}
                 "registry": {},
                 "stack": [],

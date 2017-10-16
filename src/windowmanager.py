@@ -143,6 +143,21 @@ class WindowManager:
 
         return True
 
+    def zoom(self, factor):
+        """Zoom the window.
+
+        Args:
+            factor: Integer zoom amount.
+
+        Returns:
+            Tuple containing new window resolution if succeeded, None if failed.
+        """
+        width = self.driftwood.config["window"]["width"]
+        height = self.driftwood.config["window"]["height"]
+        if self.resize(width // factor, height // factor):
+            return self.resolution()
+        return None
+
     def _tick(self, seconds_past: float) -> None:
         """Tick callback which refreshes the renderer.
         """
