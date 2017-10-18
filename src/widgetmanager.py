@@ -76,7 +76,7 @@ class WidgetManager:
     def __iter__(self) -> ItemsView:
         return self.widgets.items()
 
-    def load(self, filename, template_vars={}):
+    def load(self, filename: str, template_vars: dict={}) -> Optional[list]:
         """Widget Tree Loader
 
         Loads and inserts a Jinja2 templated JSON descriptor file (a "widget tree") which defines one or more
