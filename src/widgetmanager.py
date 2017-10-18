@@ -88,7 +88,9 @@ class WidgetManager:
 
         Returns a list of widgets created if succeeded, None if failed.
         """
-        return widgettree.WidgetTree(self, filename, template_vars).widgets
+        tree = widgettree.WidgetTree(self, filename, template_vars)
+        self.trees.append(tree)
+        return tree.widgets
 
     def select(self, wid: int) -> bool:
         """Select the specified widget. Previously selected widget is released.
