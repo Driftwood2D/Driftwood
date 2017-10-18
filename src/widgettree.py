@@ -1,5 +1,5 @@
 ####################################
-# self.driftwood 2D Game Dev. Suite     #
+# Driftwood 2D Game Dev. Suite     #
 # widgettree.py                    #
 # Copyright 2014-2017              #
 # Michael D. Reiley & Paul Merrill #
