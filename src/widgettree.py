@@ -28,6 +28,8 @@
 import collections
 from ctypes import byref, c_int
 
+from sdl2.sdlttf import *
+
 
 class WidgetTree:
     """This class reads and builds Widget Trees.
@@ -218,7 +220,7 @@ class WidgetTree:
                 self.driftwood.log.msg("WARNING", "Widget", "__process_text", "text wrapped to negative position")
 
             # Insert a textbox.
-            t.append(self.insert_text(
+            t.append(self.manager.insert_text(
                 contents=contents[n],
                 fontfile=branch["font"],
                 ptsize=branch["size"],
