@@ -61,6 +61,8 @@ class LightManager:
 
         self.__last_lid = -1
 
+        self.__area_light_layer = [None, None]
+
     def __contains__(self, lid: int) -> bool:
         if self.light(lid):
             return True
@@ -312,6 +314,33 @@ class LightManager:
                 return True
 
         return False
+
+    def area(self, filename, color="FFFFFFFF", blend=False):
+        """Convenience function to apply a lightmap over an entire area.
+
+        Be aware that this will create a new layer the first time it's run on an area.
+        It will do so again if the area has been unfocused and refocused and its number of layers has changed back.
+
+        Args:
+            filename: Filename of the lightmap.
+            color: Hexadeximal color and alpha value of the light. "RRGGBBAA"
+            blend: Whether to blend light instead of adding it. Useful for dark lights.
+
+        Returns:
+            New light if succeeded, None if failed.
+        """
+        layer = len(self.driftwood.area.tilemap.layers) - 1
+        if self.__area_light_layer[0] != self.driftwood.area.filename or self.__area_light_layer[1] != layer:
+            self.driftwood.area.tilemap.new_layer()
+            layer = len(self.driftwood.area.tilemap.layers) - 1
+            self.__area_light_layer = [self.driftwood.area.filename, layer]
+
+        areasize = [self.driftwood.area.tilemap.width * self.driftwood.area.tilemap.tilewidth,
+                    self.driftwood.area.tilemap.height * self.driftwood.area.tilemap.tileheight]
+        insertpos = [areasize[0] // 2, areasize[1] // 2]
+
+        return self.driftwood.light.insert(filename, layer, insertpos[0], insertpos[1],
+                                           areasize[0], areasize[1], color=color, blend=blend)
 
     def kill(self, lid: int) -> bool:
         """Kill a light by lid.

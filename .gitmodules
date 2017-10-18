@@ -17,6 +17,6 @@
 [submodule "data/__common__/Folkdance"]
 	path = data/__common__/Folkdance
 	url = https://github.com/Driftwood2D/Folkdance
-[submodule "data/__common__/Lightshow"]
-	path = data/__common__/Lightshow
-	url = https://github.com/Driftwood2D/Lightshow
+[submodule "data/__common__/Stageshow"]
+	path = data/__common__/Stageshow
+	url = https://github.com/Driftwood2D/Stageshow
