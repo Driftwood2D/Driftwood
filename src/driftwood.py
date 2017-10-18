@@ -25,8 +25,10 @@
 # IN THE SOFTWARE.
 # **********
 
+import functools
 import pdb
 import time
+import types
 from typing import Any, Union, List
 
 from sdl2 import *
@@ -323,3 +325,21 @@ def CHECK(item: Any, _type: Union[type, List[type]], _min: float = None, _max: f
 
     # Success.
     return True
+
+
+def fncopy(f):
+    """Deep copy a function. Needed to pass more than one of the same callback function to tick.register().
+    Args:
+        f: Function to copy.
+
+    Returns:
+        Copied function.
+
+    Based on http://stackoverflow.com/a/6528148/190597 (Glenn Maynard)
+    """
+    g = types.FunctionType(f.__code__, f.__globals__, name=f.__name__,
+                           argdefs=f.__defaults__,
+                           closure=f.__closure__)
+    g = functools.update_wrapper(g, f)
+    g.__kwdefaults__ = f.__kwdefaults__
+    return g

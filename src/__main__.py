@@ -67,6 +67,7 @@ if __name__ == "__main__":
     import builtins
     builtins.CHECK = driftwood.CHECK
     builtins.CheckFailure = driftwood.CheckFailure
+    builtins.fncopy = driftwood.fncopy
 
     # Set up the entry point.
     entry = driftwood.Driftwood()
