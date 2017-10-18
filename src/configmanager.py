@@ -28,6 +28,7 @@
 import argparse
 import json
 import jsonschema
+import os
 import sys
 import traceback
 from typing import Any, ItemsView
@@ -58,6 +59,8 @@ class ConfigManager:
             driftwood: Base class instance.
         """
         self.driftwood = driftwood  # A link back to the top-level base class.
+
+        self.filepath = ""  # The path to the config file.
 
         self.__config_file = ""
         self.__config = {}
@@ -136,6 +139,10 @@ class ConfigManager:
             print("Driftwood 2D\nStarting up...")
             print("[0] FATAL: Config: could not read config file")
             sys.exit(1)  # Fail.
+
+        # Change the working directory to the location of the config file.
+        self.filepath = os.path.dirname(os.path.realpath(self.__cmdline_args.config))
+        os.chdir(self.filepath)
 
         schema = _SCHEMA["config"]
 
