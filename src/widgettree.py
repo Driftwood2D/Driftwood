@@ -437,10 +437,7 @@ class WidgetTree:
         """Get Property
 
         Helper function to get a property from a branch, or return the fallback value if it doesn't exist."""
-        if prop in branch:
-            return branch[prop]
-        else:
-            return fallback
+        return branch[prop] if prop in branch else fallback
 
     def __include(self, filename, template_vars={}):
         """Include branches from another file.
