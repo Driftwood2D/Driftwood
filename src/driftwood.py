@@ -139,7 +139,7 @@ class Driftwood:
                 self.script.call("init.py", "init")
 
             # Escape key pauses the engine.
-            self.input.register(self.keycode.SDLK_ESCAPE, self.__handle_pause)
+            self.input.register(self.keycode.SDLK_ESCAPE, self._handle_pause)
 
             # Register the debug console key if debug mode is enabled.
             if self.config["input"]["debug"]:
@@ -174,7 +174,7 @@ class Driftwood:
             self._terminate()
             return 0
 
-    def __handle_pause(self, keyevent: int) -> None:
+    def _handle_pause(self, keyevent: int) -> None:
         """Check if we are shutting down, otherwise just pause.
         """
         if keyevent == InputManager.ONDOWN:

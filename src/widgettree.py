@@ -31,6 +31,7 @@ from ctypes import byref, c_int
 from sdl2.sdlttf import *
 
 
+
 class WidgetTree:
     """This class reads and builds Widget Trees.
     """
@@ -425,12 +426,12 @@ class WidgetTree:
         def kb_toggle(keyevent):
             print("menu toggle")
 
-        oldcontext = self.driftwood.input.context("menu")
-        self.driftwood.input.register(keybinds["select_up"], kb_select_up)
-        self.driftwood.input.register(keybinds["select_down"], kb_select_down)
-        self.driftwood.input.register(keybinds["select_left"], kb_select_left)
-        self.driftwood.input.register(keybinds["select_right"], kb_select_right)
-        self.driftwood.input.register(keybinds["toggle"], kb_toggle)
+        oldcontext = self.driftwood.input.context("__widget_tree_menu", keybinds)
+        self.driftwood.input.register("select_up", kb_select_up)
+        self.driftwood.input.register("select_down", kb_select_down)
+        self.driftwood.input.register("select_left", kb_select_left)
+        self.driftwood.input.register("select_right", kb_select_right)
+        self.driftwood.input.register("toggle", kb_toggle)
         return oldcontext
 
     def __gp(self, branch, prop, fallback):

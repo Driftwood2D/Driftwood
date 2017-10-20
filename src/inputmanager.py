@@ -60,7 +60,8 @@ class InputManager:
                 # {keysym: {callback, throttle, delay, last_called, repeats, mod}}
                 "registry": {},
                 "stack": [],
-                "modifier_stack": []
+                "modifier_stack": [],
+                "keybinds": {}
             }
         }
 
@@ -121,7 +122,9 @@ class InputManager:
 
         # Retrieve
         try:
-            return getattr(self.driftwood.keycode, "SDLK_"+self.driftwood.config["input"]["keybinds"][keyname])
+            keybinds = {**self.driftwood.config["input"]["keybinds"],
+                        **self.__contexts[self.__current_context]["keybinds"]}
+            return getattr(self.driftwood.keycode, "SDLK_"+keybinds[keyname].upper())
         except:
             return None
 
@@ -225,15 +228,24 @@ class InputManager:
 
         return False
 
-    def context(self, name: str=None) -> str:
+    def context(self, name: str=None, keybinds: dict={}) -> str:
         """Check or change the current context.
 
         Args:
             name: If set, name of the context to switch to.
+            keybinds: If set, an alternate dictionary of keybinds to use.
 
         Returns:
             Previous context (or current context if unchanged.)
         """
+        # Input Check
+        try:
+            CHECK(name, str)
+            CHECK(keybinds, dict)
+        except CheckFailure as e:
+            self.driftwood.log.msg("ERROR", "Input", "context", "bad argument", e)
+            return self.__current_context
+
         oldcontext = self.__current_context
         self.__current_context = name
         if name not in self.__contexts:
@@ -241,8 +253,11 @@ class InputManager:
                 # {keysym: {callback, throttle, delay, last_called, repeats, mod}}
                 "registry": {},
                 "stack": [],
-                "modifier_stack": []
+                "modifier_stack": [],
+                "keybinds": keybinds
             }
+            # Escape key pauses the engine.
+            self.register(self.driftwood.keycode.SDLK_ESCAPE, self.driftwood._handle_pause)
         return oldcontext
 
     def _key_down(self, keysym: int) -> None:
@@ -253,11 +268,16 @@ class InputManager:
         """
         if keysym not in self.__fetch("stack"):
             if keysym in self.__fetch("registry") and not self.__fetch("registry")[keysym]["mod"]:
+                # TODO: Implement modifier keys.
                 self.__contexts[self.__current_context]["stack"].insert(0, keysym)
                 self.__fetch("registry")[keysym]["callback"](InputManager.ONDOWN)
             elif keysym in self.__fetch("registry"):
+                # Registered keypress.
                 self.__contexts[self.__current_context]["modifier_stack"].insert(0, keysym)
                 self.__fetch("registry")[keysym]["callback"](InputManager.ONDOWN)
+            else:
+                # Unregistered keypress.
+                self.__contexts[self.__current_context]["stack"].insert(0, keysym)
         else:
             # SDL2 gives us key-repeat events so this is actually okay.
             # self.driftwood.log.msg("WARNING", "InputManager", "key_down", "key already down", self.keyname(keysym))
