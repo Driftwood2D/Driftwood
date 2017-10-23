@@ -17,7 +17,7 @@ bin/driftwood: $(shell test -f bin/driftwood && find src/ -newer bin/driftwood)
 	chmod +x bin/driftwood
 
 release: release/driftwood
-	mkdir release/db/
+	mkdir -p release/db/
 	cp -R data/ tools/ config.json CREDITS.md README.md LICENSE release/
 
 release/driftwood: $(shell test -f release/driftwood && find src/ -newer release/driftwood)
