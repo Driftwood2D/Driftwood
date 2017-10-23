@@ -224,6 +224,7 @@ class FrameManager:
             overlay[2][1] -= dstrect.y
             ok = self.copy(*overlay)
             if not ok:
+                self.driftwood.log.msg("ERROR", "Frame", "finish_frame", "failed to copy overlay", str(overlay))
                 self.__overlay = []
                 return False
         self.__overlay = []  # These should only be texture references.

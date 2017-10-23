@@ -36,7 +36,7 @@ from typing import Any, ItemsView
 from __schema__ import _SCHEMA
 
 
-VERSION = "Driftwood 2D Alpha-0.0.10"
+VERSION = "Driftwood 2D Alpha-0.0.11"
 COPYRIGHT = "Copyright 2016-2017 Michael D. Reiley and Paul Merrill"
 
 

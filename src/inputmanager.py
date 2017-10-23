@@ -233,7 +233,8 @@ class InputManager:
 
         Args:
             name: If set, name of the context to switch to.
-            keybinds: If set, an alternate dictionary of keybinds to use.
+            keybinds: If set, a dictionary of keybinds to layer over the default dictionary from the config file.
+                Any duplicates are overridden.
 
         Returns:
             Previous context (or current context if unchanged.)
