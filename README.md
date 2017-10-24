@@ -48,7 +48,7 @@ On Linux releases prior to Alpha-0.0.11, the source release contains everything 
 
 On Linux releases Alpha-0.0.11 and afterwards, the project has been split into subdirectories, which are not included in the source release zip. Instead, you can download the Linux binary release, and just run ```./driftwood``` in the top directory. For the source release, you must run ```git submodule init``` and ```git submodule update``` in the top directory, and then you can run ```make``` and ```bin/driftwood``` like before.
 
-On Windows, simply download the Windows binary release and run ```Driftwood.exe``` in the top directory, either through the command line or by double clicking. If all of your prerequisites are installed, it should "just work."
+On Windows, simply download the Windows binary release and run ```Driftwood.exe``` in the top directory, either through the command line or by double clicking. The Windows binary release ships with all of its prerequisites, so it should just run.
 
 On all releases, running the driftwood executable with the ```--help``` option will present a list of command line options. You can select a game from the data directory by running with ```--path game-directory-name```.
 
