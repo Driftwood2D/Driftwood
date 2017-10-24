@@ -54,3 +54,4 @@ On all releases, running the driftwood executable with the ```--help``` option w
 
 A Linux binary release is made from source by running ```make release```, and is placed in the newly created ```release/``` directory. Making Windows binaries is not currently documented, but we make them using using [pyinstaller](http://www.pyinstaller.org/).
 
+For development testing, you can run ```python3 src``` from the top directory to run the engine from source without compiling.
