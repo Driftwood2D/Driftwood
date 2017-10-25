@@ -1,2 +1,3 @@
 @ECHO OFF
-python src --root data --path test
+python src config.json
+pause>nul
