@@ -109,8 +109,9 @@ class Driftwood:
         # SDL Keycodes.
         self.keycode = keycode
 
-        # Space to store global temporary values that disappear on shutdown.
-        self.vars = {}
+        # Space to store global temporary values that disappear on shutdown. Variables may be accessed either as
+        # keys in a dictionary or as attributes.
+        self.vars = AttrDict()
 
         # True while running. If set back to false, the engine will shutdown at the end of the tick.
         self.running = False
@@ -197,6 +198,13 @@ class Driftwood:
         self.frame._terminate()
         self.window._terminate()
         self.log._terminate()
+
+
+class AttrDict(dict):
+    """An abstraction which can be accessed as a dictionary or as a class, using keys or attributes."""
+    def __init__(self, *args, **kwargs):
+        super(AttrDict, self).__init__(*args, **kwargs)
+        self.__dict__ = self
 
 
 class CheckFailure(Exception):
