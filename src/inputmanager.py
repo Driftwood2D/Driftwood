@@ -124,16 +124,16 @@ class InputManager:
         try:
             keybinds = {**self.driftwood.config["input"]["keybinds"],
                         **self.__contexts[self.__current_context]["keybinds"]}
-            return getattr(self.driftwood.keycode, "SDLK_"+keybinds[keyname].upper())
+            return getattr(self.driftwood.keycode, "SDLK_" + keybinds[keyname].upper())
         except:
             return None
 
     def register(self,
                  keyid: Union[int, str],
                  callback: Callable,
-                 throttle: float=0.0,
-                 delay: float=0.0,
-                 mod: bool=False) -> bool:
+                 throttle: float = 0.0,
+                 delay: float = 0.0,
+                 mod: bool = False) -> bool:
         """Register an input callback.
 
         The callback function will receive a call every tick that the key is on top of the input stack. (the key which
@@ -228,7 +228,7 @@ class InputManager:
 
         return False
 
-    def context(self, name: str=None, keybinds: dict={}) -> str:
+    def context(self, name: str = None, keybinds: dict = {}) -> str:
         """Check or change the current context.
 
         Args:

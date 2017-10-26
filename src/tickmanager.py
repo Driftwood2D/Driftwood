@@ -71,10 +71,10 @@ class TickManager:
 
     def register(self,
                  func: Callable,
-                 delay: float=0.0,
-                 once: bool=False,
-                 during_pause: bool=False,
-                 message: Any=None) -> bool:
+                 delay: float = 0.0,
+                 once: bool = False,
+                 during_pause: bool = False,
+                 message: Any = None) -> bool:
         """Register a tick callback, with an optional delay between calls.
 
         Each tick callback must take either no arguments or one argument, for which seconds since its last call will be

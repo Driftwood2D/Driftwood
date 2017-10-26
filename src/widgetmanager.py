@@ -76,7 +76,7 @@ class WidgetManager:
     def __iter__(self) -> ItemsView:
         return self.widgets.items()
 
-    def load(self, filename: str, template_vars: dict={}) -> Optional[list]:
+    def load(self, filename: str, template_vars: dict = {}) -> Optional[list]:
         """Widget Tree Loader
 
         Loads and inserts a Jinja2 templated JSON descriptor file (a "widget tree") which defines one or more
@@ -134,13 +134,13 @@ class WidgetManager:
         return True
 
     def insert_container(self,
-                         imagefile: str=None,
-                         parent: int=None,
-                         x: int=None,
-                         y: int=None,
-                         width: int=0,
-                         height: int=0,
-                         active: bool=True) -> Optional[int]:
+                         imagefile: str = None,
+                         parent: int = None,
+                         x: int = None,
+                         y: int = None,
+                         width: int = 0,
+                         height: int = 0,
+                         active: bool = True) -> Optional[int]:
         """Create a new container widget.
 
         A container widget can have a background image, and other widgets can be contained by it. Widgets in a
@@ -210,13 +210,13 @@ class WidgetManager:
                     contents: str,
                     fontfile: str,
                     ptsize: int,
-                    parent: int=None,
-                    x: int=None,
-                    y: int=None,
-                    width: int=None,
-                    height: int=None,
-                    color: str="000000FF",
-                    active: bool=True):
+                    parent: int = None,
+                    x: int = None,
+                    y: int = None,
+                    width: int = None,
+                    height: int = None,
+                    color: str = "000000FF",
+                    active: bool = True):
         """Create a new text widget.
 
             A text widget puts text on the screen. It cannot have a background image, but can have a color.

@@ -34,7 +34,6 @@ import entity
 import spritesheet
 from __schema__ import _SCHEMA
 
-
 # Keep a reference to the entity module, which is overridden by the EntityManager.entity function later in the file.
 # It is only overridden while inside type annotations.
 _entity = entity
@@ -86,7 +85,7 @@ class EntityManager:
     def __iter__(self) -> ItemsView:
         return self.entities.items()
 
-    def insert(self, filename: str, layer: int, x: int, y: int, template_vars: dict={}) -> Optional[entity.Entity]:
+    def insert(self, filename: str, layer: int, x: int, y: int, template_vars: dict = {}) -> Optional[entity.Entity]:
         """Insert an entity at a position in the area. Supports Jinja2.
 
         Args:

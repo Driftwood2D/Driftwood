@@ -139,7 +139,7 @@ class ResourceManager:
             self.driftwood.cache.upload(filename, None)
             return None
 
-    def request_template(self, filename: str, template_vars: dict={}) -> Optional[Any]:
+    def request_template(self, filename: str, template_vars: dict = {}) -> Optional[Any]:
         """Retrieve a Jinja2-templated JSON file.
 
         Args:
@@ -210,7 +210,7 @@ class ResourceManager:
             return None
         return obj
 
-    def request_audio(self, filename: str, music: bool=False) -> Optional[filetype.AudioFile]:
+    def request_audio(self, filename: str, music: bool = False) -> Optional[filetype.AudioFile]:
         """Retrieve an internal abstraction of an audio file.
 
         Args:
@@ -330,7 +330,7 @@ class ResourceManager:
 
         return obj
 
-    def request_raw(self, filename: str, binary: bool=False) -> Optional[bytes]:
+    def request_raw(self, filename: str, binary: bool = False) -> Optional[bytes]:
         """Retrieve the raw contents of a file.
 
         Args:

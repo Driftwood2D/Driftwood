@@ -34,6 +34,7 @@ from sdl2.sdlttf import *
 class WidgetTree:
     """This class reads and builds Widget Trees.
     """
+
     def __init__(self, manager, filename, template_vars):
         """Wrapped from WidgetManager.load().
         """
@@ -238,7 +239,7 @@ class WidgetTree:
 
             if not self.__postprocess_text(t, branch):
                 self.driftwood.log.msg("WARNING", "Widget", "__process_text", "failed to postprocess text widgets",
-                                  t)
+                                       t)
                 return None
 
         return t
@@ -425,7 +426,7 @@ class WidgetTree:
         def kb_toggle(keyevent):
             print("menu toggle")
 
-        oldcontext = self.driftwood.input.context("__widget_tree_menu_"+str(id(self)), keybinds)
+        oldcontext = self.driftwood.input.context("__widget_tree_menu_" + str(id(self)), keybinds)
         self.driftwood.input.register("select_up", kb_select_up)
         self.driftwood.input.register("select_down", kb_select_down)
         self.driftwood.input.register("select_left", kb_select_left)

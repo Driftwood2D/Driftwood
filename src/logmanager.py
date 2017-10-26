@@ -114,10 +114,10 @@ class LogManager:
         line = ticks + ": ".join(chain)
         print(line)
         if self.__file:
-            self.__file.write(line+'\n')
+            self.__file.write(line + '\n')
         sys.stdout.flush()
 
-    def __check_suppress(self, chain: List[str], halt: bool=False) -> bool:
+    def __check_suppress(self, chain: List[str], halt: bool = False) -> bool:
         """Checks whether or not the chain matches a suppression rule.
         """
         if halt:

@@ -83,7 +83,7 @@ class AudioManager:
         # Register the cleanup function.
         self.driftwood.tick.register(self._cleanup, delay=0.01, during_pause=True)
 
-    def play_sfx(self, filename: str, volume: int=None, loop: Optional[int]=0, fade: float=0.0) -> Optional[int]:
+    def play_sfx(self, filename: str, volume: int = None, loop: Optional[int] = 0, fade: float = 0.0) -> Optional[int]:
         """Load and play a sound effect from an audio file.
 
         Args:
@@ -142,7 +142,7 @@ class AudioManager:
         if not fade:  # Play the sound effect.
             channel = Mix_PlayChannel(-1, sfx_temp[1].audio, loop)
         else:  # Fade in sound effect.
-            channel = Mix_FadeInChannel(-1, sfx_temp[1].audio, loop, fade*1000)
+            channel = Mix_FadeInChannel(-1, sfx_temp[1].audio, loop, fade * 1000)
 
         if channel == -1:
             self.driftwood.log.msg("WARNING", "Audio", "play_sfx", "could not play sfx on channel", str(channel))
@@ -153,7 +153,7 @@ class AudioManager:
 
         return channel
 
-    def volume_sfx(self, channel: Optional[int], volume: int=None) -> Optional[int]:
+    def volume_sfx(self, channel: Optional[int], volume: int = None) -> Optional[int]:
         """Get or adjust the volume of a sound effect channel.
 
         Args:
@@ -197,7 +197,7 @@ class AudioManager:
                                channel)
         return None
 
-    def volume_sfx_by_filename(self, filename: str, volume: int=None) -> Optional[int]:
+    def volume_sfx_by_filename(self, filename: str, volume: int = None) -> Optional[int]:
         """Get or adjust the volume of all currently playing instances of the named sound effect.
 
         Args:
@@ -241,7 +241,7 @@ class AudioManager:
                                "cannot adjust volume for nonexistent instances of sfx", filename)
         return None
 
-    def stop_sfx(self, channel: int, fade: float=0.0) -> bool:
+    def stop_sfx(self, channel: int, fade: float = 0.0) -> bool:
         """Stop a sound effect. Requires the sound effect's channel number from play_sfx()'s return code.
 
         Args:
@@ -265,7 +265,7 @@ class AudioManager:
                     Mix_HaltChannel(channel)
                     del self.__sfx[channel]
                 else:  # Fade out channel.
-                    Mix_FadeOutChannel(channel, fade*1000)
+                    Mix_FadeOutChannel(channel, fade * 1000)
                     # Cleanup callback will handle deletion.
             return True
 
@@ -273,7 +273,7 @@ class AudioManager:
                                channel)
         return False
 
-    def stop_sfx_by_filename(self, filename: str, fade: float=0.0) -> bool:
+    def stop_sfx_by_filename(self, filename: str, fade: float = 0.0) -> bool:
         """Stop all currently playing instances of the named sound effect.
 
         Args:
@@ -300,7 +300,7 @@ class AudioManager:
                         Mix_HaltChannel(sfx)
                         del self.__sfx[sfx]
                     else:
-                        Mix_FadeOutChannel(sfx, fade*1000)
+                        Mix_FadeOutChannel(sfx, fade * 1000)
                         # Cleanup callback will handle deletion.
                     return True
 
@@ -319,7 +319,7 @@ class AudioManager:
         self.__sfx = {}
         return True
 
-    def play_music(self, filename: str, volume: int=None, loop: Optional[int]=0, fade: float=0.0) -> bool:
+    def play_music(self, filename: str, volume: int = None, loop: Optional[int] = 0, fade: float = 0.0) -> bool:
         """Load and play music from an audio file. Also stops and unloads any previously loaded music.
 
         Args:
@@ -368,7 +368,7 @@ class AudioManager:
         if not fade:  # Play the music.
             result = Mix_PlayMusic(self.__music.audio, loop)
         else:  # Fade in the music.
-            result = Mix_FadeInMusic(self.__music.audio, loop, fade*1000)
+            result = Mix_FadeInMusic(self.__music.audio, loop, fade * 1000)
 
         if result == -1:
             self.driftwood.log.msg("WARNING", "Audio", "play_music", "could not play music")
@@ -392,7 +392,7 @@ class AudioManager:
 
         return True
 
-    def volume_music(self, volume: int=None) -> Optional[int]:
+    def volume_music(self, volume: int = None) -> Optional[int]:
         """Get or adjust the volume of the currently playing music.
 
         Args:
@@ -429,7 +429,7 @@ class AudioManager:
         self.driftwood.log.msg("WARNING", "Audio", "volume_music", "cannot adjust volume for nonexistent music")
         return None
 
-    def stop_music(self, fade: float=0.0) -> bool:
+    def stop_music(self, fade: float = 0.0) -> bool:
         """Stop and unload any currently loaded music.
 
         Args:
@@ -454,7 +454,7 @@ class AudioManager:
                 self.__music = None
                 self.playing_music = False
             else:  # Fade out the music.
-                Mix_FadeOutMusic(fade*1000)
+                Mix_FadeOutMusic(fade * 1000)
                 # Cleanup callback will handle deletion.
 
         return True

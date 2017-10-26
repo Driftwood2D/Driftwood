@@ -139,7 +139,7 @@ class Layer:
         for obj in objdata["objects"]:
             # Is the object properly sized?
             if (obj["x"] % self.tilemap.tilewidth or obj["y"] % self.tilemap.tileheight or
-                    obj["width"] % self.tilemap.tilewidth or obj["height"] % self.tilemap.tileheight):
+                        obj["width"] % self.tilemap.tilewidth or obj["height"] % self.tilemap.tileheight):
                 self.driftwood.log.msg("ERROR", "Layer", self.zpos, "_process_objects",
                                        "invalid object size or placement")
                 continue
@@ -259,6 +259,7 @@ class _TileLoader:
     Implements lazy map loading by reading and caching each individual tile as needed. This class pretends to be a
     list.
     """
+
     def __init__(self, driftwood, layer):
         self.driftwood = driftwood
         self.__tiles = {}

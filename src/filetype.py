@@ -39,7 +39,7 @@ class AudioFile:
         audio: The SDL_mixer audio handle.
     """
 
-    def __init__(self, driftwood, data: bytes, music: bool=False):
+    def __init__(self, driftwood, data: bytes, music: bool = False):
         self.driftwood = driftwood
 
         self.audio = None
@@ -81,6 +81,7 @@ class FontFile:
         font: The SDL_ttf font handle.
         ptsize: The size of the font in pt.
     """
+
     def __init__(self, driftwood, data: bytes, ptsize: int):
         """FontFile class initializer.
         """

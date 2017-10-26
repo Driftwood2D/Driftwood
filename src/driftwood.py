@@ -202,6 +202,7 @@ class Driftwood:
 
 class AttrDict(dict):
     """An abstraction which can be accessed as a dictionary or as a class, using keys or attributes."""
+
     def __init__(self, *args, **kwargs):
         super(AttrDict, self).__init__(*args, **kwargs)
         self.__dict__ = self

@@ -84,9 +84,9 @@ class LightManager:
                y: int,
                w: int,
                h: int,
-               color: str="FFFFFFFF",
-               blend: bool=False,
-               entity: entity.Entity=None,
+               color: str = "FFFFFFFF",
+               blend: bool = False,
+               entity: entity.Entity = None,
                layermod=0) -> Optional[int]:
         """Create and insert a new light into the area.
 
@@ -253,7 +253,7 @@ class LightManager:
                 return self.lights[lid]
         return None
 
-    def set_color(self, lid: int, color: str, blend: bool=None) -> bool:
+    def set_color(self, lid: int, color: str, blend: bool = None) -> bool:
         """Update the color, alpha, and blending of an existing light.
 
         Args:

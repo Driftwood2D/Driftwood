@@ -82,11 +82,11 @@ class WindowManager:
         except CheckFailure as e:
             self.driftwood.log.msg("ERROR", "Window", "title", "bad argument", e)
             return False
-        
+
         SDL_SetWindowTitle(self.window, title.encode())
         return True
 
-    def refresh(self, area: bool=False) -> bool:
+    def refresh(self, area: bool = False) -> bool:
         """Force the window to redraw.
 
         Args:

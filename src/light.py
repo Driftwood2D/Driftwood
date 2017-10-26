@@ -38,6 +38,7 @@ class Light:
     Attributes:
         Same as __init__ args.
     """
+
     def __init__(self,
                  manager: 'lightmanager.LightManager',
                  lid: int,
@@ -91,10 +92,10 @@ class Light:
         """Follow an entity's position.
         """
         try:  # Avoid strange timing anomaly.
-            self.x = self.manager.driftwood.entity.entity(msg[0]).x +\
-                self.manager.driftwood.entity.entity(msg[0]).width // 2
-            self.y = self.manager.driftwood.entity.entity(msg[0]).y +\
-                self.manager.driftwood.entity.entity(msg[0]).height // 2
+            self.x = self.manager.driftwood.entity.entity(msg[0]).x + \
+                     self.manager.driftwood.entity.entity(msg[0]).width // 2
+            self.y = self.manager.driftwood.entity.entity(msg[0]).y + \
+                     self.manager.driftwood.entity.entity(msg[0]).height // 2
             self.layer = self.manager.driftwood.entity.entity(msg[0]).layer + msg[1]
         except AttributeError:
             self.manager.driftwood.tick.unregister(self._track_entity)

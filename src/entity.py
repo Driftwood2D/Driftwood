@@ -148,8 +148,8 @@ class Entity:
                 return ret
             else:
                 return [[((current_member * self.width) % self.spritesheet.imagewidth),
-                        ((current_member * self.width) // self.spritesheet.imagewidth) * self.height,
-                        self.width, self.height]]
+                         ((current_member * self.width) // self.spritesheet.imagewidth) * self.height,
+                         self.width, self.height]]
 
         return [[0, 0, 0, 0]]
 
@@ -203,7 +203,7 @@ class Entity:
         self.members = []
         for m in temp_members:
             # Make things prettier for the end user by lining up member IDs with GIDs.
-            self.members.append(m-1)
+            self.members.append(m - 1)
         self.__cur_member = 0
 
         if "afps" in self.__entity[stance]:
@@ -251,7 +251,7 @@ class Entity:
             self.members.append([])
             for layer in member:
                 # Make things prettier for the end user by lining up member IDs with GIDs.
-                self.members[-1].append(layer-1)
+                self.members[-1].append(layer - 1)
         self.afps = self.__init_stance["afps"]
         self.properties = self.__init_stance["properties"]
 
@@ -425,7 +425,7 @@ class TileModeEntity(Entity):
     """This Entity subclass represents an Entity configured for movement in by-tile mode.
     """
 
-    def teleport(self, layer: int, x: int, y: int, area: str=None) -> bool:
+    def teleport(self, layer: int, x: int, y: int, area: str = None) -> bool:
         """Teleport the entity to a new tile position.
 
         This is also used to change layers or to move to a new area.
@@ -506,10 +506,10 @@ class TileModeEntity(Entity):
     def walk(self,
              x: int,
              y: int,
-             dont_stop: bool=False,
-             facing: None=None,
-             stance: str=None,
-             end_stance: str=None) -> bool:
+             dont_stop: bool = False,
+             facing: None = None,
+             stance: str = None,
+             end_stance: str = None) -> bool:
         """Walk the entity by one tile to a new position relative to its current
            position.
 
@@ -578,7 +578,7 @@ class TileModeEntity(Entity):
             self.__arrive_at_tile()
             return True
 
-    def interact(self, direction: str=None) -> bool:
+    def interact(self, direction: str = None) -> bool:
         """Interact with the entity and/or tile in the specified direction.
 
         Args:
@@ -690,7 +690,7 @@ class TileModeEntity(Entity):
                     if dsttile.nowalk or dsttile.nowalk == "":
                         # Is the tile a player or npc specific nowalk?
                         if (dsttile.nowalk == "player" and self.manager.player.eid == self.eid
-                                or dsttile.nowalk == "npc" and self.manager.player.eid != self.eid):
+                            or dsttile.nowalk == "npc" and self.manager.player.eid != self.eid):
                             self._collide(dsttile)
                             return False
 
@@ -883,7 +883,7 @@ class PixelModeEntity(Entity):
     """This Entity subclass represents an Entity configured for movement in by-pixel mode.
     """
 
-    def teleport(self, layer: int, x: int, y: int, area: str=None) -> bool:
+    def teleport(self, layer: int, x: int, y: int, area: str = None) -> bool:
         """Teleport the entity to a new tile position.
 
         This is also used to change layers or to move to a new area.
@@ -948,10 +948,10 @@ class PixelModeEntity(Entity):
     def walk(self,
              x: int,
              y: int,
-             dont_stop: bool=False,
-             facing: str=None,
-             stance: str=None,
-             end_stance: str=None) -> bool:
+             dont_stop: bool = False,
+             facing: str = None,
+             stance: str = None,
+             end_stance: str = None) -> bool:
         """Move the entity by one pixel to a new position relative to its current position.
 
         Args:
@@ -1029,7 +1029,7 @@ class PixelModeEntity(Entity):
 
         return can_walk
 
-    def interact(self, direction: str=None) -> bool:
+    def interact(self, direction: str = None) -> bool:
         """Interact with the entity and/or tile in the specified direction.
 
         Args:
@@ -1158,7 +1158,7 @@ class PixelModeEntity(Entity):
 
         self.manager.driftwood.area.changed = True
 
-    def __can_walk(self, x: int, y: int, absolute: bool=False) -> bool:
+    def __can_walk(self, x: int, y: int, absolute: bool = False) -> bool:
         """Check if nothing is preventing us from walking in this direction.
         """
         if not absolute:
@@ -1176,9 +1176,9 @@ class PixelModeEntity(Entity):
                     if dsttile.nowalk or dsttile.nowalk == "":
                         # Is the tile a player or npc specific nowalk?
                         if (dsttile.nowalk == "player" and self.manager.player.eid == self.eid
-                                or dsttile.nowalk == "npc" and self.manager.player.eid != self.eid):
-                                    self._collide(dsttile)
-                                    return False
+                            or dsttile.nowalk == "npc" and self.manager.player.eid != self.eid):
+                            self._collide(dsttile)
+                            return False
 
                         # Any other values are an unconditional nowalk.
                         elif dsttile.nowalk not in ["player", "npc"]:
@@ -1257,10 +1257,7 @@ class PixelModeEntity(Entity):
                 ey = ent.y  # Entity's top side.
                 exw = ex + ent.width - 1  # Entity's right side.
                 eyw = ey + ent.height - 1  # Entity's bottom side.
-                if (
-                    x < exw and ex < xw and
-                    y < eyw and ey < yw
-                ):
+                if x < exw and ex < xw and y < eyw and ey < yw:
                     return False
         return True
 

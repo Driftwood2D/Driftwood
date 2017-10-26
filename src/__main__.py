@@ -91,6 +91,7 @@ if __name__ == "__main__":
 
     # Place certain items in the global scope.
     import builtins
+
     builtins.CHECK = driftwood.CHECK
     builtins.CheckFailure = driftwood.CheckFailure
     builtins.fncopy = driftwood.fncopy
@@ -100,7 +101,7 @@ if __name__ == "__main__":
 
     # Make sure scripts have access to the base class by placing it in the global scope.
     builtins.Driftwood = entry
-    
+
     # Underscore is a shortcut for "Driftwood.vars".
     builtins._ = entry.vars
 

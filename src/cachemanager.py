@@ -66,7 +66,7 @@ class CacheManager:
     def __iter__(self) -> KeysView:
         return self.__cache.keys()
 
-    def upload(self, filename: str, contents: Any, keep_for_ttl: bool=True) -> bool:
+    def upload(self, filename: str, contents: Any, keep_for_ttl: bool = True) -> bool:
         """Upload a file into the cache.
 
         Args:

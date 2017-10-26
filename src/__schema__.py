@@ -29,7 +29,6 @@
 
 import json
 
-
 _S_CONFIG = """
 {
   "type": "object",

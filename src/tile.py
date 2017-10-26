@@ -140,7 +140,7 @@ class Tile:
 
         return self.layer.tile(self.pos[0] + x, self.pos[1] + y)
 
-    def setgid(self, gid: int, members: List[int]=None, afps: int=None) -> Optional[bool]:
+    def setgid(self, gid: int, members: List[int] = None, afps: int = None) -> Optional[bool]:
         """Helper function to change the tile graphic or animation.
         
         gid: The primary graphic ID to set.

@@ -252,7 +252,7 @@ class PathManager:
 
         return True
 
-    def find(self, filename: str, pathname: str=None) -> Optional[str]:
+    def find(self, filename: str, pathname: str = None) -> Optional[str]:
         """Find a filename's pathname.
 
         Return the pathname which owns the filename, if present. If pathname is set, check that specific pathname for

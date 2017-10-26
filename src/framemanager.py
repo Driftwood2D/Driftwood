@@ -127,8 +127,8 @@ class FrameManager:
 
         # Recreate backbuffer
         self.__backbuffer = SDL_CreateTexture(self.driftwood.window.renderer,
-                                             SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET,
-                                             width, height)
+                                              SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET,
+                                              width, height)
 
         if type(self.__backbuffer) is int and self.__backbuffer < 0:
             self.driftwood.log.msg("ERROR", "Frame", "prepare", "SDL", SDL_GetError())
@@ -238,9 +238,9 @@ class FrameManager:
              tex: SDL_Texture,
              srcrect: List[int],
              dstrect: List[int],
-             alpha: int=None,
-             blendmode: int=None,
-             colormod: Tuple[int, int, int]=None) -> bool:
+             alpha: int = None,
+             blendmode: int = None,
+             colormod: Tuple[int, int, int] = None) -> bool:
         """Copy a texture onto the back buffer.
         
         Copy the source rectangle from the texture tex to the destination rectangle in our back buffer.

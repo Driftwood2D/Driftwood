@@ -101,10 +101,10 @@ class ScriptManager:
             return getattr(self[filename], func)(*args)
         except Exception:
             self.driftwood.log.msg("ERROR", "Script", "call", "error from function", filename, func + "()",
-                                   '\n'+traceback.format_exc().rstrip())
+                                   '\n' + traceback.format_exc().rstrip())
             return None
 
-    def define(self, name: str, event: str, filename: str, func: str, nargs: int, minargs: int=None) -> bool:
+    def define(self, name: str, event: str, filename: str, func: str, nargs: int, minargs: int = None) -> bool:
         """Define a custom trigger that can be called directly from a map property.
 
         Ex. A trigger named "mytrigger" of type "on_tile" with 4 arguments can be called when the player steps onto
