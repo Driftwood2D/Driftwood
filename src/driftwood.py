@@ -88,6 +88,10 @@ class Driftwood:
 
             running: Whether the mainloop should continue running. Set False to shut down the engine.
         """
+        # Space to store global temporary values that disappear on shutdown. Variables may be accessed either as
+        # keys in a dictionary or as attributes.
+        self.vars = AttrDict()
+
         # Instantiate subsystems and API.
         self.config = ConfigManager(self)
         self.log = LogManager(self)
@@ -108,10 +112,6 @@ class Driftwood:
 
         # SDL Keycodes.
         self.keycode = keycode
-
-        # Space to store global temporary values that disappear on shutdown. Variables may be accessed either as
-        # keys in a dictionary or as attributes.
-        self.vars = AttrDict()
 
         # True while running. If set back to false, the engine will shutdown at the end of the tick.
         self.running = False

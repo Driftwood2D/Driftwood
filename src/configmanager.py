@@ -63,6 +63,7 @@ class ConfigManager:
 
         self.__config_file = ""
         self.__config = {}
+        self.__read_cmdline_vars()
         self.__cmdline_args = self.__read_cmdline()
         self.__prepare_config()
 
@@ -80,6 +81,24 @@ class ConfigManager:
 
     def __iter__(self) -> ItemsView:
         return self.__config.items()
+
+    def __read_cmdline_vars(self) -> None:
+        """Read command line engine variable assignments first.
+
+        These need to get out of the way before we use Argparse, which can't handle them.
+
+        Returns:
+            None
+        """
+        for item in sys.argv[1:]:
+            if item[0] == '+':
+                sys.argv.remove(item)  # Remove this so it doesn't bother Argparse later.
+                assignment = item[1:].split('=')
+                if len(assignment) is not 2:
+                    # Not valid.
+                    print("[0] FATAL: Config: invalid variable assignment: "+item)
+                    sys.exit(1)  # Fail.
+                self.driftwood.vars[assignment[0]] = assignment[1]  # Assign the engine variable.
 
     def __read_cmdline(self) -> argparse.Namespace:
         """Read in command line options using ArgumentParser.
