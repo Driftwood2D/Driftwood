@@ -212,7 +212,7 @@ class Layer:
                         args[1] = int(args[1])
                         args[2] = int(args[2])
                         args[3] = int(args[3])
-                        self.driftwood.entity.insert(*args)
+                        self.driftwood.area._autospawns.append(args)
 
     def __expand_properties(self, properties: Dict[str, str]) -> None:
         new_props = {}

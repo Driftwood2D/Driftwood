@@ -66,6 +66,7 @@ class AreaManager:
         self.changed = False
         self.offset = [0, 0]
         self.refocused = False
+        self._autospawns = []
 
         self.driftwood.tick.register(self._tick)
 
@@ -115,6 +116,12 @@ class AreaManager:
                                            self.tilemap.properties["on_focus"])
                     return True
                 self.driftwood.script.call(*args)
+
+            # Are we autospawning any entities?
+            for ent in self._autospawns:
+                print(ent)
+                self.driftwood.entity.insert(*ent)
+            self._autospawns = []
 
             return True
 

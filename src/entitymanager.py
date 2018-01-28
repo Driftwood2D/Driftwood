@@ -91,8 +91,8 @@ class EntityManager:
         Args:
             filename: Filename of the JSON entity descriptor.
             layer: Layer of insertion.
-            x: x-coordinate of insertion.
-            y: y-coordinate of insertion.
+            x: x-coordinate of insertion, by tile.
+            y: y-coordinate of insertion, by tile.
 
         Returns: Entity ID of new entity if succeeded, None if failed.
         """
@@ -138,19 +138,10 @@ class EntityManager:
         self.entities[eid]._read(filename, data, eid)
 
         # Set the initial position.
-        self.entities[eid].x = x
-        self.entities[eid].y = y
+        self.entities[eid].x = x * self.driftwood.area.tilemap.tilewidth
+        self.entities[eid].y = y * self.driftwood.area.tilemap.tileheight
         self.entities[eid].layer = layer
-
-        # Are we on a tile?
-        if (x % self.driftwood.area.tilemap.tilewidth == 0) and (y % self.driftwood.area.tilemap.tileheight == 0):
-            self.entities[eid].tile = self.driftwood.area.tilemap.layers[layer].tile(
-                x / self.driftwood.area.tilemap.tilewidth,
-                y / self.driftwood.area.tilemap.tileheight
-            )
-        else:
-            self.driftwood.log.msg("ERROR", "Entity", "insert", filename, "must start on a tile")
-            return None
+        self.entities[eid].tile = self.driftwood.area.tilemap.layers[layer].tile(x, y)
 
         # In pixel mode, record which tile(s) the entity occupies at first.
         if self.entities[eid].mode is "pixel":
