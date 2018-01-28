@@ -203,16 +203,8 @@ class Layer:
 
                     # Handle entity auto-spawn triggers.
                     if "entity" in self.tile(tx, ty).properties:
-                        args = self.tile(tx, ty).properties["entity"].split(",")
-                        if len(args) != 4:
-                            self.driftwood.log.msg("ERROR", "Layer", self.zpos, "_process_objects",
-                                                   "invalid entity trigger",
-                                                   self.tile(tx, ty).properties["entity"])
-                            return
-                        args[1] = int(args[1])
-                        args[2] = int(args[2])
-                        args[3] = int(args[3])
-                        self.driftwood.area._autospawns.append(args)
+                        self.driftwood.area._autospawns.append([self.tile(tx, ty).properties["entity"],
+                                                                self.zpos, tx, ty])
 
     def __expand_properties(self, properties: Dict[str, str]) -> None:
         new_props = {}
