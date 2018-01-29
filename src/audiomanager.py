@@ -480,4 +480,10 @@ class AudioManager:
         self.stop_music()
         self.stop_all_sfx()
         Mix_Quit()
-        Mix_CloseAudio()
+        
+        # TODO: Investigate
+        # This line commented out because it causes segfaults on shutdown, on some Linux systems only.
+        # We have so far been unable to determine the cause. Fortunately, this memory will all be released
+        # with the program's exit just milliseconds from now, so it probably doesn't matter terribly.
+        # Still, it's bad form and should be fixed. Issue: https://github.com/Driftwood2D/Driftwood/issues/202
+        #Mix_CloseAudio()
