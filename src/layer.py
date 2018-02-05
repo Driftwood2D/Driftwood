@@ -290,7 +290,7 @@ class _TileLoader:
                         self.__tiles[seq] = tile.Tile(layer, seq, ts, gid)
                         break  # Stop searching.
 
-                if not self.__tiles[seq]:
+                if not seq in self.__tiles:
                     # We found nothing. Set nothing.
                     self.driftwood.log.msg("WARNING", "Layer", layer.zpos, "_TileReader", "Orphan gid", gid,
                                            "for tile", seq)
