@@ -1,0 +1,81 @@
+{
+  "init": {
+    "mode": "pixel",
+    "collision": ["all"],
+    "travel": true,
+    "speed": 64,
+    "image": "player.png",
+    "width": 16,
+    "height": 18,
+    "members": [8],
+    "afps": 0,
+    "properties": {"nerd": true},
+    "on_insert": "player.py,setup",
+    "on_kill": "",
+    "resting_stance": "init"
+  },
+  "walk_up": {
+    "members": [1,2,3,2],
+    "afps": 8
+  },
+  "walk_up_left": {
+    "members": [1,2,3,2],
+    "afps": 8
+  },
+  "walk_up_right": {
+    "members": [1,2,3,2],
+    "afps": 8
+  },
+  "walk_right": {
+    "members": [4,5,6,5],
+    "afps": 8
+  },
+  "walk_down": {
+    "members": [7,8,9,8],
+    "afps": 8
+  },
+  "walk_down_left": {
+    "members": [7,8,9,8],
+    "afps": 8
+  },
+  "walk_down_right": {
+    "members": [7,8,9,8],
+    "afps": 8
+  },
+  "walk_left": {
+    "members": [10,11,12,11],
+    "afps": 8
+  },
+  "face_up": {
+    "members": [2],
+    "afps": 0
+  },
+  "face_up_left": {
+    "members": [2],
+    "afps": 0
+  },
+  "face_up_right": {
+    "members": [2],
+    "afps": 0
+  },
+  "face_right": {
+    "members": [5],
+    "afps": 0
+  },
+  "face_down": {
+    "members": [8],
+    "afps": 0
+  },
+  "face_down_left": {
+    "members": [8],
+    "afps": 0
+  },
+  "face_down_right": {
+    "members": [8],
+    "afps": 0
+  },
+  "face_left": {
+    "members": [11],
+    "afps": 0
+  }
+}
