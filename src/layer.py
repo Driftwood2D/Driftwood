@@ -280,19 +280,23 @@ class _TileLoader:
             # Iterate through the tile graphic IDs.
             layer = self.__layer
             gid = layer._layer["data"][seq]
+            range_inclusive = lambda start, end: range(start, end + 1)
 
             # Does this tile actually exist?
             if gid:
                 # Find which tileset the tile's graphic is in.
                 for ts in layer.tilemap.tilesets:
-                    if gid in range(*ts.range):
+                    if gid in range_inclusive(*ts.range):
                         # Create the Tile instance for this tile.
                         self.__tiles[seq] = tile.Tile(layer, seq, ts, gid)
                         break  # Stop searching.
+                    else:
+                        print(ts.range)
+                        print(gid)
 
                 if not seq in self.__tiles:
                     # We found nothing. Set nothing.
-                    self.driftwood.log.msg("WARNING", "Layer", layer.zpos, "_TileReader", "Orphan gid", gid,
+                    self.driftwood.log.msg("WARNING", "Layer", layer.zpos, "_TileLoader", "Orphan gid", gid,
                                            "for tile", seq)
                     self.__tiles[seq] = tile.Tile(layer, seq, None, None)
 

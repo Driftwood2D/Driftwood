@@ -2,7 +2,7 @@ def init():
     """Called on engine start.
     """
     # Set the logical resolution of the window.
-    Driftwood.window.resize(120, 120)
+    Driftwood.window.resize(160, 160)
 
     # Initialize special effects.
     viewport = Driftwood.script["Stageshow/viewport.py"].ViewportFX()

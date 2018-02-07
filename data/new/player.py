@@ -6,4 +6,4 @@ def setup(ent):
 
     # Make this entity the player and set default walk keybinds.
     _["player"] = Driftwood.script["Folkdance/player.py"].PlayerManager(ent)
-    _["player"].setup_default_keybinds(diagonal=True)
+    _["player"].setup_default_keybinds(diagonal=False)
