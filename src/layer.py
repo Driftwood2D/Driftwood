@@ -290,9 +290,6 @@ class _TileLoader:
                         # Create the Tile instance for this tile.
                         self.__tiles[seq] = tile.Tile(layer, seq, ts, gid)
                         break  # Stop searching.
-                    else:
-                        print(ts.range)
-                        print(gid)
 
                 if not seq in self.__tiles:
                     # We found nothing. Set nothing.
