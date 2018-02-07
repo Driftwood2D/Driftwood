@@ -96,7 +96,7 @@ class ConfigManager:
                 assignment = item[1:].split('=')
                 if len(assignment) is not 2:
                     # Not valid.
-                    print("[0] FATAL: Config: invalid variable assignment: "+item)
+                    print("[0] FATAL: Config: __read_cmdline_vars: invalid variable assignment: "+item)
                     sys.exit(1)  # Fail.
                 self.driftwood.vars[assignment[0]] = assignment[1]  # Assign the engine variable.
 
@@ -155,7 +155,7 @@ class ConfigManager:
                 self.__config = json.load(config)
         except:
             print("Driftwood 2D\nStarting up...")
-            print("[0] FATAL: Config: could not read config file")
+            print("[0] FATAL: Config: __prepare_config: could not read config file")
             sys.exit(1)  # Fail.
 
         # Change the working directory to the location of the config file.
@@ -169,7 +169,7 @@ class ConfigManager:
             jsonschema.validate(self.__config, schema)
         except jsonschema.ValidationError:
             print("Driftwood 2D\nStarting up...")
-            print("[0] FATAL: Config: config file failed validation")
+            print("[0] FATAL: Config: __prepare_config: config file failed validation")
             traceback.print_exc(1, sys.stdout)
             sys.stdout.flush()
             sys.exit(1)  # Fail.
