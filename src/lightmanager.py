@@ -162,8 +162,8 @@ class LightManager:
                                        layermod)
 
         # We are done.
-        self.driftwood.log.info("Light", "inserted", "{0} on layer {1} at position {2}, {3}".format(filename, layer,
-                                                                                                    x, y))
+        self.driftwood.log.info("Light", "inserted", "{0} on layer {1} at position {2}px, {3}px".format(filename, layer,
+                                                                                                        x, y))
         # The area has changed because we added a light.
         self.driftwood.area.changed = True
 

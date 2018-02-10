@@ -26,9 +26,12 @@
 # **********
 
 # JSON Schemas
+# These are the schema files for validating various categories of json-based engine data files.
+# They are stuck here in variables because jsonschema's path-finding doesn't play nice with PyInstaller on Windows.
 
 import json
 
+# Schema for the engine config file.
 _S_CONFIG = """
 {
   "type": "object",
@@ -224,6 +227,7 @@ _S_CONFIG = """
 }
 """
 
+# Schema for entity descriptors.
 _S_ENTITY = """
 {
   "type": "object",
@@ -359,6 +363,7 @@ _S_ENTITY = """
 }
 """
 
+# Dictionary storing all schema files by name.
 _SCHEMA = {
     "config": json.loads(_S_CONFIG),
     "entity": json.loads(_S_ENTITY)

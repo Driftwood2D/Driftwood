@@ -331,7 +331,7 @@ class ScriptManager:
         cpath[-1] = os.path.splitext(cpath[-1])[0]
         return os.sep.join(cpath)  # [1:]
 
-    def __load(self, filename: str) -> bool:
+    def __load(self, filename: str) -> Optional[bool]:
         """Load a script.
 
         Args:

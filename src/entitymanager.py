@@ -149,9 +149,9 @@ class EntityManager:
 
         self.driftwood.area.changed = True
 
-        self.driftwood.log.info("Entity", "inserted", "{0} on layer {1} at position {2}, {3}".format(filename,
-                                                                                                     layer,
-                                                                                                     x, y))
+        self.driftwood.log.info("Entity", "inserted", "{0} on layer {1} at position {2}t, {3}t".format(filename,
+                                                                                                       layer,
+                                                                                                       x, y))
 
         # Function to call when inserting the entity.
         if data["init"]["on_insert"]:

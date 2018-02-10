@@ -39,8 +39,7 @@ if __name__ == "__main__":
         print("Driftwood 2D\nStarting up...")
         print("[0] FATAL: __main__: Python >= {0}.{1}.{2} required, found Python {3}.{4}.{5}".format(
                                                                                             VREQ[0], VREQ[1], VREQ[2],
-                                                                                            VCUR[0], VCUR[1], VCUR[2])
-        )
+                                                                                            VCUR[0], VCUR[1], VCUR[2]))
         print("Please make sure to run with a compatible version of Python3.")
         sys.exit(1)  # Fail.
 
