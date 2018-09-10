@@ -171,7 +171,8 @@ class Driftwood:
                     self.tick._tick()
                     time.sleep(0.01)  # Cap mainloop speed.
 
-            print("Shutting down...")
+            ticks = "[{0}]".format(self.tick.count)
+            print(ticks + " Shutting down...")
             self._terminate()
             return 0
 

@@ -154,7 +154,7 @@ class ConfigManager:
             with open(self.__cmdline_args.config, 'r') as config:
                 self.__config = json.load(config)
         except:
-            print("Driftwood 2D\nStarting up...")
+            print("Driftwood 2D\n[0] Starting up...")
             print("[0] FATAL: Config: __prepare_config: could not read config file")
             sys.exit(1)  # Fail.
 
@@ -168,7 +168,7 @@ class ConfigManager:
         try:
             jsonschema.validate(self.__config, schema)
         except jsonschema.ValidationError:
-            print("Driftwood 2D\nStarting up...")
+            print("Driftwood 2D\n[0] Starting up...")
             print("[0] FATAL: Config: __prepare_config: config file failed validation")
             traceback.print_exc(1, sys.stdout)
             sys.stdout.flush()
@@ -180,7 +180,7 @@ class ConfigManager:
             print(COPYRIGHT)
             sys.exit(0)  # Exit here, this is all we're doing today.
 
-        print("Driftwood 2D\nStarting up...")
+        print("Driftwood 2D\n[0] Starting up...")
 
         # Read the rest of the command line arguments.
         if self.__cmdline_args.path:

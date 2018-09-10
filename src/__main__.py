@@ -36,7 +36,7 @@ VREQ = [3, 5, 0]
 if __name__ == "__main__":
     # Check Python version.
     if VCUR[0] < VREQ[0] or VCUR[1] < VREQ[1] or (VCUR[1] == VREQ[1] and VCUR[2] < VREQ[2]):
-        print("Driftwood 2D\nStarting up...")
+        print("Driftwood 2D\n[0] Starting up...")
         print("[0] FATAL: __main__: Python >= {0}.{1}.{2} required, found Python {3}.{4}.{5}".format(
                                                                                             VREQ[0], VREQ[1], VREQ[2],
                                                                                             VCUR[0], VCUR[1], VCUR[2]))
@@ -50,7 +50,7 @@ if __name__ == "__main__":
         from sdl2 import *
         import sdl2.ext as sdl2ext
     except ImportError:
-        print("Driftwood 2D\nStarting up...")
+        print("Driftwood 2D\n[0] Starting up...")
         print("[0] FATAL: __main__: PySDL2 required, module \"sdl2\" not found or sdl missing")
         print("Please make sure that SDL2, SDL2_image, SDL2_mixer, and SDL2_TTF are installed.")
         print("Also make sure that the \"pysdl2\" Python3 package is installed.")
@@ -61,7 +61,7 @@ if __name__ == "__main__":
     try:
         import jsonschema
     except ImportError:
-        print("Driftwood 2D\nStarting up...")
+        print("Driftwood 2D\n[0] Starting up...")
         print("[0] FATAL: __main__: jsonschema required, module \"jsonschema\" not found")
         print("Please make sure that the \"jsonschema\" Python3 module is installed.")
         print("On most systems, run \"pip3 install jsonschema\". If pip3 is missing, try pip instead.")
@@ -71,7 +71,7 @@ if __name__ == "__main__":
     try:
         import ubjson
     except ImportError:
-        print("Driftwood 2D\nStarting up...")
+        print("Driftwood 2D\n[0] Starting up...")
         print("[0] FATAL: __main__: ubjson required, module \"ubjson\" not found")
         print("Please make sure that the \"py-ubjson\" Python3 module is installed.")
         print("On most systems, run \"pip3 install py-ubjson\". If pip3 is missing, try pip instead.")
@@ -81,7 +81,7 @@ if __name__ == "__main__":
     try:
         import jinja2
     except ImportError:
-        print("Driftwood 2D\nStarting up...")
+        print("Driftwood 2D\n[0] Starting up...")
         print("[0] FATAL: __main__: Jinja2 required, module \"jinja2\" not found")
         print("Please make sure that the \"jinja2\" Python3 module is installed.")
         print("On most systems, run \"pip3 install jinja2\". If pip3 is missing, try pip instead.")
