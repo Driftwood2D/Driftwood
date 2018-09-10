@@ -25,6 +25,7 @@
 # IN THE SOFTWARE.
 # **********
 
+import datetime
 import sys
 from typing import Any, List
 
@@ -54,7 +55,8 @@ class LogManager:
                 self.msg("ERROR", "Log", "cannot open log file for writing", self.driftwood.config["log"]["file"])
             else:
                 self.__file = open(self.driftwood.config["log"]["file"], "a+")
-                self.__file.write("Starting up...\n")
+                self.__file.write("[" + str(datetime.datetime.now()) + "]\n")
+                self.__file.write("[0] Starting up...\n")
 
     def msg(self, *chain: Any) -> bool:
         """Log a message.
@@ -146,5 +148,6 @@ class LogManager:
         """Cleanup before deletion.
         """
         if self.__file:
-            self.__file.write("Shutting down...\n")
+            ticks = "[{0}]".format(self.driftwood.tick.count)
+            self.__file.write(ticks + " Shutting down...\n\n")
             self.__file.close()
