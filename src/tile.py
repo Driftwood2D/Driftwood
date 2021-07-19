@@ -116,7 +116,7 @@ class Tile:
         """
         if self.members:
             current_member = self.members[self.__cur_member]
-            if current_member is not -1:
+            if current_member != -1:
                 return [(current_member * self.tileset.tilewidth) % self.tileset.imagewidth,
                         current_member * self.tileset.tilewidth // self.tileset.imagewidth * self.tileset.tileheight,
                         self.tileset.tilewidth, self.tileset.tileheight]
@@ -142,11 +142,11 @@ class Tile:
 
     def setgid(self, gid: int, members: List[int] = None, afps: int = None) -> Optional[bool]:
         """Helper function to change the tile graphic or animation.
-        
+
         gid: The primary graphic ID to set.
         members: List of graphic IDs of the animation members if set.
         afps: Animation frames per second if set. Will not animate otherwise.
-        
+
         Returns:
             True
         """

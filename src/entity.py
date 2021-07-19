@@ -136,7 +136,7 @@ class Entity:
             # Guard against rare race condition.
             current_member = self.members[0]
 
-        if current_member is not -1:
+        if current_member != -1:
             if type(current_member) is list:  # This is a layered member.
                 ret = []
                 for layer in current_member:
@@ -158,7 +158,7 @@ class Entity:
 
         Args:
             stance: The name of the stance to set.
-        
+
         Returns:
             True if succeeded, False if failed.
         """
@@ -516,7 +516,7 @@ class TileModeEntity(Entity):
         Args:
             x: -1 for left, 1 for right, 0 for no x movement.
             y: -1 for up, 1 for down, 0 for no y movement.
-            dont_stop: Walk continuously, don't stop after one tile or pixel. 
+            dont_stop: Walk continuously, don't stop after one tile or pixel.
                 Only stop when self.walk_state externally set to Entity.WALKING_WANT_STOP.
                 Only has an effect if x or y is set.
             facing: Unused, needed for compatibility with pixel mode.
@@ -599,7 +599,7 @@ class TileModeEntity(Entity):
             self.manager.driftwood.log.msg("ERROR", "Entity", self.eid, "interact",
                                            "no such direction for interaction", direction)
             return False
-        elif direction is "none":
+        elif direction == "none":
             return False
         elif not direction:  # Default to the direction the entity is facing currently.
             direction = self.facing
@@ -764,7 +764,7 @@ class TileModeEntity(Entity):
             ent = self.manager.entities[eid]
             # Collision detection.
             if ent.layer == self.layer:  # Are we on the same layer?
-                if ent.mode is "tile":  # Checking against another tile mode entity.
+                if ent.mode == "tile":  # Checking against another tile mode entity.
                     # It's moving. What tile is it moving to? Are we trying to move to the same tile?
                     if ent.walking and ("next" in self.collision) and \
                                     self.tile.offset(*self._last_walk) is ent.tile.offset(*ent.walking):
@@ -782,7 +782,7 @@ class TileModeEntity(Entity):
                         self.manager.collision(self, self.manager.entities[eid])
                         return False
 
-                elif ent.mode is "pixel":  # Checking against a pixel mode entity.
+                elif ent.mode == "pixel":  # Checking against a pixel mode entity.
                     # Does a pixel mode entity occupy any part of this tile?
                     if self.tile.offset(*self._last_walk) in ent._occupies:
                         return False
@@ -1050,7 +1050,7 @@ class PixelModeEntity(Entity):
             self.manager.driftwood.log.msg("ERROR", "Entity", self.eid, "interact",
                                            "no such direction for interaction", direction)
             return False
-        elif direction is "none":
+        elif direction == "none":
             return False
         elif not direction:  # Default to the direction the entity is facing currently.
             direction = self.facing

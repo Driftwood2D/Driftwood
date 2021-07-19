@@ -37,9 +37,9 @@ import widgettree
 
 class WidgetManager:
     """The Widget Manager
-    
+
     This class keeps track of widgets. These are things like text dialogs and UI elements.
-    
+
     Attributes:
         driftwood: Base class instance.
         widgets: The dictionary of widgets, sorted by widget id.
@@ -146,7 +146,7 @@ class WidgetManager:
         A container widget can have a background image, and other widgets can be contained by it. Widgets in a
         container are drawn together and the container's x and y positions are added to the widget's x and y
         positions.
-        
+
         All widgets except for text widgets are containers.
 
         Args:
@@ -195,7 +195,7 @@ class WidgetManager:
 
         ret = new_widget._prepare()
         if ret is None:
-            if new_widget.wid is 0:
+            if new_widget.wid == 0:
                 self.driftwood.log.msg("ERROR", "Widget", "insert_container", "could not create root widget")
             else:
                 self.driftwood.log.msg("ERROR", "Widget", "insert_container", "could not create container widget")
@@ -282,10 +282,10 @@ class WidgetManager:
 
     def activate(self, wid: int) -> bool:
         """Activate a widget. This widget becomes visible.
-        
+
         Args:
             wid: Widget id of widget to activate.
-        
+
         Returns:
             True if succeeded, False if failed.
         """
@@ -308,7 +308,7 @@ class WidgetManager:
 
         Args:
             wid: Widget id of widget to deactivate.
-        
+
         Returns:
             True if succeeded, False if failed.
         """
@@ -331,7 +331,7 @@ class WidgetManager:
 
         Args:
             wid: Widget id of widget to kill.
-        
+
         Returns:
             True if succeeded, False if failed.
         """
@@ -356,7 +356,7 @@ class WidgetManager:
 
         Args:
             wid: The widget id of the widget to return.
-        
+
         Returns:
             Widget instance if succeeded, None if failed.
         """

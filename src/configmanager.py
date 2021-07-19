@@ -94,7 +94,7 @@ class ConfigManager:
             if item[0] == '+':
                 sys.argv.remove(item)  # Remove this so it doesn't bother Argparse later.
                 assignment = item[1:].split('=')
-                if len(assignment) is not 2:
+                if len(assignment) != 2:
                     # Not valid.
                     print("[0] FATAL: Config: __read_cmdline_vars: invalid variable assignment: "+item)
                     sys.exit(1)  # Fail.

@@ -144,7 +144,7 @@ class EntityManager:
         self.entities[eid].tile = self.driftwood.area.tilemap.layers[layer].tile(x, y)
 
         # In pixel mode, record which tile(s) the entity occupies at first.
-        if self.entities[eid].mode is "pixel":
+        if self.entities[eid].mode == "pixel":
             self.entities[eid]._occupies = [self.entities[eid].tile, None, None, None]
 
         self.driftwood.area.changed = True
@@ -321,7 +321,7 @@ class EntityManager:
         Args:
             a: First colliding entity.
             b: Second colliding entity or tile.
-        
+
         Returns:
             True
         """
