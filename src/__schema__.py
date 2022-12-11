@@ -84,22 +84,7 @@ _S_CONFIG = """
     "audio": {
       "type": "object",
       "properties": {
-        "support": {
-          "type": "array",
-          "items": {
-            "type": "string",
-            "enum": [
-              "ogg",
-              "mp3",
-              "flac"
-            ]
-          }
-        },
         "frequency": {
-          "type": "integer",
-          "minimum": 1
-        },
-        "chunksize": {
           "type": "integer",
           "minimum": 1
         },
@@ -115,9 +100,7 @@ _S_CONFIG = """
         }
       },
       "required": [
-        "support",
         "frequency",
-        "chunksize",
         "music_volume",
         "sfx_volume"
       ]

@@ -65,12 +65,17 @@ are attributed in the distributions of the below mentioned primary dependencies.
 ### Python Jinja2
 * Copyright 2009-2017 Jinja Team
 * License: <https://raw.githubusercontent.com/pallets/jinja/master/LICENSE>
-* URI: <http://jinja.pocoo.org/>
+* URI: <https://jinja.palletsprojects.com/>
+
+### Python PyGame
+* Copyright 2000-2022 PyGame Team
+* License: <https://raw.githubusercontent.com/pygame/pygame/main/docs/LGPL.txt>
+* URI: <https://www.pygame.org/>
 
 ## Sound Effects
 
 ### Blip_Select.oga
-* Copyrignt 2014 Damaged Panda
+* Copyright 2014 Damaged Panda
 * License: <http://creativecommons.org/licenses/by/3.0/>
 * Title: 100 plus game sound effects
 * URI: <http://opengameart.org/content/100-plus-game-sound-effects-wavoggm4a>

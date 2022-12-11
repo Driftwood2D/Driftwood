@@ -35,11 +35,12 @@ Current features include:
 * SDL2_image
 * SDL2_mixer
 * SDL2_ttf
-* Python >= 3.5.0
+* Python >= 3.6.0
 * Python jsonschema <https://pypi.python.org/pypi/jsonschema>
 * Python PySDL2 <https://pypi.python.org/pypi/PySDL2/>
 * Python ubjson <https://pypi.python.org/pypi/py-ubjson>
-* Python Jinja2 <http://jinja.pocoo.org/>
+* Python Jinja2 <https://jinja.palletsprojects.com/>
+* Python PyGame <https://www.pygame.org/>
 
 
 ## Running

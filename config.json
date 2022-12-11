@@ -19,9 +19,7 @@
     "debug": true
   },
   "audio": {
-    "support": ["ogg"],
     "frequency": 22050,
-    "chunksize": 4096,
     "music_volume": 128,
     "sfx_volume": 128
   },
