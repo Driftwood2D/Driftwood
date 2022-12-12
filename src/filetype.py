@@ -25,58 +25,115 @@
 # IN THE SOFTWARE.
 # **********
 
-from ctypes import byref, c_int
+from ctypes import byref
+from typing import Optional
+
+import pygame.mixer as mixer
 from sdl2 import *
 from sdl2.sdlimage import *
-from sdl2.sdlmixer import *
 from sdl2.sdlttf import *
+
+
+class BytesStream:
+    """A file-like object that wraps a bytes object which can be given to PyGame in places where it wants a file.
+
+    It is used by PyGame to construct an SDL_RWops object in C, and then passed to various SDL file loading functions
+    within PyGame.
+    """
+    __data: bytes
+    __pos: int
+
+    def __init__(self, data: bytes):
+        """Construct a BytesSteam that will read data from an in-memory bytes object.
+        """
+        self.__data = data
+        self.__pos = 0
+
+    def read(self, num: int) -> bytes:
+        """Called by PyGame to read from this file-like object.
+
+        @see https://github.com/pygame/pygame/blob/v2.1.3/src_c/rwobject.c#L118
+        @see https://github.com/pygame/pygame/blob/v2.1.3/src_c/rwobject.c#L642
+        """
+        start = self.__pos
+        end = min(start + num, len(self.__data))
+        self.__pos = end
+        return self.__data[start:end]
+
+    def seek(self, offset: int, whence: int = 0):
+        """Called by PyGame to seek in this file-like object.
+
+        @see https://github.com/pygame/pygame/blob/v2.1.3/src_c/rwobject.c#L136
+        @see https://github.com/pygame/pygame/blob/v2.1.3/src_c/rwobject.c#L316
+        @see https://github.com/pygame/pygame/blob/v2.1.3/src_c/rwobject.c#L340
+        @see https://github.com/pygame/pygame/blob/v2.1.3/src_c/rwobject.c#L559
+        @see https://github.com/pygame/pygame/blob/v2.1.3/src_c/rwobject.c#L596
+        """
+        if whence == 0:
+            self.__pos = offset
+        elif whence == 1:
+            self.__pos += offset
+        else:
+            self.__pos = offset + len(self.__data)
+        self.__pos = max(0, min(len(self.__data), self.__pos))
+        return self.__pos
+
+    def tell(self) -> int:
+        """Called by PyGame to find the current offset in this file-like object.
+
+        @see https://github.com/pygame/pygame/blob/v2.1.3/src_c/rwobject.c#L143
+        @see https://github.com/pygame/pygame/blob/v2.1.3/src_c/rwobject.c#L569
+        @see https://github.com/pygame/pygame/blob/v2.1.3/src_c/rwobject.c#L603
+        """
+        return self.__pos
+
+    def close(self):
+        """Called by PyGame to close this file-like object.
+
+        @see https://github.com/pygame/pygame/blob/v2.1.3/src_c/rwobject.c#L150
+        @see https://github.com/pygame/pygame/blob/v2.1.3/src_c/rwobject.c#L417
+        """
+        pass
 
 
 class AudioFile:
     """This class represents and abstracts a single OGG Vorbis audio file.
-    
-    Attributes:
-        audio: The SDL_mixer audio handle.
-    """
 
-    def __init__(self, driftwood, data: bytes, music: bool = False):
+    Attributes:
+        audio: The PyGame audio handle.
+    """
+    audio: Optional[mixer.Sound]
+
+    def __init__(self, driftwood, data: bytes, is_music: bool = False):
         self.driftwood = driftwood
 
         self.audio = None
-        self.__is_music = music
+        self.__is_music = is_music
         self.__data = data
 
         self.__load(self.__data)
 
     def __load(self, data: bytes) -> None:
-        """Load the audio data with SDL_Mixer.
+        """Load the audio data with PyGame.
         """
         if data:
-            if self.__is_music:
-                self.audio = Mix_LoadMUS_RW(SDL_RWFromConstMem(data, len(data)), 1)
-            else:
-                self.audio = Mix_LoadWAV_RW(SDL_RWFromConstMem(data, len(data)), 1)
-
-            if not self.audio:
-                self.driftwood.log.msg("ERROR", "AudioFile", "__load", "SDL_Mixer", SDL_GetError())
+            try:
+                self.audio = mixer.Sound(file=BytesStream(data))
+            except Exception as e:
+                self.driftwood.log.msg("ERROR", "AudioFile", "__load", "PyGame", e)
 
     def _terminate(self) -> None:
         """Cleanup before deletion.
         """
         if self.audio:
-            if self.__is_music:
-                Mix_FreeMusic(self.audio)
-                self.audio = None
-            else:
-                Mix_FreeChunk(self.audio)
-                self.audio = None
+            self.audio = None
         else:
             self.driftwood.log.msg("WARNING", "AudioFile", "terminate", "subsequent termination of same object")
 
 
 class FontFile:
     """This class represents and abstracts a single font file.
-    
+
     Attributes:
         font: The SDL_ttf font handle.
         ptsize: The size of the font in pt.
@@ -113,7 +170,7 @@ class FontFile:
 
 class ImageFile:
     """This class represents and abstracts a single image file.
-    
+
     Attributes:
         surface: An SDL surface containing the image.
         texture: An SDL texture containing the image.

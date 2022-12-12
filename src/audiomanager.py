@@ -28,8 +28,17 @@
 # A big thank-you to Lazy Foo's SDL_Audio tutorial. It would've taken me a lot longer to build this without such clear
 # instruction. Link: <http://lazyfoo.net/SDL_tutorials/lesson11/>
 
-from sdl2.sdlmixer import *
 from typing import Optional
+
+import pygame
+import pygame.mixer as mixer
+
+from filetype import AudioFile
+
+# We have 8 channels. Channel 0 is for music, and the rest are for sound effects.
+MAX_CHAN = 8
+MUSIC_CHAN = 0
+FIRST_SFX_CHAN = 1
 
 
 class AudioManager:
@@ -42,6 +51,7 @@ class AudioManager:
             playing_music: Whether we are currently playing music or not.
             playing_sfx: Whether we are currently playing sfx or not.
     """
+    __music: Optional[AudioFile]
 
     def __init__(self, driftwood):
         self.driftwood = driftwood
@@ -50,40 +60,33 @@ class AudioManager:
         self.playing_sfx = False
 
         self.__music = None
-        self.__sfx = {}  # key: channel; [filename, file]
-        self.__init_success = [False, False]
+        self.__init_success = False
 
         # Attempt to initialize mixer output.
-        if Mix_OpenAudio(self.driftwood.config["audio"]["frequency"], MIX_DEFAULT_FORMAT, 2,
-                         self.driftwood.config["audio"]["chunksize"]) == -1:
-            self.driftwood.log.msg("ERROR", "Audio", "__init__", "failed to initialize mixer output",
-                                   str(Mix_GetError()))
-        else:
-            self.driftwood.log.info("Audio", "initialized mixer output")
-            self.__init_success[0] = True
+        audio_config = self.driftwood.config["audio"]
+        frequency = audio_config["frequency"]
+        try:
+            mixer.init(frequency=frequency)
+        except pygame.error as e:
+            self.driftwood.log.msg("ERROR", "Audio", "__init__", "failed to initialize mixer output", str(e))
+            return
 
-        # Attempt to initialize mixer support for selected audio formats.
-        init_flags = 0
-        if "ogg" in self.driftwood.config["audio"]["support"]:
-            init_flags |= MIX_INIT_OGG
-        if "mp3" in self.driftwood.config["audio"]["support"]:
-            init_flags |= MIX_INIT_MP3
-        if "flac" in self.driftwood.config["audio"]["support"]:
-            init_flags |= MIX_INIT_FLAC
+        mixer.set_num_channels(MAX_CHAN)
+        mixer.set_reserved(1)  # Reserved for music.
 
-        # Did we succeed?
-        if Mix_Init(init_flags) & init_flags != init_flags:
-            self.driftwood.log.msg("ERROR", "Audio", "__init__", "failed to initialize audio format support",
-                                   str(Mix_GetError()))
-        else:
-            self.driftwood.log.info("Audio", "initialized mixer audio format support",
-                                    " ,".join(self.driftwood.config["audio"]["support"]))
-            self.__init_success[1] = True
+        self.driftwood.log.info("Audio", "initialized mixer output")
+        self.__init_success = True
 
         # Register the cleanup function.
         self.driftwood.tick.register(self._cleanup, delay=0.01, during_pause=True)
 
-    def play_sfx(self, filename: str, volume: int = None, loop: Optional[int] = 0, fade: float = 0.0) -> Optional[int]:
+    def play_sfx(
+            self,
+            filename: str,
+            volume: int = None,
+            loop: Optional[int] = 0,
+            fade: float = 0.0,
+    ) -> Optional[mixer.Channel]:
         """Load and play a sound effect from an audio file.
 
         Args:
@@ -107,18 +110,14 @@ class AudioManager:
             return None
 
         # Give up if we didn't initialize properly.
-        if False in self.__init_success:
+        if not self.__init_success:
             self.driftwood.log.msg("WARNING", "Audio", "play_sfx", "cannot play sfx due to initialization failure",
                                    filename)
             return None
 
         # Load the sound effect.
-        sfx_temp = [
-            filename,
-            self.driftwood.resource.request_audio(filename, False)
-        ]
-
-        if not sfx_temp[1]:
+        audio_file: Optional[AudioFile] = self.driftwood.resource.request_audio(filename, False)
+        if not audio_file:
             self.driftwood.log.msg("ERROR", "Audio", "play_sfx", "could not load sfx", filename)
             return None
 
@@ -132,28 +131,26 @@ class AudioManager:
                 volume = 0
 
             # Set the volume.
-            Mix_VolumeChunk(sfx_temp[1].audio, volume)
+            audio_file.audio.set_volume(volume / 128)
         else:
-            Mix_VolumeChunk(sfx_temp[1].audio, self.driftwood.config["audio"]["sfx_volume"])
+            volume = self.driftwood.config["audio"]["sfx_volume"]
+            audio_file.audio.set_volume(volume / 128)
 
         if loop is None:
+            # Loop infinitely
             loop = -1
 
-        if not fade:  # Play the sound effect.
-            channel = Mix_PlayChannel(-1, sfx_temp[1].audio, loop)
-        else:  # Fade in sound effect.
-            channel = Mix_FadeInChannel(-1, sfx_temp[1].audio, loop, fade * 1000)
+        channel = audio_file.audio.play(loops=loop, fade_ms=int(fade * 1000))
 
-        if channel == -1:
+        if channel is None:
             self.driftwood.log.msg("WARNING", "Audio", "play_sfx", "could not play sfx on channel", str(channel))
             return None
 
-        self.__sfx[channel] = sfx_temp
         self.playing_sfx = True
 
         return channel
 
-    def volume_sfx(self, channel: Optional[int], volume: int = None) -> Optional[int]:
+    def volume_sfx(self, channel: Optional[mixer.Channel], volume: int = None) -> Optional[int]:
         """Get or adjust the volume of a sound effect channel.
 
         Args:
@@ -173,75 +170,26 @@ class AudioManager:
             self.driftwood.log.msg("ERROR", "Audio", "volume_sfx", "bad argument", e)
             return None
 
-        if channel is None:
-            channel = -1
+        if volume is not None:  # Set the volume.
+            # Keep volume within bounds.
+            if volume > 128:
+                self.driftwood.log.msg("WARNING", "Audio", "volume_sfx", "volume is more than 128", volume)
+                volume = 128
+            if volume < 0:
+                self.driftwood.log.msg("WARNING", "Audio", "volume_sfx", "volume is less than 0", volume)
+                volume = 0
 
-        # Search for the sound effect.
-        if channel == -1 or channel in self.__sfx:
-            if volume is not None:
-                # Keep volume within bounds.
-                if volume > 128:
-                    volume = 128
-                    self.driftwood.log.msg("WARNING", "Audio", "volume_sfx", "volume is more than 128", volume)
-                if volume < 0:
-                    self.driftwood.log.msg("WARNING", "Audio", "volume_sfx", "volume is less than 0", volume)
-                    volume = 0
+            if channel:
+                channel.set_volume(volume / 128)
+            else:
+                for idx in range(FIRST_SFX_CHAN, MAX_CHAN):
+                    mixer.Channel(idx).set_volume(volume / 128)
+            return volume
+        else:  # Get the volume.
+            if channel:
+                return int(channel.get_volume() * 128)
 
-                # Set the volume.
-                Mix_Volume(channel, volume)
-                return volume
-            else:  # Get the volume.
-                return Mix_Volume(channel, -1)
-
-        self.driftwood.log.msg("WARNING", "Audio", "volume_sfx", "cannot adjust sfx volume on nonexistent channel",
-                               channel)
-        return None
-
-    def volume_sfx_by_filename(self, filename: str, volume: int = None) -> Optional[int]:
-        """Get or adjust the volume of all currently playing instances of the named sound effect.
-
-        Args:
-            filename: Filename of the sound effect whose volume to adjust or query.
-            volume: Optional, sets a new volume. Integer between 0 and 128, or no volume to just query.
-
-        Returns:
-            Integer volume if succeeded, None if failed.
-        """
-        # Input Check
-        try:
-            CHECK(filename, str)
-            if volume is not None:
-                CHECK(volume, int)
-        except CheckFailure as e:
-            self.driftwood.log.msg("ERROR", "Audio", "volume_sfx_by_filename", "bad argument", e)
-            return None
-
-        # Check for the sfx.
-        for sfx in self.__sfx:
-            if self.__sfx[sfx][0] == filename:
-                if volume is not None:
-                    # Keep volume within bounds.
-                    if volume > 128:
-                        volume = 128
-                        self.driftwood.log.msg("WARNING", "Audio", "volume_sfx_by_filename",
-                                               "volume is more than 128", volume)
-                    if volume < 0:
-                        self.driftwood.log.msg("WARNING", "Audio", "volume_sfx_by_filename",
-                                               "volume is less than 0", volume)
-                        volume = 0
-
-                    # Set the volume.
-                    Mix_Volume(sfx, volume)
-                    return volume
-                else:  # Get the volume.
-                    return Mix_Volume(sfx, -1)
-
-        # No such filename.
-        self.driftwood.log.msg("WARNING", "Audio", "volume_sfx_by_filename",
-                               "cannot adjust volume for nonexistent instances of sfx", filename)
-        return None
-
-    def stop_sfx(self, channel: int, fade: float = 0.0) -> bool:
+    def stop_sfx(self, channel: mixer.Channel, fade: float = 0.0) -> bool:
         """Stop a sound effect. Requires the sound effect's channel number from play_sfx()'s return code.
 
         Args:
@@ -259,54 +207,8 @@ class AudioManager:
             self.driftwood.log.msg("ERROR", "Audio", "stop_sfx", "bad argument", e)
             return False
 
-        if channel in self.__sfx:
-            if Mix_Playing(channel):
-                if not fade:  # Stop channel.
-                    Mix_HaltChannel(channel)
-                    del self.__sfx[channel]
-                else:  # Fade out channel.
-                    Mix_FadeOutChannel(channel, fade * 1000)
-                    # Cleanup callback will handle deletion.
-            return True
-
-        self.driftwood.log.msg("WARNING", "Audio", "stop_sfx", "cannot stop sfx on nonexistent channel",
-                               channel)
-        return False
-
-    def stop_sfx_by_filename(self, filename: str, fade: float = 0.0) -> bool:
-        """Stop all currently playing instances of the named sound effect.
-
-        Args:
-            filename: Filename of the sound effect instances to stop.
-            fade: If set, number of seconds to fade out sfx.
-
-        Returns:
-            True if succeeded, false if failed.
-        """
-        # Input Check
-        try:
-            CHECK(filename, str)
-            CHECK(fade, [int, float], _min=0)
-        except CheckFailure as e:
-            self.driftwood.log.msg("ERROR", "Audio", "stop_sfx_by_filename", "bad argument", e)
-            return False
-
-        for sfx in self.__sfx:
-            if self.__sfx[sfx][0] == filename:
-                if not Mix_Playing(sfx):
-                    return False
-                else:
-                    if not fade:  # Stop sfx.
-                        Mix_HaltChannel(sfx)
-                        del self.__sfx[sfx]
-                    else:
-                        Mix_FadeOutChannel(sfx, fade * 1000)
-                        # Cleanup callback will handle deletion.
-                    return True
-
-        self.driftwood.log.msg("WARNING", "Audio", "stop_sfx_by_filename", "cannot stop nonexistent instances of sfx",
-                               filename)
-        return False
+        channel.fadeout(int(fade * 1000))
+        return True
 
     def stop_all_sfx(self) -> bool:
         """Stop all currently playing sound effects.
@@ -314,9 +216,8 @@ class AudioManager:
         Returns:
             True
         """
-        for sfx in self.__sfx:
-            self.stop_sfx(sfx)
-        self.__sfx = {}
+        for idx in range(FIRST_SFX_CHAN, MAX_CHAN):
+            mixer.Channel(idx).stop()
         return True
 
     def play_music(self, filename: str, volume: int = None, loop: Optional[int] = 0, fade: float = 0.0) -> bool:
@@ -344,7 +245,7 @@ class AudioManager:
             return False
 
         # Give up if we didn't initialize properly.
-        if 0 in self.__init_success:
+        if not self.__init_success:
             self.driftwood.log.msg("WARNING", "Audio", "play_music", "cannot play music due to initialization failure",
                                    filename)
             return False
@@ -358,20 +259,16 @@ class AudioManager:
             self.driftwood.log.msg("ERROR", "Audio", "play_music", "could not load music", filename)
             return False
 
-        # Stop any currently playing music.
-        if Mix_PlayingMusic():
-            self.stop_music()
-
         if loop is None:
             loop = -1
 
-        if not fade:  # Play the music.
-            result = Mix_PlayMusic(self.__music.audio, loop)
-        else:  # Fade in the music.
-            result = Mix_FadeInMusic(self.__music.audio, loop, fade * 1000)
+        channel = mixer.Channel(MUSIC_CHAN)
 
-        if result == -1:
-            self.driftwood.log.msg("WARNING", "Audio", "play_music", "could not play music")
+        # Play the music.
+        try:
+            channel.play(self.__music.audio, loop, int(fade * 1000))
+        except Exception as e:
+            self.driftwood.log.msg("WARNING", "Audio", "play_music", "could not play music", e)
             return False
 
         if volume is not None:
@@ -384,9 +281,9 @@ class AudioManager:
                 volume = 0
 
             # Set the volume.
-            Mix_VolumeMusic(volume)
+            channel.set_volume(volume)
         else:
-            Mix_VolumeMusic(self.driftwood.config["audio"]["music_volume"])
+            channel.set_volume(self.driftwood.config["audio"]["music_volume"])
 
         self.playing_music = True
 
@@ -410,7 +307,9 @@ class AudioManager:
             return None
 
         # Search for the sound effect.
-        if self.playing_music:
+        channel = mixer.Channel(MUSIC_CHAN)
+        playing_music = channel.get_busy()
+        if playing_music:
             if volume is not None:
                 # Keep volume within bounds.
                 if volume > 128:
@@ -421,10 +320,10 @@ class AudioManager:
                     volume = 0
 
                 # Set the volume.
-                Mix_VolumeMusic(volume)
+                channel.set_volume(volume / 128)
                 return volume
             else:  # Get the volume.
-                return Mix_VolumeMusic(-1)
+                return int(channel.get_volume() * 128)
 
         self.driftwood.log.msg("WARNING", "Audio", "volume_music", "cannot adjust volume for nonexistent music")
         return None
@@ -448,42 +347,28 @@ class AudioManager:
         if not self.__music:
             return False
 
-        if Mix_PlayingMusic():
+        channel = mixer.Channel(MUSIC_CHAN)
+        if channel.get_busy():
             if not fade:  # Stop the music.
-                Mix_HaltMusic()
+                channel.stop()
                 self.__music = None
                 self.playing_music = False
             else:  # Fade out the music.
-                Mix_FadeOutMusic(fade * 1000)
+                channel.fadeout(int(fade * 1000))
                 # Cleanup callback will handle deletion.
 
         return True
 
     def _cleanup(self, seconds_past: float) -> None:
         # Tick callback to clean up files we're done with.
-        if self.__music and not Mix_PlayingMusic():
+        if self.__music and not mixer.Channel(MUSIC_CHAN).get_busy():
             self.__music = None
             self.playing_music = False
-        try:
-            if not len(self.__sfx):
-                self.playing_sfx = False
-            else:
-                for sfx in self.__sfx:
-                    if not Mix_Playing(sfx):
-                        del self.__sfx[sfx]
-        except RuntimeError:
-            pass
+        self.playing_sfx = any(mixer.Channel(idx).get_busy() for idx in range(FIRST_SFX_CHAN, MAX_CHAN))
 
     def _terminate(self) -> None:
         """Prepare for shutdown.
         """
         self.stop_music()
         self.stop_all_sfx()
-        Mix_Quit()
-        
-        # TODO: Investigate
-        # This line commented out because it causes segfaults on shutdown, on some Linux systems only.
-        # We have so far been unable to determine the cause. Fortunately, this memory will all be released
-        # with the program's exit just milliseconds from now, so it probably doesn't matter terribly.
-        # Still, it's bad form and should be fixed. Issue: https://github.com/Driftwood2D/Driftwood/issues/202
-        #Mix_CloseAudio()
+        mixer.quit()

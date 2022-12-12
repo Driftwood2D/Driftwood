@@ -30,7 +30,7 @@ import signal
 import sys
 
 VCUR = sys.version_info
-VREQ = [3, 5, 0]
+VREQ = [3, 6, 0]
 
 # We have to do this here before we start pulling in nonexistent imports.
 if __name__ == "__main__":
@@ -55,6 +55,24 @@ if __name__ == "__main__":
         print("Please make sure that SDL2, SDL2_image, SDL2_mixer, and SDL2_TTF are installed.")
         print("Also make sure that the \"pysdl2\" Python3 package is installed.")
         print("On most systems, run \"pip3 install pysdl2\". If pip3 is missing, try pip instead.")
+        sys.exit(1)  # Fail.
+
+    # Try to import pygame.
+    try:
+        os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "true"
+        import pygame
+    except ImportError:
+        print("Driftwood 2D\n[0] Starting up...")
+        print("[0] FATAL: __main__: pygame required, module \"pygame\" not found")
+        print("Please make sure that the \"pygame\" Python3 module is installed.")
+        print("On most systems, run \"pip3 install pygame\". If pip3 is missing, try pip instead.")
+        sys.exit(1)  # Fail.
+    try:
+        import pygame.mixer
+    except ImportError:
+        print("Driftwood 2D\n[0] Starting up...")
+        print("[0] FATAL: __main__: pygame required, module \"pygame.mixer\" not found")
+        # TODO: Provide suggestion for the user.
         sys.exit(1)  # Fail.
 
     # Try to import jsonschema.
