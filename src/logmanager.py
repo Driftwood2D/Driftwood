@@ -27,7 +27,10 @@
 
 import datetime
 import sys
-from typing import Any, List
+from typing import Any, List, TYPE_CHECKING
+
+if TYPE_CHECKING:  # Avoid circuluar import.
+    from driftwood import Driftwood
 
 
 class LogManager:
@@ -38,6 +41,8 @@ class LogManager:
     Attributes:
         driftwood: Base class instance.
     """
+
+    driftwood: 'Driftwood'
 
     def __init__(self, driftwood):
         """LogManager class initializer.

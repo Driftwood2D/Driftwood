@@ -26,12 +26,15 @@
 # **********
 
 from ctypes import byref
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 
 import pygame.mixer as mixer
 from sdl2 import *
 from sdl2.sdlimage import *
 from sdl2.sdlttf import *
+
+if TYPE_CHECKING:  # Avoid circuluar import.
+    from driftwood import Driftwood
 
 
 class BytesStream:
@@ -103,6 +106,7 @@ class AudioFile:
         audio: The PyGame audio handle.
     """
     audio: Optional[mixer.Sound]
+    driftwood: 'Driftwood'
 
     def __init__(self, driftwood, data: bytes, is_music: bool = False):
         self.driftwood = driftwood

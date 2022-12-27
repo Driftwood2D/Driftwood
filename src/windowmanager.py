@@ -182,7 +182,7 @@ class WindowManager:
 
         Create a new window and renderer with the configured settings.
         """
-        if SDL_Init(SDL_INIT_EVERYTHING) < 0:  # Couldn't init SDL.
+        if SDL_Init(SDL_INIT_VIDEO) < 0:  # Couldn't init SDL.
             self.driftwood.log.msg("ERROR", "Window", "__prepare", "SDL", SDL_GetError())
         init_flags = IMG_INIT_JPG | IMG_INIT_PNG
         if IMG_Init(init_flags) & init_flags != init_flags:  # Couldn't init SDL_Image.

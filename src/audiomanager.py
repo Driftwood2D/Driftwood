@@ -255,7 +255,7 @@ class AudioManager:
 
         # Load the music.
         self.__music = self.driftwood.resource.request_audio(filename, True)
-        if not self.__music:
+        if not self.__music or not self.__music.audio:
             self.driftwood.log.msg("ERROR", "Audio", "play_music", "could not load music", filename)
             return False
 
