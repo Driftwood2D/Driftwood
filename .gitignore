@@ -11,3 +11,5 @@ docs/
 release/
 src.bk/
 driftwood.log
+*.dll
+venv/
