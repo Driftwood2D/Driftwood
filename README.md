@@ -1,6 +1,6 @@
 # Driftwood 2D
 
-* Copyright (c) 2014-2017 Michael D. Reiley and Paul Merrill
+* Copyright (c) 2014-2017 Sei Satzparad and Paul Merrill
 * Released under the MIT license.
 
 ![Driftwood 2D with Tiled and Console](https://i.imgur.com/XdbQO1P.png)

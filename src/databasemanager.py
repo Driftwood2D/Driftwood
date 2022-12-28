@@ -1,9 +1,9 @@
-####################################
-# Driftwood 2D Game Dev. Suite     #
-# databasemanager.py               #
-# Copyright 2014-2017              #
-# Michael D. Reiley & Paul Merrill #
-####################################
+################################
+# Driftwood 2D Game Dev. Suite #
+# databasemanager.py           #
+# Copyright 2014-2017          #
+# Sei Satzparad & Paul Merrill #
+################################
 
 # **********
 # Permission is hereby granted, free of charge, to any person obtaining a copy

@@ -10,7 +10,7 @@ are attributed in the distributions of the below mentioned primary dependencies.
 * PariahSoft LLC (Abandoned unconditionally to current copyright holders on 10/06/2016)
 
 ### Copyright (c) 2014-2017:
-* Michael D. Reiley
+* Sei Satzparad
 * Paul Merrill
 
 ### License:
@@ -129,7 +129,7 @@ are attributed in the distributions of the below mentioned primary dependencies.
 * URI: <http://opengameart.org/content/rpg-indoor-tileset-expansion-1>
 
 ### sei_tilemap.png
-* Copyright 2016 Michael D. Reiley
+* Copyright 2016 Sei Satzparad
 * License: All Rights Reserved
 * Title: Seisatsu's Tilemap - Blue World
 * URI: N/A (For use in official testing data only.)

@@ -1,9 +1,9 @@
 #!/bin/env python3
-#################################
-# UBJSON Database Editor        #
-# dbedit.py                     #
-# Copyright 2017 Michael Reiley #
-#################################
+################################
+# UBJSON Database Editor       #
+# dbedit.py                    #
+# Copyright 2017 Sei Satzparad #
+################################
 
 # **********
 # Permission is hereby granted, free of charge, to any person obtaining a copy
