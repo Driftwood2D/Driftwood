@@ -108,11 +108,13 @@ if __name__ == "__main__":
     # Import main class.
     import driftwood
 
+    import check
+
     # Place certain items in the global scope.
     import builtins
 
-    builtins.CHECK = driftwood.CHECK
-    builtins.CheckFailure = driftwood.CheckFailure
+    builtins.CHECK = check.CHECK
+    builtins.CheckFailure = check.CheckFailure
     builtins.fncopy = driftwood.fncopy
 
     # Set up the entry point.

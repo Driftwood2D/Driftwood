@@ -3,3 +3,4 @@ jsonschema
 PySDL2
 py-ubjson
 pygame
+pylint
