@@ -2,10 +2,20 @@
 max-line-length=120
 
 [MESSAGES CONTROL]
-disable=invalid-name,
+disable=fixme,
+    invalid-name,
+    missing-function-docstring,
     missing-module-docstring,
+    no-else-return,
+    protected-access,
+    redefined-builtin,
+    redefined-outer-name,
     too-few-public-methods,
     too-many-arguments,
     too-many-branches,
     too-many-instance-attributes,
-    too-many-locals
+    too-many-locals,
+    too-many-statements,
+    unused-argument,
+    unused-wildcard-import,
+    wildcard-import
