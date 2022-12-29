@@ -55,7 +55,7 @@ class Tileset:
         tileproperties: A dictionary containing mappings of tile GIDs to properties that apply to that GID.
     """
 
-    def __init__(self, driftwood, tilemap: 'tilemap.Tilemap'):
+    def __init__(self, driftwood, tilemap: "tilemap.Tilemap"):
         """Tileset class initializer.
 
         Args:
@@ -110,8 +110,7 @@ class Tileset:
             tileset_filename = self.__resolve_path(tilemap_filename, tileset_json["source"])
             external_json = self.driftwood.resource.request_json(tileset_filename)
             if not external_json or not self.__prepare(tileset_filename, external_json, firstgid):
-                self.driftwood.log.msg("ERROR", "Tileset", "load_tileset", "could not load tileset",
-                                       tileset_filename)
+                self.driftwood.log.msg("ERROR", "Tileset", "load_tileset", "could not load tileset", tileset_filename)
                 return False
             return True
 

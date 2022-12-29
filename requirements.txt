@@ -1,3 +1,4 @@
+black
 jinja2
 jsonschema
 PySDL2

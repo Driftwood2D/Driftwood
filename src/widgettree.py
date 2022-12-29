@@ -27,17 +27,22 @@
 
 import collections
 from ctypes import byref
+from typing import TYPE_CHECKING
 
 from sdl2.sdlttf import *
 
+if TYPE_CHECKING:  # Avoid circuluar import.
+    from driftwood import Driftwood
+    from widgetmanager import WidgetManager
+
 
 class WidgetTree:
-    """This class reads and builds Widget Trees.
-    """
+    """This class reads and builds Widget Trees."""
 
-    def __init__(self, manager, filename, template_vars):
-        """Wrapped from WidgetManager.load().
-        """
+    driftwood: "Driftwood"
+
+    def __init__(self, manager: "WidgetManager", filename, template_vars):
+        """Wrapped from WidgetManager.load()."""
         self.manager = manager
         self.driftwood = self.manager.driftwood
 
@@ -99,18 +104,18 @@ class WidgetTree:
                 width=self.__gp(branch, "width", 0),
                 height=self.__gp(branch, "height", 0),
                 parent=parent,
-                active=True
+                active=True,
             )
 
             if branch["type"] == "container":
                 # It's a regular container.
                 if c is None:
-                    self.driftwood.log.msg("WARNING", "Widget", "__read_branch",
-                                           "failed to prepare container widget")
+                    self.driftwood.log.msg("WARNING", "Widget", "__read_branch", "failed to prepare container widget")
                     return None
                 if not self.__postprocess_container(c, branch):
-                    self.driftwood.log.msg("WARNING", "Widget", "__read_branch",
-                                           "Failed to post-process container widget", c)
+                    self.driftwood.log.msg(
+                        "WARNING", "Widget", "__read_branch", "Failed to post-process container widget", c
+                    )
                     return None
                 widget_list.append(c)
 
@@ -119,25 +124,25 @@ class WidgetTree:
                     for b in branch["members"]:
                         res = self.__read_branch(c, b, template_vars)
                         if res is None:
-                            self.driftwood.log.msg("WARNING", "Widget", "__read_branch",
-                                                   "failed to read widget tree branch")
+                            self.driftwood.log.msg(
+                                "WARNING", "Widget", "__read_branch", "failed to read widget tree branch"
+                            )
                             return None
                         widget_list.append(res)
 
             else:
                 # It's a menu.
                 if c is None:
-                    self.driftwood.log.msg("WARNING", "Widget", "__read_branch",
-                                           "failed to prepare menu widget")
+                    self.driftwood.log.msg("WARNING", "Widget", "__read_branch", "failed to prepare menu widget")
                     return None
                 if not self.__postprocess_container(c, branch):
-                    self.driftwood.log.msg("WARNING", "Widget", "__read_branch",
-                                           "Failed to post-process menu widget", c)
+                    self.driftwood.log.msg(
+                        "WARNING", "Widget", "__read_branch", "Failed to post-process menu widget", c
+                    )
                     return None
                 slotmap = self.__build_menu(c, branch)
                 if not slotmap:
-                    self.driftwood.log.msg("WARNING", "Widget", "__read_branch",
-                                           "Failed to build menu widget", c)
+                    self.driftwood.log.msg("WARNING", "Widget", "__read_branch", "Failed to build menu widget", c)
                     return None
                 widget_list.append(c)
                 widget_list.append(slotmap)
@@ -148,8 +153,7 @@ class WidgetTree:
             # Process and insert a text widget.
             res = self.__process_text(parent, branch)
             if res is None:
-                self.driftwood.log.msg("WARNING", "Widget", "__read_branch",
-                                       "Failed to process text widgets")
+                self.driftwood.log.msg("WARNING", "Widget", "__read_branch", "Failed to process text widgets")
                 return None
 
             widget_list.append(res)
@@ -214,32 +218,38 @@ class WidgetTree:
 
         for n in range(len(contents)):
             # Check if wrapping put us in an impossible position.
-            tmpy = int((branch["y"] + n * textheight * self.__gp(branch, "line-height", 1.0)
-                        + n * self.__gp(branch, "line-spacing", 0)))
+            tmpy = int(
+                (
+                    branch["y"]
+                    + n * textheight * self.__gp(branch, "line-height", 1.0)
+                    + n * self.__gp(branch, "line-spacing", 0)
+                )
+            )
             if tmpy < 0:
                 tmpy = 0
                 self.driftwood.log.msg("WARNING", "Widget", "__process_text", "text wrapped to negative position")
 
             # Insert a textbox.
-            t.append(self.manager.insert_text(
-                contents=contents[n],
-                fontfile=branch["font"],
-                pxsize=branch["size"],
-                x=self.__gp(branch, "x", None),
-                y=tmpy,
-                width=self.__gp(branch, "width", None),
-                height=self.__gp(branch, "height", None),
-                color=self.__gp(branch, "color", "000000FF"),
-                parent=parent,
-                active=True
-            ))
+            t.append(
+                self.manager.insert_text(
+                    contents=contents[n],
+                    fontfile=branch["font"],
+                    pxsize=branch["size"],
+                    x=self.__gp(branch, "x", None),
+                    y=tmpy,
+                    width=self.__gp(branch, "width", None),
+                    height=self.__gp(branch, "height", None),
+                    color=self.__gp(branch, "color", "000000FF"),
+                    parent=parent,
+                    active=True,
+                )
+            )
             if t[-1] is None:
                 self.driftwood.log.msg("WARNING", "Widget", "__process_text", "failed to prepare text widget")
                 return None
 
             if not self.__postprocess_text(t, branch):
-                self.driftwood.log.msg("WARNING", "Widget", "__process_text", "failed to postprocess text widgets",
-                                       t)
+                self.driftwood.log.msg("WARNING", "Widget", "__process_text", "failed to postprocess text widgets", t)
                 return None
 
         return t
@@ -273,12 +283,18 @@ class WidgetTree:
                     found = True
                 if "bottom" in branch["align"] and type(branch["align"]["bottom"]) is int:
                     w.y = parent.height - w.height - (len(widgets) - 1 - seq) * sep - branch["align"]["bottom"]
-                    w.realy = parent.realy + parent.height - w.height - (len(widgets) - 1 - seq) * sep - \
-                              branch["align"]["bottom"]
+                    w.realy = (
+                        parent.realy
+                        + parent.height
+                        - w.height
+                        - (len(widgets) - 1 - seq) * sep
+                        - branch["align"]["bottom"]
+                    )
                     found = True
                 if not found:
-                    self.driftwood.log.msg("WARNING", "Widget", "__postprocess_text",
-                                           "\"align\" property contains incorrect values")
+                    self.driftwood.log.msg(
+                        "WARNING", "Widget", "__postprocess_text", '"align" property contains incorrect values'
+                    )
                     return False
 
         return True
@@ -308,8 +324,9 @@ class WidgetTree:
                 w.realy = parent.realy + parent.height - w.height - branch["align"]["bottom"]
                 found = True
             if not found:
-                self.driftwood.log.msg("WARNING", "Widget", "__postprocess_container",
-                                       "\"align\" property contains incorrect values")
+                self.driftwood.log.msg(
+                    "WARNING", "Widget", "__postprocess_container", '"align" property contains incorrect values'
+                )
                 return False
 
         return True
@@ -328,12 +345,12 @@ class WidgetTree:
                 lookups[slotmap[-1]] = segment
 
                 if slotmap[-1] is None:
-                    self.driftwood.log.msg("WARNING", "Widget", "__build_menu",
-                                           "failed to prepare menu control widget")
+                    self.driftwood.log.msg("WARNING", "Widget", "__build_menu", "failed to prepare menu control widget")
                     return None
                 if not self.__postprocess_container(widget, segment):
-                    self.driftwood.log.msg("WARNING", "Widget", "__build_menu",
-                                           "Failed to post-process menu control widget", widget)
+                    self.driftwood.log.msg(
+                        "WARNING", "Widget", "__build_menu", "Failed to post-process menu control widget", widget
+                    )
                     return None
 
             else:
@@ -344,12 +361,14 @@ class WidgetTree:
                     lookups[slotmap[-1][-1]] = control
 
                     if slotmap[-1][-1] is None:
-                        self.driftwood.log.msg("WARNING", "Widget", "__build_menu",
-                                               "failed to prepare menu control widget")
+                        self.driftwood.log.msg(
+                            "WARNING", "Widget", "__build_menu", "failed to prepare menu control widget"
+                        )
                         return None
                     if not self.__postprocess_container(widget, control):
-                        self.driftwood.log.msg("WARNING", "Widget", "__build_menu",
-                                               "Failed to post-process menu control widget", widget)
+                        self.driftwood.log.msg(
+                            "WARNING", "Widget", "__build_menu", "Failed to post-process menu control widget", widget
+                        )
                         return None
 
         self.__setup_menu(branch, slotmap, lookups)
@@ -364,7 +383,7 @@ class WidgetTree:
             width=self.__gp(branch, "width", 0),
             height=self.__gp(branch, "height", 0),
             parent=parent,
-            active=True
+            active=True,
         )
         return c
 
@@ -441,8 +460,7 @@ class WidgetTree:
         return branch[prop] if prop in branch else fallback
 
     def __include(self, filename, template_vars={}):
-        """Include branches from another file.
-        """
+        """Include branches from another file."""
         tree = self.driftwood.resource.request_template(filename, template_vars)
         if not tree:
             self.driftwood.log.msg("WARNING", "Widget", "__include", "failed to read widget include", filename)

@@ -25,15 +25,20 @@
 # IN THE SOFTWARE.
 # **********
 
-import jinja2
 import json
 import os
 import sys
 import traceback
 import zipfile
-from typing import Any, Optional
+from typing import Any, Optional, TYPE_CHECKING
 
+import jinja2
+
+from check import CHECK, CheckFailure
 import filetype
+
+if TYPE_CHECKING:  # Avoid circuluar import.
+    from driftwood import Driftwood
 
 
 class ResourceManager:
@@ -44,6 +49,8 @@ class ResourceManager:
     Attributes:
         driftwood: Base class instance.
     """
+
+    driftwood: "Driftwood"
 
     def __init__(self, driftwood):
         """ResourceManager class initializer.
@@ -358,7 +365,7 @@ class ResourceManager:
                     f.close()
 
                 else:  # This is hopefully a zip archive.
-                    with zipfile.ZipFile(pathname, 'r') as zf:
+                    with zipfile.ZipFile(pathname, "r") as zf:
                         contents = zf.read(filename)
 
                 return contents

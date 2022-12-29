@@ -45,16 +45,18 @@ FIRST_SFX_CHAN = 1
 class AudioManager:
     """The Audio Manager
 
-        This class manages the audio subsystem and allows playing sound effects and music.
+    This class manages the audio subsystem and allows playing sound effects and music.
 
-        Attributes:
-            driftwood: Base class instance.
-            playing_music: Whether we are currently playing music or not.
-            playing_sfx: Whether we are currently playing sfx or not.
+    Attributes:
+        driftwood: Base class instance.
+        playing_music: Whether we are currently playing music or not.
+        playing_sfx: Whether we are currently playing sfx or not.
     """
-    __music: Optional[AudioFile]
 
-    def __init__(self, driftwood):
+    __music: Optional[AudioFile]
+    driftwood: "Driftwood"
+
+    def __init__(self, driftwood: "Driftwood"):
         self.driftwood = driftwood
 
         self.playing_music = False
@@ -82,11 +84,11 @@ class AudioManager:
         self.driftwood.tick.register(self._cleanup, delay=0.01, during_pause=True)
 
     def play_sfx(
-            self,
-            filename: str,
-            volume: int = None,
-            loop: Optional[int] = 0,
-            fade: float = 0.0,
+        self,
+        filename: str,
+        volume: int = None,
+        loop: Optional[int] = 0,
+        fade: float = 0.0,
     ) -> Optional[mixer.Channel]:
         """Load and play a sound effect from an audio file.
 
@@ -112,8 +114,9 @@ class AudioManager:
 
         # Give up if we didn't initialize properly.
         if not self.__init_success:
-            self.driftwood.log.msg("WARNING", "Audio", "play_sfx", "cannot play sfx due to initialization failure",
-                                   filename)
+            self.driftwood.log.msg(
+                "WARNING", "Audio", "play_sfx", "cannot play sfx due to initialization failure", filename
+            )
             return None
 
         # Load the sound effect.
@@ -247,8 +250,9 @@ class AudioManager:
 
         # Give up if we didn't initialize properly.
         if not self.__init_success:
-            self.driftwood.log.msg("WARNING", "Audio", "play_music", "cannot play music due to initialization failure",
-                                   filename)
+            self.driftwood.log.msg(
+                "WARNING", "Audio", "play_music", "cannot play music due to initialization failure", filename
+            )
             return False
 
         # Stop and unload any previously loaded music.
@@ -368,8 +372,7 @@ class AudioManager:
         self.playing_sfx = any(mixer.Channel(idx).get_busy() for idx in range(FIRST_SFX_CHAN, MAX_CHAN))
 
     def _terminate(self) -> None:
-        """Prepare for shutdown.
-        """
+        """Prepare for shutdown."""
         self.stop_music()
         self.stop_all_sfx()
         mixer.quit()

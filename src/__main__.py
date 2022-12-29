@@ -37,24 +37,26 @@ if __name__ == "__main__":
     # Check Python version.
     if VCUR[0] < VREQ[0] or VCUR[1] < VREQ[1] or (VCUR[1] == VREQ[1] and VCUR[2] < VREQ[2]):
         print("Driftwood 2D\n[0] Starting up...")
-        print("[0] FATAL: __main__: Python >= {0}.{1}.{2} required, found Python {3}.{4}.{5}".format(
-                                                                                            VREQ[0], VREQ[1], VREQ[2],
-                                                                                            VCUR[0], VCUR[1], VCUR[2]))
+        print(
+            "[0] FATAL: __main__: Python >= {0}.{1}.{2} required, found Python {3}.{4}.{5}".format(
+                VREQ[0], VREQ[1], VREQ[2], VCUR[0], VCUR[1], VCUR[2]
+            )
+        )
         print("Please make sure to run with a compatible version of Python3.")
         sys.exit(1)  # Fail.
 
     # Try to import PySDL2.
     try:
-        if os.name == 'nt':  # Add the current directory to the SDL2 DLL search path on Windows.
+        if os.name == "nt":  # Add the current directory to the SDL2 DLL search path on Windows.
             os.environ["PYSDL2_DLL_PATH"] = os.getcwd()
         from sdl2 import *
         import sdl2.ext as sdl2ext
     except ImportError:
         print("Driftwood 2D\n[0] Starting up...")
-        print("[0] FATAL: __main__: PySDL2 required, module \"sdl2\" not found or sdl missing")
+        print('[0] FATAL: __main__: PySDL2 required, module "sdl2" not found or sdl missing')
         print("Please make sure that SDL2, SDL2_image, SDL2_mixer, and SDL2_TTF are installed.")
-        print("Also make sure that the \"pysdl2\" Python3 package is installed.")
-        print("On most systems, run \"pip3 install pysdl2\". If pip3 is missing, try pip instead.")
+        print('Also make sure that the "pysdl2" Python3 package is installed.')
+        print('On most systems, run "pip3 install pysdl2". If pip3 is missing, try pip instead.')
         sys.exit(1)  # Fail.
 
     # Try to import pygame.
@@ -63,15 +65,15 @@ if __name__ == "__main__":
         import pygame
     except ImportError:
         print("Driftwood 2D\n[0] Starting up...")
-        print("[0] FATAL: __main__: pygame required, module \"pygame\" not found")
-        print("Please make sure that the \"pygame\" Python3 module is installed.")
-        print("On most systems, run \"pip3 install pygame\". If pip3 is missing, try pip instead.")
+        print('[0] FATAL: __main__: pygame required, module "pygame" not found')
+        print('Please make sure that the "pygame" Python3 module is installed.')
+        print('On most systems, run "pip3 install pygame". If pip3 is missing, try pip instead.')
         sys.exit(1)  # Fail.
     try:
         import pygame.mixer
     except ImportError:
         print("Driftwood 2D\n[0] Starting up...")
-        print("[0] FATAL: __main__: pygame required, module \"pygame.mixer\" not found")
+        print('[0] FATAL: __main__: pygame required, module "pygame.mixer" not found')
         # TODO: Provide suggestion for the user.
         sys.exit(1)  # Fail.
 
@@ -80,9 +82,9 @@ if __name__ == "__main__":
         import jsonschema
     except ImportError:
         print("Driftwood 2D\n[0] Starting up...")
-        print("[0] FATAL: __main__: jsonschema required, module \"jsonschema\" not found")
-        print("Please make sure that the \"jsonschema\" Python3 module is installed.")
-        print("On most systems, run \"pip3 install jsonschema\". If pip3 is missing, try pip instead.")
+        print('[0] FATAL: __main__: jsonschema required, module "jsonschema" not found')
+        print('Please make sure that the "jsonschema" Python3 module is installed.')
+        print('On most systems, run "pip3 install jsonschema". If pip3 is missing, try pip instead.')
         sys.exit(1)  # Fail.
 
     # Try to import ubjson.
@@ -90,9 +92,9 @@ if __name__ == "__main__":
         import ubjson
     except ImportError:
         print("Driftwood 2D\n[0] Starting up...")
-        print("[0] FATAL: __main__: ubjson required, module \"ubjson\" not found")
-        print("Please make sure that the \"py-ubjson\" Python3 module is installed.")
-        print("On most systems, run \"pip3 install py-ubjson\". If pip3 is missing, try pip instead.")
+        print('[0] FATAL: __main__: ubjson required, module "ubjson" not found')
+        print('Please make sure that the "py-ubjson" Python3 module is installed.')
+        print('On most systems, run "pip3 install py-ubjson". If pip3 is missing, try pip instead.')
         sys.exit(1)  # Fail.
 
     # Try to import Jinja2.
@@ -100,9 +102,9 @@ if __name__ == "__main__":
         import jinja2
     except ImportError:
         print("Driftwood 2D\n[0] Starting up...")
-        print("[0] FATAL: __main__: Jinja2 required, module \"jinja2\" not found")
-        print("Please make sure that the \"jinja2\" Python3 module is installed.")
-        print("On most systems, run \"pip3 install jinja2\". If pip3 is missing, try pip instead.")
+        print('[0] FATAL: __main__: Jinja2 required, module "jinja2" not found')
+        print('Please make sure that the "jinja2" Python3 module is installed.')
+        print('On most systems, run "pip3 install jinja2". If pip3 is missing, try pip instead.')
         sys.exit(1)  # Fail.
 
     # Import main class.

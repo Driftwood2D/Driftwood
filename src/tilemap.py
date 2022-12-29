@@ -46,7 +46,7 @@ class Tilemap:
         tilesets: The list of Tileset class instances for each tileset.
     """
 
-    def __init__(self, driftwood, area: 'areamanager.AreaManager'):
+    def __init__(self, driftwood, area: "areamanager.AreaManager"):
         """Tilemap class initializer.
 
         Args:
@@ -74,7 +74,7 @@ class Tilemap:
             return True
         return False
 
-    def __getitem__(self, item) -> 'layer.Layer':
+    def __getitem__(self, item) -> "layer.Layer":
         if len(self.layers) > item:
             return self.layers[item]
 
@@ -130,7 +130,7 @@ class Tilemap:
 
         # Call the on_enter event if set.
         if "on_enter" in self.properties:
-            self.driftwood.script.call(*self.properties["on_enter"].split(','))
+            self.driftwood.script.call(*self.properties["on_enter"].split(","))
 
         # Set the window title.
         if "title" in self.properties:
@@ -138,8 +138,7 @@ class Tilemap:
 
         # Build the tileset abstractions.
         for tileset_json in self.__tilemap["tilesets"]:
-            if tileset_json["tilewidth"] != self.tilewidth or \
-                            tileset_json["tileheight"] != self.tileheight:
+            if tileset_json["tilewidth"] != self.tilewidth or tileset_json["tileheight"] != self.tileheight:
                 # Tilemaps and tilesets must have the equal tile widths and heights.
                 return False
 
@@ -194,8 +193,7 @@ class Tilemap:
             del self.properties[prop]
 
     def _terminate(self) -> None:
-        """Cleanup before deletion.
-        """
+        """Cleanup before deletion."""
         for t in range(len(self.tilesets)):
             self.tilesets[t]._terminate()
         self.tilesets = []

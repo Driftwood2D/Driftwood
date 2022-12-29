@@ -78,17 +78,19 @@ class LightManager:
     def __iter__(self) -> ItemsView:
         return self.lights.items()
 
-    def insert(self,
-               filename: str,
-               layer: int,
-               x: int,
-               y: int,
-               w: int,
-               h: int,
-               color: str = "FFFFFFFF",
-               blend: bool = False,
-               entity: entity.Entity = None,
-               layermod=0) -> Optional[int]:
+    def insert(
+        self,
+        filename: str,
+        layer: int,
+        x: int,
+        y: int,
+        w: int,
+        h: int,
+        color: str = "FFFFFFFF",
+        blend: bool = False,
+        entity: entity.Entity = None,
+        layermod=0,
+    ) -> Optional[int]:
         """Create and insert a new light into the area.
 
         Args:
@@ -152,19 +154,17 @@ class LightManager:
             blendmode = SDL_BLENDMODE_BLEND
 
         # Give the light color.
-        colormod = (
-            int(color[0:2], 16),
-            int(color[2:4], 16),
-            int(color[4:6], 16)
-        )
+        colormod = (int(color[0:2], 16), int(color[2:4], 16), int(color[4:6], 16))
 
         # Assign the light to its light id in the dictionary.
-        self.lights[lid] = light.Light(self, lid, lightmap, layer, x, y, w, h, alpha, blendmode, colormod, entity,
-                                       layermod)
+        self.lights[lid] = light.Light(
+            self, lid, lightmap, layer, x, y, w, h, alpha, blendmode, colormod, entity, layermod
+        )
 
         # We are done.
-        self.driftwood.log.info("Light", "inserted", "{0} on layer {1} at position {2}px, {3}px".format(filename, layer,
-                                                                                                        x, y))
+        self.driftwood.log.info(
+            "Light", "inserted", "{0} on layer {1} at position {2}px, {3}px".format(filename, layer, x, y)
+        )
         # The area has changed because we added a light.
         self.driftwood.area.changed = True
 
@@ -286,8 +286,9 @@ class LightManager:
             success = True
 
             # Set the color.
-            r = SDL_SetTextureColorMod(self.lights[lid].lightmap.texture, int(color[0:2], 16), int(color[2:4], 16),
-                                       int(color[4:6], 16))
+            r = SDL_SetTextureColorMod(
+                self.lights[lid].lightmap.texture, int(color[0:2], 16), int(color[2:4], 16), int(color[4:6], 16)
+            )
             if r < 0:
                 self.driftwood.log.msg("ERROR", "Light", "set_color", "SDL", SDL_GetError())
                 success = False
@@ -336,12 +337,15 @@ class LightManager:
             layer = len(self.driftwood.area.tilemap.layers) - 1
             self.__area_light_layer = [self.driftwood.area.filename, layer]
 
-        areasize = [self.driftwood.area.tilemap.width * self.driftwood.area.tilemap.tilewidth,
-                    self.driftwood.area.tilemap.height * self.driftwood.area.tilemap.tileheight]
+        areasize = [
+            self.driftwood.area.tilemap.width * self.driftwood.area.tilemap.tilewidth,
+            self.driftwood.area.tilemap.height * self.driftwood.area.tilemap.tileheight,
+        ]
         insertpos = [areasize[0] // 2, areasize[1] // 2]
 
-        return self.driftwood.light.insert(filename, layer, insertpos[0], insertpos[1],
-                                           areasize[0], areasize[1], color=color, blend=blend)
+        return self.driftwood.light.insert(
+            filename, layer, insertpos[0], insertpos[1], areasize[0], areasize[1], color=color, blend=blend
+        )
 
     def kill(self, lid: int) -> bool:
         """Kill a light by lid.

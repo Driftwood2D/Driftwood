@@ -121,14 +121,12 @@ class Driftwood:
             self.log.msg("WARNING", "Driftwood", "Very low fps values may cause unexpected behavior")
 
     def _console(self, evtype: int) -> None:
-        """Drop to a pdb console if the console key is pressed.
-        """
+        """Drop to a pdb console if the console key is pressed."""
         if evtype is self.input.ONDOWN:
             pdb.set_trace()
 
     def _run(self) -> int:
-        """Perform startup procedures and enter the mainloop.
-        """
+        """Perform startup procedures and enter the mainloop."""
         # Only run if not already running.
         if not self.running:
             self.running = True
@@ -178,8 +176,7 @@ class Driftwood:
         return 0
 
     def _handle_pause(self, keyevent: int) -> None:
-        """Check if we are shutting down, otherwise just pause.
-        """
+        """Check if we are shutting down, otherwise just pause."""
         if keyevent == InputManager.ONDOWN:
             # Shift+Escape shuts down the engine.
             if self.input.pressed(self.keycode.SDLK_LSHIFT) or self.input.pressed(self.keycode.SDLK_RSHIFT):
@@ -220,9 +217,7 @@ def fncopy(f: Any) -> Any:
 
     Based on http://stackoverflow.com/a/6528148/190597 (Glenn Maynard)
     """
-    g = types.FunctionType(f.__code__, f.__globals__, name=f.__name__,
-                           argdefs=f.__defaults__,
-                           closure=f.__closure__)
+    g = types.FunctionType(f.__code__, f.__globals__, name=f.__name__, argdefs=f.__defaults__, closure=f.__closure__)
     g = functools.update_wrapper(g, f)
     g.__kwdefaults__ = f.__kwdefaults__
     return g

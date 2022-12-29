@@ -33,11 +33,13 @@ class CheckFailure(Exception):
 
     This only needs to exist. It belongs to the global scope so it's recognized anywhere.
     """
+
     # Do nothing.
 
 
-def CHECK(item: Any, _type: Union[type, List[type]], _min: float = None, _max: float = None,
-          _equals: float = None) -> bool:
+def CHECK(
+    item: Any, _type: Union[type, List[type]], _min: float = None, _max: float = None, _equals: float = None
+) -> bool:
     """Check if an input matches type, min, max, and/or equality requirements.
 
     This function belongs to the global scope as CHECK().
@@ -63,10 +65,9 @@ def CHECK(item: Any, _type: Union[type, List[type]], _min: float = None, _max: f
     """
     # Check if we are trying to check min, max, or equality on an unsupported type.
     if type(item) not in [int, float, str, list, tuple, dict] and (
-            _min is not None or _max is not None or _equals is not None
+        _min is not None or _max is not None or _equals is not None
     ):
-        raise CheckFailure("could not check input: cannot perform numeric checks on type {0}".format(type(item),
-                                                                                                     _type))
+        raise CheckFailure("could not check input: cannot perform numeric checks on type {0}".format(type(item), _type))
 
     # Type check.
     if type(item) is not _type and (type(_type) is list and type(item) not in _type):
@@ -87,15 +88,15 @@ def CHECK(item: Any, _type: Union[type, List[type]], _min: float = None, _max: f
             # Check length.
             if len(item) < _min:
                 raise CheckFailure(
-                    "input of type {0} failed min check: expected length >= {1}, got {2}".format(_type, _min,
-                                                                                                 len(item))
+                    "input of type {0} failed min check: expected length >= {1}, got {2}".format(_type, _min, len(item))
                 )
         elif type(item) in [dict]:
             # Check size.
             if len(item.keys()) < _min:
                 raise CheckFailure(
-                    "input of type {0}  failed min check: expected >= {1} keys, got {2}".format(_type, _min,
-                                                                                                len(item.keys()))
+                    "input of type {0}  failed min check: expected >= {1} keys, got {2}".format(
+                        _type, _min, len(item.keys())
+                    )
                 )
 
     # Maximum check.
@@ -113,15 +114,15 @@ def CHECK(item: Any, _type: Union[type, List[type]], _min: float = None, _max: f
             # Check length.
             if len(item) > _max:
                 raise CheckFailure(
-                    "input of type {0} failed max check: expected length <= {1}, got {2}".format(_type, _min,
-                                                                                                 len(item))
+                    "input of type {0} failed max check: expected length <= {1}, got {2}".format(_type, _min, len(item))
                 )
         elif type(item) in [dict]:
             # Check size.
             if len(item.keys()) > _max:
                 raise CheckFailure(
-                    "input of type {0} failed max check: expected <= {1} keys, got {2}".format(_type, _min,
-                                                                                               len(item.keys()))
+                    "input of type {0} failed max check: expected <= {1} keys, got {2}".format(
+                        _type, _min, len(item.keys())
+                    )
                 )
 
     # Equality check.
@@ -133,22 +134,23 @@ def CHECK(item: Any, _type: Union[type, List[type]], _min: float = None, _max: f
             # Check value.
             if item is not _equals:
                 raise CheckFailure(
-                    "input of type {0} failed equality check: expected value == {1}, got {2}".format(_type, _min,
-                                                                                                     item)
+                    "input of type {0} failed equality check: expected value == {1}, got {2}".format(_type, _min, item)
                 )
         elif type(item) in [str, list, tuple]:
             # Check length.
             if len(item) is not _equals:
                 raise CheckFailure(
-                    "input of type {0} failed equality check: expected length == {1}, got {2}".format(_type, _min,
-                                                                                                      len(item))
+                    "input of type {0} failed equality check: expected length == {1}, got {2}".format(
+                        _type, _min, len(item)
+                    )
                 )
         elif type(item) in [dict]:
             # Check size.
             if len(item.keys()) is not _equals:
                 raise CheckFailure(
-                    "input of type {0} failed equality check: expected {1} keys, got {2}".format(_type, _min,
-                                                                                                 len(item.keys()))
+                    "input of type {0} failed equality check: expected {1} keys, got {2}".format(
+                        _type, _min, len(item.keys())
+                    )
                 )
 
     # Success.

@@ -150,8 +150,9 @@ class CacheManager:
                 self.driftwood.log.info("Cache", "purged", filename)
                 del self.__cache[filename]
             else:
-                self.driftwood.log.msg("WARNING", "Cache", "purge", filename,
-                                       "file removed itself from cache while terminating")
+                self.driftwood.log.msg(
+                    "WARNING", "Cache", "purge", filename, "file removed itself from cache while terminating"
+                )
 
         return True
 

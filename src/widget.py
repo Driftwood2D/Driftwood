@@ -55,14 +55,16 @@ class Widget:
         
     """
 
-    def __init__(self,
-                 manager: 'widgetmanager.WidgetManager',
-                 wid: int,
-                 parent: Optional[int],
-                 x: int,
-                 y: int,
-                 width: int,
-                 height: int):
+    def __init__(
+        self,
+        manager: "widgetmanager.WidgetManager",
+        wid: int,
+        parent: Optional[int],
+        x: int,
+        y: int,
+        width: int,
+        height: int,
+    ):
         self.manager = manager
         self.wid = wid
 
@@ -77,8 +79,7 @@ class Widget:
         self.parent = parent
 
     def dstrect(self) -> List[int]:
-        """Return the destination rectangle for drawing the widget.
-        """
+        """Return the destination rectangle for drawing the widget."""
         return [self.realx, self.realy, self.width, self.height]
 
 
@@ -90,23 +91,24 @@ class ContainerWidget(Widget):
         contains: List of widgets contained by this container.
     """
 
-    def __init__(self,
-                 manager: 'widgetmanager.WidgetManager',
-                 wid: int,
-                 parent: Optional[int],
-                 image: filetype.ImageFile,
-                 x: Optional[int],
-                 y: Optional[int],
-                 width: int,
-                 height: int):
+    def __init__(
+        self,
+        manager: "widgetmanager.WidgetManager",
+        wid: int,
+        parent: Optional[int],
+        image: filetype.ImageFile,
+        x: Optional[int],
+        y: Optional[int],
+        width: int,
+        height: int,
+    ):
         super(ContainerWidget, self).__init__(manager, wid, parent, x, y, width, height)
 
         self.image = image
         self.contains = []
 
     def srcrect(self) -> Optional[List[int]]:
-        """Return the source rectangle for the widget graphic, if it has one.
-        """
+        """Return the source rectangle for the widget graphic, if it has one."""
         if self.image:
             return [0, 0, self.image.width, self.image.height]
         return None
@@ -146,8 +148,9 @@ class ContainerWidget(Widget):
 
         # Fake container.
         else:
-            self.manager.driftwood.log.msg("ERROR", "Widget", "ContainerWidget", "_prepare", "not a container",
-                                           self.parent)
+            self.manager.driftwood.log.msg(
+                "ERROR", "Widget", "ContainerWidget", "_prepare", "not a container", self.parent
+            )
             return None
 
         return True
@@ -166,18 +169,20 @@ class TextWidget(Widget):
         texture: A texture containing the rendered graphic for the text.
     """
 
-    def __init__(self,
-                 manager: 'widgetmanager.WidgetManager',
-                 wid: int,
-                 parent: int,
-                 contents: str,
-                 font: filetype.FontFile,
-                 ptsize: int,
-                 x: Optional[int],
-                 y: Optional[int],
-                 width: Optional[int],
-                 height: Optional[int],
-                 color: str):
+    def __init__(
+        self,
+        manager: "widgetmanager.WidgetManager",
+        wid: int,
+        parent: int,
+        contents: str,
+        font: filetype.FontFile,
+        ptsize: int,
+        x: Optional[int],
+        y: Optional[int],
+        width: Optional[int],
+        height: Optional[int],
+        color: str,
+    ):
         super(TextWidget, self).__init__(manager, wid, parent, x, y, width, height)
 
         self.contents = contents
@@ -238,8 +243,7 @@ class TextWidget(Widget):
 
         # Fake container.
         else:
-            self.manager.driftwood.log.msg("ERROR", "Widget", "TextWidget", "_prepare", "not a container",
-                                           self.parent)
+            self.manager.driftwood.log.msg("ERROR", "Widget", "TextWidget", "_prepare", "not a container", self.parent)
             return None
 
         # Render.
@@ -265,8 +269,7 @@ class TextWidget(Widget):
         return True
 
     def _terminate(self) -> None:
-        """Cleanup before deletion.
-        """
+        """Cleanup before deletion."""
         if self.texture:
             SDL_DestroyTexture(self.texture)
             self.texture = None

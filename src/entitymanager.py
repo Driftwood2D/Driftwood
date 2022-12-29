@@ -151,18 +151,18 @@ class EntityManager:
 
         self.driftwood.area.changed = True
 
-        self.driftwood.log.info("Entity", "inserted", "{0} on layer {1} at position {2}t, {3}t".format(filename,
-                                                                                                       layer,
-                                                                                                       x, y))
+        self.driftwood.log.info(
+            "Entity", "inserted", "{0} on layer {1} at position {2}t, {3}t".format(filename, layer, x, y)
+        )
 
         # Function to call when inserting the entity.
         if data["init"]["on_insert"]:
-            args = data["init"]["on_insert"].split(',')
+            args = data["init"]["on_insert"].split(",")
             self.driftwood.script.call(args[0], args[1], self.entities[eid])
 
         # Function to call before killing the entity.
         if data["init"]["on_kill"]:
-            self.entities[eid]._on_kill = data["init"]["on_kill"].split(',')
+            self.entities[eid]._on_kill = data["init"]["on_kill"].split(",")
 
         return eid
 
@@ -250,8 +250,9 @@ class EntityManager:
 
         if eid in self.entities:
             if self.entities[eid]._on_kill:  # Call a function before killing the entity.
-                self.driftwood.script.call(self.entities[eid]._on_kill[0], self.entities[eid]._on_kill[1],
-                                           self.entities[eid])
+                self.driftwood.script.call(
+                    self.entities[eid]._on_kill[0], self.entities[eid]._on_kill[1], self.entities[eid]
+                )
             self.entities[eid]._terminate()
             del self.entities[eid]
             self.driftwood.area.changed = True
@@ -284,8 +285,9 @@ class EntityManager:
 
         for eid in to_kill:
             if self.entities[eid]._on_kill:  # Call a function before killing the entity.
-                self.driftwood.script.call(self.entities[eid]._on_kill[0], self.entities[eid]._on_kill[1],
-                                           self.entities[eid])
+                self.driftwood.script.call(
+                    self.entities[eid]._on_kill[0], self.entities[eid]._on_kill[1], self.entities[eid]
+                )
             self.entities[eid]._terminate()
             del self.entities[eid]
 
@@ -333,8 +335,7 @@ class EntityManager:
         return True
 
     def _terminate(self) -> None:
-        """Cleanup before deletion.
-        """
+        """Cleanup before deletion."""
         for eid in self.entities:
             self.entities[eid]._terminate()
         self.entities = None

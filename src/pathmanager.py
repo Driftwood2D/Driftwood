@@ -57,8 +57,8 @@ class PathManager:
         self.__vfs = {}
 
         self.__root = self.driftwood.config["path"]["root"]  # Path root.
-        if not self.__root.endswith('/'):  # Another stupid Windows hack.
-            self.__root += '/'
+        if not self.__root.endswith("/"):  # Another stupid Windows hack.
+            self.__root += "/"
 
         self.__common = os.path.join(self.__root, "__common__/")
         self.__path = [self.__common]  # Start with base module.
@@ -98,7 +98,7 @@ class PathManager:
         filelist = []
 
         # Make sure we don't end in a slash.
-        if pathname.endswith('/'):
+        if pathname.endswith("/"):
             pathname = pathname[:-1]
 
         try:
@@ -108,11 +108,11 @@ class PathManager:
                         filelist.append(os.path.join(root, name))
                 for file in range(len(filelist)):
                     if platform.system() == "Windows":  # Fix paths on Windows.
-                        filelist[file] = filelist[file].replace('\\', '/')
-                    filelist[file] = filelist[file].replace(pathname + '/', '')
+                        filelist[file] = filelist[file].replace("\\", "/")
+                    filelist[file] = filelist[file].replace(pathname + "/", "")
 
             else:  # This is hopefully a zip archive.
-                with zipfile.ZipFile(pathname, 'r') as zf:
+                with zipfile.ZipFile(pathname, "r") as zf:
                     for name in zf.namelist():
                         filelist.append(name)
 
@@ -244,8 +244,7 @@ class PathManager:
             if pn in self.__path:
                 self.__path.remove(pn)
             else:
-                self.driftwood.log.msg("WARNING", "Path", "remove", "attempt to remove nonexistent pathname",
-                                       pn)
+                self.driftwood.log.msg("WARNING", "Path", "remove", "attempt to remove nonexistent pathname", pn)
                 return False
 
         self.driftwood.log.info("Path", "removed", ", ".join(pathnames))
@@ -285,8 +284,7 @@ class PathManager:
             return None
 
     def find_script(self, filename: str) -> Optional[str]:
-        """Slightly less dumb hack to look for a compiled script if the uncompiled script cannot be found or vice versa.
-        """
+        """Slightly less dumb hack to look for a compiled script if the uncompiled script cannot be found or vice versa."""
         # Input Check
         try:
             CHECK(filename, str)
@@ -296,10 +294,10 @@ class PathManager:
 
         ret = self.find(filename)
         if not ret:
-            if filename.endswith('.py'):
-                filename = filename[:-2] + 'pyc'
-            elif filename.endswith('.pyc'):
-                filename = filename[:-3] + 'py'
+            if filename.endswith(".py"):
+                filename = filename[:-2] + "pyc"
+            elif filename.endswith(".pyc"):
+                filename = filename[:-3] + "py"
             ret = self.find(filename)
         if not ret:
             return None
