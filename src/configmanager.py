@@ -27,11 +27,12 @@
 
 import argparse
 import json
-import jsonschema
 import os
 import sys
 import traceback
 from typing import Any, ItemsView
+
+import jsonschema
 
 from __schema__ import _SCHEMA
 

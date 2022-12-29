@@ -30,6 +30,8 @@ from typing import Callable, Optional, Union
 
 from sdl2 import SDL_GetKeyName
 
+from check import CHECK, CheckFailure
+
 
 class InputManager:
     """The Input Manager

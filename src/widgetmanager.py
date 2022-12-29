@@ -27,7 +27,6 @@
 
 from typing import Dict, ItemsView, Optional, TYPE_CHECKING
 
-from sdl2 import *
 from sdl2.ext import *
 from sdl2.sdlttf import *
 

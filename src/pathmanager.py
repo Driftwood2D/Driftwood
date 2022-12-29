@@ -30,6 +30,8 @@ import platform
 import zipfile
 from typing import List, Optional
 
+from check import CHECK, CheckFailure
+
 
 class PathManager:
     """The Path Manager

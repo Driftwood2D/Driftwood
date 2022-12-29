@@ -26,10 +26,12 @@
 # **********
 
 from ctypes import byref
-from typing import List, Optional
+from typing import List
 
 from sdl2 import *
 from sdl2.sdlimage import *
+
+from check import CHECK, CheckFailure
 
 
 class WindowManager:

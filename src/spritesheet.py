@@ -26,9 +26,12 @@
 # **********
 
 from ctypes import byref
+from typing import TYPE_CHECKING
+
 from sdl2 import *
 
-import entitymanager
+if TYPE_CHECKING:
+    import entitymanager
 
 
 class Spritesheet:

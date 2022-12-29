@@ -29,7 +29,7 @@ import functools
 import pdb
 import time
 import types
-from typing import Any, Union, List
+from typing import Any
 
 from sdl2 import *
 import sdl2.ext as sdl2ext
@@ -175,6 +175,7 @@ class Driftwood:
             print(ticks + " Shutting down...")
             self._terminate()
             return 0
+        return 0
 
     def _handle_pause(self, keyevent: int) -> None:
         """Check if we are shutting down, otherwise just pause.
@@ -209,7 +210,7 @@ class AttrDict(dict):
         self.__dict__ = self
 
 
-def fncopy(f):
+def fncopy(f: Any) -> Any:
     """Deep copy a function. Needed to pass more than one of the same callback function to tick.register().
     Args:
         f: Function to copy.

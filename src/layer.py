@@ -27,6 +27,7 @@
 
 from typing import Dict, Optional
 
+from check import CHECK, CheckFailure
 import tile
 import tilemap
 

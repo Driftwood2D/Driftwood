@@ -26,11 +26,11 @@
 # **********
 
 from ctypes import byref
-from ctypes import c_ubyte
-from sdl2 import *
-from typing import List, Tuple, Union
 
-import filetype
+from sdl2 import *
+from typing import List, Tuple
+
+from check import CHECK, CheckFailure
 
 
 class FrameManager:

@@ -28,6 +28,8 @@
 import gc
 from typing import Any, KeysView, Optional
 
+from check import CHECK, CheckFailure
+
 
 class CacheManager:
     """The Cache Manager

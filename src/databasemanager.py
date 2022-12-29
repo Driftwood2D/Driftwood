@@ -28,8 +28,11 @@
 import json
 import os
 import sys
-import ubjson
 from typing import Any, Optional
+
+import ubjson
+
+from check import CHECK, CheckFailure
 
 
 class DatabaseManager:

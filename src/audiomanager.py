@@ -31,8 +31,9 @@
 from typing import Optional
 
 import pygame
-import pygame.mixer as mixer
+from pygame import mixer
 
+from check import CHECK, CheckFailure
 from filetype import AudioFile
 
 # We have 8 channels. Channel 0 is for music, and the rest are for sound effects.

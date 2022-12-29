@@ -31,8 +31,10 @@ import os
 import platform
 import traceback
 import types
-import zipimport
 from typing import Any, Callable, Optional, Tuple
+import zipimport
+
+from check import CHECK, CheckFailure
 
 
 class ScriptManager:

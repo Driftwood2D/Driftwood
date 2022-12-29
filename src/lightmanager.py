@@ -29,6 +29,7 @@ from typing import ItemsView, List, Optional
 
 from sdl2 import *
 
+from check import CHECK, CheckFailure
 import entity
 import filetype
 import light

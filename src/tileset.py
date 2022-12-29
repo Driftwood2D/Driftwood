@@ -28,6 +28,7 @@
 import os
 from typing import Optional
 
+from check import CHECK, CheckFailure
 import tilemap
 
 

@@ -25,11 +25,13 @@
 # IN THE SOFTWARE.
 # **********
 
-import jsonschema
 import sys
 import traceback
 from typing import ItemsView, List, Optional
 
+import jsonschema
+
+from check import CHECK, CheckFailure
 import entity
 import spritesheet
 from __schema__ import _SCHEMA

@@ -26,7 +26,7 @@
 # **********
 
 import collections
-from ctypes import byref, c_int
+from ctypes import byref
 
 from sdl2.sdlttf import *
 
@@ -224,7 +224,7 @@ class WidgetTree:
             t.append(self.manager.insert_text(
                 contents=contents[n],
                 fontfile=branch["font"],
-                ptsize=branch["size"],
+                pxsize=branch["size"],
                 x=self.__gp(branch, "x", None),
                 y=tmpy,
                 width=self.__gp(branch, "width", None),

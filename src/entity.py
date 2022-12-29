@@ -25,10 +25,12 @@
 # IN THE SOFTWARE.
 # **********
 
+from typing import List, Optional, Union
+
+from check import CHECK, CheckFailure
 import entitymanager
 import spritesheet
 import tile
-from typing import List, Optional, Union
 
 
 class Entity:
@@ -690,7 +692,7 @@ class TileModeEntity(Entity):
                     if dsttile.nowalk or dsttile.nowalk == "":
                         # Is the tile a player or npc specific nowalk?
                         if (dsttile.nowalk == "player" and self.manager.player.eid == self.eid
-                            or dsttile.nowalk == "npc" and self.manager.player.eid != self.eid):
+                                or dsttile.nowalk == "npc" and self.manager.player.eid != self.eid):
                             self._collide(dsttile)
                             return False
 
@@ -702,7 +704,7 @@ class TileModeEntity(Entity):
                 # Prepare exit from the previous tile.
                 for ex in self.tile.exits.keys():
                     if (ex == "exit:up" and y == -1) or (ex == "exit:down" and y == 1) or (
-                                    ex == "exit:left" and x == -1) or (ex == "exit:right" and x == 1):
+                            ex == "exit:left" and x == -1) or (ex == "exit:right" and x == 1):
                         exit_dest = self.tile.exits[ex].split(',')
                         if not exit_dest[0]:  # This area.
                             # Prepare coordinates for teleport().
@@ -767,7 +769,7 @@ class TileModeEntity(Entity):
                 if ent.mode == "tile":  # Checking against another tile mode entity.
                     # It's moving. What tile is it moving to? Are we trying to move to the same tile?
                     if ent.walking and ("next" in self.collision) and \
-                                    self.tile.offset(*self._last_walk) is ent.tile.offset(*ent.walking):
+                            self.tile.offset(*self._last_walk) is ent.tile.offset(*ent.walking):
                         self.manager.collision(self, self.manager.entities[eid])
                         return False
 
@@ -778,7 +780,7 @@ class TileModeEntity(Entity):
 
                     # Is it standing still? Don't step on it.
                     if not ent.walking and ("here" in self.collision) and \
-                                    self.tile.offset(*self._last_walk) is ent.tile:
+                            self.tile.offset(*self._last_walk) is ent.tile:
                         self.manager.collision(self, self.manager.entities[eid])
                         return False
 
@@ -1176,7 +1178,7 @@ class PixelModeEntity(Entity):
                     if dsttile.nowalk or dsttile.nowalk == "":
                         # Is the tile a player or npc specific nowalk?
                         if (dsttile.nowalk == "player" and self.manager.player.eid == self.eid
-                            or dsttile.nowalk == "npc" and self.manager.player.eid != self.eid):
+                                or dsttile.nowalk == "npc" and self.manager.player.eid != self.eid):
                             self._collide(dsttile)
                             return False
 

@@ -25,11 +25,13 @@
 # IN THE SOFTWARE.
 # **********
 
-import types
 from inspect import signature
+import types
 from typing import Any, Callable
 
 from sdl2 import SDL_Delay, SDL_GetTicks
+
+from check import CHECK, CheckFailure
 
 # Upper bound on latency we can handle from the OS when we expect to return from sleep, measured in seconds.
 WAKE_UP_LATENCY = 5.0 / 1000.0

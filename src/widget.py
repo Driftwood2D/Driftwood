@@ -25,14 +25,16 @@
 # IN THE SOFTWARE.
 # **********
 
-from ctypes import byref, c_int
-from typing import List, Optional
+from ctypes import byref
+from typing import List, Optional, TYPE_CHECKING
 
 from sdl2 import *
 from sdl2.sdlttf import *
 
 import filetype
-import widgetmanager
+
+if TYPE_CHECKING:
+    import widgetmanager
 
 
 class Widget:

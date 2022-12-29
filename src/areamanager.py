@@ -26,8 +26,10 @@
 # **********
 
 import math
+
 from sdl2 import *
 
+from check import CHECK, CheckFailure
 import tilemap
 
 

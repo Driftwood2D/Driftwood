@@ -27,6 +27,7 @@
 
 from typing import List, Optional
 
+from check import CHECK, CheckFailure
 import layer
 import tileset
 
