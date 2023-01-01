@@ -25,14 +25,17 @@
 # IN THE SOFTWARE.
 # **********
 
-from typing import ItemsView, Optional
+from typing import Dict, ItemsView, Optional, TYPE_CHECKING
 
-from sdl2 import *
 from sdl2.ext import *
 from sdl2.sdlttf import *
 
+from check import CHECK, CheckFailure
 import widget
 import widgettree
+
+if TYPE_CHECKING:  # Avoid circuluar import.
+    from driftwood import Driftwood
 
 
 class WidgetManager:
@@ -46,7 +49,10 @@ class WidgetManager:
         selected: Whether or not this widget is the selected widget. ex. a selected button in a UI menu.
     """
 
-    def __init__(self, driftwood):
+    driftwood: "Driftwood"
+    widgets: Dict[int, widget.Widget]
+
+    def __init__(self, driftwood: "Driftwood"):
         self.driftwood = driftwood
 
         self.widgets = {}
@@ -67,7 +73,7 @@ class WidgetManager:
             return True
         return False
 
-    def __getitem__(self, wid: int) -> Optional['widget.Widget']:
+    def __getitem__(self, wid: int) -> Optional["widget.Widget"]:
         return self.widget(wid)
 
     def __delitem__(self, wid) -> bool:
@@ -76,7 +82,7 @@ class WidgetManager:
     def __iter__(self) -> ItemsView:
         return self.widgets.items()
 
-    def load(self, filename: str, template_vars: dict = {}) -> Optional[list]:
+    def load(self, filename: str, template_vars: dict) -> Optional[list]:
         """Widget Tree Loader
 
         Loads and inserts a Jinja2 templated JSON descriptor file (a "widget tree") which defines one or more
@@ -88,6 +94,8 @@ class WidgetManager:
 
         Returns a list of widgets created if succeeded, None if failed.
         """
+        if template_vars is None:
+            template_vars = {}
         tree = widgettree.WidgetTree(self, filename, template_vars)
         self.trees.append(tree)
         return tree.widgets
@@ -107,8 +115,8 @@ class WidgetManager:
         # Input Check
         try:
             CHECK(wid, int, _min=0)
-        except CheckFailure as e:
-            self.driftwood.log.msg("ERROR", "Widget", "select", "bad argument", e)
+        except CheckFailure as ex:
+            self.driftwood.log.msg("ERROR", "Widget", "select", "bad argument", ex)
             return False
 
         if wid not in self.widgets:
@@ -133,14 +141,16 @@ class WidgetManager:
         self.selected = None
         return True
 
-    def insert_container(self,
-                         imagefile: str = None,
-                         parent: int = None,
-                         x: int = None,
-                         y: int = None,
-                         width: int = 0,
-                         height: int = 0,
-                         active: bool = True) -> Optional[int]:
+    def insert_container(
+        self,
+        imagefile: str = None,
+        parent: int = None,
+        x: int = None,
+        y: int = None,
+        width: int = 0,
+        height: int = 0,
+        active: bool = True,
+    ) -> Optional[int]:
         """Create a new container widget.
 
         A container widget can have a background image, and other widgets can be contained by it. Widgets in a
@@ -206,35 +216,37 @@ class WidgetManager:
 
         return new_widget.wid
 
-    def insert_text(self,
-                    contents: str,
-                    fontfile: str,
-                    ptsize: int,
-                    parent: int = None,
-                    x: int = None,
-                    y: int = None,
-                    width: int = None,
-                    height: int = None,
-                    color: str = "000000FF",
-                    active: bool = True):
+    def insert_text(
+        self,
+        contents: str,
+        fontfile: str,
+        ptsize: int,
+        parent: int = None,
+        x: int = None,
+        y: int = None,
+        width: int = None,
+        height: int = None,
+        color: str = "000000FF",
+        active: bool = True,
+    ):
         """Create a new text widget.
 
-            A text widget puts text on the screen. It cannot have a background image, but can have a color.
+        A text widget puts text on the screen. It cannot have a background image, but can have a color.
 
-            Args:
-                contents: The contents of the text.
-                fontfile: Filename of the font to render the text with.
-                ptsize: The point size of the text.
-                parent: If set, the wid of the parent container.
-                x: The x position of the text on the window. Center if None.
-                y: The y position of the text on the window. Center if None.
-                width: The width of the text. If None don't alter it.
-                height: The height of the container. If None don't alter it.
-                color: The color and alpha to draw the text in.
-                active: Whether to make the widget active right away.
+        Args:
+            contents: The contents of the text.
+            fontfile: Filename of the font to render the text with.
+            ptsize: The point size of the text.
+            parent: If set, the wid of the parent container.
+            x: The x position of the text on the window. Center if None.
+            y: The y position of the text on the window. Center if None.
+            width: The width of the text. If None don't alter it.
+            height: The height of the container. If None don't alter it.
+            color: The color and alpha to draw the text in.
+            active: Whether to make the widget active right away.
 
-            Returns:
-                Widget ID of the new text widget if succeeded, None if failed.
+        Returns:
+            Widget ID of the new text widget if succeeded, None if failed.
         """
         # Input Check
         try:
@@ -262,12 +274,13 @@ class WidgetManager:
         self.__last_wid += 1
 
         font = self.driftwood.resource.request_font(fontfile, ptsize)
-        if not font:
+        if not font or not font.font:
             self.driftwood.log.msg("ERROR", "Widget", "insert_text", "no such font", fontfile)
             return None
 
-        new_widget = widget.TextWidget(self, self.__last_wid, parent, contents, font, ptsize, x, y, width, height,
-                                       color)
+        new_widget = widget.TextWidget(
+            self, self.__last_wid, parent, contents, font, ptsize, x, y, width, height, color
+        )
         self.widgets[self.__last_wid] = new_widget
 
         ret = new_widget._prepare()
@@ -342,7 +355,7 @@ class WidgetManager:
             self.driftwood.log.msg("ERROR", "Widget", "kill", "bad argument", e)
             return False
 
-        if wid in self.widgets:
+        if wid in self.widgets.items():
             if getattr(self.widgets[wid], "_terminate", None):
                 self.widgets[wid]._terminate()
             del self.widgets[wid]
@@ -372,11 +385,10 @@ class WidgetManager:
         return None
 
     def reset(self) -> bool:
-        """Destroy all widgets.
-        """
-        for widget in self.widgets:
-            if getattr(self.widgets[widget], "_terminate", None):
-                self.widgets[widget]._terminate()
+        """Destroy all widgets."""
+        for item in self.widgets.items():
+            if getattr(item, "_terminate", None):
+                item._terminate()
         self.widgets = {}
         self.selected = None
         self.__insert_root_widget()
@@ -390,20 +402,19 @@ class WidgetManager:
                 if (not self.widgets[wid].parent) or self.widgets[self.widgets[wid].parent].active:
                     srcrect = self.widgets[wid].srcrect()
                     dstrect = list(self.widgets[wid].dstrect())
-                    if type(self.widgets[wid]) is widget.ContainerWidget and self.widgets[wid].image:
+                    if isinstance(self.widgets[wid], widget.ContainerWidget) and self.widgets[wid].image:
                         # Draw a container.
                         r = self.driftwood.frame.overlay(self.widgets[wid].image.texture, srcrect, dstrect)
-                        if type(r) is int and r < 0:
+                        if isinstance(r, int) and r < 0:
                             self.driftwood.log.msg("ERROR", "Widget", "_draw_widgets", "SDL", SDL_GetError())
-                    elif type(self.widgets[wid]) is widget.TextWidget and self.widgets[wid].texture:
+                    elif isinstance(self.widgets[wid], widget.TextWidget) and self.widgets[wid].texture:
                         # Draw some text.
                         r = self.driftwood.frame.overlay(self.widgets[wid].texture, srcrect, dstrect)
-                        if type(r) is int and r < 0:
+                        if isinstance(r, int) and r < 0:
                             self.driftwood.log.msg("ERROR", "Widget", "_draw_widgets", "SDL", SDL_GetError())
 
     def __prepare(self) -> None:
-        """Initialize some things we need to get started.
-        """
+        """Initialize some things we need to get started."""
         if TTF_Init() < 0:
             self.driftwood.log.msg("ERROR", "Widget", "__prepare", "SDL_TTF", TTF_GetError())
         self.__spritefactory = SpriteFactory(sprite_type=TEXTURE, renderer=self.driftwood.window.renderer)
@@ -411,22 +422,21 @@ class WidgetManager:
         self.__uiprocessor = UIProcessor()
 
     def __insert_root_widget(self) -> None:
-        """Insert the root widget, which is the parent of parentless widgets.
-        """
+        """Insert the root widget, which is the parent of parentless widgets."""
         # Our size is the window resolution.
         res = self.driftwood.window.resolution()
 
         # Create the root widget.
-        self.widgets[0] = widget.ContainerWidget(manager=self.driftwood, wid=0, parent=0, image=None,
-                                                 x=0, y=0, width=res[0], height=res[1])
+        self.widgets[0] = widget.ContainerWidget(
+            manager=self.driftwood, wid=0, parent=0, image=None, x=0, y=0, width=res[0], height=res[1]
+        )
         self.widgets[0]._prepare()
         self.widgets[0].active = True
 
     def _terminate(self) -> None:
-        """Cleanup before deletion.
-        """
-        for widget in self.widgets:
-            if getattr(self.widgets[widget], "_terminate", None):
-                self.widgets[widget]._terminate()
+        """Cleanup before deletion."""
+        for item in self.widgets.items():
+            if getattr(item, "_terminate", None):
+                item._terminate()
         self.widgets = {}
         TTF_Quit()

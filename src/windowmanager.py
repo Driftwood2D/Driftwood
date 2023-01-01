@@ -26,10 +26,15 @@
 # **********
 
 from ctypes import byref
-from typing import List, Optional
+from typing import List, TYPE_CHECKING
 
 from sdl2 import *
 from sdl2.sdlimage import *
+
+from check import CHECK, CheckFailure
+
+if TYPE_CHECKING:  # Avoid circuluar import.
+    from driftwood import Driftwood
 
 
 class WindowManager:
@@ -43,7 +48,7 @@ class WindowManager:
         renderer: The SDL Renderer attached to the window.
     """
 
-    def __init__(self, driftwood):
+    def __init__(self, driftwood: "Driftwood"):
         """WindowManager class initializer.
 
         Initializes SDL, and creates a window and a renderer.
@@ -64,8 +69,9 @@ class WindowManager:
 
         self.__prepare()
 
-        self.driftwood.tick.register(self._tick, delay=1.0 / self.driftwood.config["window"]["maxfps"],
-                                     during_pause=True)
+        self.driftwood.tick.register(
+            self._tick, delay=1.0 / self.driftwood.config["window"]["maxfps"], during_pause=True
+        )
 
     def title(self, title: str) -> bool:
         """Set the window title.
@@ -159,11 +165,9 @@ class WindowManager:
         return None
 
     def _tick(self, seconds_past: float) -> None:
-        """Tick callback which refreshes the renderer.
-        """
+        """Tick callback which refreshes the renderer."""
         if self.driftwood.frame.changed:
-            SDL_RenderSetLogicalSize(self.renderer,
-                                     self.__logical_width, self.__logical_height)  # Set logical size.
+            SDL_RenderSetLogicalSize(self.renderer, self.__logical_width, self.__logical_height)  # Set logical size.
 
             SDL_RenderClear(self.renderer)
 
@@ -202,8 +206,14 @@ class WindowManager:
             flags = 0
 
         flags |= SDL_WINDOW_ALLOW_HIGHDPI
-        self.window = SDL_CreateWindow(self.driftwood.config["window"]["title"].encode(), SDL_WINDOWPOS_CENTERED,
-                                       SDL_WINDOWPOS_CENTERED, physical_width, physical_height, flags)
+        self.window = SDL_CreateWindow(
+            self.driftwood.config["window"]["title"].encode(),
+            SDL_WINDOWPOS_CENTERED,
+            SDL_WINDOWPOS_CENTERED,
+            physical_width,
+            physical_height,
+            flags,
+        )
 
         self.renderer = SDL_CreateRenderer(self.window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC)
         if not self.renderer:  # We don't have hardware rendering on this machine.
@@ -235,8 +245,7 @@ class WindowManager:
             self.driftwood.config["window"]["maxfps"] = refresh_rate
 
     def _terminate(self) -> None:
-        """Cleanup before deletion.
-        """
+        """Cleanup before deletion."""
         SDL_DestroyRenderer(self.renderer)
         self.renderer = None
         SDL_DestroyWindow(self.window)

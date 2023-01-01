@@ -25,10 +25,14 @@
 # IN THE SOFTWARE.
 # **********
 
-from typing import Dict, Optional
+from typing import Dict, Optional, TYPE_CHECKING
 
+from check import CHECK, CheckFailure
 import tile
 import tilemap
+
+if TYPE_CHECKING:  # Avoid circuluar import.
+    from driftwood import Driftwood
 
 
 class Layer:
@@ -42,7 +46,7 @@ class Layer:
         tiles: The list of Tile class instances for each tile.
     """
 
-    def __init__(self, driftwood, tilemap: 'tilemap.Tilemap', layerdata: dict, zpos: int):
+    def __init__(self, driftwood: "Driftwood", tilemap: "tilemap.Tilemap", layerdata: dict, zpos: int):
         """Layer class initializer.
 
         Args:
@@ -64,14 +68,14 @@ class Layer:
 
         self.__prepare_layer()
 
-    def __getitem__(self, item: int) -> '_AbstractColumn':
+    def __getitem__(self, item: int) -> "_AbstractColumn":
         return _AbstractColumn(self, item)
 
     def clear(self) -> None:
         for tile in self.tiles:
             self.tiles[tile].unregister()
 
-    def tile(self, x: int, y: int) -> Optional['tile.Tile']:
+    def tile(self, x: int, y: int) -> Optional["tile.Tile"]:
         """Retrieve a tile from the layer by its coordinates.
 
         Args:
@@ -95,8 +99,9 @@ class Layer:
             return self.tiles[int((y * self.tilemap.width) + x)]
 
         else:
-            self.driftwood.log.msg("WARNING", "Layer", self.zpos, "tile",
-                                   "tried to lookup nonexistent tile at", "{0}x{1}".format(x, y))
+            self.driftwood.log.msg(
+                "WARNING", "Layer", self.zpos, "tile", "tried to lookup nonexistent tile at", "{0}x{1}".format(x, y)
+            )
             return None
 
     def tile_index(self, x: int, y: int) -> Optional[int]:
@@ -120,8 +125,14 @@ class Layer:
             return int((y * self.tilemap.width) + x)
 
         else:
-            self.driftwood.log.msg("WARNING", "Layer", self.zpos, "tile_index",
-                                   "tried to lookup nonexistent tile at", "{0}x{1}".format(x, y))
+            self.driftwood.log.msg(
+                "WARNING",
+                "Layer",
+                self.zpos,
+                "tile_index",
+                "tried to lookup nonexistent tile at",
+                "{0}x{1}".format(x, y),
+            )
             return None
 
     def _process_objects(self, objdata: dict) -> None:
@@ -138,10 +149,15 @@ class Layer:
 
         for obj in objdata["objects"]:
             # Is the object properly sized?
-            if (obj["x"] % self.tilemap.tilewidth or obj["y"] % self.tilemap.tileheight or
-                        obj["width"] % self.tilemap.tilewidth or obj["height"] % self.tilemap.tileheight):
-                self.driftwood.log.msg("ERROR", "Layer", self.zpos, "_process_objects",
-                                       "invalid object size or placement")
+            if (
+                obj["x"] % self.tilemap.tilewidth
+                or obj["y"] % self.tilemap.tileheight
+                or obj["width"] % self.tilemap.tilewidth
+                or obj["height"] % self.tilemap.tileheight
+            ):
+                self.driftwood.log.msg(
+                    "ERROR", "Layer", self.zpos, "_process_objects", "invalid object size or placement"
+                )
                 continue
 
             # Map object properties onto their tiles.
@@ -164,37 +180,44 @@ class Layer:
                         if exittype in self.tile(tx, ty).properties:
 
                             # First check for and handle wide exits.
-                            exit_coords = self.tile(tx, ty).properties[exittype].split(',')
+                            exit_coords = self.tile(tx, ty).properties[exittype].split(",")
                             if len(exit_coords) != 4:
-                                self.driftwood.log.msg("ERROR", "Layer", self.zpos, "_process_objects",
-                                                       "invalid exit trigger",
-                                                       self.tile(tx, ty).properties[exittype])
+                                self.driftwood.log.msg(
+                                    "ERROR",
+                                    "Layer",
+                                    self.zpos,
+                                    "_process_objects",
+                                    "invalid exit trigger",
+                                    self.tile(tx, ty).properties[exittype],
+                                )
                                 continue
 
-                            if (exit_coords[2] and exit_coords[2][-1] == '+') and \
-                                    (exit_coords[3] and exit_coords[3][-1] == '+'):  # Invalid wide exit.
-                                self.driftwood.log.msg("ERROR", "Layer", "_process_objects",
-                                                       "cannot have multi-directional wide exits")
+                            if (exit_coords[2] and exit_coords[2][-1] == "+") and (
+                                exit_coords[3] and exit_coords[3][-1] == "+"
+                            ):  # Invalid wide exit.
+                                self.driftwood.log.msg(
+                                    "ERROR", "Layer", "_process_objects", "cannot have multi-directional wide exits"
+                                )
 
                             # Check for and handle horizontal wide exit.
-                            elif exit_coords[2] and exit_coords[2][-1] == '+':
+                            elif exit_coords[2] and exit_coords[2][-1] == "+":
                                 base_coord = int(exit_coords[2][:1])  # Chop off the plus sign.
                                 if tx % self.tilemap.width == base_coord:  # This is the first position.
                                     for wx in range(0, (obj["width"] // self.tilemap.tilewidth)):  # Set exits.
                                         final_coords = exit_coords
                                         final_coords[2] = str(base_coord + wx)
-                                        self.tile(tx + wx, ty).exits[exittype] = ','.join(final_coords)
+                                        self.tile(tx + wx, ty).exits[exittype] = ",".join(final_coords)
                                 else:  # This is not the first position, skip.
                                     continue
 
                             # Check for and handle vertical wide exit.
-                            elif exit_coords[3] and exit_coords[3][-1] == '+':
+                            elif exit_coords[3] and exit_coords[3][-1] == "+":
                                 base_coord = int(exit_coords[3][:1])  # Chop off the plus sign.
                                 if ty == base_coord:  # This is the first position.
                                     for wy in range(0, (obj["height"] // self.tilemap.tileheight)):  # Set exits.
                                         final_coords = exit_coords
                                         final_coords[3] = str(base_coord + wy)
-                                        self.tile(tx, ty + wy).exits[exittype] = ','.join(final_coords)
+                                        self.tile(tx, ty + wy).exits[exittype] = ",".join(final_coords)
                                 else:  # This is not the first position, skip.
                                     continue
 
@@ -203,8 +226,9 @@ class Layer:
 
                     # Handle entity auto-spawn triggers.
                     if "entity" in self.tile(tx, ty).properties:
-                        self.driftwood.area._autospawns.append([self.tile(tx, ty).properties["entity"],
-                                                                self.zpos, tx, ty])
+                        self.driftwood.area._autospawns.append(
+                            [self.tile(tx, ty).properties["entity"], self.zpos, tx, ty]
+                        )
 
     def __expand_properties(self, properties: Dict[str, str]) -> None:
         new_props = {}
@@ -229,8 +253,7 @@ class Layer:
             self.properties = self._layer["properties"]
 
     def _terminate(self) -> None:
-        """Cleanup before deletion.
-        """
+        """Cleanup before deletion."""
         for tile in self.tiles:
             self.tiles[tile]._terminate()
         self.tiles = []
@@ -241,7 +264,7 @@ class _AbstractColumn:
         self._layer = layer
         self.__x = x
 
-    def __getitem__(self, item: int) -> Optional['tile.Tile']:
+    def __getitem__(self, item: int) -> Optional["tile.Tile"]:
         return self._layer.tile(self.__x, item)
 
 
@@ -257,7 +280,7 @@ class _TileLoader:
         self.__tiles = {}
         self.__layer = layer
 
-    def __getitem__(self, item: int) -> Optional['tile.Tile']:
+    def __getitem__(self, item: int) -> Optional["tile.Tile"]:
         # Returns a tile by its sequence number.
         return self.__get(item)
 
@@ -270,7 +293,7 @@ class _TileLoader:
         for seq in range(self.__len__()):
             return self.__get(seq)
 
-    def __get(self, seq: int) -> Optional['tile.Tile']:
+    def __get(self, seq: int) -> Optional["tile.Tile"]:
         # Get a tile by its sequence number, loading if not loaded.
         if seq in self.__tiles:
             # Already loaded. Return the cached tile.
@@ -293,8 +316,9 @@ class _TileLoader:
 
                 if not seq in self.__tiles:
                     # We found nothing. Set nothing.
-                    self.driftwood.log.msg("WARNING", "Layer", layer.zpos, "_TileLoader", "Orphan gid", gid,
-                                           "for tile", seq)
+                    self.driftwood.log.msg(
+                        "WARNING", "Layer", layer.zpos, "_TileLoader", "Orphan gid", gid, "for tile", seq
+                    )
                     self.__tiles[seq] = tile.Tile(layer, seq, None, None)
 
             # No tile, here create a dummy tile.

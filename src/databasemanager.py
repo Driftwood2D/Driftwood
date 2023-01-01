@@ -28,8 +28,14 @@
 import json
 import os
 import sys
+from typing import Any, Optional, TYPE_CHECKING
+
 import ubjson
-from typing import Any, Optional
+
+from check import CHECK, CheckFailure
+
+if TYPE_CHECKING:  # Avoid circuluar import.
+    from driftwood import Driftwood
 
 
 class DatabaseManager:
@@ -43,7 +49,7 @@ class DatabaseManager:
         filename: Filename of the database.
     """
 
-    def __init__(self, driftwood):
+    def __init__(self, driftwood: "Driftwood"):
         """DatabaseManager class initializer.
 
         Args:
@@ -51,8 +57,9 @@ class DatabaseManager:
         """
         self.driftwood = driftwood
 
-        self.filename = os.path.join(self.driftwood.config["database"]["root"],
-                                     self.driftwood.config["database"]["name"])
+        self.filename = os.path.join(
+            self.driftwood.config["database"]["root"], self.driftwood.config["database"]["name"]
+        )
 
         # Has the database changed in memory?
         self.__changed = False
@@ -86,12 +93,12 @@ class DatabaseManager:
 
     def open(self, filename: str) -> Optional[bool]:
         """Opens a new database and closes the current one.
-        
+
         If opening the new database fails, the old one stays loaded.
-        
+
         Args:
             filename: The filename of the database to load, relative to the database root.
-        
+
         Returns:
             True if succeeded, False if failed.
         """
@@ -143,11 +150,11 @@ class DatabaseManager:
 
         # Get the key.
         if key in self.__database:
-            self.driftwood.log.info("Database", "get", "\"{0}\"".format(key))
+            self.driftwood.log.info("Database", "get", '"{0}"'.format(key))
             return self.__database[key]
 
         else:
-            self.driftwood.log.msg("ERROR", "Database", "get", "no such key", "\"{0}\"".format(key))
+            self.driftwood.log.msg("ERROR", "Database", "get", "no such key", '"{0}"'.format(key))
             return None
 
     def put(self, key: str, obj: Any) -> Optional[bool]:
@@ -172,12 +179,12 @@ class DatabaseManager:
         try:
             ret = json.dumps(obj)
         except TypeError:
-            self.driftwood.log.msg("ERROR", "Database", "put", "bad object type for key", "\"{0}\"".format(key))
+            self.driftwood.log.msg("ERROR", "Database", "put", "bad object type for key", '"{0}"'.format(key))
             return False
 
         self.__database[key] = obj
         self.__changed = True
-        self.driftwood.log.info("Database", "put", "\"{0}\"".format(key))
+        self.driftwood.log.info("Database", "put", '"{0}"'.format(key))
         return True
 
     def remove(self, key: str) -> Optional[bool]:
@@ -200,16 +207,16 @@ class DatabaseManager:
         # Remove the key.
         if key in self.__database:
             del self.__database[key]
-            self.driftwood.log.info("Database", "remove", "\"{0}\"".format(key))
+            self.driftwood.log.info("Database", "remove", '"{0}"'.format(key))
             self.__changed = True
             return True
         else:
-            self.driftwood.log.msg("ERROR", "Database", "remove", "no such key", "\"{0}\"".format(key))
+            self.driftwood.log.msg("ERROR", "Database", "remove", "no such key", '"{0}"'.format(key))
             return False
 
     def flush(self) -> bool:
         """Force the database to write to disk now.
-        
+
         Returns:
             True
         """
@@ -219,8 +226,7 @@ class DatabaseManager:
         return True
 
     def __test_db_dir(self) -> bool:
-        """Test if we can create or open the database directory.
-        """
+        """Test if we can create or open the database directory."""
         db_dir_path = self.driftwood.config["database"]["root"]
         try:
             # Create db directory
@@ -228,8 +234,9 @@ class DatabaseManager:
                 self.driftwood.log.info("Database", "creating database directory", db_dir_path)
                 os.mkdir(db_dir_path)
         except:
-            self.driftwood.log.msg("FATAL", "Database", "__test_db_dir", "cannot create database directory",
-                                   db_dir_path)
+            self.driftwood.log.msg(
+                "FATAL", "Database", "__test_db_dir", "cannot create database directory", db_dir_path
+            )
             return False
 
         try:
@@ -242,8 +249,7 @@ class DatabaseManager:
         return True
 
     def __test_db_open(self) -> bool:
-        """Test if we can create or open the database file.
-        """
+        """Test if we can create or open the database file."""
         try:
             with open(self.filename, "ab+") as test:
                 return True
@@ -251,13 +257,12 @@ class DatabaseManager:
             return False
 
     def __load(self) -> Optional[dict]:
-        """Load the database file from disk.
-        """
+        """Load the database file from disk."""
         if not self.__test_db_open():
             return None
 
         try:
-            with open(self.filename, 'rb') as dbfile:
+            with open(self.filename, "rb") as dbfile:
                 dbcontents = dbfile.read()
                 if len(dbcontents):
                     return ubjson.loadb(dbcontents)
@@ -268,12 +273,12 @@ class DatabaseManager:
 
     def _tick(self, seconds_past: float) -> None:
         """Tick callback.
-        
+
         If there have been any changes to the database in memory, write them to disk.
         """
         if self.__changed:
             try:
-                with open(self.filename, 'wb') as dbfile:
+                with open(self.filename, "wb") as dbfile:
                     dbfile.write(ubjson.dumpb(self.__database))
             except:
                 self.driftwood.log.msg("FATAL", "Database", "_tick", "cannot write database to disk", self.filename)
@@ -281,7 +286,6 @@ class DatabaseManager:
             self.__changed = False
 
     def _terminate(self) -> None:
-        """Cleanup before deletion.
-        """
+        """Cleanup before deletion."""
         # Make sure we write to disk.
         self._tick(0.0)

@@ -27,6 +27,7 @@
 
 from typing import List, Optional
 
+from check import CHECK, CheckFailure
 import layer
 import tileset
 
@@ -51,8 +52,21 @@ class Tile:
             present mapped to a list containing the destination [area, layer, x, y].
     """
 
-    __slots__ = ["layer", "seq", "tileset", "gid", "localgid", "members", "afps", "pos", "properties", "nowalk",
-                 "exits", "__dstrect", "__cur_member"]
+    __slots__ = [
+        "layer",
+        "seq",
+        "tileset",
+        "gid",
+        "localgid",
+        "members",
+        "afps",
+        "pos",
+        "properties",
+        "nowalk",
+        "exits",
+        "__dstrect",
+        "__cur_member",
+    ]
 
     def __init__(self, layer: layer.Layer, seq: int, tileset: Optional[tileset.Tileset], gid: Optional[int]):
         """Tile class initializer.
@@ -71,10 +85,7 @@ class Tile:
         self.localgid = None
         self.members = []
         self.afps = 0.0
-        self.pos = [
-            self.seq % self.layer.tilemap.width,
-            self.seq // self.layer.tilemap.width
-        ]
+        self.pos = [self.seq % self.layer.tilemap.width, self.seq // self.layer.tilemap.width]
         self.properties = {}
 
         self.nowalk = None
@@ -90,14 +101,14 @@ class Tile:
                 self.pos[0] * self.tileset.tilewidth,
                 self.pos[1] * self.tileset.tileheight,
                 self.tileset.tilewidth,
-                self.tileset.tileheight
+                self.tileset.tileheight,
             ]
 
             if self.tileset.tileproperties and self.localgid in self.tileset.tileproperties:
                 self.properties = self.tileset.tileproperties[self.localgid]
 
             if "members" in self.properties:
-                temp_members = list(map(int, self.properties["members"].split(',')))
+                temp_members = list(map(int, self.properties["members"].split(",")))
                 self.members = []
                 for m in temp_members:
                     # Make things prettier for the end user by lining up member IDs with GIDs.
@@ -112,24 +123,24 @@ class Tile:
                 self.layer.tilemap.area.driftwood.tick.register(self.__next_member, delay=(1 / self.afps))
 
     def srcrect(self) -> List[int]:
-        """Return an (x, y, w, h) srcrect for the current graphic frame of the tile.
-        """
+        """Return an (x, y, w, h) srcrect for the current graphic frame of the tile."""
         if self.members:
             current_member = self.members[self.__cur_member]
             if current_member != -1:
-                return [(current_member * self.tileset.tilewidth) % self.tileset.imagewidth,
-                        current_member * self.tileset.tilewidth // self.tileset.imagewidth * self.tileset.tileheight,
-                        self.tileset.tilewidth, self.tileset.tileheight]
+                return [
+                    (current_member * self.tileset.tilewidth) % self.tileset.imagewidth,
+                    current_member * self.tileset.tilewidth // self.tileset.imagewidth * self.tileset.tileheight,
+                    self.tileset.tilewidth,
+                    self.tileset.tileheight,
+                ]
         return [0, 0, 0, 0]
 
     def dstrect(self) -> List[int]:
-        """Return a copy of our (x, y, w, h) dstrect so that external operations don't change our local variable.
-        """
+        """Return a copy of our (x, y, w, h) dstrect so that external operations don't change our local variable."""
         return list(self.__dstrect)
 
-    def offset(self, x, y) -> Optional['Tile']:
-        """Return the tile at this offset.
-        """
+    def offset(self, x, y) -> Optional["Tile"]:
+        """Return the tile at this offset."""
         # Input Check
         try:
             CHECK(x, int)
@@ -191,6 +202,5 @@ class Tile:
             driftwood.tick.unregister(self.__next_member)
 
     def _terminate(self) -> None:
-        """Cleanup before deletion.
-        """
+        """Cleanup before deletion."""
         self.unregister()

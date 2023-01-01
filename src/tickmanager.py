@@ -25,11 +25,17 @@
 # IN THE SOFTWARE.
 # **********
 
-import types
 from inspect import signature
-from typing import Any, Callable
+import types
+from typing import Any, Callable, TYPE_CHECKING
 
 from sdl2 import SDL_Delay, SDL_GetTicks
+
+from check import CHECK, CheckFailure
+
+if TYPE_CHECKING:  # Avoid circuluar import.
+    from driftwood import Driftwood
+
 
 # Upper bound on latency we can handle from the OS when we expect to return from sleep, measured in seconds.
 WAKE_UP_LATENCY = 5.0 / 1000.0
@@ -45,7 +51,7 @@ class TickManager:
         count: Number of ticks since engine start.
     """
 
-    def __init__(self, driftwood):
+    def __init__(self, driftwood: "Driftwood"):
         """TickManager class initializer.
 
         Args:
@@ -69,12 +75,9 @@ class TickManager:
 
         self.paused = False
 
-    def register(self,
-                 func: Callable,
-                 delay: float = 0.0,
-                 once: bool = False,
-                 during_pause: bool = False,
-                 message: Any = None) -> bool:
+    def register(
+        self, func: Callable, delay: float = 0.0, once: bool = False, during_pause: bool = False, message: Any = None
+    ) -> bool:
         """Register a tick callback, with an optional delay between calls.
 
         Each tick callback must take either no arguments or one argument, for which seconds since its last call will be
@@ -104,14 +107,16 @@ class TickManager:
             if callback["function"] == func:
                 self.unregister(func)
 
-        self.__registry.append({
-            "most_recent": self._most_recent_time,
-            "delay": delay,
-            "function": func,
-            "once": once,
-            "during_pause": during_pause,
-            "message": message
-        })
+        self.__registry.append(
+            {
+                "most_recent": self._most_recent_time,
+                "delay": delay,
+                "function": func,
+                "once": once,
+                "during_pause": during_pause,
+                "message": message,
+            }
+        )
 
         self.driftwood.log.info("Tick", "registered callback", func.__name__)
         return True
@@ -138,8 +143,9 @@ class TickManager:
                 self.driftwood.log.info("Tick", "unregistered callback", func.__name__)
                 return True
 
-        self.driftwood.log.msg("WARNING", "Tick", "unregister", "attempt to unregister nonexistent callback",
-                               func.__name__)
+        self.driftwood.log.msg(
+            "WARNING", "Tick", "unregister", "attempt to unregister nonexistent callback", func.__name__
+        )
         return False
 
     def registered(self, func: Any) -> bool:
@@ -208,13 +214,11 @@ class TickManager:
 
     @staticmethod
     def _get_time() -> float:
-        """Returns the number of seconds since the program start.
-        """
+        """Returns the number of seconds since the program start."""
         return float(SDL_GetTicks()) / 1000.0
 
     def _get_delay(self) -> float:
-        """Return delay (in seconds) until the next scheduled game tick.
-        """
+        """Return delay (in seconds) until the next scheduled game tick."""
         now = self._get_time()
         time_delta = now - self._most_recent_time
         tick_duration = 1 / self.driftwood.config["window"]["maxfps"]

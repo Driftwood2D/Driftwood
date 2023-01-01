@@ -28,12 +28,15 @@
 # A big thank-you to Lazy Foo's SDL_Audio tutorial. It would've taken me a lot longer to build this without such clear
 # instruction. Link: <http://lazyfoo.net/SDL_tutorials/lesson11/>
 
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 
-import pygame
-import pygame.mixer as mixer
+import pygame as pg
 
+from check import CHECK, CheckFailure
 from filetype import AudioFile
+
+if TYPE_CHECKING:  # Avoid circuluar import.
+    from driftwood import Driftwood
 
 # We have 8 channels. Channel 0 is for music, and the rest are for sound effects.
 MAX_CHAN = 8
@@ -44,16 +47,18 @@ FIRST_SFX_CHAN = 1
 class AudioManager:
     """The Audio Manager
 
-        This class manages the audio subsystem and allows playing sound effects and music.
+    This class manages the audio subsystem and allows playing sound effects and music.
 
-        Attributes:
-            driftwood: Base class instance.
-            playing_music: Whether we are currently playing music or not.
-            playing_sfx: Whether we are currently playing sfx or not.
+    Attributes:
+        driftwood: Base class instance.
+        playing_music: Whether we are currently playing music or not.
+        playing_sfx: Whether we are currently playing sfx or not.
     """
-    __music: Optional[AudioFile]
 
-    def __init__(self, driftwood):
+    __music: Optional[AudioFile]
+    driftwood: "Driftwood"
+
+    def __init__(self, driftwood: "Driftwood"):
         self.driftwood = driftwood
 
         self.playing_music = False
@@ -66,13 +71,13 @@ class AudioManager:
         audio_config = self.driftwood.config["audio"]
         frequency = audio_config["frequency"]
         try:
-            mixer.init(frequency=frequency)
-        except pygame.error as e:
+            pg.mixer.init(frequency=frequency)
+        except pg.error as e:
             self.driftwood.log.msg("ERROR", "Audio", "__init__", "failed to initialize mixer output", str(e))
             return
 
-        mixer.set_num_channels(MAX_CHAN)
-        mixer.set_reserved(1)  # Reserved for music.
+        pg.mixer.set_num_channels(MAX_CHAN)
+        pg.mixer.set_reserved(1)  # Reserved for music.
 
         self.driftwood.log.info("Audio", "initialized mixer output")
         self.__init_success = True
@@ -81,12 +86,12 @@ class AudioManager:
         self.driftwood.tick.register(self._cleanup, delay=0.01, during_pause=True)
 
     def play_sfx(
-            self,
-            filename: str,
-            volume: int = None,
-            loop: Optional[int] = 0,
-            fade: float = 0.0,
-    ) -> Optional[mixer.Channel]:
+        self,
+        filename: str,
+        volume: int = None,
+        loop: Optional[int] = 0,
+        fade: float = 0.0,
+    ) -> Optional[pg.mixer.Channel]:
         """Load and play a sound effect from an audio file.
 
         Args:
@@ -111,8 +116,9 @@ class AudioManager:
 
         # Give up if we didn't initialize properly.
         if not self.__init_success:
-            self.driftwood.log.msg("WARNING", "Audio", "play_sfx", "cannot play sfx due to initialization failure",
-                                   filename)
+            self.driftwood.log.msg(
+                "WARNING", "Audio", "play_sfx", "cannot play sfx due to initialization failure", filename
+            )
             return None
 
         # Load the sound effect.
@@ -150,7 +156,7 @@ class AudioManager:
 
         return channel
 
-    def volume_sfx(self, channel: Optional[mixer.Channel], volume: int = None) -> Optional[int]:
+    def volume_sfx(self, channel: Optional[pg.mixer.Channel], volume: int = None) -> Optional[int]:
         """Get or adjust the volume of a sound effect channel.
 
         Args:
@@ -183,13 +189,13 @@ class AudioManager:
                 channel.set_volume(volume / 128)
             else:
                 for idx in range(FIRST_SFX_CHAN, MAX_CHAN):
-                    mixer.Channel(idx).set_volume(volume / 128)
+                    pg.mixer.Channel(idx).set_volume(volume / 128)
             return volume
         else:  # Get the volume.
             if channel:
                 return int(channel.get_volume() * 128)
 
-    def stop_sfx(self, channel: mixer.Channel, fade: float = 0.0) -> bool:
+    def stop_sfx(self, channel: pg.mixer.Channel, fade: float = 0.0) -> bool:
         """Stop a sound effect. Requires the sound effect's channel number from play_sfx()'s return code.
 
         Args:
@@ -217,7 +223,7 @@ class AudioManager:
             True
         """
         for idx in range(FIRST_SFX_CHAN, MAX_CHAN):
-            mixer.Channel(idx).stop()
+            pg.mixer.Channel(idx).stop()
         return True
 
     def play_music(self, filename: str, volume: int = None, loop: Optional[int] = 0, fade: float = 0.0) -> bool:
@@ -246,8 +252,9 @@ class AudioManager:
 
         # Give up if we didn't initialize properly.
         if not self.__init_success:
-            self.driftwood.log.msg("WARNING", "Audio", "play_music", "cannot play music due to initialization failure",
-                                   filename)
+            self.driftwood.log.msg(
+                "WARNING", "Audio", "play_music", "cannot play music due to initialization failure", filename
+            )
             return False
 
         # Stop and unload any previously loaded music.
@@ -262,7 +269,7 @@ class AudioManager:
         if loop is None:
             loop = -1
 
-        channel = mixer.Channel(MUSIC_CHAN)
+        channel = pg.mixer.Channel(MUSIC_CHAN)
 
         # Play the music.
         try:
@@ -307,7 +314,7 @@ class AudioManager:
             return None
 
         # Search for the sound effect.
-        channel = mixer.Channel(MUSIC_CHAN)
+        channel = pg.mixer.Channel(MUSIC_CHAN)
         playing_music = channel.get_busy()
         if playing_music:
             if volume is not None:
@@ -347,7 +354,7 @@ class AudioManager:
         if not self.__music:
             return False
 
-        channel = mixer.Channel(MUSIC_CHAN)
+        channel = pg.mixer.Channel(MUSIC_CHAN)
         if channel.get_busy():
             if not fade:  # Stop the music.
                 channel.stop()
@@ -361,14 +368,13 @@ class AudioManager:
 
     def _cleanup(self, seconds_past: float) -> None:
         # Tick callback to clean up files we're done with.
-        if self.__music and not mixer.Channel(MUSIC_CHAN).get_busy():
+        if self.__music and not pg.mixer.Channel(MUSIC_CHAN).get_busy():
             self.__music = None
             self.playing_music = False
-        self.playing_sfx = any(mixer.Channel(idx).get_busy() for idx in range(FIRST_SFX_CHAN, MAX_CHAN))
+        self.playing_sfx = any(pg.mixer.Channel(idx).get_busy() for idx in range(FIRST_SFX_CHAN, MAX_CHAN))
 
     def _terminate(self) -> None:
-        """Prepare for shutdown.
-        """
+        """Prepare for shutdown."""
         self.stop_music()
         self.stop_all_sfx()
-        mixer.quit()
+        pg.mixer.quit()

@@ -25,10 +25,10 @@
 # IN THE SOFTWARE.
 # **********
 
-from ctypes import byref
+from ctypes import byref, c_int
 from typing import Optional, TYPE_CHECKING
 
-import pygame.mixer as mixer
+import pygame as pg
 from sdl2 import *
 from sdl2.sdlimage import *
 from sdl2.sdlttf import *
@@ -43,12 +43,12 @@ class BytesStream:
     It is used by PyGame to construct an SDL_RWops object in C, and then passed to various SDL file loading functions
     within PyGame.
     """
+
     __data: bytes
     __pos: int
 
     def __init__(self, data: bytes):
-        """Construct a BytesSteam that will read data from an in-memory bytes object.
-        """
+        """Construct a BytesSteam that will read data from an in-memory bytes object."""
         self.__data = data
         self.__pos = 0
 
@@ -105,10 +105,13 @@ class AudioFile:
     Attributes:
         audio: The PyGame audio handle.
     """
-    audio: Optional[mixer.Sound]
-    driftwood: 'Driftwood'
 
-    def __init__(self, driftwood, data: bytes, is_music: bool = False):
+    __data: bytes
+    __is_music: bool
+    audio: Optional[pg.mixer.Sound]
+    driftwood: "Driftwood"
+
+    def __init__(self, driftwood: "Driftwood", data: bytes, is_music: bool = False):
         self.driftwood = driftwood
 
         self.audio = None
@@ -118,17 +121,15 @@ class AudioFile:
         self.__load(self.__data)
 
     def __load(self, data: bytes) -> None:
-        """Load the audio data with PyGame.
-        """
+        """Load the audio data with pygame."""
         if data:
             try:
-                self.audio = mixer.Sound(file=BytesStream(data))
+                self.audio = pg.mixer.Sound(file=BytesStream(data))
             except Exception as e:
                 self.driftwood.log.msg("ERROR", "AudioFile", "__load", "PyGame", e)
 
     def _terminate(self) -> None:
-        """Cleanup before deletion.
-        """
+        """Cleanup before deletion."""
         if self.audio:
             self.audio = None
         else:
@@ -143,9 +144,13 @@ class FontFile:
         ptsize: The size of the font in pt.
     """
 
-    def __init__(self, driftwood, data: bytes, ptsize: int):
-        """FontFile class initializer.
-        """
+    __data: bytes
+    driftwood: "Driftwood"
+    font: Optional[TTF_Font]
+    ptsize: int
+
+    def __init__(self, driftwood: "Driftwood", data: bytes, ptsize: int):
+        """FontFile class initializer."""
         self.driftwood = driftwood
 
         self.font = None
@@ -155,16 +160,14 @@ class FontFile:
         self.__load(self.__data)
 
     def __load(self, data: bytes) -> None:
-        """Load the font data with SDL_TTF.
-        """
+        """Load the font data with SDL_TTF."""
         if data:
             self.font = TTF_OpenFontRW(SDL_RWFromConstMem(data, len(data)), 0, self.ptsize)
             if not self.font:
                 self.driftwood.log.msg("ERROR", "FontFile", "__load", "SDL_TTF", TTF_GetError())
 
     def _terminate(self) -> None:
-        """Cleanup before deletion.
-        """
+        """Cleanup before deletion."""
         if self.font:
             TTF_CloseFont(self.font)
             self.font = None
@@ -180,9 +183,8 @@ class ImageFile:
         texture: An SDL texture containing the image.
     """
 
-    def __init__(self, driftwood, data: bytes, renderer: SDL_Renderer):
-        """ImageFile class initializer.
-        """
+    def __init__(self, driftwood: "Driftwood", data: bytes, renderer: SDL_Renderer):
+        """ImageFile class initializer."""
         self.driftwood = driftwood
 
         self.surface = None
@@ -198,8 +200,7 @@ class ImageFile:
         self.width, self.height = tw.value, th.value
 
     def __load(self, data: bytes) -> None:
-        """Load the image data with SDL_Image.
-        """
+        """Load the image data with SDL_Image."""
         if data:
             self.surface = IMG_Load_RW(SDL_RWFromConstMem(data, len(data)), 1)
             if not self.surface:
@@ -210,8 +211,7 @@ class ImageFile:
                 self.driftwood.log.msg("ERROR", "ImageFile", "__load", "SDL_Image", IMG_GetError())
 
     def _terminate(self) -> None:
-        """Cleanup before deletion.
-        """
+        """Cleanup before deletion."""
         if not self.surface and not self.texture:
             self.driftwood.log.msg("WARNING", "ImageFile", "terminate", "subsequent termination of same object")
         if self.surface:

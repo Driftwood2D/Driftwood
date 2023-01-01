@@ -26,9 +26,12 @@
 # **********
 
 from ctypes import byref
+from typing import TYPE_CHECKING
+
 from sdl2 import *
 
-import entitymanager
+if TYPE_CHECKING:
+    import entitymanager
 
 
 class Spritesheet:
@@ -44,7 +47,7 @@ class Spritesheet:
         imageheight: Height of the sprite sheet in pixels.
     """
 
-    def __init__(self, entitymanager: 'entitymanager.EntityManager', filename: str):
+    def __init__(self, entitymanager: "entitymanager.EntityManager", filename: str):
         """Spritesheet class initializer.
 
         Args:

@@ -42,9 +42,9 @@ class LogManager:
         driftwood: Base class instance.
     """
 
-    driftwood: 'Driftwood'
+    driftwood: "Driftwood"
 
-    def __init__(self, driftwood):
+    def __init__(self, driftwood: "Driftwood"):
         """LogManager class initializer.
 
         Args:
@@ -121,12 +121,11 @@ class LogManager:
         line = ticks + ": ".join(chain)
         print(line)
         if self.__file:
-            self.__file.write(line + '\n')
+            self.__file.write(line + "\n")
         sys.stdout.flush()
 
     def __check_suppress(self, chain: List[str], halt: bool = False) -> bool:
-        """Checks whether or not the chain matches a suppression rule.
-        """
+        """Checks whether or not the chain matches a suppression rule."""
         if halt:
             check = self.driftwood.config["log"]["suppress_halt"]
         else:
@@ -141,8 +140,7 @@ class LogManager:
         return False
 
     def __test_file_open(self) -> bool:
-        """Test if we can create or open the log file.
-        """
+        """Test if we can create or open the log file."""
         try:
             with open(self.driftwood.config["log"]["file"], "a+") as test:
                 return True
@@ -150,8 +148,7 @@ class LogManager:
             return False
 
     def _terminate(self) -> None:
-        """Cleanup before deletion.
-        """
+        """Cleanup before deletion."""
         if self.__file:
             ticks = "[{0}]".format(self.driftwood.tick.count)
             self.__file.write(ticks + " Shutting down...\n\n")

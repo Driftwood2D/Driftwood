@@ -25,12 +25,15 @@
 # IN THE SOFTWARE.
 # **********
 
-from ctypes import byref
-from ctypes import c_ubyte
-from sdl2 import *
-from typing import List, Tuple, Union
+from ctypes import byref, c_ubyte
+from typing import List, Tuple, TYPE_CHECKING
 
-import filetype
+from sdl2 import *
+
+from check import CHECK, CheckFailure
+
+if TYPE_CHECKING:  # Avoid circuluar import.
+    from driftwood import Driftwood
 
 
 class FrameManager:
@@ -47,7 +50,7 @@ class FrameManager:
         changed: Whether the frame has been changed. [STATE_NOTCHANGED, STATE_BACKBUFFER_NEEDS_UPDATE, STATE_CHANGED]
     """
 
-    def __init__(self, driftwood):
+    def __init__(self, driftwood: "Driftwood"):
         """FrameManager class initializer.
 
         Initializes frame handling.
@@ -126,9 +129,9 @@ class FrameManager:
             SDL_DestroyTexture(self.__backbuffer)
 
         # Recreate backbuffer
-        self.__backbuffer = SDL_CreateTexture(self.driftwood.window.renderer,
-                                              SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET,
-                                              width, height)
+        self.__backbuffer = SDL_CreateTexture(
+            self.driftwood.window.renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET, width, height
+        )
 
         if type(self.__backbuffer) is int and self.__backbuffer < 0:
             self.driftwood.log.msg("ERROR", "Frame", "prepare", "SDL", SDL_GetError())
@@ -234,23 +237,25 @@ class FrameManager:
 
         return True
 
-    def copy(self,
-             tex: SDL_Texture,
-             srcrect: List[int],
-             dstrect: List[int],
-             alpha: int = None,
-             blendmode: int = None,
-             colormod: Tuple[int, int, int] = None) -> bool:
+    def copy(
+        self,
+        tex: SDL_Texture,
+        srcrect: List[int],
+        dstrect: List[int],
+        alpha: int = None,
+        blendmode: int = None,
+        colormod: Tuple[int, int, int] = None,
+    ) -> bool:
         """Copy a texture onto the back buffer.
-        
+
         Copy the source rectangle from the texture tex to the destination rectangle in our back buffer.
-        
+
         Args:
             tex: Texture to copy.
             srcrect: Source rectangle [x, y, w, h]
             dstrect: Destination rectangle [x, y, w, h]
             alpha: (optional) An additional alpha value multiplied into the copy.
-            blendmode: (optional) Which SDL2 blend mode to use. 
+            blendmode: (optional) Which SDL2 blend mode to use.
             colormod: (optional) An additional color value multiplied into the copy.
         Returns:
             True if succeeded, False if failed.
@@ -379,8 +384,7 @@ class FrameManager:
         return True
 
     def _terminate(self) -> None:
-        """Cleanup before deletion.
-        """
+        """Cleanup before deletion."""
         if self.__backbuffer:
             SDL_DestroyTexture(self.__backbuffer)
             self.__backbuffer = None

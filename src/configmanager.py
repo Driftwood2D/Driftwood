@@ -27,13 +27,18 @@
 
 import argparse
 import json
-import jsonschema
 import os
 import sys
 import traceback
-from typing import Any, ItemsView
+from typing import Any, ItemsView, TYPE_CHECKING
+
+import jsonschema
 
 from __schema__ import _SCHEMA
+
+if TYPE_CHECKING:  # Avoid circuluar import.
+    from driftwood import Driftwood
+
 
 VERSION = "Driftwood 2D Alpha-0.0.11"
 COPYRIGHT = "Copyright 2016-2017 Michael D. Reiley and Paul Merrill"
@@ -51,7 +56,7 @@ class ConfigManager:
         driftwood: Base class instance.
     """
 
-    def __init__(self, driftwood):
+    def __init__(self, driftwood: "Driftwood"):
         """ConfigManager class initializer.
 
         Args:
@@ -91,12 +96,12 @@ class ConfigManager:
             None
         """
         for item in sys.argv[1:]:
-            if item[0] == '+':
+            if item[0] == "+":
                 sys.argv.remove(item)  # Remove this so it doesn't bother Argparse later.
-                assignment = item[1:].split('=')
+                assignment = item[1:].split("=")
                 if len(assignment) != 2:
                     # Not valid.
-                    print("[0] FATAL: Config: __read_cmdline_vars: invalid variable assignment: "+item)
+                    print("[0] FATAL: Config: __read_cmdline_vars: invalid variable assignment: " + item)
                     sys.exit(1)  # Fail.
                 self.driftwood.vars[assignment[0]] = assignment[1]  # Assign the engine variable.
 
@@ -106,15 +111,14 @@ class ConfigManager:
         Returns:
             Result of parser.parse_args()
         """
-        parser = argparse.ArgumentParser(description=VERSION,
-                                         formatter_class=lambda prog: argparse.HelpFormatter(prog,
-                                                                                             max_help_position=40))
-        parser.add_argument("config", nargs='?', type=str, default="config.json", help="config file to use")
+        parser = argparse.ArgumentParser(
+            description=VERSION, formatter_class=lambda prog: argparse.HelpFormatter(prog, max_help_position=40)
+        )
+        parser.add_argument("config", nargs="?", type=str, default="config.json", help="config file to use")
         parser.add_argument("--path", nargs=1, dest="path", type=str, metavar="<name,...>", help="set path")
         parser.add_argument("--root", nargs=1, dest="root", type=str, metavar="<root>", help="set path root")
         parser.add_argument("--db", nargs=1, dest="db", type=str, metavar="<database>", help="set database to use")
-        parser.add_argument("--dbroot", nargs=1, dest="dbroot", type=str, metavar="<root>",
-                            help="set database root")
+        parser.add_argument("--dbroot", nargs=1, dest="dbroot", type=str, metavar="<root>", help="set database root")
         parser.add_argument("--size", nargs=1, dest="size", type=str, metavar="<WxH>", help="set window dimensions")
         parser.add_argument("--ttl", nargs=1, dest="ttl", type=int, metavar="<seconds>", help="set cache time-to-live")
         parser.add_argument("--maxfps", nargs=1, dest="maxfps", type=int, metavar="<fps>", help="set max fps")
@@ -122,22 +126,32 @@ class ConfigManager:
         parser.add_argument("--svol", nargs=1, dest="svol", type=int, metavar="<0-128>", help="set sfx volume")
 
         group1 = parser.add_mutually_exclusive_group()
-        group1.add_argument("--window", default=None, action="store_false", dest="fullscreen",
-                            help="run in windowed mode")
-        group1.add_argument("--fullscreen", default=None, action="store_true", dest="fullscreen",
-                            help="run in fullscreen mode")
+        group1.add_argument(
+            "--window", default=None, action="store_false", dest="fullscreen", help="run in windowed mode"
+        )
+        group1.add_argument(
+            "--fullscreen", default=None, action="store_true", dest="fullscreen", help="run in fullscreen mode"
+        )
 
         group2 = parser.add_mutually_exclusive_group()
-        group2.add_argument("--quiet", default=None, action="store_false", dest="verbose",
-                            help="run in quiet logging mode")
-        group2.add_argument("--verbose", default=None, action="store_true", dest="verbose",
-                            help="run in verbose logging mode")
+        group2.add_argument(
+            "--quiet", default=None, action="store_false", dest="verbose", help="run in quiet logging mode"
+        )
+        group2.add_argument(
+            "--verbose", default=None, action="store_true", dest="verbose", help="run in verbose logging mode"
+        )
 
         group3 = parser.add_mutually_exclusive_group()
-        group3.add_argument("--halt", default=None, action="store_true", dest="halt",
-                            help="halt execution on errors or warnings")
-        group3.add_argument("--continue", default=None, action="store_false", dest="halt",
-                            help="continue execution despite errors or warnings")
+        group3.add_argument(
+            "--halt", default=None, action="store_true", dest="halt", help="halt execution on errors or warnings"
+        )
+        group3.add_argument(
+            "--continue",
+            default=None,
+            action="store_false",
+            dest="halt",
+            help="continue execution despite errors or warnings",
+        )
 
         parser.add_argument("--version", action="store_true", dest="version", help="print the version string")
 
@@ -151,7 +165,7 @@ class ConfigManager:
         """
         # Open the configuration file.
         try:
-            with open(self.__cmdline_args.config, 'r') as config:
+            with open(self.__cmdline_args.config, "r") as config:
                 self.__config = json.load(config)
         except:
             print("Driftwood 2D\n[0] Starting up...")
@@ -185,18 +199,18 @@ class ConfigManager:
         # Read the rest of the command line arguments.
         if self.__cmdline_args.path:
             cpath = self.__cmdline_args.path[0]
-            if cpath.startswith(',') and cpath.endswith(','):
+            if cpath.startswith(",") and cpath.endswith(","):
                 # Illegal option. Ignore this.
                 pass
-            elif cpath.startswith(','):
+            elif cpath.startswith(","):
                 # Append this to the config file's path.
-                self.__config["path"]["path"] += cpath.split(',')[1:]
-            elif cpath.endswith(','):
+                self.__config["path"]["path"] += cpath.split(",")[1:]
+            elif cpath.endswith(","):
                 # Prepend this to the config file's path.
-                self.__config["path"]["path"] = cpath.split(',')[:-1] + self.__config["path"]["path"]
+                self.__config["path"]["path"] = cpath.split(",")[:-1] + self.__config["path"]["path"]
             else:
                 # Replace the config file's path.
-                self.__config["path"]["path"] = cpath.split(',')
+                self.__config["path"]["path"] = cpath.split(",")
 
         if self.__cmdline_args.root:
             self.__config["path"]["root"] = self.__cmdline_args.root[0]
@@ -208,7 +222,7 @@ class ConfigManager:
             self.__config["database"]["root"] = self.__cmdline_args.dbroot[0]
 
         if self.__cmdline_args.size:
-            w, h = self.__cmdline_args.size[0].split('x')
+            w, h = self.__cmdline_args.size[0].split("x")
             self.__config["window"]["width"], self.__config["window"]["height"] = int(w), int(h)
 
         if self.__cmdline_args.ttl:

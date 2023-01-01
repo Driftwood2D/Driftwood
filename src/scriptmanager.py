@@ -31,8 +31,13 @@ import os
 import platform
 import traceback
 import types
+from typing import Any, Callable, Optional, Tuple, TYPE_CHECKING
 import zipimport
-from typing import Any, Callable, Optional, Tuple
+
+from check import CHECK, CheckFailure
+
+if TYPE_CHECKING:  # Avoid circuluar import.
+    from driftwood import Driftwood
 
 
 class ScriptManager:
@@ -45,7 +50,7 @@ class ScriptManager:
         driftwood: Base class instance.
     """
 
-    def __init__(self, driftwood):
+    def __init__(self, driftwood: "Driftwood"):
         """ScriptManager class initializer.
 
         Args:
@@ -100,8 +105,15 @@ class ScriptManager:
         try:
             return getattr(self[filename], func)(*args)
         except Exception:
-            self.driftwood.log.msg("ERROR", "Script", "call", "error from function", filename, func + "()",
-                                   '\n' + traceback.format_exc().rstrip())
+            self.driftwood.log.msg(
+                "ERROR",
+                "Script",
+                "call",
+                "error from function",
+                filename,
+                func + "()",
+                "\n" + traceback.format_exc().rstrip(),
+            )
             return None
 
     def define(self, name: str, event: str, filename: str, func: str, nargs: int, minargs: int = None) -> bool:
@@ -150,17 +162,17 @@ class ScriptManager:
             "filename": filename,
             "func": func,
             "nargs": nargs,
-            "minargs": minargs
+            "minargs": minargs,
         }
-        self.driftwood.log.info("Script", "defined", "{0} trigger \"{1}\"".format(event, name))
+        self.driftwood.log.info("Script", "defined", '{0} trigger "{1}"'.format(event, name))
         return True
 
     def undefine(self, name: str) -> bool:
         """Undefine a custom trigger that was defined earlier.
-        
+
         Args:
             name: Name of the trigger to undefine.
-        
+
         Returns:
             True if succeeded, False if failed.
         """
@@ -213,7 +225,7 @@ class ScriptManager:
         if event not in self.global_triggers:
             self.global_triggers[event] = []
         self.global_triggers[event].append(func)
-        self.driftwood.log.info("Script", "registered", "{0} trigger \"{1}\"".format(event, func))
+        self.driftwood.log.info("Script", "registered", '{0} trigger "{1}"'.format(event, func))
         return True
 
     def unregister(self, event: str, func: Callable[[], None]) -> bool:
@@ -278,7 +290,7 @@ class ScriptManager:
             minargs = custom_trigger["minargs"]
             nargs = custom_trigger["nargs"]
 
-            args = property.split(',')
+            args = property.split(",")
 
             if minargs is not None:
                 if args < minargs:
@@ -356,15 +368,16 @@ class ScriptManager:
                     importer = zipimport.zipimporter(importpath)
                     mpath = self.__convert_path(filename)
                     if platform.system() == "Windows":  # Fix imports on Windows.
-                        mpath = mpath.replace('/', '\\')
+                        mpath = mpath.replace("/", "\\")
                     self.__modules[filename] = importer.load_module(mpath)
 
                 self.driftwood.log.info("Script", "loaded", filename)
                 return True
 
             except:
-                self.driftwood.log.msg("ERROR", "Script", "__load", "error from script", filename,
-                                       '\n' + traceback.format_exc(10).rstrip())
+                self.driftwood.log.msg(
+                    "ERROR", "Script", "__load", "error from script", filename, "\n" + traceback.format_exc(10).rstrip()
+                )
                 return None
 
         else:

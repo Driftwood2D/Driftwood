@@ -26,9 +26,15 @@
 # **********
 
 import math
+from typing import TYPE_CHECKING
+
 from sdl2 import *
 
+from check import CHECK, CheckFailure
 import tilemap
+
+if TYPE_CHECKING:  # Avoid circuluar import.
+    from driftwood import Driftwood
 
 
 def int_greater_than_or_equal_to(x: float) -> int:
@@ -53,7 +59,7 @@ class AreaManager:
         refocused: Whether we have gone to a new area since last checked.
     """
 
-    def __init__(self, driftwood):
+    def __init__(self, driftwood: "Driftwood"):
         """AreaManager class initializer.
 
         Args:
@@ -110,10 +116,11 @@ class AreaManager:
 
             # If there is an on_focus function defined for this map, call it.
             if "on_focus" in self.tilemap.properties:
-                args = self.tilemap.properties["on_focus"].split(',')
+                args = self.tilemap.properties["on_focus"].split(",")
                 if len(args) < 2:
-                    self.driftwood.log.msg("ERROR", "Area", "Focus", "invalid on_focus event",
-                                           self.tilemap.properties["on_focus"])
+                    self.driftwood.log.msg(
+                        "ERROR", "Area", "Focus", "invalid on_focus event", self.tilemap.properties["on_focus"]
+                    )
                     return True
                 self.driftwood.script.call(*args)
 
@@ -137,21 +144,22 @@ class AreaManager:
         self.driftwood.script._call_global_triggers("on_blur")
 
         if "on_blur" in self.tilemap.properties:
-            args = self.tilemap.properties["on_blur"].split(',')
+            args = self.tilemap.properties["on_blur"].split(",")
             if len(args) < 2:
-                self.driftwood.log.msg("ERROR", "Area", "blur", "invalid on_blur event",
-                                       self.tilemap.properties["on_blur"])
+                self.driftwood.log.msg(
+                    "ERROR", "Area", "blur", "invalid on_blur event", self.tilemap.properties["on_blur"]
+                )
                 return
             self.driftwood.script.call(*args)
         self.tilemap = None
 
     def _tick(self, seconds_past: float) -> None:
-        """Tick callback.
-        """
+        """Tick callback."""
         if self.changed:  # TODO: Only redraw portions that have changed.
             if self.refocused:
-                self.driftwood.frame.prepare(self.tilemap.width * self.tilemap.tilewidth,
-                                             self.tilemap.height * self.tilemap.tileheight)
+                self.driftwood.frame.prepare(
+                    self.tilemap.width * self.tilemap.tilewidth, self.tilemap.height * self.tilemap.tileheight
+                )
                 self.refocused = False
             else:
                 self.driftwood.frame.clear()
@@ -217,8 +225,14 @@ class AreaManager:
                 dstrect[0] += self.offset[0]
                 dstrect[1] += self.offset[1]
 
-                r = self.driftwood.frame.copy(light.lightmap.texture, srcrect, dstrect, alpha=light.alpha,
-                                              blendmode=light.blendmode, colormod=light.colormod)
+                r = self.driftwood.frame.copy(
+                    light.lightmap.texture,
+                    srcrect,
+                    dstrect,
+                    alpha=light.alpha,
+                    blendmode=light.blendmode,
+                    colormod=light.colormod,
+                )
                 if r < 0:
                     self.driftwood.log.msg("ERROR", "Area", "__build_frame", "SDL", SDL_GetError())
 
@@ -244,10 +258,10 @@ class AreaManager:
                     # Clip entities so they don't appear outside the area.
                     clip_left = 0 if arearect[0] <= dstrect[0] else arearect[0] - dstrect[0]
                     clip_top = 0 if arearect[1] <= dstrect[1] else arearect[1] - dstrect[1]
-                    clip_right = 0 if dstrect[0] + dstrect[2] <= arearect[2] \
-                        else (dstrect[0] + dstrect[2]) - arearect[2]
-                    clip_bot = 0 if dstrect[1] + dstrect[3] <= arearect[3] \
-                        else (dstrect[1] + dstrect[3]) - arearect[3]
+                    clip_right = (
+                        0 if dstrect[0] + dstrect[2] <= arearect[2] else (dstrect[0] + dstrect[2]) - arearect[2]
+                    )
+                    clip_bot = 0 if dstrect[1] + dstrect[3] <= arearect[3] else (dstrect[1] + dstrect[3]) - arearect[3]
 
                     srcrect[0] += clip_left
                     dstrect[0] += clip_left
@@ -268,18 +282,24 @@ class AreaManager:
                         self.driftwood.log.msg("ERROR", "Area", "__build_frame", "SDL", SDL_GetError())
 
                     if tall_amount:  # It's taller than the tile. Figure out where to put the tall part.
-                        dstrect = [entity.x, entity.y - tall_amount, entity.width,
-                                   entity.height - (entity.height - tall_amount)]
+                        dstrect = [
+                            entity.x,
+                            entity.y - tall_amount,
+                            entity.width,
+                            entity.height - (entity.height - tall_amount),
+                        ]
 
                         srcrect[3] = dstrect[3]
 
                         # Clip entities so they don't appear outside the area.
                         clip_left = 0 if arearect[0] <= dstrect[0] else arearect[0] - dstrect[0]
                         clip_top = 0 if arearect[1] <= dstrect[1] else arearect[1] - dstrect[1]
-                        clip_right = 0 if dstrect[0] + dstrect[2] <= arearect[2] \
-                            else (dstrect[0] + dstrect[2]) - arearect[2]
-                        clip_bot = 0 if dstrect[1] + dstrect[3] <= arearect[3] \
-                            else (dstrect[1] + dstrect[3]) - arearect[3]
+                        clip_right = (
+                            0 if dstrect[0] + dstrect[2] <= arearect[2] else (dstrect[0] + dstrect[2]) - arearect[2]
+                        )
+                        clip_bot = (
+                            0 if dstrect[1] + dstrect[3] <= arearect[3] else (dstrect[1] + dstrect[3]) - arearect[3]
+                        )
 
                         srcrect[0] += clip_left
                         dstrect[0] += clip_left

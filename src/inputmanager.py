@@ -26,9 +26,14 @@
 # **********
 
 import types
-from typing import Callable, Optional, Union
+from typing import Callable, Optional, Union, TYPE_CHECKING
 
 from sdl2 import SDL_GetKeyName
+
+from check import CHECK, CheckFailure
+
+if TYPE_CHECKING:  # Avoid circuluar import.
+    from driftwood import Driftwood
 
 
 class InputManager:
@@ -43,7 +48,7 @@ class InputManager:
 
     ONDOWN, ONREPEAT, ONUP = range(3)
 
-    def __init__(self, driftwood):
+    def __init__(self, driftwood: "Driftwood"):
         """InputManager class initializer.
 
         Args:
@@ -61,7 +66,7 @@ class InputManager:
                 "registry": {},
                 "stack": [],
                 "modifier_stack": [],
-                "keybinds": {}
+                "keybinds": {},
             }
         }
 
@@ -100,7 +105,7 @@ class InputManager:
         # Retrieve.
         try:
             # TODO: This does not work as we expected. A single character is usually returned.
-            return SDL_GetKeyName(keysym).decode().replace("SDLK_", '')
+            return SDL_GetKeyName(keysym).decode().replace("SDLK_", "")
         except:
             return None
 
@@ -122,18 +127,17 @@ class InputManager:
 
         # Retrieve
         try:
-            keybinds = {**self.driftwood.config["input"]["keybinds"],
-                        **self.__contexts[self.__current_context]["keybinds"]}
+            keybinds = {
+                **self.driftwood.config["input"]["keybinds"],
+                **self.__contexts[self.__current_context]["keybinds"],
+            }
             return getattr(self.driftwood.keycode, "SDLK_" + keybinds[keyname].upper())
         except:
             return None
 
-    def register(self,
-                 keyid: Union[int, str],
-                 callback: Callable,
-                 throttle: float = 0.0,
-                 delay: float = 0.0,
-                 mod: bool = False) -> bool:
+    def register(
+        self, keyid: Union[int, str], callback: Callable, throttle: float = 0.0, delay: float = 0.0, mod: bool = False
+    ) -> bool:
         """Register an input callback.
 
         The callback function will receive a call every tick that the key is on top of the input stack. (the key which
@@ -179,7 +183,7 @@ class InputManager:
             "delay": delay,
             "last_called": self.__now,
             "repeats": 0,
-            "mod": mod
+            "mod": mod,
         }
 
         return True
@@ -205,8 +209,7 @@ class InputManager:
             del self.__contexts[self.__current_context]["registry"][keysym]
             return True
         else:
-            self.driftwood.log.msg("WARNING", "InputManager", "unregister", "key not registered",
-                                   self.keyname(keysym))
+            self.driftwood.log.msg("WARNING", "InputManager", "unregister", "key not registered", self.keyname(keysym))
             return False
 
     def pressed(self, keysym: int) -> bool:
@@ -255,7 +258,7 @@ class InputManager:
                 "registry": {},
                 "stack": [],
                 "modifier_stack": [],
-                "keybinds": keybinds
+                "keybinds": keybinds,
             }
             # Escape key pauses the engine.
             self.register(self.driftwood.keycode.SDLK_ESCAPE, self.driftwood._handle_pause)

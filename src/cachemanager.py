@@ -26,7 +26,12 @@
 # **********
 
 import gc
-from typing import Any, KeysView, Optional
+from typing import Any, KeysView, Optional, TYPE_CHECKING
+
+from check import CHECK, CheckFailure
+
+if TYPE_CHECKING:  # Avoid circuluar import.
+    from driftwood import Driftwood
 
 
 class CacheManager:
@@ -39,7 +44,7 @@ class CacheManager:
         driftwood: Base class instance.
     """
 
-    def __init__(self, driftwood):
+    def __init__(self, driftwood: "Driftwood"):
         """CacheManager class initializer.
 
         Args:
@@ -148,8 +153,9 @@ class CacheManager:
                 self.driftwood.log.info("Cache", "purged", filename)
                 del self.__cache[filename]
             else:
-                self.driftwood.log.msg("WARNING", "Cache", "purge", filename,
-                                       "file removed itself from cache while terminating")
+                self.driftwood.log.msg(
+                    "WARNING", "Cache", "purge", filename, "file removed itself from cache while terminating"
+                )
 
         return True
 

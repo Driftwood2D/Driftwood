@@ -25,10 +25,12 @@
 # IN THE SOFTWARE.
 # **********
 
+from typing import List, Optional, Union
+
+from check import CHECK, CheckFailure
 import entitymanager
 import spritesheet
 import tile
-from typing import List, Optional, Union
 
 
 class Entity:
@@ -69,7 +71,7 @@ class Entity:
 
     NOT_WALKING, WALKING_WANT_CONT, WALKING_WANT_STOP = range(3)
 
-    def __init__(self, manager: 'entitymanager.EntityManager'):
+    def __init__(self, manager: "entitymanager.EntityManager"):
         """Entity class initializer.
 
         Args:
@@ -128,8 +130,7 @@ class Entity:
         self._on_kill = None
 
     def srcrect(self) -> List[List[int]]:
-        """Return a list of (x, y, w, h) srcrects for the layers of the current graphic frame of the entity.
-        """
+        """Return a list of (x, y, w, h) srcrects for the layers of the current graphic frame of the entity."""
         if self.__cur_member < len(self.members):
             current_member = self.members[self.__cur_member]
         else:
@@ -141,15 +142,23 @@ class Entity:
                 ret = []
                 for layer in current_member:
                     ret.append(
-                        [((layer * self.width) % self.spritesheet.imagewidth),
-                         ((layer * self.width) // self.spritesheet.imagewidth) * self.height,
-                         self.width, self.height]
+                        [
+                            ((layer * self.width) % self.spritesheet.imagewidth),
+                            ((layer * self.width) // self.spritesheet.imagewidth) * self.height,
+                            self.width,
+                            self.height,
+                        ]
                     )
                 return ret
             else:
-                return [[((current_member * self.width) % self.spritesheet.imagewidth),
-                         ((current_member * self.width) // self.spritesheet.imagewidth) * self.height,
-                         self.width, self.height]]
+                return [
+                    [
+                        ((current_member * self.width) % self.spritesheet.imagewidth),
+                        ((current_member * self.width) // self.spritesheet.imagewidth) * self.height,
+                        self.width,
+                        self.height,
+                    ]
+                ]
 
         return [[0, 0, 0, 0]]
 
@@ -187,8 +196,9 @@ class Entity:
         if "image" in self.__entity[stance]:
             self.spritesheet = self.manager.spritesheet(self.__entity[stance]["image"])
             if not self.spritesheet:
-                self.manager.spritesheets[self.__init_stance["image"]] = \
-                    spritesheet.Spritesheet(self.manager, self.__init_stance["image"])
+                self.manager.spritesheets[self.__init_stance["image"]] = spritesheet.Spritesheet(
+                    self.manager, self.__init_stance["image"]
+                )
                 self.spritesheet = self.manager.spritesheets[self.__init_stance["image"]]
 
         if "speed" in self.__entity[stance]:
@@ -227,8 +237,7 @@ class Entity:
         return True
 
     def _read(self, filename: str, data: dict, eid: int) -> None:
-        """Read the entity descriptor.
-        """
+        """Read the entity descriptor."""
         self.filename = filename
         self.eid = eid
 
@@ -259,8 +268,9 @@ class Entity:
         self.spritesheet = self.manager.spritesheet(self.__init_stance["image"])
 
         if not self.spritesheet:
-            self.manager.spritesheets[self.__init_stance["image"]] = \
-                spritesheet.Spritesheet(self.manager, self.__init_stance["image"])
+            self.manager.spritesheets[self.__init_stance["image"]] = spritesheet.Spritesheet(
+                self.manager, self.__init_stance["image"]
+            )
             self.spritesheet = self.manager.spritesheets[self.__init_stance["image"]]
 
         # Schedule animation.
@@ -268,35 +278,30 @@ class Entity:
             self.manager.driftwood.tick.register(self.__next_member, delay=(1 / self.afps))
 
     def _tile_at(self, layer: int, x: int, y: int) -> tile.Tile:
-        """Retrieve a tile by layer and pixel coordinates.
-        """
-        return self.manager.driftwood.area.tilemap.layers[layer].tile(
-            x // self._tilewidth,
-            y // self._tileheight
-        )
+        """Retrieve a tile by layer and pixel coordinates."""
+        return self.manager.driftwood.area.tilemap.layers[layer].tile(x // self._tilewidth, y // self._tileheight)
 
     def _check_occupies(self) -> None:
-        """Figure out which tiles we are partially occupying.
-        """
+        """Figure out which tiles we are partially occupying."""
         self._occupies = [
             self._tile_at(self.layer, self.x, self.y),
             self._tile_at(self.layer, self.x + self.width - 1, self.y),
             self._tile_at(self.layer, self.x, self.y + self.height - 1),
-            self._tile_at(self.layer, self.x + self.width + 1, self.y + self.height - 1)
+            self._tile_at(self.layer, self.x + self.width + 1, self.y + self.height - 1),
         ]
 
     def _do_exit(self) -> None:
-        """Perform an exit to another area.
-        """
+        """Perform an exit to another area."""
         # Call world's global on_exit handlers.
         self.manager.driftwood.script._call_global_triggers("on_exit")
 
         # Call the on_exit event if set.
         if "on_exit" in self.manager.driftwood.area.tilemap.properties:
-            args = self.manager.driftwood.area.tilemap.properties["on_exit"].split(',')
+            args = self.manager.driftwood.area.tilemap.properties["on_exit"].split(",")
             if len(args) < 2:
-                self.manager.driftwood.log.msg("ERROR", "Entity", "_do_exit", "invalid on_exit event",
-                                               self.tile.properties["on_exit"])
+                self.manager.driftwood.log.msg(
+                    "ERROR", "Entity", "_do_exit", "invalid on_exit event", self.tile.properties["on_exit"]
+                )
             self.manager.driftwood.script.call(*args)
 
         # Leave the current area
@@ -312,8 +317,7 @@ class Entity:
         self._next_area = None
 
     def _do_take_exit(self) -> bool:
-        """If there is an exit, take it.
-        """
+        """If there is an exit, take it."""
         if self._next_area:
 
             # If we're the player, change the area.
@@ -332,8 +336,7 @@ class Entity:
         return False
 
     def _do_kill(self) -> None:
-        """Kill all lights and all entities except the player and entities with "travel" set to true.
-        """
+        """Kill all lights and all entities except the player and entities with "travel" set to true."""
         to_kill = []
 
         for eid in self.manager.entities:
@@ -346,42 +349,40 @@ class Entity:
         self.manager.driftwood.widget.reset()
 
     def _collide(self, dsttile: tile.Tile) -> None:
-        """Report a collision.
-        """
+        """Report a collision."""
         if self.manager.collider:
             self.manager.collider(self, dsttile)
 
     def _call_on_tile(self) -> None:
-        """Call the on_tile event if set.
-        """
+        """Call the on_tile event if set."""
         if "on_tile" in self.tile.properties:
-            args = self.tile.properties["on_tile"].split(',')
+            args = self.tile.properties["on_tile"].split(",")
             if len(args) < 2:
-                self.manager.driftwood.log.msg("ERROR", "Entity", "_call_on_tile", "invalid on_tile event",
-                                               self.tile.properties["on_tile"])
+                self.manager.driftwood.log.msg(
+                    "ERROR", "Entity", "_call_on_tile", "invalid on_tile event", self.tile.properties["on_tile"]
+                )
                 return
             self.manager.driftwood.script.call(*args)
 
     def _call_on_layer(self) -> None:
-        """Call the on_layer event if set.
-        """
+        """Call the on_layer event if set."""
         if "on_layer" in self.manager.driftwood.area.tilemap.layers[self.layer].properties:
-            args = self.manager.driftwood.area.tilemap.layers[self.layer].properties["on_layer"].split(',')
+            args = self.manager.driftwood.area.tilemap.layers[self.layer].properties["on_layer"].split(",")
             if len(args) < 2:
-                self.manager.driftwood.log.msg("ERROR", "Entity", "_call_on_layer", "invalid on_layer event",
-                                               self.layer)
+                self.manager.driftwood.log.msg(
+                    "ERROR", "Entity", "_call_on_layer", "invalid on_layer event", self.layer
+                )
                 return
             self.manager.driftwood.script.call(*args)
 
     def _prepare_exit_dest(self, exit_dest: List[Optional[str]], tile: tile.Tile) -> List[Union[int, str, None]]:
-        """Prepare coordinates for teleport().
-        """
+        """Prepare coordinates for teleport()."""
         # layer coordinate.
         if not exit_dest[1]:  # Stays the same.
             exit_dest[1] = None
-        elif exit_dest[1].startswith('+'):  # Increments upward.
+        elif exit_dest[1].startswith("+"):  # Increments upward.
             exit_dest[1] = self.layer + int(exit_dest[1][1:])
-        elif exit_dest[1].startswith('-'):  # Increments downward.
+        elif exit_dest[1].startswith("-"):  # Increments downward.
             exit_dest[1] = self.layer - int(exit_dest[1][1:])
         else:  # Set to a specific coordinate.
             exit_dest[1] = int(exit_dest[1])
@@ -389,9 +390,9 @@ class Entity:
         # x coordinate.
         if not exit_dest[2]:  # Stays the same.
             exit_dest[2] = None
-        elif exit_dest[2].startswith('+'):  # Increments upward.
+        elif exit_dest[2].startswith("+"):  # Increments upward.
             exit_dest[2] = tile.pos[0] + int(exit_dest[2][1:])
-        elif exit_dest[2].startswith('-'):  # Increments downward.
+        elif exit_dest[2].startswith("-"):  # Increments downward.
             exit_dest[2] = tile.pos[0] - int(exit_dest[2][1:])
         else:  # Set to a specific coordinate.
             exit_dest[2] = int(exit_dest[2])
@@ -399,9 +400,9 @@ class Entity:
         # y coordinate.
         if not exit_dest[3]:  # Stays the same.
             exit_dest[3] = None
-        elif exit_dest[3].startswith('+'):  # Increments upward.
+        elif exit_dest[3].startswith("+"):  # Increments upward.
             exit_dest[3] = tile.pos[1] + int(exit_dest[3][1:])
-        elif exit_dest[3].startswith('-'):  # Increments downward.
+        elif exit_dest[3].startswith("-"):  # Increments downward.
             exit_dest[3] = tile.pos[1] - int(exit_dest[3][1:])
         else:  # Set to a specific coordinate.
             exit_dest[3] = int(exit_dest[3])
@@ -409,21 +410,18 @@ class Entity:
         return exit_dest
 
     def __next_member(self, seconds: float) -> None:
-        """Set to change the animation frame.
-        """
+        """Set to change the animation frame."""
         self.__cur_member = (self.__cur_member + 1) % len(self.members)
         self.manager.driftwood.area.changed = True
 
     def _terminate(self) -> None:
-        """Cleanup before deletion.
-        """
+        """Cleanup before deletion."""
         if self.manager.driftwood.tick.registered(self.__next_member):
             self.manager.driftwood.tick.unregister(self.__next_member)
 
 
 class TileModeEntity(Entity):
-    """This Entity subclass represents an Entity configured for movement in by-tile mode.
-    """
+    """This Entity subclass represents an Entity configured for movement in by-tile mode."""
 
     def teleport(self, layer: int, x: int, y: int, area: str = None) -> bool:
         """Teleport the entity to a new tile position.
@@ -460,11 +458,14 @@ class TileModeEntity(Entity):
             return True
 
         # Make sure this is a tile.
-        if (((layer is not None) and (layer < 0 or len(tilemap.layers) <= layer)) or
-                (x is not None and x >= tilemap.width) or
-                (y is not None and y >= tilemap.height)):
-            self.manager.driftwood.log.msg("ERROR", "Entity", self.eid, "teleport",
-                                           "attempt to teleport to non-tile position")
+        if (
+            ((layer is not None) and (layer < 0 or len(tilemap.layers) <= layer))
+            or (x is not None and x >= tilemap.width)
+            or (y is not None and y >= tilemap.height)
+        ):
+            self.manager.driftwood.log.msg(
+                "ERROR", "Entity", self.eid, "teleport", "attempt to teleport to non-tile position"
+            )
             return False
 
         # Decide what to do with the layer.
@@ -503,13 +504,9 @@ class TileModeEntity(Entity):
 
         return True
 
-    def walk(self,
-             x: int,
-             y: int,
-             dont_stop: bool = False,
-             facing: None = None,
-             stance: str = None,
-             end_stance: str = None) -> bool:
+    def walk(
+        self, x: int, y: int, dont_stop: bool = False, facing: None = None, stance: str = None, end_stance: str = None
+    ) -> bool:
         """Walk the entity by one tile to a new position relative to its current
            position.
 
@@ -540,8 +537,7 @@ class TileModeEntity(Entity):
             return False
 
         if x and y:  # We can't move in two directions at once!
-            self.manager.driftwood.log.msg("ERROR", "Entity", self.eid, "walk",
-                                           "cannot move in two directions at once")
+            self.manager.driftwood.log.msg("ERROR", "Entity", self.eid, "walk", "cannot move in two directions at once")
             return False
 
         self._next_stance = stance
@@ -596,8 +592,9 @@ class TileModeEntity(Entity):
             return False
 
         if direction and direction not in ["left", "right", "up", "down", "under", "none"]:  # Illegal facing.
-            self.manager.driftwood.log.msg("ERROR", "Entity", self.eid, "interact",
-                                           "no such direction for interaction", direction)
+            self.manager.driftwood.log.msg(
+                "ERROR", "Entity", self.eid, "interact", "no such direction for interaction", direction
+            )
             return False
         elif direction == "none":
             return False
@@ -629,27 +626,25 @@ class TileModeEntity(Entity):
         ent = self.manager.entity_at(tile.pos[0] * self._tilewidth, tile.pos[1] * self._tileheight)
         if ent and "interact" in ent.properties:
             # Interact with entity.
-            args = ent.properties["interact"].split(',')
+            args = ent.properties["interact"].split(",")
             self.manager.driftwood.script.call(*args)
             success = True
 
         # Check if this tile is interactable.
         if "interact" in tile.properties:
-            args = tile.properties["interact"].split(',')
+            args = tile.properties["interact"].split(",")
             self.manager.driftwood.script.call(*args)
             success = True
 
         return success
 
     def _walk_stop(self) -> None:
-        """Schedule us to stop walking.
-        """
+        """Schedule us to stop walking."""
         if self.walk_state == Entity.WALKING_WANT_CONT:
             self.walk_state = Entity.WALKING_WANT_STOP
 
     def _process_walk(self, seconds_past: float) -> None:
-        """Process walking each tick.
-        """
+        """Process walking each tick."""
         if self.walk_state == Entity.NOT_WALKING:  # We are not walking. Stop doing things.
             self.manager.driftwood.tick.unregister(self._process_walk)
 
@@ -669,8 +664,7 @@ class TileModeEntity(Entity):
                 self.__stand_still()
 
     def __can_walk(self, x: int, y: int) -> bool:
-        """Check if nothing is preventing us from walking in this direction.
-        """
+        """Check if nothing is preventing us from walking in this direction."""
         # Change weird values to 0.
         if x not in [-1, 0, 1]:
             x = 0
@@ -678,8 +672,9 @@ class TileModeEntity(Entity):
             y = 0
 
         # Perform collision detection.
-        dsttile = self.manager.driftwood.area.tilemap.layers[self.layer].tile(self.tile.pos[0] + x,
-                                                                              self.tile.pos[1] + y)
+        dsttile = self.manager.driftwood.area.tilemap.layers[self.layer].tile(
+            self.tile.pos[0] + x, self.tile.pos[1] + y
+        )
 
         if not self.tile or self._next_tile:  # Bizarre situation, abort.
             return False
@@ -689,8 +684,12 @@ class TileModeEntity(Entity):
                 if "tile" in self.collision:  # We are colliding with tiles.
                     if dsttile.nowalk or dsttile.nowalk == "":
                         # Is the tile a player or npc specific nowalk?
-                        if (dsttile.nowalk == "player" and self.manager.player.eid == self.eid
-                            or dsttile.nowalk == "npc" and self.manager.player.eid != self.eid):
+                        if (
+                            dsttile.nowalk == "player"
+                            and self.manager.player.eid == self.eid
+                            or dsttile.nowalk == "npc"
+                            and self.manager.player.eid != self.eid
+                        ):
                             self._collide(dsttile)
                             return False
 
@@ -701,9 +700,13 @@ class TileModeEntity(Entity):
 
                 # Prepare exit from the previous tile.
                 for ex in self.tile.exits.keys():
-                    if (ex == "exit:up" and y == -1) or (ex == "exit:down" and y == 1) or (
-                                    ex == "exit:left" and x == -1) or (ex == "exit:right" and x == 1):
-                        exit_dest = self.tile.exits[ex].split(',')
+                    if (
+                        (ex == "exit:up" and y == -1)
+                        or (ex == "exit:down" and y == 1)
+                        or (ex == "exit:left" and x == -1)
+                        or (ex == "exit:right" and x == 1)
+                    ):
+                        exit_dest = self.tile.exits[ex].split(",")
                         if not exit_dest[0]:  # This area.
                             # Prepare coordinates for teleport().
                             exit_dest = self._prepare_exit_dest(exit_dest, self.tile)
@@ -717,7 +720,7 @@ class TileModeEntity(Entity):
                 # Prepare exit for this tile.
                 for ex in dsttile.exits.keys():
                     if ex == "exit":
-                        exit_dest = dsttile.exits[ex].split(',')
+                        exit_dest = dsttile.exits[ex].split(",")
                         if not exit_dest[0]:  # This area.
                             # Prepare coordinates for teleport().
                             exit_dest = self._prepare_exit_dest(exit_dest, dsttile)
@@ -732,16 +735,16 @@ class TileModeEntity(Entity):
 
             else:  # Are we allowed to walk off the edge of the area to follow a lazy exit?
                 if "exit:up" in self.tile.exits and y == -1:
-                    self._next_area = self.tile.exits["exit:up"].split(',')
+                    self._next_area = self.tile.exits["exit:up"].split(",")
 
                 elif "exit:down" in self.tile.exits and y == 1:
-                    self._next_area = self.tile.exits["exit:down"].split(',')
+                    self._next_area = self.tile.exits["exit:down"].split(",")
 
                 elif "exit:left" in self.tile.exits and x == -1:
-                    self._next_area = self.tile.exits["exit:left"].split(',')
+                    self._next_area = self.tile.exits["exit:left"].split(",")
 
                 elif "exit:right" in self.tile.exits and x == 1:
-                    self._next_area = self.tile.exits["exit:right"].split(',')
+                    self._next_area = self.tile.exits["exit:right"].split(",")
 
                 else:
                     self._collide(dsttile)
@@ -755,8 +758,7 @@ class TileModeEntity(Entity):
         return True
 
     def __detect_entity_collision(self, x: int, y: int) -> bool:
-        """Detect if this entity will collide with another.
-        """
+        """Detect if this entity will collide with another."""
         for eid in self.manager.entities:
             # This is us.
             if eid == self.eid:
@@ -766,8 +768,11 @@ class TileModeEntity(Entity):
             if ent.layer == self.layer:  # Are we on the same layer?
                 if ent.mode == "tile":  # Checking against another tile mode entity.
                     # It's moving. What tile is it moving to? Are we trying to move to the same tile?
-                    if ent.walking and ("next" in self.collision) and \
-                                    self.tile.offset(*self._last_walk) is ent.tile.offset(*ent.walking):
+                    if (
+                        ent.walking
+                        and ("next" in self.collision)
+                        and self.tile.offset(*self._last_walk) is ent.tile.offset(*ent.walking)
+                    ):
                         self.manager.collision(self, self.manager.entities[eid])
                         return False
 
@@ -777,8 +782,11 @@ class TileModeEntity(Entity):
                         return False
 
                     # Is it standing still? Don't step on it.
-                    if not ent.walking and ("here" in self.collision) and \
-                                    self.tile.offset(*self._last_walk) is ent.tile:
+                    if (
+                        not ent.walking
+                        and ("here" in self.collision)
+                        and self.tile.offset(*self._last_walk) is ent.tile
+                    ):
                         self.manager.collision(self, self.manager.entities[eid])
                         return False
 
@@ -790,8 +798,7 @@ class TileModeEntity(Entity):
         return True
 
     def __schedule_walk(self, x: int, y: int, dont_stop: bool) -> None:
-        """Schedule us to walk.
-        """
+        """Schedule us to walk."""
         self._reset_walk()
         self.walking = [x, y]
         if self._next_stance and self.stance != self._next_stance:
@@ -808,8 +815,7 @@ class TileModeEntity(Entity):
         self._partial_xy = [self.x, self.y]
 
     def __inch_along(self, seconds_past: float) -> None:
-        """Set our incremental position for rendering as we move between tiles.
-        """
+        """Set our incremental position for rendering as we move between tiles."""
         self.manager.driftwood.area.changed = True
 
         self._partial_xy[0] += self.walking[0] * self.speed * seconds_past
@@ -821,14 +827,15 @@ class TileModeEntity(Entity):
         """Check if we've reached or overreached our destination."""
         # tileheight = self.manager.driftwood.area.tilemap.tileheight
 
-        return ((self.walking[0] == -1 and self.x <= self._prev_xy[0] - self._tilewidth)
-                or (self.walking[0] == 1 and self.x >= self._prev_xy[0] + self._tilewidth)
-                or (self.walking[1] == -1 and self.y <= self._prev_xy[1] - self._tilewidth)
-                or (self.walking[1] == 1 and self.y >= self._prev_xy[1] + self._tilewidth))
+        return (
+            (self.walking[0] == -1 and self.x <= self._prev_xy[0] - self._tilewidth)
+            or (self.walking[0] == 1 and self.x >= self._prev_xy[0] + self._tilewidth)
+            or (self.walking[1] == -1 and self.y <= self._prev_xy[1] - self._tilewidth)
+            or (self.walking[1] == 1 and self.y >= self._prev_xy[1] + self._tilewidth)
+        )
 
     def __arrive_at_tile(self) -> None:
-        """Perform actions for when we arrive at another tile.
-        """
+        """Perform actions for when we arrive at another tile."""
         if self.tile:
             self._call_on_tile()
 
@@ -850,15 +857,13 @@ class TileModeEntity(Entity):
         self._do_take_exit()
 
     def __walk_set_tile(self) -> None:
-        """Set the current tile.
-        """
+        """Set the current tile."""
         self._prev_xy[0] = self._prev_xy[0] + (self._tilewidth * self.walking[0])
         self._prev_xy[1] = self._prev_xy[1] + (self._tileheight * self.walking[1])
         self.tile = self._tile_at(self.layer, self._prev_xy[0], self._prev_xy[1])
 
     def __stand_still(self) -> None:
-        """We are entirely finished walking.
-        """
+        """We are entirely finished walking."""
         tilemap = self.manager.driftwood.area.tilemap
         tilewidth = tilemap.tilewidth
         tileheight = tilemap.tileheight
@@ -880,8 +885,7 @@ class TileModeEntity(Entity):
 
 # TODO: Finish pixel mode.
 class PixelModeEntity(Entity):
-    """This Entity subclass represents an Entity configured for movement in by-pixel mode.
-    """
+    """This Entity subclass represents an Entity configured for movement in by-pixel mode."""
 
     def teleport(self, layer: int, x: int, y: int, area: str = None) -> bool:
         """Teleport the entity to a new tile position.
@@ -919,11 +923,14 @@ class PixelModeEntity(Entity):
             return True
 
         # Make sure this is a tile.
-        if (((layer is not None) and (layer < 0 or len(tilemap.layers) <= layer)) or
-                (x is not None and x >= tilemap.width) or
-                (y is not None and y >= tilemap.height)):
-            self.manager.driftwood.log.msg("ERROR", "Entity", self.eid, "teleport",
-                                           "attempt to teleport to non-tile position")
+        if (
+            ((layer is not None) and (layer < 0 or len(tilemap.layers) <= layer))
+            or (x is not None and x >= tilemap.width)
+            or (y is not None and y >= tilemap.height)
+        ):
+            self.manager.driftwood.log.msg(
+                "ERROR", "Entity", self.eid, "teleport", "attempt to teleport to non-tile position"
+            )
             return False
 
         if layer:
@@ -945,13 +952,9 @@ class PixelModeEntity(Entity):
 
         return True
 
-    def walk(self,
-             x: int,
-             y: int,
-             dont_stop: bool = False,
-             facing: str = None,
-             stance: str = None,
-             end_stance: str = None) -> bool:
+    def walk(
+        self, x: int, y: int, dont_stop: bool = False, facing: str = None, stance: str = None, end_stance: str = None
+    ) -> bool:
         """Move the entity by one pixel to a new position relative to its current position.
 
         Args:
@@ -1004,8 +1007,7 @@ class PixelModeEntity(Entity):
 
             # Figure out which way we're facing.
             if facing:
-                if facing not in ["left", "right", "up", "down", "none"
-                                  ]:
+                if facing not in ["left", "right", "up", "down", "none"]:
                     self.manager.driftwood.log.msg("ERROR", "Entity", self.eid, "walk", "illegal facing", facing)
                 else:
                     self.facing = facing
@@ -1047,8 +1049,9 @@ class PixelModeEntity(Entity):
             return False
 
         if direction and direction not in ["left", "right", "up", "down", "under", "none"]:  # Illegal facing.
-            self.manager.driftwood.log.msg("ERROR", "Entity", self.eid, "interact",
-                                           "no such direction for interaction", direction)
+            self.manager.driftwood.log.msg(
+                "ERROR", "Entity", self.eid, "interact", "no such direction for interaction", direction
+            )
             return False
         elif direction == "none":
             return False
@@ -1081,13 +1084,13 @@ class PixelModeEntity(Entity):
         ent = self.manager.entity_at(tile.pos[0] * self._tilewidth, tile.pos[1] * self._tileheight)
         if ent and "interact" in ent.properties:
             # Interact with entity.
-            args = ent.properties["interact"].split(',')
+            args = ent.properties["interact"].split(",")
             self.manager.driftwood.script.call(*args)
             success = True
 
         # Check if this tile is interactable.
         if "interact" in tile.properties:
-            args = tile.properties["interact"].split(',')
+            args = tile.properties["interact"].split(",")
             self.manager.driftwood.script.call(*args)
             success = True
 
@@ -1101,26 +1104,22 @@ class PixelModeEntity(Entity):
         # FIXME: This hasn't been tested with entities that aren't the same size as the tile.
         # The player is only barely taller, so we wouldn't notice any issues.
         return self.manager.driftwood.area.tilemap.layers[layer].tile(
-            (x + (self.width / 2)) // self._tilewidth,
-            (y + (self.height / 2)) // self._tileheight
+            (x + (self.width / 2)) // self._tilewidth, (y + (self.height / 2)) // self._tileheight
         )
 
     def _walk_stop(self) -> None:
-        """Stop walking.
-        """
+        """Stop walking."""
         self.walking = []
         if self._end_stance and self.stance != self._end_stance:
             self.set_stance(self._end_stance)
         self._clipped = [None, None]  # Reset the clip check.
 
     def _reset_walk(self) -> None:
-        """Stop walking. Here for compatibility.
-        """
+        """Stop walking. Here for compatibility."""
         self._walk_stop()
 
     def _process_walk(self, seconds_past: float) -> None:
-        """Process walking each tick.
-        """
+        """Process walking each tick."""
         # Clean up after an interrupted walk.
         if not self.walking or not self.__can_walk(*self.walking) or self._face_key_active:
             self._do_take_exit()
@@ -1159,8 +1158,7 @@ class PixelModeEntity(Entity):
         self.manager.driftwood.area.changed = True
 
     def __can_walk(self, x: int, y: int, absolute: bool = False) -> bool:
-        """Check if nothing is preventing us from walking in this direction.
-        """
+        """Check if nothing is preventing us from walking in this direction."""
         if not absolute:
             self._next_tile = self.layer, self.x + x, self.y + y
         else:
@@ -1175,8 +1173,12 @@ class PixelModeEntity(Entity):
                 if "tile" in self.collision:  # We are colliding with tiles.
                     if dsttile.nowalk or dsttile.nowalk == "":
                         # Is the tile a player or npc specific nowalk?
-                        if (dsttile.nowalk == "player" and self.manager.player.eid == self.eid
-                            or dsttile.nowalk == "npc" and self.manager.player.eid != self.eid):
+                        if (
+                            dsttile.nowalk == "player"
+                            and self.manager.player.eid == self.eid
+                            or dsttile.nowalk == "npc"
+                            and self.manager.player.eid != self.eid
+                        ):
                             self._collide(dsttile)
                             return False
 
@@ -1188,7 +1190,7 @@ class PixelModeEntity(Entity):
                 # Prepare exit for this tile.
                 for ex in dsttile.exits.keys():
                     if ex == "exit":
-                        exit_dest = dsttile.exits[ex].split(',')
+                        exit_dest = dsttile.exits[ex].split(",")
                         if not exit_dest[0]:  # This area.
                             # Prepare coordinates for teleport().
                             exit_dest = self._prepare_exit_dest(exit_dest, dsttile)
@@ -1204,7 +1206,7 @@ class PixelModeEntity(Entity):
                 # Prepare exit for this tile.
                 for ex in dsttile.exits.keys():
                     if ex == "exit":
-                        exit_dest = dsttile.exits[ex].split(',')
+                        exit_dest = dsttile.exits[ex].split(",")
                         if not exit_dest[0]:  # This area.
                             # Prepare coordinates for teleport().
                             exit_dest = self._prepare_exit_dest(exit_dest, dsttile)
@@ -1219,16 +1221,16 @@ class PixelModeEntity(Entity):
 
             else:  # Are we allowed to walk off the edge of the area to follow a lazy exit?
                 if "exit:up" in self.tile.exits and y == -1:
-                    self._next_area = self.tile.exits["exit:up"].split(',')
+                    self._next_area = self.tile.exits["exit:up"].split(",")
 
                 elif "exit:down" in self.tile.exits and y == 1:
-                    self._next_area = self.tile.exits["exit:down"].split(',')
+                    self._next_area = self.tile.exits["exit:down"].split(",")
 
                 elif "exit:left" in self.tile.exits and x == -1:
-                    self._next_area = self.tile.exits["exit:left"].split(',')
+                    self._next_area = self.tile.exits["exit:left"].split(",")
 
                 elif "exit:right" in self.tile.exits and x == 1:
-                    self._next_area = self.tile.exits["exit:right"].split(',')
+                    self._next_area = self.tile.exits["exit:right"].split(",")
 
                 else:
                     self._collide(dsttile)
@@ -1262,8 +1264,7 @@ class PixelModeEntity(Entity):
         return True
 
     def __do_walk(self, x: int, y: int) -> None:
-        """Prepare to walk.
-        """
+        """Prepare to walk."""
         self._clipped = [None, None]  # Reset the clip check.
         self._partial_xy = [self.x, self.y]  # Reset the movement tracker.
         self.walking = [x, y]  # We are now walking.
@@ -1275,8 +1276,7 @@ class PixelModeEntity(Entity):
         self._process_walk(seconds_past=0)
 
     def __arrive_at_tile(self) -> None:
-        """Arrive at a tile.
-        """
+        """Arrive at a tile."""
         if self.tile:
             self._call_on_tile()
         # May be lazy exit, where we have no self.tile
@@ -1285,5 +1285,4 @@ class PixelModeEntity(Entity):
 
 # TODO: Implement turn mode.
 class TurnModeEntity(Entity):
-    """This Entity subclass represents an Entity configured for movement in turn-based mode.
-    """
+    """This Entity subclass represents an Entity configured for movement in turn-based mode."""

@@ -347,7 +347,4 @@ _S_ENTITY = """
 """
 
 # Dictionary storing all schema files by name.
-_SCHEMA = {
-    "config": json.loads(_S_CONFIG),
-    "entity": json.loads(_S_ENTITY)
-}
+_SCHEMA = {"config": json.loads(_S_CONFIG), "entity": json.loads(_S_ENTITY)}

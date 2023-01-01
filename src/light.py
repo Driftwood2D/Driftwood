@@ -39,20 +39,22 @@ class Light:
         Same as __init__ args.
     """
 
-    def __init__(self,
-                 manager: 'lightmanager.LightManager',
-                 lid: int,
-                 lightmap: filetype.ImageFile,
-                 layer: int,
-                 x: int,
-                 y: int,
-                 w: int,
-                 h: int,
-                 alpha: int,
-                 blendmode: int,
-                 colormod: Tuple[int, int, int],
-                 entity: entity.Entity,
-                 layermod: int):
+    def __init__(
+        self,
+        manager: "lightmanager.LightManager",
+        lid: int,
+        lightmap: filetype.ImageFile,
+        layer: int,
+        x: int,
+        y: int,
+        w: int,
+        h: int,
+        alpha: int,
+        blendmode: int,
+        colormod: Tuple[int, int, int],
+        entity: entity.Entity,
+        layermod: int,
+    ):
         """Light class initializer.
 
         Args:
@@ -89,13 +91,15 @@ class Light:
             self.manager.driftwood.tick.register(self._track_entity, message=(entity, layermod))
 
     def _track_entity(self, seconds_past: float, msg: Tuple[entity.Entity, int]) -> None:
-        """Follow an entity's position.
-        """
+        """Follow an entity's position."""
         try:  # Avoid strange timing anomaly.
-            self.x = self.manager.driftwood.entity.entity(msg[0]).x + \
-                     self.manager.driftwood.entity.entity(msg[0]).width // 2
-            self.y = self.manager.driftwood.entity.entity(msg[0]).y + \
-                     self.manager.driftwood.entity.entity(msg[0]).height // 2
+            self.x = (
+                self.manager.driftwood.entity.entity(msg[0]).x + self.manager.driftwood.entity.entity(msg[0]).width // 2
+            )
+            self.y = (
+                self.manager.driftwood.entity.entity(msg[0]).y
+                + self.manager.driftwood.entity.entity(msg[0]).height // 2
+            )
             self.layer = self.manager.driftwood.entity.entity(msg[0]).layer + msg[1]
         except AttributeError:
             self.manager.driftwood.tick.unregister(self._track_entity)
