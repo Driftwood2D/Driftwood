@@ -29,16 +29,9 @@ from ctypes import byref, c_int
 from typing import Optional, TYPE_CHECKING
 
 import pygame as pg
-from sdl2 import (
-    SDL_CreateTextureFromSurface,
-    SDL_DestroyTexture,
-    SDL_FreeSurface,
-    SDL_Renderer,
-    SDL_RWFromConstMem,
-    SDL_QueryTexture,
-)
-from sdl2.sdlimage import IMG_GetError, IMG_Load_RW
-from sdl2.sdlttf import TTF_CloseFont, TTF_Font, TTF_GetError, TTF_OpenFontRW
+from sdl2 import *
+from sdl2.sdlimage import *
+from sdl2.sdlttf import *
 
 if TYPE_CHECKING:  # Avoid circuluar import.
     from driftwood import Driftwood
