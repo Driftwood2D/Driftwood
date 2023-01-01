@@ -52,7 +52,7 @@ class Widget:
         width: The width of the widget.
         height: The height of the widget.
         parent: The parent of the widget if one exists. Otherwise None.
-        
+
     """
 
     def __init__(
@@ -240,7 +240,6 @@ class TextWidget(Widget):
                 else:
                     self.realy += container.realy
 
-
         # Fake container.
         else:
             self.manager.driftwood.log.msg("ERROR", "Widget", "TextWidget", "_prepare", "not a container", self.parent)
@@ -248,16 +247,17 @@ class TextWidget(Widget):
 
         # Render.
         color_temp = SDL_Color()
-        color_temp.r, color_temp.g, color_temp.b, color_temp.a = int(self.color[0:2], 16), \
-                                                                 int(self.color[2:4], 16), \
-                                                                 int(self.color[4:6], 16), \
-                                                                 int(self.color[6:8], 16)
+        color_temp.r, color_temp.g, color_temp.b, color_temp.a = (
+            int(self.color[0:2], 16),
+            int(self.color[2:4], 16),
+            int(self.color[4:6], 16),
+            int(self.color[6:8], 16),
+        )
         surface_temp = TTF_RenderUTF8_Solid(self.font.font, self.contents.encode(), color_temp)
 
         # Convert to a texture we can use internally.
         if surface_temp:
-            self.texture = SDL_CreateTextureFromSurface(self.manager.driftwood.window.renderer,
-                                                        surface_temp)
+            self.texture = SDL_CreateTextureFromSurface(self.manager.driftwood.window.renderer, surface_temp)
             SDL_FreeSurface(surface_temp)
             if not self.texture:
                 self.manager.driftwood.log.msg("ERROR", "Widget", "TextWidget", "_prepare", "SDL", SDL_GetError())
