@@ -234,7 +234,7 @@ class WidgetTree:
                 self.manager.insert_text(
                     contents=contents[n],
                     fontfile=branch["font"],
-                    pxsize=branch["size"],
+                    ptsize=branch["size"],
                     x=self.__gp(branch, "x", None),
                     y=tmpy,
                     width=self.__gp(branch, "width", None),

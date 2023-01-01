@@ -30,8 +30,7 @@
 
 from typing import Optional
 
-import pygame
-from pygame import mixer
+import pygame as pg
 
 from check import CHECK, CheckFailure
 from filetype import AudioFile
@@ -69,13 +68,13 @@ class AudioManager:
         audio_config = self.driftwood.config["audio"]
         frequency = audio_config["frequency"]
         try:
-            mixer.init(frequency=frequency)
-        except pygame.error as e:
+            pg.mixer.init(frequency=frequency)
+        except pg.error as e:
             self.driftwood.log.msg("ERROR", "Audio", "__init__", "failed to initialize mixer output", str(e))
             return
 
-        mixer.set_num_channels(MAX_CHAN)
-        mixer.set_reserved(1)  # Reserved for music.
+        pg.mixer.set_num_channels(MAX_CHAN)
+        pg.mixer.set_reserved(1)  # Reserved for music.
 
         self.driftwood.log.info("Audio", "initialized mixer output")
         self.__init_success = True
@@ -89,7 +88,7 @@ class AudioManager:
         volume: int = None,
         loop: Optional[int] = 0,
         fade: float = 0.0,
-    ) -> Optional[mixer.Channel]:
+    ) -> Optional[pg.mixer.Channel]:
         """Load and play a sound effect from an audio file.
 
         Args:
@@ -154,7 +153,7 @@ class AudioManager:
 
         return channel
 
-    def volume_sfx(self, channel: Optional[mixer.Channel], volume: int = None) -> Optional[int]:
+    def volume_sfx(self, channel: Optional[pg.mixer.Channel], volume: int = None) -> Optional[int]:
         """Get or adjust the volume of a sound effect channel.
 
         Args:
@@ -187,13 +186,13 @@ class AudioManager:
                 channel.set_volume(volume / 128)
             else:
                 for idx in range(FIRST_SFX_CHAN, MAX_CHAN):
-                    mixer.Channel(idx).set_volume(volume / 128)
+                    pg.mixer.Channel(idx).set_volume(volume / 128)
             return volume
         else:  # Get the volume.
             if channel:
                 return int(channel.get_volume() * 128)
 
-    def stop_sfx(self, channel: mixer.Channel, fade: float = 0.0) -> bool:
+    def stop_sfx(self, channel: pg.mixer.Channel, fade: float = 0.0) -> bool:
         """Stop a sound effect. Requires the sound effect's channel number from play_sfx()'s return code.
 
         Args:
@@ -221,7 +220,7 @@ class AudioManager:
             True
         """
         for idx in range(FIRST_SFX_CHAN, MAX_CHAN):
-            mixer.Channel(idx).stop()
+            pg.mixer.Channel(idx).stop()
         return True
 
     def play_music(self, filename: str, volume: int = None, loop: Optional[int] = 0, fade: float = 0.0) -> bool:
@@ -267,7 +266,7 @@ class AudioManager:
         if loop is None:
             loop = -1
 
-        channel = mixer.Channel(MUSIC_CHAN)
+        channel = pg.mixer.Channel(MUSIC_CHAN)
 
         # Play the music.
         try:
@@ -312,7 +311,7 @@ class AudioManager:
             return None
 
         # Search for the sound effect.
-        channel = mixer.Channel(MUSIC_CHAN)
+        channel = pg.mixer.Channel(MUSIC_CHAN)
         playing_music = channel.get_busy()
         if playing_music:
             if volume is not None:
@@ -352,7 +351,7 @@ class AudioManager:
         if not self.__music:
             return False
 
-        channel = mixer.Channel(MUSIC_CHAN)
+        channel = pg.mixer.Channel(MUSIC_CHAN)
         if channel.get_busy():
             if not fade:  # Stop the music.
                 channel.stop()
@@ -366,13 +365,13 @@ class AudioManager:
 
     def _cleanup(self, seconds_past: float) -> None:
         # Tick callback to clean up files we're done with.
-        if self.__music and not mixer.Channel(MUSIC_CHAN).get_busy():
+        if self.__music and not pg.mixer.Channel(MUSIC_CHAN).get_busy():
             self.__music = None
             self.playing_music = False
-        self.playing_sfx = any(mixer.Channel(idx).get_busy() for idx in range(FIRST_SFX_CHAN, MAX_CHAN))
+        self.playing_sfx = any(pg.mixer.Channel(idx).get_busy() for idx in range(FIRST_SFX_CHAN, MAX_CHAN))
 
     def _terminate(self) -> None:
         """Prepare for shutdown."""
         self.stop_music()
         self.stop_all_sfx()
-        mixer.quit()
+        pg.mixer.quit()

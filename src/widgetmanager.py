@@ -220,7 +220,7 @@ class WidgetManager:
         self,
         contents: str,
         fontfile: str,
-        pxsize: int,
+        ptsize: int,
         parent: int = None,
         x: int = None,
         y: int = None,
@@ -236,7 +236,7 @@ class WidgetManager:
         Args:
             contents: The contents of the text.
             fontfile: Filename of the font to render the text with.
-            pxsize: The pixel size of the text.
+            ptsize: The point size of the text.
             parent: If set, the wid of the parent container.
             x: The x position of the text on the window. Center if None.
             y: The y position of the text on the window. Center if None.
@@ -252,7 +252,7 @@ class WidgetManager:
         try:
             CHECK(contents, str)
             CHECK(fontfile, str)
-            CHECK(pxsize, int, _min=1)
+            CHECK(ptsize, int, _min=1)
             if parent is not None:
                 CHECK(parent, int, _min=0)
             else:
@@ -273,13 +273,13 @@ class WidgetManager:
 
         self.__last_wid += 1
 
-        font = self.driftwood.resource.request_font(fontfile, pxsize)
+        font = self.driftwood.resource.request_font(fontfile, ptsize)
         if not font or not font.font:
             self.driftwood.log.msg("ERROR", "Widget", "insert_text", "no such font", fontfile)
             return None
 
         new_widget = widget.TextWidget(
-            self, self.__last_wid, parent, contents, font, pxsize, x, y, width, height, color
+            self, self.__last_wid, parent, contents, font, ptsize, x, y, width, height, color
         )
         self.widgets[self.__last_wid] = new_widget
 
