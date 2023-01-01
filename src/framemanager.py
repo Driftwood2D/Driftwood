@@ -26,10 +26,9 @@
 # **********
 
 from ctypes import byref, c_ubyte
-
+from typing import List, Tuple
 
 from sdl2 import *
-from typing import List, Tuple
 
 from check import CHECK, CheckFailure
 
