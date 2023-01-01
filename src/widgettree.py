@@ -26,7 +26,7 @@
 # **********
 
 import collections
-from ctypes import byref
+from ctypes import c_int, byref
 from typing import TYPE_CHECKING
 
 from sdl2.sdlttf import *
