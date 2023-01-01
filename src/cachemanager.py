@@ -26,9 +26,12 @@
 # **********
 
 import gc
-from typing import Any, KeysView, Optional
+from typing import Any, KeysView, Optional, TYPE_CHECKING
 
 from check import CHECK, CheckFailure
+
+if TYPE_CHECKING:  # Avoid circuluar import.
+    from driftwood import Driftwood
 
 
 class CacheManager:
@@ -41,7 +44,7 @@ class CacheManager:
         driftwood: Base class instance.
     """
 
-    def __init__(self, driftwood):
+    def __init__(self, driftwood: "Driftwood"):
         """CacheManager class initializer.
 
         Args:

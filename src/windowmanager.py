@@ -26,12 +26,15 @@
 # **********
 
 from ctypes import byref
-from typing import List
+from typing import List, TYPE_CHECKING
 
 from sdl2 import *
 from sdl2.sdlimage import *
 
 from check import CHECK, CheckFailure
+
+if TYPE_CHECKING:  # Avoid circuluar import.
+    from driftwood import Driftwood
 
 
 class WindowManager:
@@ -45,7 +48,7 @@ class WindowManager:
         renderer: The SDL Renderer attached to the window.
     """
 
-    def __init__(self, driftwood):
+    def __init__(self, driftwood: "Driftwood"):
         """WindowManager class initializer.
 
         Initializes SDL, and creates a window and a renderer.

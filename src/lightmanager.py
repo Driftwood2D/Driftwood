@@ -25,7 +25,7 @@
 # IN THE SOFTWARE.
 # **********
 
-from typing import ItemsView, List, Optional
+from typing import ItemsView, List, Optional, TYPE_CHECKING
 
 from sdl2 import *
 
@@ -33,6 +33,10 @@ from check import CHECK, CheckFailure
 import entity
 import filetype
 import light
+
+if TYPE_CHECKING:  # Avoid circuluar import.
+    from driftwood import Driftwood
+
 
 # Keep a reference to the light module, which is overridden by the LightManager.light function later in the file.
 # It is only overridden while inside type annotations.
@@ -50,7 +54,7 @@ class LightManager:
         lights: The dictionary of Light class instances for each light. Stored by lid.
     """
 
-    def __init__(self, driftwood):
+    def __init__(self, driftwood: "Driftwood"):
         """LightManager class initializer.
 
         Args:

@@ -26,11 +26,14 @@
 # **********
 
 import types
-from typing import Callable, Optional, Union
+from typing import Callable, Optional, Union, TYPE_CHECKING
 
 from sdl2 import SDL_GetKeyName
 
 from check import CHECK, CheckFailure
+
+if TYPE_CHECKING:  # Avoid circuluar import.
+    from driftwood import Driftwood
 
 
 class InputManager:
@@ -45,7 +48,7 @@ class InputManager:
 
     ONDOWN, ONREPEAT, ONUP = range(3)
 
-    def __init__(self, driftwood):
+    def __init__(self, driftwood: "Driftwood"):
         """InputManager class initializer.
 
         Args:

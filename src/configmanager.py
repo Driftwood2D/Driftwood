@@ -30,11 +30,15 @@ import json
 import os
 import sys
 import traceback
-from typing import Any, ItemsView
+from typing import Any, ItemsView, TYPE_CHECKING
 
 import jsonschema
 
 from __schema__ import _SCHEMA
+
+if TYPE_CHECKING:  # Avoid circuluar import.
+    from driftwood import Driftwood
+
 
 VERSION = "Driftwood 2D Alpha-0.0.11"
 COPYRIGHT = "Copyright 2016-2017 Michael D. Reiley and Paul Merrill"
@@ -52,7 +56,7 @@ class ConfigManager:
         driftwood: Base class instance.
     """
 
-    def __init__(self, driftwood):
+    def __init__(self, driftwood: "Driftwood"):
         """ConfigManager class initializer.
 
         Args:

@@ -26,10 +26,13 @@
 # **********
 
 import os
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 
 from check import CHECK, CheckFailure
 import tilemap
+
+if TYPE_CHECKING:  # Avoid circuluar import.
+    from driftwood import Driftwood
 
 
 class Tileset:
@@ -55,7 +58,7 @@ class Tileset:
         tileproperties: A dictionary containing mappings of tile GIDs to properties that apply to that GID.
     """
 
-    def __init__(self, driftwood, tilemap: "tilemap.Tilemap"):
+    def __init__(self, driftwood: "Driftwood", tilemap: "tilemap.Tilemap"):
         """Tileset class initializer.
 
         Args:

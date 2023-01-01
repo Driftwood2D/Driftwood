@@ -52,7 +52,7 @@ class ResourceManager:
 
     driftwood: "Driftwood"
 
-    def __init__(self, driftwood):
+    def __init__(self, driftwood: "Driftwood"):
         """ResourceManager class initializer.
 
         Args:

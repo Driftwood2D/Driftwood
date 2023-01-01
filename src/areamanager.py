@@ -26,11 +26,15 @@
 # **********
 
 import math
+from typing import TYPE_CHECKING
 
 from sdl2 import *
 
 from check import CHECK, CheckFailure
 import tilemap
+
+if TYPE_CHECKING:  # Avoid circuluar import.
+    from driftwood import Driftwood
 
 
 def int_greater_than_or_equal_to(x: float) -> int:
@@ -55,7 +59,7 @@ class AreaManager:
         refocused: Whether we have gone to a new area since last checked.
     """
 
-    def __init__(self, driftwood):
+    def __init__(self, driftwood: "Driftwood"):
         """AreaManager class initializer.
 
         Args:

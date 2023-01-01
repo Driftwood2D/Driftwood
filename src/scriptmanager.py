@@ -31,10 +31,13 @@ import os
 import platform
 import traceback
 import types
-from typing import Any, Callable, Optional, Tuple
+from typing import Any, Callable, Optional, Tuple, TYPE_CHECKING
 import zipimport
 
 from check import CHECK, CheckFailure
+
+if TYPE_CHECKING:  # Avoid circuluar import.
+    from driftwood import Driftwood
 
 
 class ScriptManager:
@@ -47,7 +50,7 @@ class ScriptManager:
         driftwood: Base class instance.
     """
 
-    def __init__(self, driftwood):
+    def __init__(self, driftwood: "Driftwood"):
         """ScriptManager class initializer.
 
         Args:

@@ -28,9 +28,12 @@
 import os
 import platform
 import zipfile
-from typing import List, Optional
+from typing import List, Optional, TYPE_CHECKING
 
 from check import CHECK, CheckFailure
+
+if TYPE_CHECKING:  # Avoid circuluar import.
+    from driftwood import Driftwood
 
 
 class PathManager:
@@ -46,7 +49,7 @@ class PathManager:
         driftwood: Base class instance.
     """
 
-    def __init__(self, driftwood):
+    def __init__(self, driftwood: "Driftwood"):
         """PathManager class initializer.
 
         Args:

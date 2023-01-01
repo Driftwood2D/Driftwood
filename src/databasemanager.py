@@ -28,11 +28,14 @@
 import json
 import os
 import sys
-from typing import Any, Optional
+from typing import Any, Optional, TYPE_CHECKING
 
 import ubjson
 
 from check import CHECK, CheckFailure
+
+if TYPE_CHECKING:  # Avoid circuluar import.
+    from driftwood import Driftwood
 
 
 class DatabaseManager:
@@ -46,7 +49,7 @@ class DatabaseManager:
         filename: Filename of the database.
     """
 
-    def __init__(self, driftwood):
+    def __init__(self, driftwood: "Driftwood"):
         """DatabaseManager class initializer.
 
         Args:

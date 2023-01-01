@@ -26,11 +26,14 @@
 # **********
 
 from ctypes import byref, c_ubyte
-from typing import List, Tuple
+from typing import List, Tuple, TYPE_CHECKING
 
 from sdl2 import *
 
 from check import CHECK, CheckFailure
+
+if TYPE_CHECKING:  # Avoid circuluar import.
+    from driftwood import Driftwood
 
 
 class FrameManager:
@@ -47,7 +50,7 @@ class FrameManager:
         changed: Whether the frame has been changed. [STATE_NOTCHANGED, STATE_BACKBUFFER_NEEDS_UPDATE, STATE_CHANGED]
     """
 
-    def __init__(self, driftwood):
+    def __init__(self, driftwood: "Driftwood"):
         """FrameManager class initializer.
 
         Initializes frame handling.

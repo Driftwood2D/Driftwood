@@ -25,9 +25,14 @@
 # IN THE SOFTWARE.
 # **********
 
+from typing import TYPE_CHECKING
+
 import areamanager
 import layer
 import tileset
+
+if TYPE_CHECKING:  # Avoid circuluar import.
+    from driftwood import Driftwood
 
 
 class Tilemap:
@@ -46,7 +51,7 @@ class Tilemap:
         tilesets: The list of Tileset class instances for each tileset.
     """
 
-    def __init__(self, driftwood, area: "areamanager.AreaManager"):
+    def __init__(self, driftwood: "Driftwood", area: "areamanager.AreaManager"):
         """Tilemap class initializer.
 
         Args:

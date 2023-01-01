@@ -25,11 +25,14 @@
 # IN THE SOFTWARE.
 # **********
 
-from typing import Dict, Optional
+from typing import Dict, Optional, TYPE_CHECKING
 
 from check import CHECK, CheckFailure
 import tile
 import tilemap
+
+if TYPE_CHECKING:  # Avoid circuluar import.
+    from driftwood import Driftwood
 
 
 class Layer:
@@ -43,7 +46,7 @@ class Layer:
         tiles: The list of Tile class instances for each tile.
     """
 
-    def __init__(self, driftwood, tilemap: "tilemap.Tilemap", layerdata: dict, zpos: int):
+    def __init__(self, driftwood: "Driftwood", tilemap: "tilemap.Tilemap", layerdata: dict, zpos: int):
         """Layer class initializer.
 
         Args:

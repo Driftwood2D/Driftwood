@@ -27,7 +27,7 @@
 
 import sys
 import traceback
-from typing import ItemsView, List, Optional
+from typing import ItemsView, List, Optional, TYPE_CHECKING
 
 import jsonschema
 
@@ -35,6 +35,10 @@ from check import CHECK, CheckFailure
 import entity
 import spritesheet
 from __schema__ import _SCHEMA
+
+if TYPE_CHECKING:  # Avoid circuluar import.
+    from driftwood import Driftwood
+
 
 # Keep a reference to the entity module, which is overridden by the EntityManager.entity function later in the file.
 # It is only overridden while inside type annotations.
@@ -56,7 +60,7 @@ class EntityManager:
         spritesheets: The dictionary of Spritesheet class instances for each sprite sheet. Sorted by filename.
     """
 
-    def __init__(self, driftwood):
+    def __init__(self, driftwood: "Driftwood"):
         """EntityManager class initializer.
 
         Args:

@@ -44,7 +44,7 @@ class LogManager:
 
     driftwood: "Driftwood"
 
-    def __init__(self, driftwood):
+    def __init__(self, driftwood: "Driftwood"):
         """LogManager class initializer.
 
         Args:

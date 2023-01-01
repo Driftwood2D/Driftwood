@@ -28,12 +28,15 @@
 # A big thank-you to Lazy Foo's SDL_Audio tutorial. It would've taken me a lot longer to build this without such clear
 # instruction. Link: <http://lazyfoo.net/SDL_tutorials/lesson11/>
 
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 
 import pygame as pg
 
 from check import CHECK, CheckFailure
 from filetype import AudioFile
+
+if TYPE_CHECKING:  # Avoid circuluar import.
+    from driftwood import Driftwood
 
 # We have 8 channels. Channel 0 is for music, and the rest are for sound effects.
 MAX_CHAN = 8
